@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
-import { Row, Col, Card, Form,  Navbar, Nav, Button  } from 'react-bootstrap';
+import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
-  const [gender, setGender] = useState('Male');
-  const [accent, setAccent] = useState('American');
-  const [age, setAge] = useState('18 yo - 25 yo');
+  const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
   const router = useRouter();
+
+  const voices = {
+    Alex: "6wLJ4Wm2OxvAvetEUBCS",
+    Jez: "WA9uLg4JEEGnvosWUUIc",
+    Liam: "TX3LPaxmHKxFdv7VOQHJ",
+    Myra: "gGqsateSZjogPUDNb6hx",
+    Zoe: "cBijDV6IOSWp9c8dA7Xn"
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ script, gender, accent, age });
-    router.push('/add_music');
+    console.log({ script, voice });
+    // Passing data to add_music page
+    router.push({
+      pathname: '/add_music',
+      query: { script, voice }
+    });
   };
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     router.push('/login');
-};
+  };
+
 
   return (
     // <Container className="mt-5">
@@ -46,7 +57,7 @@ export default function CreateAd() {
                 Logout
             </Button>
         </Navbar>
-      <Row>
+        <Row>
         <Col md={6} className="mx-auto">
           <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px'}}>
             <h2 className="mb-4">Voice Settings</h2>
@@ -64,44 +75,19 @@ export default function CreateAd() {
               </Form.Group>
               <br></br>
 
-              <Form.Group controlId="gender">
-                <Form.Label>Gender</Form.Label>
+              <Form.Group controlId="voice">
+                <Form.Label>Voice</Form.Label>
                 <Form.Select
-                  aria-label="Gender select"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
+                  aria-label="Voice select"
+                  value={voice}
+                  onChange={(e) => setVoice(e.target.value)}
                   style={{ color: 'black' }}
                 >
-                  <option>Male</option>
-                  <option>Female</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group controlId="accent">
-                <Form.Label>Accent</Form.Label>
-                <Form.Select
-                  aria-label="Accent select"
-                  value={accent}
-                  onChange={(e) => setAccent(e.target.value)}
-                  style={{ color: 'black' }}
-                >
-                  <option>American</option>
-                  <option>British</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group controlId="age">
-                <Form.Label>Age</Form.Label>
-                <Form.Select
-                  aria-label="Age select"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  style={{ color: 'black' }}
-                >
-                  <option>18 yo - 25 yo</option>
-                  <option>26 yo - 35 yo</option>
-                  <option>36 yo - 50 yo</option>
-                  <option>51 yo - 75 yo</option>
+                  {Object.entries(voices).map(([name, code]) => (
+                    <option key={code} value={code}>
+                      {name}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 
