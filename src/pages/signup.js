@@ -152,7 +152,7 @@ const SignupPage = () => {
 
                 batch.commit()
                     .then(() => {
-                        router.push('/createad');
+                        router.push('/create_ad');
                     })
                     .catch((error) => {
                         Swal.fire({

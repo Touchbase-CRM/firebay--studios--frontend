@@ -26,7 +26,7 @@ const LoginPage = () => {
       .then((userCredential) => {
         var user = userCredential.user;
         if (user.emailVerified) {
-          router.push('/createad');
+          router.push('/create_ad');
         } else {
           Swal.fire({
             icon: 'info',

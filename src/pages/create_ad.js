@@ -1,23 +1,54 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Row, Col, Card, Form,  Navbar, Nav, Button  } from 'react-bootstrap';
+import { useRouter } from 'next/router';
+
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
   const [gender, setGender] = useState('Male');
   const [accent, setAccent] = useState('American');
   const [age, setAge] = useState('18 yo - 25 yo');
+  const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log({ script, gender, accent, age });
+    router.push('/add_music');
   };
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login');
+};
 
   return (
-    <Container className="mt-5">
+    // <Container className="mt-5">
+    <div style={{
+        backgroundColor: '#343a40',
+        minHeight: '100vh',
+        // padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        
+    }}>
+        <Navbar bg="dark" variant="dark" expand="lg">
+            <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
+            Firebay Studios (Demo)
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="mr-auto">
+                    {/* <Nav.Link style={{ color: "#FFF", borderRadius: '25px' }} onClick={() => router.push('/crm')}>
+                        CRM
+                    </Nav.Link> */}
+                </Nav>
+            </Navbar.Collapse>
+            <Button variant="danger" size="sm" onClick={handleLogout} style={{ marginRight: '10px' }}>
+                Logout
+            </Button>
+        </Navbar>
       <Row>
         <Col md={6} className="mx-auto">
-            <br></br>
-          <Card className="p-4 bg-dark text-white">
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px'}}>
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="script">
@@ -81,6 +112,7 @@ export default function CreateAd() {
           </Card>
         </Col>
       </Row>
-    </Container>
+    {/* </Container> */}
+    </div>
   );
 }
