@@ -30,34 +30,33 @@ export default function CreateAd() {
   };
 
   return (
-    // <Container className="mt-5">
     <div style={{
-        backgroundColor: '#343a40',
-        minHeight: '100vh',
-        // padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        
+      backgroundColor: '#343a40',
+      minHeight: '100vh',
+      // padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+
     }}>
-        <Navbar bg="dark" variant="dark" expand="lg">
-            <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
-            Firebay Studios (Demo)
-            </Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="mr-auto">
-                    {/* <Nav.Link style={{ color: "#FFF", borderRadius: '25px' }} onClick={() => router.push('/crm')}>
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
+          Firebay Studios (Demo)
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            {/* <Nav.Link style={{ color: "#FFF", borderRadius: '25px' }} onClick={() => router.push('/crm')}>
                         CRM
                     </Nav.Link> */}
-                </Nav>
-            </Navbar.Collapse>
-            <Button variant="danger" size="sm" onClick={handleLogout} style={{ marginRight: '10px' }}>
-                Logout
-            </Button>
-        </Navbar>
-        <Row>
+          </Nav>
+        </Navbar.Collapse>
+        <Button variant="danger" size="sm" onClick={handleLogout} style={{ marginRight: '10px' }}>
+          Logout
+        </Button>
+      </Navbar>
+      <Row>
         <Col md={6} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px'}}>
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="script">
@@ -96,7 +95,6 @@ export default function CreateAd() {
           </Card>
         </Col>
       </Row>
-    {/* </Container> */}
     </div>
   );
 }

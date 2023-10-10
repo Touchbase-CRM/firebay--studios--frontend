@@ -55,14 +55,14 @@ const DownloadPage = () => {
                     Logout
                 </Button>
             </Navbar>
-        <div className={styles.container}>
-             <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
-            <h1 className={styles.title}>Your audio is ready!</h1>
-            <button className={styles.downloadButton} onClick={handleDownload}>
-                Download Audio
-            </button>
-            </Card>
-        </div>
+            <div className={styles.container}>
+                <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
+                    <h1 className={styles.title}>Your audio is ready!</h1>
+                    <button className={styles.downloadButton} onClick={handleDownload}>
+                        Download Audio
+                    </button>
+                </Card>
+            </div>
         </div>
     );
 };

@@ -21,36 +21,36 @@ export default function AddMusic() {
     const { script: scriptQuery, voice: voiceQuery } = router.query;
 
     useEffect(() => {
-        if(scriptQuery) setScript(scriptQuery);
-        if(voiceQuery) setVoice(voiceQuery);
+        if (scriptQuery) setScript(scriptQuery);
+        if (voiceQuery) setVoice(voiceQuery);
     }, [scriptQuery, voiceQuery]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setPendingAdvertisement(true);  // Set pending before API call starts
-    
+
         const userId = firebase.auth().currentUser.uid;
         const snakeCaseGenre = toSnakeCase(genre);
-    
-        const payload = { 
-            "user_id": userId, 
-            "no_music": noMusic, 
-            "music_type": snakeCaseGenre, 
-            "script": script, 
-            "voice": voice 
+
+        const payload = {
+            "user_id": userId,
+            "no_music": noMusic,
+            "music_type": snakeCaseGenre,
+            "script": script,
+            "voice": voice
         };
-    
+
         // Endpoint URL
         const url = "http://localhost:5000/generate-mix";
-    
+
         // Send POST request to the API
         axios.post(url, payload, { responseType: 'arraybuffer' })
             .then((response) => {
                 console.log('Audio data received');
-    
+
                 const audioBlob = new Blob([response.data], { type: 'audio/mp3' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-    
+
                 router.push({
                     pathname: '/download',
                     query: { audioUrl }
@@ -69,9 +69,6 @@ export default function AddMusic() {
                 setPendingAdvertisement(false);  // Set pending to false when API call completes
             });
     };
-    
-    
-    
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -81,15 +78,14 @@ export default function AddMusic() {
     if (pendingAdvertisement) {
         return (
             <div className="d-flex align-items-center justify-content-center flex-column" style={{ height: '100vh' }}>
-            <Spinner animation="border" variant="primary" style={{ marginBottom: '200px' }}/>
-            
-            <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
-            <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
-            </Card>
-          </div>
+                <Spinner animation="border" variant="primary" style={{ marginBottom: '200px' }} />
+
+                <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
+                    <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
+                </Card>
+            </div>
         );
-      }
-    
+    }
 
 
     return (
