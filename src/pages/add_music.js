@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import firebase from '../firebase';
 import 'firebase/auth';
 import axios from 'axios';
+import Spinner from '../components/Spinner';
 
 function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
@@ -14,6 +15,7 @@ export default function AddMusic() {
     const [genre, setGenre] = useState('None');
     const [script, setScript] = useState('');
     const [voice, setVoice] = useState('');
+    const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
 
     const { script: scriptQuery, voice: voiceQuery } = router.query;
@@ -25,6 +27,8 @@ export default function AddMusic() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setPendingAdvertisement(true);  // Set pending before API call starts
+    
         const userId = firebase.auth().currentUser.uid;
         const snakeCaseGenre = toSnakeCase(genre);
     
@@ -42,22 +46,17 @@ export default function AddMusic() {
         // Send POST request to the API
         axios.post(url, payload, { responseType: 'arraybuffer' })
             .then((response) => {
-                // 3a. Receive binary audio data
                 console.log('Audio data received');
     
-                // 3b & 4a. Convert binary data to a Blob and create a Blob URL
                 const audioBlob = new Blob([response.data], { type: 'audio/mp3' });
                 const audioUrl = URL.createObjectURL(audioBlob);
     
-                // 5a & 5b. Navigate to the download page and pass the Blob URL
-                // Assuming you have a route called '/download'
                 router.push({
                     pathname: '/download',
                     query: { audioUrl }
                 });
             })
             .catch((error) => {
-                // Print error message
                 if (error.response) {
                     console.error(`Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`);
                 } else if (error.request) {
@@ -65,8 +64,12 @@ export default function AddMusic() {
                 } else {
                     console.error(`Error: ${error.message}`);
                 }
+            })
+            .finally(() => {
+                setPendingAdvertisement(false);  // Set pending to false when API call completes
             });
     };
+    
     
     
 
@@ -74,6 +77,20 @@ export default function AddMusic() {
         localStorage.removeItem('user');
         router.push('/login');
     };
+
+    if (pendingAdvertisement) {
+        return (
+            <div className="d-flex align-items-center justify-content-center flex-column" style={{ height: '100vh' }}>
+            <Spinner animation="border" variant="primary" style={{ marginBottom: '200px' }}/>
+            
+            <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
+            <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
+            </Card>
+          </div>
+        );
+      }
+    
+
 
     return (
         <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -115,7 +132,6 @@ export default function AddMusic() {
                                     disabled={noMusic}
                                     style={{ color: 'black' }}
                                 >
-                                    <option>None</option>
                                     <option>Up Beat</option>
                                     <option>Happy</option>
                                     <option>Jazz</option>
