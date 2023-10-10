@@ -12,7 +12,7 @@ function toSnakeCase(str) {
 
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
-    const [genre, setGenre] = useState('None');
+    const [genre, setGenre] = useState('up_beat');
     const [script, setScript] = useState('');
     const [voice, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);

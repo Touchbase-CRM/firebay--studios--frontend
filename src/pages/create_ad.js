@@ -17,7 +17,6 @@ export default function CreateAd() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ script, voice });
     // Passing data to add_music page
     router.push({
       pathname: '/add_music',
@@ -29,7 +28,6 @@ export default function CreateAd() {
     localStorage.removeItem('user');
     router.push('/login');
   };
-
 
   return (
     // <Container className="mt-5">
