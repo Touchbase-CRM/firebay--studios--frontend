@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
-import { Card } from 'react-bootstrap';
+import { Card, Navbar, Nav, Button } from 'react-bootstrap';
 
 
 const DownloadPage = () => {
@@ -36,8 +36,25 @@ const DownloadPage = () => {
             }
         });
     };
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        router.push('/login');
+    };
 
     return (
+        <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Navbar bg="dark" variant="dark" expand="lg">
+                <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
+                    Firebay Studios (Demo)
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="mr-auto"></Nav>
+                </Navbar.Collapse>
+                <Button variant="danger" size="sm" onClick={handleLogout} style={{ marginRight: '10px' }}>
+                    Logout
+                </Button>
+            </Navbar>
         <div className={styles.container}>
              <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
             <h1 className={styles.title}>Your audio is ready!</h1>
@@ -45,6 +62,7 @@ const DownloadPage = () => {
                 Download Audio
             </button>
             </Card>
+        </div>
         </div>
     );
 };
