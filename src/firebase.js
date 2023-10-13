@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const dev = true // flip to false for production
+const dev = false // flip to false for production
 const firebaseConfigDev = {
   apiKey: "AIzaSyA-Pn_blUVMK2GWhlNNtav9PARQv7Wm0no",
   authDomain: "touchbase--dev.firebaseapp.com",

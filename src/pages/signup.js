@@ -199,9 +199,9 @@ const SignupPage = () => {
     const VerificationModal = () => (
         <Modal show={showModal}>
             <Modal.Header>
-                <Modal.Title>Email Verification</Modal.Title>
+                <Modal.Title style={{ color: "black" }}>Email Verification</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Please verify your email, then click continue. Do not close this tab yet. Click cancel to abort the verification.</Modal.Body>
+            <Modal.Body style={{ color: "black" }}>Please verify your email, then click continue. Do not close this tab yet. Click cancel to abort the verification.</Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleCancel}>
                     Cancel
