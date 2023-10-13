@@ -41,7 +41,7 @@ export default function AddMusic() {
         };
 
         // Endpoint URL
-        const url = "http://localhost:5000/generate-mix";
+        const url = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
 
         // Send POST request to the API
         axios.post(url, payload, { responseType: 'arraybuffer' })

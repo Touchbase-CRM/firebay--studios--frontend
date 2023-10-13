@@ -92,7 +92,12 @@ const SignupPage = () => {
 
 
         if (password !== confirmPassword) {
-            setError("Passwords don't match.");
+            // setError("Passwords don't match.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Passwords do not match',
+                text: 'Please make sure your passwords match',
+              });
             return;
         }
         const userEmailDomain = email.split('@')[1];
