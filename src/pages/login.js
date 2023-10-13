@@ -47,21 +47,33 @@ const LoginPage = () => {
 
   const handleForgotPassword = () => {
     if (!email) {
-      setError('Please enter an email address.');
-      alert('Please enter an email address.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: 'Please enter an email address.',
+      });
       return;
     }
-
+  
     firebase
       .auth()
       .sendPasswordResetEmail(email)
       .then(() => {
-        alert('Password reset email sent. Please check your email.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Email Sent',
+          text: 'Password reset email sent. Please check your email.',
+        });
       })
       .catch((error) => {
-        setError(error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: error.message,
+        });
       });
   };
+  
 
   return (
     <Container fluid className="vh-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: '#343a40' }}>
