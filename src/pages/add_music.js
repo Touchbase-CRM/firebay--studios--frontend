@@ -17,13 +17,15 @@ export default function AddMusic() {
     const [voice, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
+    const [adLength, setAdLength] = useState('');
 
-    const { script: scriptQuery, voice: voiceQuery } = router.query;
+    const { adLength: adLengthQuery, script: scriptQuery, voice: voiceQuery } = router.query;
 
     useEffect(() => {
+        if (adLengthQuery) setAdLength(adLengthQuery);
         if (scriptQuery) setScript(scriptQuery);
         if (voiceQuery) setVoice(voiceQuery);
-    }, [scriptQuery, voiceQuery]);
+    }, [adLengthQuery, scriptQuery, voiceQuery]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -37,11 +39,13 @@ export default function AddMusic() {
             "no_music": noMusic,
             "music_type": snakeCaseGenre,
             "script": script,
-            "voice": voice
+            "voice": voice,
+            "ad_length": adLength
         };
 
         // Endpoint URL
         const url = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
+        // const url = "http://localhost:8000/generate-mix"; // For local testing
 
         // Send POST request to the API
         axios.post(url, payload, { responseType: 'arraybuffer' })
