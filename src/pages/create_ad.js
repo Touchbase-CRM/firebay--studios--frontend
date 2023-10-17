@@ -40,6 +40,14 @@ export default function CreateAd() {
       });
       return;
     }
+    if (script.length < 1) {  // Checking for empty script
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'You cannot have an empty script!'
+      });
+      return;
+    }
 
 
     // Passing data to add_music page
