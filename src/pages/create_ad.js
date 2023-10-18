@@ -3,6 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 
+
 export default function CreateAd() {
   const [script, setScript] = useState('');
   const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
@@ -80,9 +81,10 @@ export default function CreateAd() {
       flexDirection: 'column',
     }}>
       <Navbar bg="dark" variant="dark" expand="lg">
-        <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
-          Firebay Studios (Demo)
+        <Navbar.Brand style={{ marginLeft: '10px' }}>
+          <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
         </Navbar.Brand>
+
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto"></Nav>

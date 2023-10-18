@@ -44,8 +44,8 @@ const DownloadPage = () => {
     return (
         <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar bg="dark" variant="dark" expand="lg">
-                <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
-                    Firebay Studios (Demo)
+                <Navbar.Brand style={{ marginLeft: '10px' }}>
+                    <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
@@ -56,7 +56,7 @@ const DownloadPage = () => {
                 </Button>
             </Navbar>
             <div className={styles.container}>
-                <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
+                <Card className="p-4 bg-dark text-white" style={{ marginTop: '10px' }}>
                     <h1 className={styles.title}>Your audio is ready!</h1>
                     <button className={styles.downloadButton} onClick={handleDownload}>
                         Download Audio

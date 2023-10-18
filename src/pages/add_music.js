@@ -100,8 +100,8 @@ export default function AddMusic() {
         <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar bg="dark" variant="dark" expand="lg">
 
-                <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
-                    Firebay Studios (Demo)
+                <Navbar.Brand style={{ marginLeft: '10px' }}>
+                    <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
                 </Navbar.Brand>
                 {/* Add the back button here */}
                 <Button variant="light" onClick={goBack} style={{ marginRight: '10px' }}>&larr;</Button>
