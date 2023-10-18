@@ -19,6 +19,10 @@ export default function AddMusic() {
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
 
+    const goBack = () => {
+        router.back();
+    };
+
     const { adLength: adLengthQuery, script: scriptQuery, voice: voiceQuery } = router.query;
 
     useEffect(() => {
@@ -95,9 +99,12 @@ export default function AddMusic() {
     return (
         <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar bg="dark" variant="dark" expand="lg">
+
                 <Navbar.Brand style={{ marginLeft: '10px', fontSize: '1.5em', fontWeight: 'bold', color: 'lightblue' }}>
                     Firebay Studios (Demo)
                 </Navbar.Brand>
+                {/* Add the back button here */}
+                <Button variant="light" onClick={goBack} style={{ marginRight: '10px' }}>&larr;</Button>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto"></Nav>
