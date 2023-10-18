@@ -103,7 +103,7 @@ export default function AddMusic() {
                 <Navbar.Brand style={{ marginLeft: '10px' }}>
                     <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
                 </Navbar.Brand>
-                {/* Add the back button here */}
+
                 <Button variant="light" onClick={goBack} style={{ marginRight: '10px' }}>&larr;</Button>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">

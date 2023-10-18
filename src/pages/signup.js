@@ -4,6 +4,7 @@ import firebase from '../firebase';
 import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 import 'firebase/compat/firestore';
 import Swal from 'sweetalert2'
+import Image from 'next/image';
 
 const SignupPage = () => {
     const router = useRouter();
@@ -97,7 +98,7 @@ const SignupPage = () => {
                 icon: 'error',
                 title: 'Passwords do not match',
                 text: 'Please make sure your passwords match',
-              });
+            });
             return;
         }
         const userEmailDomain = email.split('@')[1];
@@ -196,9 +197,9 @@ const SignupPage = () => {
                 });
         }
     }
-    const handleRoleChange = (event) => {
-        setRole(event.target.value);
-    };
+    // const handleRoleChange = (event) => {
+    //     setRole(event.target.value);
+    // };
 
 
     const VerificationModal = () => (
@@ -223,6 +224,13 @@ const SignupPage = () => {
             <Row className="w-100">
                 <Col md={6} className="mx-auto">
                     <Card className="my-5 mx-1 p-4" style={{ backgroundColor: '#1a1a1a', borderRadius: '1rem', color: 'white' }}>
+                        <Image
+                            src="/fire.png"
+                            alt="Firebay Studios"
+                            width={100}
+                            height={100}
+                            className="d-block mx-auto mb-3"
+                        />
                         <h2 className="text-center mb-4">Firebay Studios Sign Up (Demo)</h2>
                         <p className="text-center mb-5">Please enter your email and create a password!</p>
                         <style jsx global>{`

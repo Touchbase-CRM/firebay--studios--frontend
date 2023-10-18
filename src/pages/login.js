@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import firebase from '../firebase';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import Swal from 'sweetalert2';
+import Image from 'next/image';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const LoginPage = () => {
       });
       return;
     }
-  
+
     firebase
       .auth()
       .sendPasswordResetEmail(email)
@@ -73,13 +74,21 @@ const LoginPage = () => {
         });
       });
   };
-  
+
 
   return (
     <Container fluid className="vh-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: '#343a40' }}>
       <Row className="w-100">
         <Col md={6} className="mx-auto">
           <Card className="my-5 mx-1 p-4" style={{ backgroundColor: '#1a1a1a', borderRadius: '1rem', color: 'white' }}>
+            <Image
+              src="/fire.png"
+              alt="Firebay Studios"
+              width={100}
+              height={100}
+              className="d-block mx-auto mb-3"
+            />
+
             <h2 className="text-center mb-4">Firebay Studios Sign Up (Demo)</h2>
             <p className="text-center mb-5">Please enter your login and password!</p>
             <style jsx global>{`
