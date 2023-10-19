@@ -2,7 +2,7 @@ describe('Firebay Studios Login', function() {
   // This runs before each test
   beforeEach(function() {
     // Navigate to the login page
-    cy.visit('http://localhost:3000'); // replace 'URL_OF_YOUR_LOGIN_PAGE' with the actual URL
+    cy.visit('http://localhost:3000');
   });
 
   it('should display the login form', function() {
