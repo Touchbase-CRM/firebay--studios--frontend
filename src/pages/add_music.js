@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import firebase from '../firebase';
@@ -31,12 +31,28 @@ export default function AddMusic() {
         if (voiceQuery) setVoice(voiceQuery);
     }, [adLengthQuery, scriptQuery, voiceQuery]);
 
+    // Cancel token source for the Axios request
+    const cancelTokenSourceRef = useRef(null);
+
+    const cancelLoading = () => {
+        setPendingAdvertisement(false);
+        setNoMusic(false);
+        setGenre('up_beat');
+        setScript('');
+        setVoice('');
+        if (cancelTokenSourceRef.current) {
+            cancelTokenSourceRef.current.cancel('Request canceled by the user.');
+        }
+        router.push('/create_ad');
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setPendingAdvertisement(true);  // Set pending before API call starts
 
         const userId = firebase.auth().currentUser.uid;
         const snakeCaseGenre = toSnakeCase(genre);
+        cancelTokenSourceRef.current = axios.CancelToken.source();
 
         const payload = {
             "user_id": userId,
@@ -52,7 +68,10 @@ export default function AddMusic() {
         // const url = "http://localhost:8000/generate-mix"; // For local testing
 
         // Send POST request to the API
-        axios.post(url, payload, { responseType: 'arraybuffer' })
+        axios.post(url, payload, {
+            responseType: 'arraybuffer',
+            cancelToken: cancelTokenSourceRef.current.token  // Using the token from useRef
+        })
             .then((response) => {
                 console.log('Audio data received');
 
@@ -65,7 +84,9 @@ export default function AddMusic() {
                 });
             })
             .catch((error) => {
-                if (error.response) {
+                if (axios.isCancel(error)) {
+                    console.log('Request was canceled:', error.message);
+                } else if (error.response) {
                     console.error(`Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`);
                 } else if (error.request) {
                     console.error(`No response received: ${error.request}`);
@@ -91,6 +112,7 @@ export default function AddMusic() {
                 <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
                     <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
                 </Card>
+                <Button variant="danger" onClick={cancelLoading} className="mt-3">Cancel and Start Over</Button>
             </div>
         );
     }
