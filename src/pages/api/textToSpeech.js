@@ -15,7 +15,7 @@ export default async (req, res) => {
 
 
   try {
-    const audioStream = await voice.textToSpeechStream(apiKey, voiceID, textInput + reverseVoices[voiceID]);
+    const audioStream = await voice.textToSpeechStream(apiKey, voiceID, textInput + reverseVoices[voiceID] + ".");
     res.setHeader('Content-Type', 'audio/mp3');
     audioStream.pipe(res);  // Send audio stream to client-side
   } catch (error) {
