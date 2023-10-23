@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
+import AudioPlayer from '../components/AudioPlayer';
 
 
 export default function CreateAd() {
@@ -148,6 +149,9 @@ export default function CreateAd() {
               </Button>
             </Form>
           </Card>
+          <div>
+      <AudioPlayer />
+    </div>
         </Col>
       </Row>
     </div>
