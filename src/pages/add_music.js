@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import firebase from '../firebase';
 import 'firebase/auth';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
+import Swal from 'sweetalert2';
 
 function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
@@ -31,12 +32,56 @@ export default function AddMusic() {
         if (voiceQuery) setVoice(voiceQuery);
     }, [adLengthQuery, scriptQuery, voiceQuery]);
 
+    // Cancel token source for the Axios request
+    const cancelTokenSourceRef = useRef(null);
+
+    const cancelLoading = () => {
+        setPendingAdvertisement(false);
+        setNoMusic(false);
+        setGenre('up_beat');
+        setScript('');
+        setVoice('');
+        if (cancelTokenSourceRef.current) {
+            cancelTokenSourceRef.current.cancel('Request canceled by the user.');
+        }
+        Swal.fire({
+            icon: 'info',
+            title: 'Submission Cancelled',
+            text: 'Your submission has been cancelled. Click "OK" to redirect to the Create Ad page...',
+            showConfirmButton: true, // show the confirmation button
+            confirmButtonText: 'OK',
+            allowOutsideClick: false
+        }).then((result) => {
+            // If the modal was closed by the confirmation button, redirect.
+            if (result.isConfirmed) {
+                router.push('/create_ad');
+            }
+        });
+    };
+
+
+    const cancelAndRetryLoading = () => {
+        if (cancelTokenSourceRef.current) {
+            cancelTokenSourceRef.current.cancel('Request canceled by the user for retry.');
+        }
+
+        Swal.fire({
+            icon: 'info',
+            title: 'Submission Cancelled',
+            text: 'Your previous submission has been cancelled. You can retry submitting again if you wish.',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false
+        });
+    };
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setPendingAdvertisement(true);  // Set pending before API call starts
 
         const userId = firebase.auth().currentUser.uid;
         const snakeCaseGenre = toSnakeCase(genre);
+        cancelTokenSourceRef.current = axios.CancelToken.source();
 
         const payload = {
             "user_id": userId,
@@ -52,7 +97,10 @@ export default function AddMusic() {
         // const url = "http://localhost:8000/generate-mix"; // For local testing
 
         // Send POST request to the API
-        axios.post(url, payload, { responseType: 'arraybuffer' })
+        axios.post(url, payload, {
+            responseType: 'arraybuffer',
+            cancelToken: cancelTokenSourceRef.current.token  // Using the token from useRef
+        })
             .then((response) => {
                 console.log('Audio data received');
 
@@ -65,7 +113,9 @@ export default function AddMusic() {
                 });
             })
             .catch((error) => {
-                if (error.response) {
+                if (axios.isCancel(error)) {
+                    console.log('Request was canceled:', error.message);
+                } else if (error.response) {
                     console.error(`Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`);
                 } else if (error.request) {
                     console.error(`No response received: ${error.request}`);
@@ -91,9 +141,29 @@ export default function AddMusic() {
                 <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
                     <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
                 </Card>
+                <div className="mt-3">
+                    <Button
+                        variant="danger"
+                        onClick={cancelLoading}
+                        style={{ marginRight: '20px', width: '200px' }}  // Setting a fixed width
+                        title="Stop the current operation and start from the beginning."
+                    >
+                        Cancel and Start Over
+                    </Button>
+
+                    <Button
+                        variant="warning"
+                        onClick={cancelAndRetryLoading}
+                        style={{ width: '200px' }}  // Setting the same fixed width
+                        title="Stop the current order and retry with the same data."
+                    >
+                        Cancel and Resubmit
+                    </Button>
+                </div>
             </div>
         );
     }
+
 
 
     return (
@@ -104,7 +174,7 @@ export default function AddMusic() {
                     <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
                 </Navbar.Brand>
 
-                <Button variant="light" onClick={goBack} style={{ marginRight: '10px' }}>&larr;</Button>
+
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto"></Nav>
@@ -117,7 +187,8 @@ export default function AddMusic() {
             <Row>
                 <Col md={6} className="mx-auto">
                     <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
-                        <h2 className="mb-4">Add Background Music</h2>
+                        <Button variant="light" onClick={goBack} style={{ marginRight: '10px', width: '40px', height: '50px', marginBottom: '20px' }}><span style={{ color: 'black', fontSize: '24px' }}>&larr;</span></Button>
+                        <h2 className="mb-4" style={{ marginBottom: '20px' }}>Add Background Music</h2>
                         <Form onSubmit={handleSubmit}>
                             <Form.Group controlId="noMusic">
                                 <Form.Check
