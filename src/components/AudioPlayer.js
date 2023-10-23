@@ -36,15 +36,21 @@ export default function CustomAudioPlayer() {
       {audioSrc && (
         <div className="fixed-bottom bg-light border-top">
           <div className="container pt-2 pb-2">
-            <AudioPlayer
-              src={audioSrc}
-              showJumpControls={false}
-              customAdditionalControls={[]}
-              customVolumeControls={[]}
-            />
+            <div className="d-flex align-items-center justify-content-between">
+            <span style={{ fontSize: '24px', fontWeight: '400', color: '#555', marginRight: '20px' }}>
+              Try Alex: <span style={{ fontWeight: '600', color: '#333',  marginLeft:'50px' }}></span>
+            </span>
+              <AudioPlayer
+                src={audioSrc}
+                showJumpControls={false}
+                customAdditionalControls={[]}
+                customVolumeControls={[]}
+              />
+            </div>
           </div>
         </div>
       )}
     </div>
   );
+  
 }
