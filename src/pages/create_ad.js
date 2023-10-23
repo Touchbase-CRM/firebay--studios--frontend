@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import AudioPlayer from '../components/AudioPlayer';
+import AudioPlayer from '../components/VoiceAudioPlayer';
 
 
 export default function CreateAd() {
