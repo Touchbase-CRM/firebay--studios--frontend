@@ -10,6 +10,7 @@ export default function CreateAd() {
   const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
+  var sampleMessage = "My name is "
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -150,8 +151,8 @@ export default function CreateAd() {
             </Form>
           </Card>
           <div>
-      <AudioPlayer />
-    </div>
+            <AudioPlayer text={sampleMessage} voice_id={voice} />
+          </div>
         </Col>
       </Row>
     </div>
