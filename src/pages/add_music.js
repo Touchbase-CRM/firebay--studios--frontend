@@ -17,7 +17,7 @@ export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
     const [genre, setGenre] = useState('up_beat');
     const [script, setScript] = useState('');
-    const [voice, setVoice] = useState('');
+    const [ voiceId, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
@@ -26,7 +26,7 @@ export default function AddMusic() {
         router.back();
     };
 
-    const { adLength: adLengthQuery, script: scriptQuery, voice: voiceQuery } = router.query;
+    const { adLength: adLengthQuery, script: scriptQuery,  voiceId: voiceQuery } = router.query;
 
     useEffect(() => {
         if (adLengthQuery) setAdLength(adLengthQuery);
@@ -90,7 +90,7 @@ export default function AddMusic() {
             "no_music": noMusic,
             "music_type": snakeCaseGenre,
             "script": script,
-            "voice": voice,
+            "voice":  voiceId,
             "ad_length": adLength
         };
 
