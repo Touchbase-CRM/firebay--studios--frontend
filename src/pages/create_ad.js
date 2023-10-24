@@ -10,7 +10,7 @@ export default function CreateAd() {
   const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
-  var sampleMessage = "My name is "
+  var sampleMessage = "Hi I’m {}, feel free to use my voice to create an ad."
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -35,7 +35,7 @@ export default function CreateAd() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (script.length > charLimit) {  // Checking for character count
+    if (script.length > charLimit) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -43,7 +43,7 @@ export default function CreateAd() {
       });
       return;
     }
-    if (script.length < 1) {  // Checking for empty script
+    if (script.length < 1) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -97,7 +97,7 @@ export default function CreateAd() {
       </Navbar>
       <Row>
         <Col md={6} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px', height: '700px' }} >
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px', height: '700px',marginBottom: '20px' }} >
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
@@ -151,7 +151,7 @@ export default function CreateAd() {
             </Form>
           </Card>
           <div>
-            <VoiceAudioPlayer text={sampleMessage} voice_id={voice} />
+            <VoiceAudioPlayer text={sampleMessage} voice_id={voice} style={{ marginTop: '20px' }} />
           </div>
         </Col>
       </Row>
