@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import AudioPlayer from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css'; // Import the CSS styles
+import 'react-h5-audio-player/lib/styles.css'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function VoiceAudioPlayer({ text, voice_id }) {
     const [audioSrc, setAudioSrc] = useState(null);
-    const [loading, setLoading] = useState(false); // State to manage loading status
+    const [loading, setLoading] = useState(false); 
   
     const fetchAudio = async () => {
-      setLoading(true); // Begin loading
+      setLoading(true);
       try {
         const response = await fetch('/api/textToSpeech', {
           method: 'POST',
@@ -27,7 +27,7 @@ export default function VoiceAudioPlayer({ text, voice_id }) {
       } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
   

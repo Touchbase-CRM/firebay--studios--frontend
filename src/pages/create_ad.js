@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import AudioPlayer from '../components/VoiceAudioPlayer';
+import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
 
 
 export default function CreateAd() {
@@ -151,7 +151,7 @@ export default function CreateAd() {
             </Form>
           </Card>
           <div>
-            <AudioPlayer text={sampleMessage} voice_id={voice} />
+            <VoiceAudioPlayer text={sampleMessage} voice_id={voice} />
           </div>
         </Col>
       </Row>
