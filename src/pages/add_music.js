@@ -6,6 +6,8 @@ import 'firebase/auth';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import Swal from 'sweetalert2';
+// import MusicAudioPlayer from '../components/MusicAudioPlayer';
+import AudioPlayer from '../components/MusicAudioPlayer';
 
 function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
@@ -224,6 +226,10 @@ export default function AddMusic() {
                             </Button>
                         </Form>
                     </Card>
+                    <div>
+                    {/* <MusicAudioPlayer genre={genre} /> */}
+                    <AudioPlayer genre={genre} />
+          </div>
                 </Col>
             </Row>
         </div>
