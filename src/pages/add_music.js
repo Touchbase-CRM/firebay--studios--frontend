@@ -21,7 +21,6 @@ export default function AddMusic() {
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
-    console.log(genre);
 
     const goBack = () => {
         router.back();
