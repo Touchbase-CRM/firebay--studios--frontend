@@ -188,7 +188,7 @@ export default function AddMusic() {
 
             <Row>
                 <Col md={6} className="mx-auto">
-                    <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px', marginBottom: '20px' }}>
+                    <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px', marginBottom: '140px' }}>
                         <Button variant="light" onClick={goBack} style={{ marginRight: '10px', width: '40px', height: '50px', marginBottom: '20px' }}><span style={{ color: 'black', fontSize: '24px' }}>&larr;</span></Button>
                         <h2 className="mb-4" style={{ marginBottom: '20px' }}>Add Background Music</h2>
                         <Form onSubmit={handleSubmit}>
