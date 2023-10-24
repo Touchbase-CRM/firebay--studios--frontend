@@ -7,10 +7,11 @@ import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
-  const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
+  const [voiceId, setVoiceId] = useState('6wLJ4Wm2OxvAvetEUBCS');
+  const [voiceName, setVoiceName] = useState('Alex');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
-  var sampleMessage = "Hi I’m {}, feel free to use my voice to create an ad."
+  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -56,7 +57,7 @@ export default function CreateAd() {
     // Passing data to add_music page
     router.push({
       pathname: '/add_music',
-      query: { adLength, script, voice }
+      query: { adLength, script, voiceId }
     });
   };
 
@@ -133,8 +134,12 @@ export default function CreateAd() {
                 <Form.Label>Voice</Form.Label>
                 <Form.Select
                   aria-label="Voice select"
-                  value={voice}
-                  onChange={(e) => setVoice(e.target.value)}
+                  value={voiceId}
+                  onChange={(e) => {
+                    setVoiceId(e.target.value);
+                    setVoiceName(e.target[e.target.selectedIndex].text);
+                  }}
+
                   style={{ color: 'black' }}
                 >
                   {Object.entries(voices).map(([name, code]) => (
@@ -151,7 +156,7 @@ export default function CreateAd() {
             </Form>
           </Card>
           <div>
-            <VoiceAudioPlayer text={sampleMessage} voice_id={voice} style={{ marginTop: '20px' }} />
+            <VoiceAudioPlayer text={sampleMessage} voiceId={voiceId} voiceName={voiceName} style={{ marginTop: '20px' }} />
           </div>
         </Col>
       </Row>

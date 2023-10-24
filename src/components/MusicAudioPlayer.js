@@ -3,6 +3,10 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+function toTitleCase(str) {
+  return str.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+}
+
 export default function MusicAudioPlayer({ genre }) {
   const [audioSrc, setAudioSrc] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +50,7 @@ export default function MusicAudioPlayer({ genre }) {
           </span>
           <AudioPlayer
             src={audioSrc || undefined}
+            header={<span style={{ color: 'black' }}>Now playing: {toTitleCase(genre)}</span>}
             showJumpControls={false}
             customAdditionalControls={[]}
             customVolumeControls={[]}

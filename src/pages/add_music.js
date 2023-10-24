@@ -12,6 +12,7 @@ function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
 }
 
+
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
     const [genre, setGenre] = useState('up_beat');

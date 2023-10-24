@@ -3,7 +3,7 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function VoiceAudioPlayer({ text, voice_id }) {
+export default function VoiceAudioPlayer({ text, voiceId, voiceName }) {
   const [audioSrc, setAudioSrc] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -13,7 +13,7 @@ export default function VoiceAudioPlayer({ text, voice_id }) {
       const response = await fetch('/api/textToSpeech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice_id })
+        body: JSON.stringify({ text, voiceId })
       });
 
       if (!response.ok) {
@@ -33,7 +33,7 @@ export default function VoiceAudioPlayer({ text, voice_id }) {
 
   useEffect(() => {
     fetchAudio();
-  }, [text, voice_id]);
+  }, [text, voiceId]);
 
   return (
     <div className="fixed-bottom bg-light border-top">
@@ -50,6 +50,7 @@ export default function VoiceAudioPlayer({ text, voice_id }) {
           </span>
           <AudioPlayer
             src={audioSrc || undefined}
+            header={<span style={{ color: 'black' }}>{voiceName}</span>}
             showJumpControls={false}
             customAdditionalControls={[]}
             customVolumeControls={[]}
@@ -58,5 +59,4 @@ export default function VoiceAudioPlayer({ text, voice_id }) {
       </div>
     </div>
   );
-
 }
