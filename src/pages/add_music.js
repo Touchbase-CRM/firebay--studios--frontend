@@ -15,12 +15,13 @@ function toSnakeCase(str) {
 
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
-    const [genre, setGenre] = useState('up_beat');
+    const [genre, setGenre] = useState('Up Beat');
     const [script, setScript] = useState('');
     const [ voiceId, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
+    console.log(genre);
 
     const goBack = () => {
         router.back();
