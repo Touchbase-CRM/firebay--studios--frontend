@@ -1,4 +1,3 @@
-// File: pages/api/textToSpeech.js
 const voice = require("elevenlabs-node");
 
 export default async (req, res) => {
