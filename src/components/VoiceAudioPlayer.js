@@ -7,13 +7,22 @@ export default function VoiceAudioPlayer({ text, voiceId, voiceName }) {
   const [audioSrc, setAudioSrc] = useState(null);
   const [loading, setLoading] = useState(false);
 
+
   const fetchAudio = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/textToSpeech', {
+
+      // Uncomment the following lines to use the textToSpeech API
+      // const response = await fetch('/api/textToSpeech', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ text, voiceId })
+      // });
+      
+      const response = await fetch('/api/voicePreview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voiceId })
+        body: JSON.stringify({ voiceName, text, voiceId })
       });
 
       if (!response.ok) {
@@ -33,7 +42,7 @@ export default function VoiceAudioPlayer({ text, voiceId, voiceName }) {
 
   useEffect(() => {
     fetchAudio();
-  }, [text, voiceId]);
+  }, [voiceName]);
 
   return (
     <div className="fixed-bottom bg-light border-top">

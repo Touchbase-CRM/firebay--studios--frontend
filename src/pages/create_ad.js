@@ -9,14 +9,14 @@ import ExamplesViewer from '../components/ExamplesViewer';
 export default function CreateAd() {
   const [script, setScript] = useState('');
   const [voiceId, setVoiceId] = useState('6wLJ4Wm2OxvAvetEUBCS');
-  const [voiceName, setVoiceName] = useState('Alex');
+  const [voiceName, setVoiceName] = useState('Charley');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
   var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
   const [showExamples, setShowExamples] = useState(false);
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-
+  console.log(voiceName, voiceId, sampleMessage);
   // Calculate character limit based on the ad length
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC);
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -27,11 +27,11 @@ export default function CreateAd() {
 
 
   const voices = {
-    Alex: "6wLJ4Wm2OxvAvetEUBCS",
-    Jez: "WA9uLg4JEEGnvosWUUIc",
-    Liam: "TX3LPaxmHKxFdv7VOQHJ",
-    Myra: "gGqsateSZjogPUDNb6hx",
-    Zoe: "cBijDV6IOSWp9c8dA7Xn"
+    Charley: "6wLJ4Wm2OxvAvetEUBCS",
+    Bryan: "WA9uLg4JEEGnvosWUUIc",
+    Joe: "TX3LPaxmHKxFdv7VOQHJ",
+    Elizabeth: "gGqsateSZjogPUDNb6hx",
+    Kate: "cBijDV6IOSWp9c8dA7Xn"
   };
 
   const handleSubmit = (e) => {
@@ -168,7 +168,7 @@ export default function CreateAd() {
                   cursor: 'pointer',
                   outline: 'none',
                   transition: 'background-color 0.3s',
-                  float: 'right' ,// This makes it align to the card's edge,
+                  float: 'right',// This makes it align to the card's edge,
                   marginTop: '20px'
                 }}
                 onMouseOver={(e) => e.target.style.backgroundColor = '#138496'} // Darken the info color on hover

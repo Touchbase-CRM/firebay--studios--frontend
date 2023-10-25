@@ -12,12 +12,11 @@ function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
 }
 
-
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
     const [genre, setGenre] = useState('Up Beat');
     const [script, setScript] = useState('');
-    const [ voiceId, setVoice] = useState('');
+    const [voiceId, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
@@ -26,7 +25,7 @@ export default function AddMusic() {
         router.back();
     };
 
-    const { adLength: adLengthQuery, script: scriptQuery,  voiceId: voiceQuery } = router.query;
+    const { adLength: adLengthQuery, script: scriptQuery, voiceId: voiceQuery } = router.query;
 
     useEffect(() => {
         if (adLengthQuery) setAdLength(adLengthQuery);
@@ -90,7 +89,7 @@ export default function AddMusic() {
             "no_music": noMusic,
             "music_type": snakeCaseGenre,
             "script": script,
-            "voice":  voiceId,
+            "voice": voiceId,
             "ad_length": adLength
         };
 
