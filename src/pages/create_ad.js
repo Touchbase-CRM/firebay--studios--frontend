@@ -155,10 +155,11 @@ export default function CreateAd() {
                 Submit
               </Button>
               <button
+                className="mt-3"
                 type="button"
                 onClick={() => setShowExamples(true)}
                 style={{
-                  backgroundColor: '#007bff', // Blue color similar to Bootstrap primary
+                  backgroundColor: '#17a2b8', // Blue color similar to Bootstrap primary
                   border: 'none',
                   borderRadius: '5px',
                   padding: '8px 16px',
@@ -170,10 +171,10 @@ export default function CreateAd() {
                   float: 'right' ,// This makes it align to the card's edge,
                   marginTop: '20px'
                 }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'} // Darken the blue on hover
-                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#138496'} // Darken the info color on hover
+                onMouseOut={(e) => e.target.style.backgroundColor = '#17a2b8'}
               >
-                Try Examples
+                Samples
               </button>
 
 
