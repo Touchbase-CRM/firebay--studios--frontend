@@ -1,5 +1,5 @@
 import axios from 'axios';
-const voiceID = req.body.voiceName;
+
 
 const musicPreviewLinks = {
     "Up Beat": "https://drive.google.com/uc?export=download&id=1TXE74TAX6Ui3hakkEKYc_IRRJHoYFkV3",
@@ -11,6 +11,7 @@ const musicPreviewLinks = {
 
 export default async (req, res) => {
     const genre = req.query.genre;
+    const voiceID = req.body.voiceName;
     
     if (!genre || !musicPreviewLinks[genre]) {
         return res.status(400).json({ error: 'Invalid genre provided' });
