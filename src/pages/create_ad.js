@@ -3,6 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
+import ExamplesViewer from '../components/ExamplesViewer';
 
 
 export default function CreateAd() {
@@ -12,7 +13,7 @@ export default function CreateAd() {
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
   var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
-
+  const [showExamples, setShowExamples] = useState(false);
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
@@ -150,9 +151,33 @@ export default function CreateAd() {
                 </Form.Select>
               </Form.Group>
 
-              <Button type="submit" className="mt-3">
+              <Button type="submit" className="mt-3" style={{ marginRight: '10px', marginTop: '20px' }}>
                 Submit
               </Button>
+              <button
+                type="button"
+                onClick={() => setShowExamples(true)}
+                style={{
+                  backgroundColor: '#007bff', // Blue color similar to Bootstrap primary
+                  border: 'none',
+                  borderRadius: '5px',
+                  padding: '8px 16px',
+                  fontSize: '1rem',
+                  color: 'white',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'background-color 0.3s',
+                  float: 'right' ,// This makes it align to the card's edge,
+                  marginTop: '20px'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'} // Darken the blue on hover
+                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+              >
+                Try Examples
+              </button>
+
+
+              <ExamplesViewer show={showExamples} onHide={() => setShowExamples(false)} />
             </Form>
           </Card>
           <div>
