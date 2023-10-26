@@ -2,17 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
+import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
+import ExamplesViewer from '../components/ExamplesViewer';
 
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
-  const [voice, setVoice] = useState('6wLJ4Wm2OxvAvetEUBCS');
+  const [voiceId, setVoiceId] = useState('6wLJ4Wm2OxvAvetEUBCS');
+  const [voiceName, setVoiceName] = useState('Charley');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
-
+  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
+  const [showExamples, setShowExamples] = useState(false);
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-
+  console.log(voiceName, voiceId, sampleMessage);
   // Calculate character limit based on the ad length
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC);
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -23,17 +27,17 @@ export default function CreateAd() {
 
 
   const voices = {
-    Alex: "6wLJ4Wm2OxvAvetEUBCS",
-    Jez: "WA9uLg4JEEGnvosWUUIc",
-    Liam: "TX3LPaxmHKxFdv7VOQHJ",
-    Myra: "gGqsateSZjogPUDNb6hx",
-    Zoe: "cBijDV6IOSWp9c8dA7Xn"
+    Charley: "6wLJ4Wm2OxvAvetEUBCS",
+    Bryan: "WA9uLg4JEEGnvosWUUIc",
+    Joe: "TX3LPaxmHKxFdv7VOQHJ",
+    Elizabeth: "gGqsateSZjogPUDNb6hx",
+    Kate: "cBijDV6IOSWp9c8dA7Xn"
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (script.length > charLimit) {  // Checking for character count
+    if (script.length > charLimit) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -41,7 +45,7 @@ export default function CreateAd() {
       });
       return;
     }
-    if (script.length < 1) {  // Checking for empty script
+    if (script.length < 1) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -54,7 +58,7 @@ export default function CreateAd() {
     // Passing data to add_music page
     router.push({
       pathname: '/add_music',
-      query: { adLength, script, voice }
+      query: { adLength, script, voiceId }
     });
   };
 
@@ -95,7 +99,7 @@ export default function CreateAd() {
       </Navbar>
       <Row>
         <Col md={6} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px', height: '700px' }} >
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '700px', marginBottom: '140px' }} >
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
@@ -131,8 +135,12 @@ export default function CreateAd() {
                 <Form.Label>Voice</Form.Label>
                 <Form.Select
                   aria-label="Voice select"
-                  value={voice}
-                  onChange={(e) => setVoice(e.target.value)}
+                  value={voiceId}
+                  onChange={(e) => {
+                    setVoiceId(e.target.value);
+                    setVoiceName(e.target[e.target.selectedIndex].text);
+                  }}
+
                   style={{ color: 'black' }}
                 >
                   {Object.entries(voices).map(([name, code]) => (
@@ -143,11 +151,39 @@ export default function CreateAd() {
                 </Form.Select>
               </Form.Group>
 
-              <Button type="submit" className="mt-3">
+              <Button type="submit" className="mt-3" style={{ marginRight: '10px', marginTop: '20px' }}>
                 Submit
               </Button>
+              <button
+                className="mt-3"
+                type="button"
+                onClick={() => setShowExamples(true)}
+                style={{
+                  backgroundColor: '#17a2b8', // Blue color similar to Bootstrap primary
+                  border: 'none',
+                  borderRadius: '5px',
+                  padding: '8px 16px',
+                  fontSize: '1rem',
+                  color: 'white',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'background-color 0.3s',
+                  float: 'right',// This makes it align to the card's edge,
+                  marginTop: '20px'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#138496'} // Darken the info color on hover
+                onMouseOut={(e) => e.target.style.backgroundColor = '#17a2b8'}
+              >
+                Samples
+              </button>
+
+
+              <ExamplesViewer show={showExamples} onHide={() => setShowExamples(false)} />
             </Form>
           </Card>
+          <div>
+            <VoiceAudioPlayer text={sampleMessage} voiceId={voiceId} voiceName={voiceName} style={{ marginTop: '20px' }} />
+          </div>
         </Col>
       </Row>
     </div>

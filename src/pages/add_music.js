@@ -6,6 +6,7 @@ import 'firebase/auth';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import Swal from 'sweetalert2';
+import MusicAudioPlayer from '../components/MusicAudioPlayer';
 
 function toSnakeCase(str) {
     return str.toLowerCase().replace(/\s+/g, '_');
@@ -13,9 +14,9 @@ function toSnakeCase(str) {
 
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(false);
-    const [genre, setGenre] = useState('up_beat');
+    const [genre, setGenre] = useState('Up Beat');
     const [script, setScript] = useState('');
-    const [voice, setVoice] = useState('');
+    const [voiceId, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
     const router = useRouter();
     const [adLength, setAdLength] = useState('');
@@ -24,7 +25,7 @@ export default function AddMusic() {
         router.back();
     };
 
-    const { adLength: adLengthQuery, script: scriptQuery, voice: voiceQuery } = router.query;
+    const { adLength: adLengthQuery, script: scriptQuery, voiceId: voiceQuery } = router.query;
 
     useEffect(() => {
         if (adLengthQuery) setAdLength(adLengthQuery);
@@ -88,7 +89,7 @@ export default function AddMusic() {
             "no_music": noMusic,
             "music_type": snakeCaseGenre,
             "script": script,
-            "voice": voice,
+            "voice": voiceId,
             "ad_length": adLength
         };
 
@@ -161,6 +162,7 @@ export default function AddMusic() {
                     </Button>
                 </div>
             </div>
+
         );
     }
 
@@ -186,7 +188,7 @@ export default function AddMusic() {
 
             <Row>
                 <Col md={6} className="mx-auto">
-                    <Card className="p-4 bg-dark text-white" style={{ marginTop: '140px' }}>
+                    <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', marginBottom: '140px' }}>
                         <Button variant="light" onClick={goBack} style={{ marginRight: '10px', width: '40px', height: '50px', marginBottom: '20px' }}><span style={{ color: 'black', fontSize: '24px' }}>&larr;</span></Button>
                         <h2 className="mb-4" style={{ marginBottom: '20px' }}>Add Background Music</h2>
                         <Form onSubmit={handleSubmit}>
@@ -223,6 +225,9 @@ export default function AddMusic() {
                             </Button>
                         </Form>
                     </Card>
+                    <div>
+                        <MusicAudioPlayer genre={genre} style={{ marginTop: '20px' }} />
+                    </div>
                 </Col>
             </Row>
         </div>
