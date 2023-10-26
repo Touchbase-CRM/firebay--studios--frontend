@@ -13,6 +13,7 @@ export default function CreateAd() {
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
   const [showExamples, setShowExamples] = useState(false);
+  const [keywords, setKeywords] = useState([]);
   
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -35,8 +36,44 @@ export default function CreateAd() {
     Kate: "cBijDV6IOSWp9c8dA7Xn"
   };
 
+  const handleKeywordsChange = (updatedKeywords) => {
+    setKeywords(updatedKeywords);
+};
+
+const checkKeywordsInScript = () => { 
+  const Intonator = "'";
+  let updatedScript = script; 
+  const notFoundKeywords = [];
+
+  keywords.forEach(keyword => {
+      if (updatedScript.includes(keyword)) {
+          // Surround the keyword with the Intonator character for emphasis
+          updatedScript = updatedScript.replace(new RegExp(`\\b${keyword}\\b`, 'g'), `${Intonator}${keyword}${Intonator}`);
+      } else {
+          notFoundKeywords.push(keyword);
+      }
+  });
+
+  // Update the script state.
+  setScript(updatedScript);
+
+  if (notFoundKeywords.length > 0) {
+      Swal.fire({
+          icon: 'error',
+          title: 'Keywords Not Found',
+          text: `The following keywords were not found in the script: ${notFoundKeywords.join(', ')}. Please remove them or add them to your script to continue.`,
+      });
+      return false;
+  }
+  return true;
+};
+
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!checkKeywordsInScript()) return;
 
     if (script.length > charLimit) {
       Swal.fire({
@@ -131,7 +168,7 @@ export default function CreateAd() {
                 </div>
               </Form.Group>
 
-              <IntonationManager/>
+              <IntonationManager onKeywordsChange={handleKeywordsChange} />
 
 
               <Form.Group controlId="voice">

@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Form, InputGroup, Button, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const IntonationManager = ({ onAdd, onRemove }) => {
+const IntonationManager = ({ onKeywordsChange }) => {
     const [keyword, setKeyword] = useState('');
     const [addedKeywords, setAddedKeywords] = useState([]);
 
     const handleAddKeyword = () => {
         if (keyword.trim() !== '') {
-            setAddedKeywords([...addedKeywords, keyword.trim()]);
+            const newKeywords = [...addedKeywords, keyword.trim()];
+            setAddedKeywords(newKeywords);
             setKeyword('');
-            if (onAdd) onAdd(keyword.trim());
+            if (onKeywordsChange) onKeywordsChange(newKeywords);
         }
     };
 
@@ -18,17 +19,18 @@ const IntonationManager = ({ onAdd, onRemove }) => {
         const newKeywords = [...addedKeywords];
         const removed = newKeywords.splice(index, 1);
         setAddedKeywords(newKeywords);
-        if (onRemove) onRemove(removed[0]);
+        if (onKeywordsChange) onKeywordsChange(newKeywords);
     };
 
     const handleClearKeywords = () => {
         setAddedKeywords([]);
+        if (onKeywordsChange) onKeywordsChange([]);
     };
 
     return (
         <Form.Group controlId="keywords" style={{ position: 'relative', marginBottom: '20px' }}>
             <Form.Label>Keywords to Emphasize</Form.Label>
-            <div style={{ width: '300px' }}> {/* <-- This div wraps the InputGroup */}
+            <div style={{ width: '300px' }}>
                 <InputGroup>
                     <Form.Control
                         type="text"
@@ -37,34 +39,30 @@ const IntonationManager = ({ onAdd, onRemove }) => {
                         onChange={(e) => setKeyword(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                                e.preventDefault(); // Prevent the default form submission
-                                handleAddKeyword(); // Call the handleAddKeyword function
+                                e.preventDefault();
+                                handleAddKeyword();
                             }
                         }}
                         style={{
                             borderRadius: '20px 0 0 20px',
-                            borderRight: '0', // remove right border
-                            boxShadow: 'none', // to remove any default shadows
-                            borderColor: '#ced4da' // default Bootstrap input border color
+                            borderRight: '0',
+                            boxShadow: 'none',
+                            borderColor: '#ced4da'
                         }}
                     />
 
                     <div className="input-group-append">
                         <button title="Click here or press Enter key to add the keyword" type="button" className="btn btn-dark" onClick={handleAddKeyword} style={{
                             borderRadius: '0 20px 20px 0',
-                            backgroundColor: '#343a40', // make it same as input's color
-                            borderLeft: '0', // remove left border of the button
-                            borderColor: '#ced4da', // same as input's border color
-                            padding: '0.375rem 0.75rem'  // adjust if necessary
+                            backgroundColor: '#343a40',
+                            borderLeft: '0',
+                            borderColor: '#ced4da',
+                            padding: '0.375rem 0.75rem'
                         }}>
                             <i className="bi bi-send" style={{ color: 'white' }} ></i>
                         </button>
                     </div>
                 </InputGroup>
-
-
-
-
             </div>
 
             <Card className="mt-3 p-2" style={{ minHeight: '110px', backgroundColor: '#cccccc' }}>
