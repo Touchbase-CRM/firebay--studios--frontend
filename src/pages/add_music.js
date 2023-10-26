@@ -92,6 +92,7 @@ export default function AddMusic() {
             "voice": voiceId,
             "ad_length": adLength
         };
+        console.log(payload);
 
         // Endpoint URL
         const url = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";

@@ -14,7 +14,9 @@ export default function CreateAd() {
   const [adLength, setAdLength] = useState('30'); // Default ad length
   const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
-  
+  const [isFormSubmitted, setFormSubmitted] = useState(false);
+
+
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
@@ -27,6 +29,22 @@ export default function CreateAd() {
     setScript('');  // Reset script whenever adLength changes
   }, [adLength]);
 
+  useEffect(() => {
+    if (isFormSubmitted) {
+      // Now the script state has the updated value. You can safely route.
+      router.push({
+        pathname: '/add_music',
+        query: { adLength, script, voiceId }
+      });
+    }
+  }, [script, isFormSubmitted, adLength, voiceId, router]);
+
+  useEffect(() => {
+    if (isFormSubmitted) {
+      setFormSubmitted(false);
+    }
+  }, [isFormSubmitted]);
+
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
@@ -38,35 +56,35 @@ export default function CreateAd() {
 
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
-};
+  };
 
-const checkKeywordsInScript = () => { 
-  const Intonator = "'";
-  let updatedScript = script; 
-  const notFoundKeywords = [];
+  const checkKeywordsInScript = () => {
+    const Intonator = "'";
+    let updatedScript = script;
+    const notFoundKeywords = [];
 
-  keywords.forEach(keyword => {
+    keywords.forEach(keyword => {
       if (updatedScript.includes(keyword)) {
-          // Surround the keyword with the Intonator character for emphasis
-          updatedScript = updatedScript.replace(new RegExp(`\\b${keyword}\\b`, 'g'), `${Intonator}${keyword}${Intonator}`);
+        // Surround the keyword with the Intonator character for emphasis
+        updatedScript = updatedScript.replace(new RegExp(`\\b${keyword}\\b`, 'g'), `${Intonator}${keyword}${Intonator}`);
       } else {
-          notFoundKeywords.push(keyword);
+        notFoundKeywords.push(keyword);
       }
-  });
+    });
 
-  // Update the script state.
-  setScript(updatedScript);
+    // Update the script state.
+    setScript(updatedScript);
 
-  if (notFoundKeywords.length > 0) {
+    if (notFoundKeywords.length > 0) {
       Swal.fire({
-          icon: 'error',
-          title: 'Keywords Not Found',
-          text: `The following keywords were not found in the script: ${notFoundKeywords.join(', ')}. Please remove them or add them to your script to continue.`,
+        icon: 'error',
+        title: 'Keywords Not Found',
+        text: `The following keywords were not found in the script: ${notFoundKeywords.join(', ')}. Please remove them or add them to your script to continue.`,
       });
       return false;
-  }
-  return true;
-};
+    }
+    return true;
+  };
 
 
 
@@ -92,13 +110,10 @@ const checkKeywordsInScript = () => {
       return;
     }
 
-
-    // Passing data to add_music page
-    router.push({
-      pathname: '/add_music',
-      query: { adLength, script, voiceId }
-    });
+    // Set form submitted to true
+    setFormSubmitted(true);
   };
+
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -137,7 +152,7 @@ const checkKeywordsInScript = () => {
       </Navbar>
       <Row>
         <Col md={10} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '800px',width: '1450px' , marginBottom: '140px' }} >
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '800px', width: '1450px', marginBottom: '140px' }} >
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
@@ -221,7 +236,7 @@ const checkKeywordsInScript = () => {
               <ExamplesViewer show={showExamples} onHide={() => setShowExamples(false)} />
             </Form>
           </Card>
-          
+
           <div>
             <VoiceAudioPlayer text={sampleMessage} voiceId={voiceId} voiceName={voiceName} style={{ marginTop: '20px' }} />
           </div>
