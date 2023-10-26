@@ -99,8 +99,8 @@ export default function CreateAd() {
         </Button>
       </Navbar>
       <Row>
-        <Col md={6} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '700px', marginBottom: '140px' }} >
+        <Col md={10} className="mx-auto">
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '800px',width: '1450px' , marginBottom: '140px' }} >
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
@@ -109,7 +109,7 @@ export default function CreateAd() {
                   aria-label="Ad length select"
                   value={adLength}
                   onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: 'black' }}
+                  style={{ color: 'black', marginBottom: '20px' }}
                 >
                   <option value="30">30 seconds</option>
                   <option value="60">60 seconds</option>
@@ -124,12 +124,14 @@ export default function CreateAd() {
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
                   value={script}
                   onChange={(e) => setScript(e.target.value)}
-                  style={{ color: 'black', height: '350px' }}
+                  style={{ color: 'black', height: '200px', marginBottom: '20px' }}
                 />
                 <div style={wordCountStyle}>
                   {script.length}/{charLimit}
                 </div>
               </Form.Group>
+
+              <IntonationManager/>
 
 
               <Form.Group controlId="voice">
