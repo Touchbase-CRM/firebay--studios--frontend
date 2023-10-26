@@ -16,18 +16,22 @@ export default function CreateAd() {
   const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
 
-
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
-  // Calculate character limit based on the ad length
-  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC);
+  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC);   // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;// this message is currently not needed. But it will be useful if we directly use api to preview voice.
 
-  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
   useEffect(() => {
     setScript('');  // Reset script whenever adLength changes
   }, [adLength]);
+
+  useEffect(() => {
+    if (isFormSubmitted) {
+      setFormSubmitted(false);
+    }
+  }, [isFormSubmitted]);
 
   useEffect(() => {
     if (isFormSubmitted) {
@@ -38,13 +42,6 @@ export default function CreateAd() {
       });
     }
   }, [script, isFormSubmitted, adLength, voiceId, router]);
-
-  useEffect(() => {
-    if (isFormSubmitted) {
-      setFormSubmitted(false);
-    }
-  }, [isFormSubmitted]);
-
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
