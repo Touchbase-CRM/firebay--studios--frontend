@@ -3,8 +3,8 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
+import IntonationManager from '../components/IntonationManager';
 import ExamplesViewer from '../components/ExamplesViewer';
-
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
@@ -12,15 +12,16 @@ export default function CreateAd() {
   const [voiceName, setVoiceName] = useState('Charley');
   const router = useRouter();
   const [adLength, setAdLength] = useState('30'); // Default ad length
-  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
   const [showExamples, setShowExamples] = useState(false);
+  
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-  console.log(voiceName, voiceId, sampleMessage);
+
   // Calculate character limit based on the ad length
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC);
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
+  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;
   useEffect(() => {
     setScript('');  // Reset script whenever adLength changes
   }, [adLength]);
@@ -181,6 +182,7 @@ export default function CreateAd() {
               <ExamplesViewer show={showExamples} onHide={() => setShowExamples(false)} />
             </Form>
           </Card>
+          
           <div>
             <VoiceAudioPlayer text={sampleMessage} voiceId={voiceId} voiceName={voiceName} style={{ marginTop: '20px' }} />
           </div>
