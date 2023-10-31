@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
 import { Card, Navbar, Nav, Button } from 'react-bootstrap';
-
+import AdAudioPlayer from '../components/AdAudioPlayer';
 
 const DownloadPage = () => {
     const router = useRouter();
@@ -63,6 +63,7 @@ const DownloadPage = () => {
                     </button>
                 </Card>
             </div>
+            <AdAudioPlayer src={audioUrl} />   {/* Moving the AdAudioPlayer component to the bottom */}
         </div>
     );
 };
