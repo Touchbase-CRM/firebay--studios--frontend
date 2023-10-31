@@ -10,15 +10,7 @@ const DownloadPage = () => {
     const { audioUrl } = router.query;
 
     const handleDownload = () => {
-        initiateDownload();
         confirmAndNavigate();
-    };
-
-    const initiateDownload = () => {
-        const link = document.createElement('a');
-        link.href = audioUrl;
-        link.download = 'generated-audio.mp3';
-        link.click();
     };
 
     const confirmAndNavigate = () => {
@@ -63,7 +55,8 @@ const DownloadPage = () => {
                     </button>
                 </Card>
             </div>
-            <AdAudioPlayer src={audioUrl} />   {/* Moving the AdAudioPlayer component to the bottom */}
+            <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
+
         </div>
     );
 };
