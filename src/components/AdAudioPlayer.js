@@ -20,7 +20,7 @@ export default function AdAudioPlayer({ src, onDownloadClick }) {
                 <div className="d-flex align-items-center justify-content-between">
                     <span style={{ fontSize: '24px', fontWeight: '400', color: '#555', marginRight: '20px' }}>
                         <span style={{ fontWeight: '600', color: '#333', marginLeft: '50px' }}>
-                            Charley
+                            <span style={{ color: 'black' }}>Play: </span>
                         </span>
                     </span>
                     <AudioPlayer

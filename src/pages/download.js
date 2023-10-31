@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
 import { Card, Navbar, Nav, Button } from 'react-bootstrap';
 import AdAudioPlayer from '../components/AdAudioPlayer';
+import Link from 'next/link'; // Import the Link component
 
 const DownloadPage = () => {
     const router = useRouter();
@@ -28,6 +29,7 @@ const DownloadPage = () => {
             }
         });
     };
+
     const handleLogout = () => {
         localStorage.removeItem('user');
         router.push('/login');
@@ -48,13 +50,32 @@ const DownloadPage = () => {
                 </Button>
             </Navbar>
             <div className={styles.container}>
-                <Card className="p-4 bg-dark text-white" style={{ marginTop: '10px' }}>
-                    <h1 className={styles.title}>Your audio is ready!</h1>
-                    <button className={styles.downloadButton} onClick={handleDownload}>
-                        Download Audio
-                    </button>
+                <Card style={{ width: '400px', height: '450px', marginTop: '10px', position: 'relative', borderRadius: '15px', overflow: 'hidden' }}>
+                    <Card.Header style={{ backgroundColor: '#343a40', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <h1 className={styles.title} style={{ margin: 0, fontSize: '24px' }}>Download Manager</h1>
+                    </Card.Header>
+                    <Card.Body className="bg-dark text-white" style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+                        <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', fontSize: '18px' }}>Need more tweaking?</h5>
+                        <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+                            <li style={{ marginBottom: '12px' }}>
+                                <Link href="/add_music" className="btn btn-outline-light btn-lg">Change Music</Link>
+                            </li>
+                            <li style={{ marginBottom: '12px' }}>
+                                <Link href="/create_ad" className="btn btn-outline-light btn-lg">Change Script or Voice</Link>
+                            </li>
+                            <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', marginTop: '20px', fontSize: '18px' }}>Start from scratch?</h5>
+                            <li style={{ marginBottom: '12px' }}>
+                                <Link href="/create_ad" className="btn btn-outline-light btn-lg">Create a new ad</Link>
+                            </li>
+                        </ul>
+                    </Card.Body>
+                    <Card.Footer className="bg-dark text-white" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <small style={{ float: 'right', fontSize: '16px' }}>Credits left: 5/5</small>
+                    </Card.Footer>
                 </Card>
             </div>
+
+
             <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
 
         </div>
