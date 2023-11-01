@@ -51,7 +51,45 @@ export default function CreateAd() {
       });
     }
   }, [script, isFormSubmitted, adLength, voiceId, router]);
-  console.log(user.uid)
+
+  useEffect(() => {
+    const restoreAdDetails = async () => {
+      try {
+        const restoredData = await frontendCache.hgetall(user.uid + "CreateAd");
+        if (restoredData) {
+          setScript(restoredData.scriptCache || '');
+          setVoiceId(restoredData.voiceIdCache || '6wLJ4Wm2OxvAvetEUBCS');
+          setVoiceName(restoredData.voiceNameCache || 'Charley');
+          setAdLength(restoredData.adLengthCache || '30');
+
+          // Check if the keywordsCache is a valid JSON string
+          if (restoredData.keywordsCache && isJSON(restoredData.keywordsCache)) {
+            setKeywords(JSON.parse(restoredData.keywordsCache));
+          } else {
+            setKeywords([]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to restore ad details:', error);
+      }
+    };
+
+    // Helper function to check if a string is valid JSON
+    function isJSON(str) {
+      try {
+        JSON.parse(str);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+
+    // Call restoreAdDetails only if the user is authenticated
+    if (user && user.uid) {
+      restoreAdDetails();
+    }
+  }, [user]);
 
 
   const cacheAdDetails = async () => {
