@@ -6,6 +6,7 @@ import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
 import IntonationManager from '../components/IntonationManager';
 import ExamplesViewer from '../components/ExamplesViewer';
 import { createClient } from '@vercel/kv';
+import { useAuth } from "../context/auth";
 
 const frontendCache = createClient({
   url: process.env.NEXT_PUBLIC_KV_REST_API_URL,
@@ -14,6 +15,7 @@ const frontendCache = createClient({
 
 
 export default function CreateAd() {
+  const { user } = useAuth();
   const [script, setScript] = useState('');
   const [voiceId, setVoiceId] = useState('6wLJ4Wm2OxvAvetEUBCS');
   const [voiceName, setVoiceName] = useState('Charley');
@@ -49,6 +51,7 @@ export default function CreateAd() {
       });
     }
   }, [script, isFormSubmitted, adLength, voiceId, router]);
+  console.log(user.uid)
 
 
   const cacheAdDetails = async () => {
@@ -63,7 +66,7 @@ export default function CreateAd() {
       };
 
       // Store it in the cache with a unique hash key like 'adDetailsCache'
-      await frontendCache.hset('mythicalManMonth', adDetails);
+      await frontendCache.hset(user.uid + "CreateAd", adDetails);
     } catch (error) {
       console.error('Failed to cache ad details:', error);
     }
