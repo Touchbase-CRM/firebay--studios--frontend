@@ -149,7 +149,7 @@ export default function CreateAd() {
       </Navbar>
       <Row>
         <Col md={10} className="mx-auto">
-          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '800px', width: '1450px', marginBottom: '140px' }} >
+          <Card className="p-4 bg-dark text-white" style={{ marginTop: '70px', height: '800px', marginBottom: '140px' }} >
             <h2 className="mb-4">Voice Settings</h2>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
