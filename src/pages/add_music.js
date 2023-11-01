@@ -92,7 +92,6 @@ export default function AddMusic() {
             "voice": voiceId,
             "ad_length": adLength
         };
-        console.log(payload);
 
         // Endpoint URL
         const url = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
@@ -141,7 +140,7 @@ export default function AddMusic() {
                 <Spinner animation="border" variant="primary" style={{ marginBottom: '200px' }} />
 
                 <Card className="p-4 bg-dark text-white" style={{ marginTop: '300px' }}>
-                    <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>We are preparing your advertisement, hold on tight...</p>
+                    <p className="ml-3 mb-0" style={{ fontWeight: 'bold', fontSize: '24px', color: 'white', textShadow: '1px 1px 1px #000' }}>Just a second. Your brand fire is being lit...</p>
                 </Card>
                 <div className="mt-3">
                     <Button
