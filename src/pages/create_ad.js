@@ -5,6 +5,13 @@ import Swal from 'sweetalert2';
 import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
 import IntonationManager from '../components/IntonationManager';
 import ExamplesViewer from '../components/ExamplesViewer';
+import { createClient } from '@vercel/kv';
+
+const frontendCache = createClient({
+  url: process.env.NEXT_PUBLIC_KV_REST_API_URL,
+  token: process.env.NEXT_PUBLIC_KV_REST_API_TOKEN,
+});
+
 
 export default function CreateAd() {
   const [script, setScript] = useState('');
@@ -42,6 +49,26 @@ export default function CreateAd() {
       });
     }
   }, [script, isFormSubmitted, adLength, voiceId, router]);
+
+
+  const cacheAdDetails = async () => {
+    try {
+      // Create an object with each state variable as a key-value pair
+      const adDetails = {
+        scriptCache: script,
+        voiceIdCache: voiceId,
+        voiceNameCache: voiceName,
+        adLengthCache: adLength,
+        keywordsCache: JSON.stringify(keywords) // Keywords might be an array, so we'll stringify it just in case
+      };
+
+      // Store it in the cache with a unique hash key like 'adDetailsCache'
+      await frontendCache.hset('mythicalManMonth', adDetails);
+    } catch (error) {
+      console.error('Failed to cache ad details:', error);
+    }
+  };
+
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
@@ -84,7 +111,6 @@ export default function CreateAd() {
   };
 
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -106,6 +132,7 @@ export default function CreateAd() {
       });
       return;
     }
+    cacheAdDetails();
 
     // Set form submitted to true
     setFormSubmitted(true);
