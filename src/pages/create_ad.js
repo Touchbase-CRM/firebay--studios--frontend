@@ -5,30 +5,7 @@ import Swal from 'sweetalert2';
 import VoiceAudioPlayer from '../components/VoiceAudioPlayer';
 import IntonationManager from '../components/IntonationManager';
 import ExamplesViewer from '../components/ExamplesViewer';
-import Cookies from 'js-cookie';
-
-const COOKIE_EXPIRATION_DAYS = 1 / 96; // 15 minutes
-
-// Utility functions for cookie operations
-const getCookie = (key, defaultValue) => {
-  const value = Cookies.get(key);
-  if (value === undefined) {
-    return defaultValue;
-  }
-
-  try {
-    // This will handle parsing arrays and objects properly
-    return JSON.parse(value);
-  } catch (e) {
-    // If it's not a JSON string, return the raw value
-    return value;
-  }
-};
-
-const setCookie = (key, value) => {
-  const valueToStore = typeof value === 'string' ? value : JSON.stringify(value);
-  Cookies.set(key, valueToStore, { expires: COOKIE_EXPIRATION_DAYS });
-};
+import { getCookie, setCookie } from '../utils/cookieUtils';
 
 
 export default function CreateAd() {
@@ -91,8 +68,6 @@ export default function CreateAd() {
   }, [adLength]);
 
 
-
-
   // useEffect(() => {
   //   setScript('');  // Reset script whenever adLength changes
   // }, [adLength]);
@@ -152,7 +127,6 @@ export default function CreateAd() {
     }
     return true;
   };
-
 
 
   const handleSubmit = (e) => {
