@@ -141,7 +141,6 @@ export default function AddMusic() {
       voice: voiceId,
       ad_length: adLength,
     };
-    console.log(payload);
 
     // Endpoint URL
     const url =
@@ -210,7 +209,7 @@ export default function AddMusic() {
               textShadow: "1px 1px 1px #000",
             }}
           >
-            We are preparing your advertisement, hold on tight...
+            Just a second. Your brand fire is being lit...
           </p>
         </Card>
         <div className="mt-3">

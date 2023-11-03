@@ -215,7 +215,6 @@ export default function CreateAd() {
             style={{
               marginTop: "70px",
               height: "800px",
-              width: "1450px",
               marginBottom: "140px",
             }}
           >
