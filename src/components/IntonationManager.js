@@ -67,7 +67,7 @@ const IntonationManager = ({ onKeywordsChange }) => {
 
             <Card className="mt-3 p-2" style={{ minHeight: '110px', backgroundColor: '#cccccc' }}>
                 {addedKeywords.length === 0 ? (
-                    <div style={{ color: '#aaa', textAlign: 'center' }}>Keywords will appear here</div>
+                    <div style={{ color: '#aaa', textAlign: 'center' }}>Keywords will appear here. We will wrap the keywords you entered here with ' ', i.e. 'emphasized!' </div>
                 ) : (
                     <button type="button"
                         style={{

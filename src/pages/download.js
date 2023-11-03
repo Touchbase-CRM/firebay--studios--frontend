@@ -1,41 +1,87 @@
-import React from 'react';
 import { useRouter } from 'next/router';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
 import { Card, Navbar, Nav, Button } from 'react-bootstrap';
-
+import AdAudioPlayer from '../components/AdAudioPlayer';
+import Link from 'next/link';
+import { cookieCleaner } from '../utils/cookieUtils';
+import 'firebase/compat/firestore';
+import { useAuth } from "../context/auth";
+import firebase from '../firebase';
+const db = firebase.firestore();
 
 const DownloadPage = () => {
     const router = useRouter();
     const { audioUrl } = router.query;
+    const { user } = useAuth();
+    const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
+
+    useEffect(() => {
+        if (user?.uid) {
+            const docRef = db.collection('uid_to_org').doc(user.uid);
+
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    setCredits({
+                        creditLeft: data.credit_left,
+                        creditAllowance: data.credit_allowance,
+                    });
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        }
+    }, [user?.uid]);
 
     const handleDownload = () => {
-        initiateDownload();
-        confirmAndNavigate();
-    };
+        // Decrement credit_left in the database
+        const docRef = db.collection('uid_to_org').doc(user.uid);
+        db.runTransaction((transaction) => {
+            return transaction.get(docRef).then((doc) => {
+                if (!doc.exists) {
+                    throw "Document does not exist!";
+                }
 
-    const initiateDownload = () => {
-        const link = document.createElement('a');
-        link.href = audioUrl;
-        link.download = 'generated-audio.mp3';
-        link.click();
-    };
-
-    const confirmAndNavigate = () => {
-        Swal.fire({
-            title: 'Download Complete!',
-            text: 'Would you like to create a new advertisement?',
-            icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, create more!',
-            cancelButtonText: 'No, I’m still downloading...'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.push('/create_ad');
-                URL.revokeObjectURL(audioUrl);
-            }
+                let newCreditLeft = (doc.data().credit_left || 0) - 1;
+                transaction.update(docRef, { credit_left: newCreditLeft });
+                return newCreditLeft; // This value is passed to the .then() handler
+            });
+        }).then((newCreditLeft) => {
+            setCredits({
+                ...credits,
+                creditLeft: newCreditLeft,
+            });
+            // confirmAndNavigate();
+        }).catch((error) => {
+            console.error("Transaction failed: ", error);
         });
+
     };
+
+    const handleNewAd = () => {
+        cookieCleaner(); // This will clear all cookies
+        router.push('/create_ad'); // Navigate to the create ad page
+        URL.revokeObjectURL(audioUrl);
+    };
+
+    // const confirmAndNavigate = () => {
+    //     Swal.fire({
+    //         title: 'Download Complete!',
+    //         text: 'Would you like to create a new advertisement?',
+    //         icon: 'success',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Yes, create more!',
+    //         cancelButtonText: 'No, I’m still downloading...'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             router.push('/create_ad');
+    //             URL.revokeObjectURL(audioUrl);
+    //         }
+    //     });
+    // };
+
     const handleLogout = () => {
         localStorage.removeItem('user');
         router.push('/login');
@@ -56,13 +102,37 @@ const DownloadPage = () => {
                 </Button>
             </Navbar>
             <div className={styles.container}>
-                <Card className="p-4 bg-dark text-white" style={{ marginTop: '10px' }}>
-                    <h1 className={styles.title}>Your audio is ready!</h1>
-                    <button className={styles.downloadButton} onClick={handleDownload}>
-                        Download Audio
-                    </button>
+                <Card style={{ width: '400px', height: '450px', marginTop: '10px', position: 'relative', borderRadius: '15px', overflow: 'hidden' }}>
+                    <Card.Header style={{ backgroundColor: '#343a40', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <h1 className={styles.title} style={{ margin: 0, fontSize: '24px' }}>Download Manager</h1>
+                    </Card.Header>
+                    <Card.Body className="bg-dark text-white" style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+                        <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', fontSize: '18px' }}>Need more tweaking?</h5>
+                        <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+                            <li style={{ marginBottom: '12px' }}>
+                                <Link href="/add_music" className="btn btn-outline-light btn-lg">Change Music</Link>
+                            </li>
+                            <li style={{ marginBottom: '12px' }}>
+                                <Link href="/create_ad" className="btn btn-outline-light btn-lg">Change Script or Voice</Link>
+                            </li>
+                            <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', marginTop: '20px', fontSize: '18px' }}>Start from scratch?</h5>
+                            <li style={{ marginBottom: '12px' }}>
+                                <button className="btn btn-outline-light btn-lg" onClick={handleNewAd}>Create a new ad</button>
+                            </li>
+                        </ul>
+                    </Card.Body>
+                    <Card.Footer className="bg-dark text-white" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <small style={{ float: 'right', fontSize: '16px' }}>Credits left: {credits.creditLeft}/{credits.creditAllowance}</small>
+                    </Card.Footer>
                 </Card>
             </div>
+
+
+            {
+                credits.creditLeft > 0 && <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
+            }
+
+
         </div>
     );
 };
