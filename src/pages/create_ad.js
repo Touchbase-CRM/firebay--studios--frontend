@@ -7,14 +7,45 @@ import IntonationManager from '../components/IntonationManager';
 import ExamplesViewer from '../components/ExamplesViewer';
 import Cookies from 'js-cookie';
 
-const COOKIE_EXPIRATION_DAYS = 1/96; // 15 minutes
+const COOKIE_EXPIRATION_DAYS = 1 / 96; // 15 minutes
+
+// Utility functions for cookie operations
+const getCookie = (key, defaultValue) => {
+  const value = Cookies.get(key);
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  try {
+    // This will handle parsing arrays and objects properly
+    return JSON.parse(value);
+  } catch (e) {
+    // If it's not a JSON string, return the raw value
+    return value;
+  }
+};
+
+const setCookie = (key, value) => {
+  const valueToStore = typeof value === 'string' ? value : JSON.stringify(value);
+  Cookies.set(key, valueToStore, { expires: COOKIE_EXPIRATION_DAYS });
+};
+
 
 export default function CreateAd() {
-  const [script, setScript] = useState('');
-  const [voiceId, setVoiceId] = useState('6wLJ4Wm2OxvAvetEUBCS');
-  const [voiceName, setVoiceName] = useState('Charley');
+  const [script, setScript] = useState(() => {
+    return getCookie('script', '');
+  });
+  const [voiceId, setVoiceId] = useState(() => {
+    return getCookie('voiceId', '6wLJ4Wm2OxvAvetEUBCS');
+  });
+  const [voiceName, setVoiceName] = useState(() => {
+    return getCookie('voiceName', 'Charley');
+  });
   const router = useRouter();
-  const [adLength, setAdLength] = useState('30'); // Default ad length
+  const [adLength, setAdLength] = useState(() => {
+    return getCookie('adLength', '30');
+  });
+
   const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -26,17 +57,40 @@ export default function CreateAd() {
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
   var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`;// this message is currently not needed. But it will be useful if we directly use api to preview voice.
 
-    // Load script from cookie on component mount
+  // Load states from cookies on component mount
   useEffect(() => {
-    const savedScript = Cookies.get('script');
-    if (savedScript) {
-      setScript(savedScript);
-    }
+    // Initialize states from cookies using the getCookie function
+    const savedScript = getCookie('script', '');
+    const savedVoiceId = getCookie('voiceId', '6wLJ4Wm2OxvAvetEUBCS');
+    const savedVoiceName = getCookie('voiceName', 'Charley');
+    const savedAdLength = getCookie('adLength', '30');
+
+    // Set states
+    setScript(savedScript);
+    setVoiceId(savedVoiceId);
+    setVoiceName(savedVoiceName);
+    setAdLength(savedAdLength);
   }, []);
-    // Save script to cookie whenever it changes
-    useEffect(() => {
-      Cookies.set('script', script, { expires: 1 / 96 }); // Expires in 7 days
-    }, [script]);
+
+
+  // Save states to cookies whenever they change
+  useEffect(() => {
+    if (script) setCookie('script', script);
+  }, [script]);
+
+  useEffect(() => {
+    if (voiceId) setCookie('voiceId', voiceId);
+  }, [voiceId]);
+
+  useEffect(() => {
+    if (voiceName) setCookie('voiceName', voiceName);
+  }, [voiceName]);
+
+  useEffect(() => {
+    if (adLength) setCookie('adLength', adLength);
+  }, [adLength]);
+
+
 
 
   // useEffect(() => {
@@ -126,8 +180,6 @@ export default function CreateAd() {
     // Set form submitted to true
     setFormSubmitted(true);
 
-    // If everything is ok, save the script to the cookie
-    Cookies.set('script', script, { expires: 1 / 96 }); // Expires in 7 days
   };
 
 
