@@ -22,3 +22,10 @@ export const setCookie = (key, value) => {
   const valueToStore = typeof value === 'string' ? value : JSON.stringify(value);
   Cookies.set(key, valueToStore, { expires: COOKIE_EXPIRATION_DAYS });
 };
+
+// This function will clear all cookies
+export const cookieCleaner = () => {
+  Object.keys(Cookies.get()).forEach(cookieName => {
+      Cookies.remove(cookieName);
+  });
+};

@@ -4,7 +4,8 @@ import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
 import { Card, Navbar, Nav, Button } from 'react-bootstrap';
 import AdAudioPlayer from '../components/AdAudioPlayer';
-import Link from 'next/link'; // Import the Link component
+import Link from 'next/link';
+import { cookieCleaner } from '../utils/cookieUtils';
 
 const DownloadPage = () => {
     const router = useRouter();
@@ -12,6 +13,10 @@ const DownloadPage = () => {
 
     const handleDownload = () => {
         confirmAndNavigate();
+    };
+    const handleNewAd = () => {
+        cookieCleaner(); // This will clear all cookies
+        router.push('/create_ad'); // Navigate to the create ad page
     };
 
     const confirmAndNavigate = () => {
@@ -65,7 +70,7 @@ const DownloadPage = () => {
                             </li>
                             <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', marginTop: '20px', fontSize: '18px' }}>Start from scratch?</h5>
                             <li style={{ marginBottom: '12px' }}>
-                                <Link href="/create_ad" className="btn btn-outline-light btn-lg">Create a new ad</Link>
+                                <button className="btn btn-outline-light btn-lg" onClick={handleNewAd}>Create a new ad</button>
                             </li>
                         </ul>
                     </Card.Body>
