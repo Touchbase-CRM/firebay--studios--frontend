@@ -25,6 +25,7 @@ export default function AddMusic() {
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const router = useRouter();
   const [adLength, setAdLength] = useState("");
+  const [shouldPlay, setShouldPlay] = useState(false);
 
   const goBack = () => {
     router.back();
@@ -305,7 +306,10 @@ export default function AddMusic() {
                 <Form.Select
                   aria-label="Genre select"
                   value={genre}
-                  onChange={(e) => setGenre(e.target.value)}
+                  onChange={(e) => {
+                    setGenre(e.target.value);
+                    setShouldPlay(true); // Play audio when a genre is selected
+                  }}
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
@@ -323,7 +327,9 @@ export default function AddMusic() {
             </Form>
           </Card>
           <div>
-            <MusicAudioPlayer genre={genre} style={{ marginTop: "20px" }} />
+            {shouldPlay && (
+              <MusicAudioPlayer genre={genre} style={{ marginTop: "20px" }} />
+            )}
           </div>
         </Col>
       </Row>
