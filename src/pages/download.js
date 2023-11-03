@@ -53,33 +53,34 @@ const DownloadPage = () => {
                 ...credits,
                 creditLeft: newCreditLeft,
             });
-            confirmAndNavigate();
+            // confirmAndNavigate();
         }).catch((error) => {
             console.error("Transaction failed: ", error);
         });
-        
+
     };
 
     const handleNewAd = () => {
         cookieCleaner(); // This will clear all cookies
         router.push('/create_ad'); // Navigate to the create ad page
+        URL.revokeObjectURL(audioUrl);
     };
 
-    const confirmAndNavigate = () => {
-        Swal.fire({
-            title: 'Download Complete!',
-            text: 'Would you like to create a new advertisement?',
-            icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, create more!',
-            cancelButtonText: 'No, I’m still downloading...'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.push('/create_ad');
-                URL.revokeObjectURL(audioUrl);
-            }
-        });
-    };
+    // const confirmAndNavigate = () => {
+    //     Swal.fire({
+    //         title: 'Download Complete!',
+    //         text: 'Would you like to create a new advertisement?',
+    //         icon: 'success',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Yes, create more!',
+    //         cancelButtonText: 'No, I’m still downloading...'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             router.push('/create_ad');
+    //             URL.revokeObjectURL(audioUrl);
+    //         }
+    //     });
+    // };
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -127,7 +128,10 @@ const DownloadPage = () => {
             </div>
 
 
-            <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
+            {
+                credits.creditLeft > 0 && <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
+            }
+
 
         </div>
     );
