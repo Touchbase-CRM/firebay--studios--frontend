@@ -33,10 +33,31 @@ export default function AddMusic() {
     const { adLength: adLengthQuery, script: scriptQuery, voiceId: voiceQuery } = router.query;
 
     useEffect(() => {
-        if (adLengthQuery) setAdLength(adLengthQuery);
-        if (scriptQuery) setScript(scriptQuery);
-        if (voiceQuery) setVoice(voiceQuery);
+        // Determine if query params are present and not empty
+        const hasAdLengthQuery = adLengthQuery || adLengthQuery === '';
+        const hasScriptQuery = scriptQuery || scriptQuery === '';
+        const hasVoiceQuery = voiceQuery || voiceQuery === '';
+    
+        const shouldUseCookieValues = !hasAdLengthQuery && !hasScriptQuery && !hasVoiceQuery;
+    
+        // If no query params or they are empty, attempt to reassign state from cookies
+        if (shouldUseCookieValues) {
+            const cookieAdLength = getCookie('adLength');
+            const cookieScript = getCookie('script');
+            const cookieVoiceId = getCookie('voiceId');
+    
+            if (cookieAdLength) setAdLength(cookieAdLength);
+            if (cookieScript) setScript(cookieScript);
+            if (cookieVoiceId) setVoice(cookieVoiceId);
+        } else {
+            // If query params are present and not empty, use them to set the state
+            if (hasAdLengthQuery) setAdLength(adLengthQuery);
+            if (hasScriptQuery) setScript(scriptQuery);
+            if (hasVoiceQuery) setVoice(voiceQuery);
+        }
     }, [adLengthQuery, scriptQuery, voiceQuery]);
+    
+    
 
     // Load states from cookies on component mount
     useEffect(() => {
