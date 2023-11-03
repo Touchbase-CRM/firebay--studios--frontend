@@ -16,10 +16,10 @@ function toSnakeCase(str) {
 export default function AddMusic() {
     const [noMusic, setNoMusic] = useState(() => {
         return getCookie('noMusic', false);
-      });
+    });
     const [genre, setGenre] = useState(() => {
         return getCookie('genre', 'Up Beat');
-      });
+    });
     const [script, setScript] = useState('');
     const [voiceId, setVoice] = useState('');
     const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
@@ -38,28 +38,28 @@ export default function AddMusic() {
         if (voiceQuery) setVoice(voiceQuery);
     }, [adLengthQuery, scriptQuery, voiceQuery]);
 
-      // Load states from cookies on component mount
-  useEffect(() => {
-    // Initialize states from cookies using the getCookie function
-    const savedGenre = getCookie('genre', 'Up Beat');
-    const savedNoMusic = getCookie('noMusic', false);
+    // Load states from cookies on component mount
+    useEffect(() => {
+        // Initialize states from cookies using the getCookie function
+        const savedGenre = getCookie('genre', 'Up Beat');
+        const savedNoMusic = getCookie('noMusic', false);
 
 
-    // Set states
-    setGenre(savedGenre );
-    setNoMusic(savedNoMusic);
+        // Set states
+        setGenre(savedGenre);
+        setNoMusic(savedNoMusic);
 
-  }, []);
+    }, []);
 
     // Save states to cookies whenever they change
     useEffect(() => {
         if (genre) setCookie('genre', genre);
-      }, [genre]);
-    
-      useEffect(() => {
+    }, [genre]);
+
+    useEffect(() => {
         // This will set the cookie for both true and false values of noMusic
         setCookie('noMusic', noMusic);
-      }, [noMusic]);
+    }, [noMusic]);
 
     // Cancel token source for the Axios request
     const cancelTokenSourceRef = useRef(null);
