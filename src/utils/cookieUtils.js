@@ -26,6 +26,6 @@ export const setCookie = (key, value) => {
 // This function will clear all cookies
 export const cookieCleaner = () => {
   Object.keys(Cookies.get()).forEach(cookieName => {
-      Cookies.remove(cookieName);
+    Cookies.remove(cookieName);
   });
 };

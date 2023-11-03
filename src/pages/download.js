@@ -1,19 +1,65 @@
-import React from 'react';
 import { useRouter } from 'next/router';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import styles from '../styles/DownloadPage.module.css';
 import { Card, Navbar, Nav, Button } from 'react-bootstrap';
 import AdAudioPlayer from '../components/AdAudioPlayer';
 import Link from 'next/link';
 import { cookieCleaner } from '../utils/cookieUtils';
+import 'firebase/compat/firestore';
+import { useAuth } from "../context/auth";
+import firebase from '../firebase';
+const db = firebase.firestore();
 
 const DownloadPage = () => {
     const router = useRouter();
     const { audioUrl } = router.query;
+    const { user } = useAuth();
+    const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
+
+    useEffect(() => {
+        if (user?.uid) {
+            const docRef = db.collection('uid_to_org').doc(user.uid);
+
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    setCredits({
+                        creditLeft: data.credit_left,
+                        creditAllowance: data.credit_allowance,
+                    });
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        }
+    }, [user?.uid]);
 
     const handleDownload = () => {
-        confirmAndNavigate();
+        // Decrement credit_left in the database
+        const docRef = db.collection('uid_to_org').doc(user.uid);
+        db.runTransaction((transaction) => {
+            return transaction.get(docRef).then((doc) => {
+                if (!doc.exists) {
+                    throw "Document does not exist!";
+                }
+
+                let newCreditLeft = (doc.data().credit_left || 0) - 1;
+                transaction.update(docRef, { credit_left: newCreditLeft });
+                return newCreditLeft; // This value is passed to the .then() handler
+            });
+        }).then((newCreditLeft) => {
+            setCredits({
+                ...credits,
+                creditLeft: newCreditLeft,
+            });
+            confirmAndNavigate();
+        }).catch((error) => {
+            console.error("Transaction failed: ", error);
+        });
+        
     };
+
     const handleNewAd = () => {
         cookieCleaner(); // This will clear all cookies
         router.push('/create_ad'); // Navigate to the create ad page
@@ -75,7 +121,7 @@ const DownloadPage = () => {
                         </ul>
                     </Card.Body>
                     <Card.Footer className="bg-dark text-white" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                        <small style={{ float: 'right', fontSize: '16px' }}>Credits left: 5/5</small>
+                        <small style={{ float: 'right', fontSize: '16px' }}>Credits left: {credits.creditLeft}/{credits.creditAllowance}</small>
                     </Card.Footer>
                 </Card>
             </div>

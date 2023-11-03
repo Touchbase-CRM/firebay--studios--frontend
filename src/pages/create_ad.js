@@ -68,6 +68,8 @@ export default function CreateAd() {
   }, [adLength]);
 
 
+
+
   // useEffect(() => {
   //   setScript('');  // Reset script whenever adLength changes
   // }, [adLength]);
@@ -127,6 +129,7 @@ export default function CreateAd() {
     }
     return true;
   };
+
 
 
   const handleSubmit = (e) => {
