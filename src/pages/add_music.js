@@ -88,6 +88,7 @@ export default function AddMusic() {
   const cancelTokenSourceRef = useRef(null);
 
   const cancelLoading = () => {
+    setShouldPlay(false);
     setPendingAdvertisement(false);
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel("Request canceled by the user.");
@@ -108,6 +109,7 @@ export default function AddMusic() {
   };
 
   const cancelAndRetryLoading = () => {
+    setShouldPlay(false);
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel(
         "Request canceled by the user for retry."
