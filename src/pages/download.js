@@ -136,12 +136,15 @@ const DownloadPage = () => {
             position: "relative",
             borderRadius: "15px",
             overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <Card.Header
             style={{
               backgroundColor: "#343a40",
               borderBottom: "1px solid rgba(255,255,255,0.1)",
+              padding: "16px",
             }}
           >
             <h1
@@ -153,84 +156,98 @@ const DownloadPage = () => {
           </Card.Header>
           <Card.Body
             className="bg-dark text-white"
-            style={{ paddingTop: "30px", paddingBottom: "30px" }}
+            style={{
+              paddingTop: "20px",
+              paddingBottom: "20px",
+              flex: "1",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+            }}
           >
-            <h5
-              style={{
-                borderBottom: "1px solid rgba(255,255,255,0.2)",
-                paddingBottom: "10px",
-                marginBottom: "20px",
-                fontSize: "18px",
-              }}
-            >
-              Got what you came for?
-            </h5>
-            <ul className="list-unstyled mb-0">
-              <li>
-                <a
-                  href={audioUrl}
-                  download={filename}
-                  onClick={handleDownloadClick}
-                  className={`btn btn-outline-light btn-lg ${
-                    isDownloading ? "disabled" : ""
-                  }`}
-                >
-                  <i className="bi bi-download"></i> Download
-                </a>
-              </li>
-            </ul>
-            <h5
-              style={{
-                borderBottom: "1px solid rgba(255,255,255,0.2)",
-                paddingBottom: "10px",
-                marginBottom: "20px",
-                marginTop: "20px",
-                fontSize: "18px",
-              }}
-            >
-              Need more tweaking?
-            </h5>
-            <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <Link href="/add_music" passHref>
-                  <button className="btn btn-outline-light btn-lg">
-                    Change Music
-                  </button>
-                </Link>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <Link href="/create_ad" passHref>
-                  <button className="btn btn-outline-light btn-lg">
-                    Change Script or Voice
-                  </button>
-                </Link>
-              </li>
-            </ul>
-            <h5
-              style={{
-                borderBottom: "1px solid rgba(255,255,255,0.2)",
-                paddingBottom: "10px",
-                marginBottom: "20px",
-                marginTop: "20px",
-                fontSize: "18px",
-              }}
-            >
-              Start from scratch?
-            </h5>
-            <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <button
-                  className="btn btn-outline-light btn-lg"
-                  onClick={handleNewAd}
-                >
-                  Create a new ad
-                </button>
-              </li>
-            </ul>
+            <div style={{ marginBottom: "20px" }}>
+              <h5
+                style={{
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  paddingBottom: "10px",
+                  marginBottom: "20px",
+                  fontSize: "18px",
+                }}
+              >
+                Got what you came for?
+              </h5>
+              <a
+                href={audioUrl}
+                download={filename}
+                onClick={handleDownloadClick}
+                className={`btn btn-outline-light btn-lg ${
+                  isDownloading ? "disabled" : ""
+                }`}
+                style={{ width: "100%", textAlign: "center" }}
+              >
+                <i className="bi bi-download"></i> Download
+              </a>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <h5
+                style={{
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  paddingBottom: "10px",
+                  marginBottom: "20px",
+                  fontSize: "18px",
+                }}
+              >
+                Need more tweaking?
+              </h5>
+              <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
+                <li style={{ marginBottom: "12px" }}>
+                  <Link href="/add_music" passHref>
+                    <button
+                      className="btn btn-outline-light btn-lg"
+                      style={{ width: "100%" }}
+                    >
+                      Change Music
+                    </button>
+                  </Link>
+                </li>
+                <li style={{ marginBottom: "12px" }}>
+                  <Link href="/create_ad" passHref>
+                    <button
+                      className="btn btn-outline-light btn-lg"
+                      style={{ width: "100%" }}
+                    >
+                      Change Script or Voice
+                    </button>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h5
+                style={{
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  paddingBottom: "10px",
+                  marginBottom: "20px",
+                  fontSize: "18px",
+                }}
+              >
+                Start from scratch?
+              </h5>
+              <button
+                className="btn btn-outline-light btn-lg"
+                onClick={handleNewAd}
+                style={{ width: "100%" }}
+              >
+                Create a new ad
+              </button>
+            </div>
           </Card.Body>
           <Card.Footer
             className="bg-dark text-white"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              padding: "12px 16px",
+            }}
           >
             <small style={{ float: "right", fontSize: "16px" }}>
               Credits left: {credits.creditLeft}/{credits.creditAllowance}
