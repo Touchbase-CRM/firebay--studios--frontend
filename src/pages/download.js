@@ -1,140 +1,258 @@
-import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
-import styles from '../styles/DownloadPage.module.css';
-import { Card, Navbar, Nav, Button } from 'react-bootstrap';
-import AdAudioPlayer from '../components/AdAudioPlayer';
-import Link from 'next/link';
-import { cookieCleaner } from '../utils/cookieUtils';
-import 'firebase/compat/firestore';
+// DownloadPage.jsx
+import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import styles from "../styles/DownloadPage.module.css";
+import { Card, Navbar, Nav, Button } from "react-bootstrap";
+import Link from "next/link";
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { cookieCleaner } from "../utils/cookieUtils";
+import "firebase/compat/firestore";
 import { useAuth } from "../context/auth";
-import firebase from '../firebase';
+import firebase from "../firebase";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 const db = firebase.firestore();
 
 const DownloadPage = () => {
-    const router = useRouter();
-    const { audioUrl } = router.query;
-    const { user } = useAuth();
-    const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
+  const router = useRouter();
+  const { audioUrl } = router.query;
+  const { user } = useAuth();
+  const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
+  const [isDownloading, setIsDownloading] = useState(false); // Track download state
 
-    useEffect(() => {
-        if (user?.uid) {
-            const docRef = db.collection('uid_to_org').doc(user.uid);
+  useEffect(() => {
+    if (user?.uid) {
+      const docRef = db.collection("uid_to_org").doc(user.uid);
 
-            docRef.get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    setCredits({
-                        creditLeft: data.credit_left,
-                        creditAllowance: data.credit_allowance,
-                    });
-                }
-            }).catch((error) => {
-                console.log("Error getting document:", error);
-            });
-        }
-    }, [user?.uid]);
-
-    const handleDownload = () => {
-        // Decrement credit_left in the database
-        const docRef = db.collection('uid_to_org').doc(user.uid);
-        db.runTransaction((transaction) => {
-            return transaction.get(docRef).then((doc) => {
-                if (!doc.exists) {
-                    throw "Document does not exist!";
-                }
-
-                let newCreditLeft = (doc.data().credit_left || 0) - 1;
-                transaction.update(docRef, { credit_left: newCreditLeft });
-                return newCreditLeft; // This value is passed to the .then() handler
-            });
-        }).then((newCreditLeft) => {
+      docRef
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
             setCredits({
-                ...credits,
-                creditLeft: newCreditLeft,
+              creditLeft: data.credit_left,
+              creditAllowance: data.credit_allowance,
             });
-            // confirmAndNavigate();
-        }).catch((error) => {
-            console.error("Transaction failed: ", error);
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
         });
+    }
+  }, [user?.uid]);
 
-    };
+  const handleDownload = () => {
+    setIsDownloading(true); // Set downloading state to true
 
-    const handleNewAd = () => {
-        cookieCleaner(); // This will clear all cookies
-        router.push('/create_ad'); // Navigate to the create ad page
-        URL.revokeObjectURL(audioUrl);
-    };
+    // Decrement credit_left in the database
+    const docRef = db.collection("uid_to_org").doc(user.uid);
+    db.runTransaction((transaction) => {
+      return transaction.get(docRef).then((doc) => {
+        if (!doc.exists) {
+          throw "Document does not exist!";
+        }
 
-    // const confirmAndNavigate = () => {
-    //     Swal.fire({
-    //         title: 'Download Complete!',
-    //         text: 'Would you like to create a new advertisement?',
-    //         icon: 'success',
-    //         showCancelButton: true,
-    //         confirmButtonText: 'Yes, create more!',
-    //         cancelButtonText: 'No, I’m still downloading...'
-    //     }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             router.push('/create_ad');
-    //             URL.revokeObjectURL(audioUrl);
-    //         }
-    //     });
-    // };
+        let newCreditLeft = (doc.data().credit_left || 0) - 1;
+        transaction.update(docRef, { credit_left: newCreditLeft });
+        return newCreditLeft; // This value is passed to the .then() handler
+      });
+    })
+      .then((newCreditLeft) => {
+        setCredits({
+          ...credits,
+          creditLeft: newCreditLeft,
+        });
+        setIsDownloading(false); // Set downloading state to false after download
+        // confirmAndNavigate();
+      })
+      .catch((error) => {
+        console.error("Transaction failed: ", error);
+        setIsDownloading(false); // Set downloading state to false if transaction fails
+      });
+  };
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        router.push('/login');
-    };
+  const handleNewAd = () => {
+    cookieCleaner(); // This will clear all cookies
+    router.push("/create_ad"); // Navigate to the create ad page
+    URL.revokeObjectURL(audioUrl);
+  };
 
-    return (
-        <div style={{ backgroundColor: '#343a40', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar bg="dark" variant="dark" expand="lg">
-                <Navbar.Brand style={{ marginLeft: '10px' }}>
-                    <img src="/fire.png" alt="Firebay Studios" width="50" height="50" className="d-inline-block align-top" />
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="mr-auto"></Nav>
-                </Navbar.Collapse>
-                <Button variant="danger" size="sm" onClick={handleLogout} style={{ marginRight: '10px' }}>
-                    Logout
-                </Button>
-            </Navbar>
-            <div className={styles.container}>
-                <Card style={{ width: '400px', height: '450px', marginTop: '10px', position: 'relative', borderRadius: '15px', overflow: 'hidden' }}>
-                    <Card.Header style={{ backgroundColor: '#343a40', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                        <h1 className={styles.title} style={{ margin: 0, fontSize: '24px' }}>Download Manager</h1>
-                    </Card.Header>
-                    <Card.Body className="bg-dark text-white" style={{ paddingTop: '30px', paddingBottom: '30px' }}>
-                        <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', fontSize: '18px' }}>Need more tweaking?</h5>
-                        <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-                            <li style={{ marginBottom: '12px' }}>
-                                <Link href="/add_music" className="btn btn-outline-light btn-lg">Change Music</Link>
-                            </li>
-                            <li style={{ marginBottom: '12px' }}>
-                                <Link href="/create_ad" className="btn btn-outline-light btn-lg">Change Script or Voice</Link>
-                            </li>
-                            <h5 style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px', marginBottom: '20px', marginTop: '20px', fontSize: '18px' }}>Start from scratch?</h5>
-                            <li style={{ marginBottom: '12px' }}>
-                                <button className="btn btn-outline-light btn-lg" onClick={handleNewAd}>Create a new ad</button>
-                            </li>
-                        </ul>
-                    </Card.Body>
-                    <Card.Footer className="bg-dark text-white" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                        <small style={{ float: 'right', fontSize: '16px' }}>Credits left: {credits.creditLeft}/{credits.creditAllowance}</small>
-                    </Card.Footer>
-                </Card>
-            </div>
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
 
+  const filename = "generated_ad.mp3";
 
-            {
-                credits.creditLeft > 0 && <AdAudioPlayer src={audioUrl} onDownloadClick={handleDownload} />
-            }
+  const handleDownloadClick = (e) => {
+    if (isDownloading) {
+      e.preventDefault(); // Prevent multiple downloads
+    } else {
+      handleDownload();
+    }
+  };
 
+  return (
+    <div
+      style={{
+        backgroundColor: "#343a40",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Navbar.Brand style={{ marginLeft: "10px" }}>
+          <img
+            src="/fire.png"
+            alt="Firebay Studios"
+            width="50"
+            height="50"
+            className="d-inline-block align-top"
+          />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto"></Nav>
+        </Navbar.Collapse>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleLogout}
+          style={{ marginRight: "10px" }}
+        >
+          Logout
+        </Button>
+      </Navbar>
+      <div className={styles.container}>
+        <Card
+          style={{
+            width: "400px",
+            height: "570px",
+            marginTop: "10px",
+            position: "relative",
+            borderRadius: "15px",
+            overflow: "hidden",
+          }}
+        >
+          <Card.Header
+            style={{
+              backgroundColor: "#343a40",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <h1
+              className={styles.title}
+              style={{ margin: 0, fontSize: "24px" }}
+            >
+              Download Manager
+            </h1>
+          </Card.Header>
+          <Card.Body
+            className="bg-dark text-white"
+            style={{ paddingTop: "30px", paddingBottom: "30px" }}
+          >
+            <h5
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                paddingBottom: "10px",
+                marginBottom: "20px",
+                fontSize: "18px",
+              }}
+            >
+              Got what you came for?
+            </h5>
+            <ul className="list-unstyled mb-0">
+              <li>
+                <a
+                  href={audioUrl}
+                  download={filename}
+                  onClick={handleDownloadClick}
+                  className={`btn btn-outline-light btn-lg ${
+                    isDownloading ? "disabled" : ""
+                  }`}
+                >
+                  <i className="bi bi-download"></i> Download
+                </a>
+              </li>
+            </ul>
+            <h5
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                paddingBottom: "10px",
+                marginBottom: "20px",
+                marginTop: "20px",
+                fontSize: "18px",
+              }}
+            >
+              Need more tweaking?
+            </h5>
+            <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
+              <li style={{ marginBottom: "12px" }}>
+                <Link href="/add_music" passHref>
+                  <button className="btn btn-outline-light btn-lg">
+                    Change Music
+                  </button>
+                </Link>
+              </li>
+              <li style={{ marginBottom: "12px" }}>
+                <Link href="/create_ad" passHref>
+                  <button className="btn btn-outline-light btn-lg">
+                    Change Script or Voice
+                  </button>
+                </Link>
+              </li>
+            </ul>
+            <h5
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                paddingBottom: "10px",
+                marginBottom: "20px",
+                marginTop: "20px",
+                fontSize: "18px",
+              }}
+            >
+              Start from scratch?
+            </h5>
+            <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
+              <li style={{ marginBottom: "12px" }}>
+                <button
+                  className="btn btn-outline-light btn-lg"
+                  onClick={handleNewAd}
+                >
+                  Create a new ad
+                </button>
+              </li>
+            </ul>
+          </Card.Body>
+          <Card.Footer
+            className="bg-dark text-white"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <small style={{ float: "right", fontSize: "16px" }}>
+              Credits left: {credits.creditLeft}/{credits.creditAllowance}
+            </small>
+          </Card.Footer>
+        </Card>
+      </div>
 
-        </div>
-    );
+      {credits.creditLeft > 0 && (
+        <AudioPlayer
+          src={audioUrl} // The source of the audio file
+          onPlay={(e) => console.log("onPlay")} // handle the play event
+          // Customize the download behavior
+          customAdditionalControls={[]}
+          customVolumeControls={[]}
+          showJumpControls={false}
+          header="Your Ad Audio" // optional header text
+          footer={`Credits left: ${credits.creditLeft}/${credits.creditAllowance}`} // optional footer text
+        />
+      )}
+    </div>
+  );
 };
 
 export default DownloadPage;
