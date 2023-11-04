@@ -20,11 +20,11 @@ export default function AddMusic() {
   const [genre, setGenre] = useState(() => {
     return getCookie("genre", "Up Beat");
   });
-  const [script, setScript] = useState("");
-  const [voiceId, setVoice] = useState("");
+  const [script, setScript] = useState(() => getCookie("script", ""));
+  const [voiceId, setVoice] = useState(() => getCookie("voiceId", ""));
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const router = useRouter();
-  const [adLength, setAdLength] = useState("");
+  const [adLength, setAdLength] = useState(() => getCookie("adLength", ""));
   const [shouldPlay, setShouldPlay] = useState(false);
 
   const goBack = () => {
