@@ -104,7 +104,12 @@ const DownloadPage = () => {
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        bg="dark"
+        variant="dark"
+        expand="lg"
+        style={{ marginBottom: "5px" }}
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
@@ -133,6 +138,7 @@ const DownloadPage = () => {
             width: "400px",
             height: "570px",
             marginTop: "10px",
+            marginBottom: "300px",
             position: "relative",
             borderRadius: "15px",
             overflow: "hidden",
@@ -258,6 +264,13 @@ const DownloadPage = () => {
 
       {credits.creditLeft > 0 && (
         <AudioPlayer
+          style={{
+            position: "fixed", // Fixed position
+            bottom: 0, // At the bottom
+            left: 0, // Aligned to the left
+            right: 0, // Stretch across the screen
+            zIndex: 1000, // Make sure it's above other elements
+          }}
           src={audioUrl} // The source of the audio file
           onPlay={(e) => console.log("onPlay")} // handle the play event
           // Customize the download behavior
