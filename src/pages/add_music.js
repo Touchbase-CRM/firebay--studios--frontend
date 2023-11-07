@@ -20,6 +20,9 @@ export default function AddMusic() {
   const [genre, setGenre] = useState(() => {
     return getCookie("genre", "Up Beat");
   });
+  const [musicVol, setMusicVol] = useState(() => {
+    return getCookie("musicVol", 0.1);
+  });
   const [script, setScript] = useState(() => getCookie("script", ""));
   const [voiceId, setVoice] = useState(() => getCookie("voiceId", ""));
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
@@ -68,16 +71,21 @@ export default function AddMusic() {
     // Initialize states from cookies using the getCookie function
     const savedGenre = getCookie("genre", "Up Beat");
     const savedNoMusic = getCookie("noMusic", false);
+    const musicVol = getCookie("musicVol", 0.1);
 
     // Set states
     setGenre(savedGenre);
     setNoMusic(savedNoMusic);
+    setMusicVol(musicVol);
   }, []);
 
   // Save states to cookies whenever they change
   useEffect(() => {
     if (genre) setCookie("genre", genre);
   }, [genre]);
+  useEffect(() => {
+    if (musicVol) setCookie("musicVol", musicVol);
+  }, [musicVol]);
 
   useEffect(() => {
     // This will set the cookie for both true and false values of noMusic
@@ -123,6 +131,13 @@ export default function AddMusic() {
       confirmButtonText: "OK",
       allowOutsideClick: false,
     });
+  };
+
+  const handleVolumeChange = (event) => {
+    // Here you would handle the change in volume.
+    // For example, this could update the state or control an audio element.
+    const newVolume = event.target.value;
+    console.log(newVolume);
   };
 
   const handleSubmit = (e) => {
@@ -321,6 +336,23 @@ export default function AddMusic() {
                   <option>Rock</option>
                 </Form.Select>
               </Form.Group>
+
+              <div style={{ marginTop: "20px" }}>
+                <label htmlFor="volumeControl" className="form-label">
+                  Music Volume Control
+                </label>
+                <input
+                  type="range"
+                  className="form-range"
+                  min="0"
+                  max="1"
+                  step="0.01" // Step is 0.01 for fine control of the volume level
+                  id="volumeControl"
+                  defaultValue="0.5" // Default value can be set to 50% of the volume
+                  onChange={handleVolumeChange}
+                  disabled={noMusic}
+                />
+              </div>
 
               <Button type="submit" className="mt-3">
                 Submit
