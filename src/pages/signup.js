@@ -31,37 +31,37 @@ const SignupPage = () => {
   const [acceptsTermsAndConditions, setAcceptsTermsAndConditions] =
     useState(false);
 
-  useEffect(() => {
-    if (organization) {
-      firebase
-        .firestore()
-        .collection("organizations_meta_data")
-        .doc(organization)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            setOrgEmailDomain(doc.data().email_domain);
-          }
-        })
-        .catch((error) => {
-          setError(error.message);
-        });
-    }
-  }, [organization]);
+  // useEffect(() => {
+  //   if (organization) {
+  //     firebase
+  //       .firestore()
+  //       .collection("organizations_meta_data")
+  //       .doc(organization)
+  //       .get()
+  //       .then((doc) => {
+  //         if (doc.exists) {
+  //           setOrgEmailDomain(doc.data().email_domain);
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         setError(error.message);
+  //       });
+  //   }
+  // }, [organization]);
 
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection("organizations_meta_data")
-      .get()
-      .then((snapshot) => {
-        const orgs = snapshot.docs.map((doc) => doc.id);
-        setOrganizations(orgs);
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  }, []);
+  // useEffect(() => {
+  //   firebase
+  //     .firestore()
+  //     .collection("organizations_meta_data")
+  //     .get()
+  //     .then((snapshot) => {
+  //       const orgs = snapshot.docs.map((doc) => doc.id);
+  //       setOrganizations(orgs);
+  //     })
+  //     .catch((error) => {
+  //       setError(error.message);
+  //     });
+  // }, []);
 
   const handlePrivacyPolicyChange = (event) => {
     setAcceptsPrivacyPolicy(event.target.checked);
@@ -105,7 +105,6 @@ const SignupPage = () => {
     }
 
     if (password !== confirmPassword) {
-      // setError("Passwords don't match.");
       Swal.fire({
         icon: "error",
         title: "Passwords do not match",
@@ -115,32 +114,56 @@ const SignupPage = () => {
     }
     const userEmailDomain = email.split("@")[1];
 
-    if (userEmailDomain !== orgEmailDomain) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Email",
-        text: `Please use an email that ends with @${orgEmailDomain}`,
-      });
-      return;
-    }
-
     firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        userCredential.user
-          .sendEmailVerification()
-          .then(() => {
-            setShowModal(true);
-            setVerificationUser(userCredential.user);
-          })
-          .catch((error) => {
-            console.error("Error sending email verification", error);
-            setError(error.message);
+      .firestore()
+      .collection("organizations_meta_data")
+      .doc(userEmailDomain)
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          Swal.fire({
+            icon: "error",
+            title: "Organization Not Found",
+            text: "Your email domain does not match any registered organization.",
           });
+          throw new Error("Organization not found."); // Prevent further execution
+        } else {
+          // Organization exists, set the organization state
+          const orgData = doc.data();
+          setOrganization(orgData.org_name); // Assuming 'org_name' is the field in the document
+
+          // Proceed to create user
+          return firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password);
+        }
+      })
+      .then((userCredential) => {
+        // User created, send email verification
+        setVerificationUser(userCredential.user);
+        return userCredential.user.sendEmailVerification();
+      })
+      .then(() => {
+        // Email verification sent, show modal
+        setShowModal(true);
       })
       .catch((error) => {
-        setError(error.message);
+        if (error.code === "auth/email-already-in-use") {
+          Swal.fire({
+            icon: "error",
+            title: "Email Already in Use",
+            text: "The email address is already in use by another account.",
+          });
+        } else if (error.message !== "Organization not found.") {
+          // Handle other errors differently
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error.message,
+          });
+        }
+        // Log the error or handle the display of the error to the user
+        console.error(error);
       });
   };
 
@@ -261,28 +284,6 @@ const SignupPage = () => {
               }
             `}</style>
             <Form>
-              <Form.Group controlId="organization" className="mb-3">
-                <Form.Label>Organization</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={organization}
-                  onChange={handleOrganizationChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                >
-                  <option value="">--Select Organization--</option>
-                  {organizations.map((org, index) => (
-                    <option value={org} key={index}>
-                      {org}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-
               <Form.Group controlId="firstName" className="mb-3">
                 <Form.Label>First Name</Form.Label>
                 <Form.Control
@@ -316,7 +317,7 @@ const SignupPage = () => {
               </Form.Group>
 
               <Form.Group controlId="email" className="mb-3">
-                <Form.Label>Email address</Form.Label>
+                <Form.Label>Work Email address</Form.Label>
                 <Form.Control
                   type="email"
                   placeholder="Enter email"
