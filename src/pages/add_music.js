@@ -155,6 +155,7 @@ export default function AddMusic() {
       script: script,
       voice: voiceId,
       ad_length: adLength,
+      music_vol: musicVol,
     };
 
     // Endpoint URL
