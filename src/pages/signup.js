@@ -20,48 +20,14 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [organization, setOrganization] = useState("");
-  const [organizations, setOrganizations] = useState([]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [verificationUser, setVerificationUser] = useState(null);
-  const [orgEmailDomain, setOrgEmailDomain] = useState(null);
   const [acceptsPrivacyPolicy, setAcceptsPrivacyPolicy] = useState(false);
   const [acceptsTermsAndConditions, setAcceptsTermsAndConditions] =
     useState(false);
-
-  // useEffect(() => {
-  //   if (organization) {
-  //     firebase
-  //       .firestore()
-  //       .collection("organizations_meta_data")
-  //       .doc(organization)
-  //       .get()
-  //       .then((doc) => {
-  //         if (doc.exists) {
-  //           setOrgEmailDomain(doc.data().email_domain);
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         setError(error.message);
-  //       });
-  //   }
-  // }, [organization]);
-
-  // useEffect(() => {
-  //   firebase
-  //     .firestore()
-  //     .collection("organizations_meta_data")
-  //     .get()
-  //     .then((snapshot) => {
-  //       const orgs = snapshot.docs.map((doc) => doc.id);
-  //       setOrganizations(orgs);
-  //     })
-  //     .catch((error) => {
-  //       setError(error.message);
-  //     });
-  // }, []);
 
   const handlePrivacyPolicyChange = (event) => {
     setAcceptsPrivacyPolicy(event.target.checked);
@@ -82,9 +48,7 @@ const SignupPage = () => {
   const handleConfirmPasswordChange = (event) => {
     setConfirmPassword(event.target.value);
   };
-  const handleOrganizationChange = (event) => {
-    setOrganization(event.target.value);
-  };
+
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
   };
@@ -130,7 +94,7 @@ const SignupPage = () => {
         } else {
           // Organization exists, set the organization state
           const orgData = doc.data();
-          setOrganization(orgData.org_name); // Assuming 'org_name' is the field in the document
+          setOrganization(orgData.org_name);
 
           // Proceed to create user
           return firebase
