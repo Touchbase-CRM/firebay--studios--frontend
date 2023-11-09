@@ -20,6 +20,9 @@ export default function AddMusic() {
   const [genre, setGenre] = useState(() => {
     return getCookie("genre", "Up Beat");
   });
+  const [musicVol, setMusicVol] = useState(() => {
+    return getCookie("musicVol", 0.1);
+  });
   const [script, setScript] = useState(() => getCookie("script", ""));
   const [voiceId, setVoice] = useState(() => getCookie("voiceId", ""));
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
@@ -90,16 +93,21 @@ export default function AddMusic() {
     // Initialize states from cookies using the getCookie function
     const savedGenre = getCookie("genre", "Up Beat");
     const savedNoMusic = getCookie("noMusic", false);
+    const musicVol = getCookie("musicVol", 0.1);
 
     // Set states
     setGenre(savedGenre);
     setNoMusic(savedNoMusic);
+    setMusicVol(musicVol);
   }, []);
 
   // Save states to cookies whenever they change
   useEffect(() => {
     if (genre) setCookie("genre", genre);
   }, [genre]);
+  useEffect(() => {
+    if (musicVol) setCookie("musicVol", musicVol);
+  }, [musicVol]);
 
   useEffect(() => {
     // This will set the cookie for both true and false values of noMusic
@@ -147,6 +155,11 @@ export default function AddMusic() {
     });
   };
 
+  const handleVolumeChange = (event) => {
+    const newVolume = event.target.value;
+    setMusicVol(newVolume);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setPendingAdvertisement(true); // Set pending before API call starts
@@ -162,6 +175,7 @@ export default function AddMusic() {
       script: script,
       voice: voiceId,
       ad_length: adLength,
+      music_vol: musicVol,
     };
 
     // Endpoint URL
@@ -205,7 +219,7 @@ export default function AddMusic() {
   };
 
   const handleLogout = () => {
-    cookieCleaner(); // Clear all cookies
+    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };
@@ -344,6 +358,28 @@ export default function AddMusic() {
                   <option>Rock</option>
                 </Form.Select>
               </Form.Group>
+
+              <div style={{ marginTop: "20px" }}>
+                <label htmlFor="volumeControl" className="form-label">
+                  Music Volume Control
+                  <i
+                    style={{ marginLeft: "5px", color: "white" }}
+                    className="bi bi-info-circle"
+                    title="Note: The volume selected here will not affect the preview volume."
+                  ></i>
+                </label>
+                <input
+                  type="range"
+                  className="form-range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  id="volumeControl"
+                  defaultValue={musicVol}
+                  onChange={handleVolumeChange}
+                  disabled={noMusic}
+                />
+              </div>
 
               <Button type="submit" className="mt-3">
                 Submit

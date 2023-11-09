@@ -1,7 +1,5 @@
-// DownloadPage.jsx
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
 import styles from "../styles/DownloadPage.module.css";
 import { Card, Navbar, Nav, Button } from "react-bootstrap";
 import Link from "next/link";
@@ -66,7 +64,6 @@ const DownloadPage = () => {
           creditLeft: newCreditLeft,
         });
         setIsDownloading(false); // Set downloading state to false after download
-        // confirmAndNavigate();
       })
       .catch((error) => {
         console.error("Transaction failed: ", error);
@@ -75,13 +72,13 @@ const DownloadPage = () => {
   };
 
   const handleNewAd = () => {
-    cookieCleaner(); // This will clear all cookies
-    router.push("/create_ad"); // Navigate to the create ad page
+    cookieCleaner();
+    router.push("/create_ad");
     URL.revokeObjectURL(audioUrl);
   };
 
   const handleLogout = () => {
-    cookieCleaner(); // Clear all cookies
+    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };
@@ -279,7 +276,6 @@ const DownloadPage = () => {
           customVolumeControls={[]}
           showJumpControls={false}
           header="Your Ad Audio" // optional header text
-          footer={`Credits left: ${credits.creditLeft}/${credits.creditAllowance}`} // optional footer text
         />
       )}
     </div>
