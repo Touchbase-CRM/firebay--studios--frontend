@@ -81,6 +81,7 @@ const DownloadPage = () => {
   };
 
   const handleLogout = () => {
+    cookieCleaner(); // Clear all cookies
     localStorage.removeItem("user");
     router.push("/login");
   };
