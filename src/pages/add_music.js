@@ -156,10 +156,8 @@ export default function AddMusic() {
   };
 
   const handleVolumeChange = (event) => {
-    // Here you would handle the change in volume.
-    // For example, this could update the state or control an audio element.
     const newVolume = event.target.value;
-    console.log(newVolume);
+    setMusicVol(newVolume);
   };
 
   const handleSubmit = (e) => {
@@ -181,9 +179,9 @@ export default function AddMusic() {
     };
 
     // Endpoint URL
-    // const url =
-    // "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
-    const url = "http://localhost:8000/generate-mix"; // For local testing
+    const url =
+      "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
+    // const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
@@ -221,7 +219,7 @@ export default function AddMusic() {
   };
 
   const handleLogout = () => {
-    cookieCleaner(); // Clear all cookies
+    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };
@@ -364,15 +362,20 @@ export default function AddMusic() {
               <div style={{ marginTop: "20px" }}>
                 <label htmlFor="volumeControl" className="form-label">
                   Music Volume Control
+                  <i
+                    style={{ marginLeft: "5px", color: "white" }}
+                    className="bi bi-info-circle"
+                    title="Note: The volume selected here will not affect the preview volume."
+                  ></i>
                 </label>
                 <input
                   type="range"
                   className="form-range"
                   min="0"
                   max="1"
-                  step="0.01" // Step is 0.01 for fine control of the volume level
+                  step="0.01"
                   id="volumeControl"
-                  defaultValue="0.5" // Default value can be set to 50% of the volume
+                  defaultValue={musicVol}
                   onChange={handleVolumeChange}
                   disabled={noMusic}
                 />
