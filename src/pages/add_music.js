@@ -159,9 +159,9 @@ export default function AddMusic() {
     };
 
     // Endpoint URL
-    const url =
-      "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
+    // const url =
+    // "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
+    const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
