@@ -7,7 +7,7 @@ import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import MusicAudioPlayer from "../components/MusicAudioPlayer";
-import { getCookie, setCookie } from "../utils/cookieUtils";
+import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 
 function toSnakeCase(str) {
   return str.toLowerCase().replace(/\s+/g, "_");
@@ -38,30 +38,52 @@ export default function AddMusic() {
   } = router.query;
 
   useEffect(() => {
-    // Determine if query params are present and not empty
-    const hasAdLengthQuery = adLengthQuery || adLengthQuery === "";
-    const hasScriptQuery = scriptQuery || scriptQuery === "";
-    const hasVoiceQuery = voiceQuery || voiceQuery === "";
+    // Check if all query params are present and not empty
+    const hasAdLengthQuery = adLengthQuery && adLengthQuery !== "";
+    const hasScriptQuery = scriptQuery && scriptQuery !== "";
+    const hasVoiceQuery = voiceQuery && voiceQuery !== "";
 
-    const shouldUseCookieValues =
-      !hasAdLengthQuery && !hasScriptQuery && !hasVoiceQuery;
-
-    // If no query params or they are empty, attempt to reassign state from cookies
-    if (shouldUseCookieValues) {
-      const cookieAdLength = getCookie("adLength");
-      const cookieScript = getCookie("script");
-      const cookieVoiceId = getCookie("voiceId");
-
-      if (cookieAdLength) setAdLength(cookieAdLength);
-      if (cookieScript) setScript(cookieScript);
-      if (cookieVoiceId) setVoice(cookieVoiceId);
+    // If all query params are present and not empty, use them to set the state
+    if (hasAdLengthQuery && hasScriptQuery && hasVoiceQuery) {
+      setAdLength(adLengthQuery);
+      setScript(scriptQuery);
+      setVoice(voiceQuery);
     } else {
-      // If query params are present and not empty, use them to set the state
-      if (hasAdLengthQuery) setAdLength(adLengthQuery);
-      if (hasScriptQuery) setScript(scriptQuery);
-      if (hasVoiceQuery) setVoice(voiceQuery);
+      // Attempt to reassign state from cookies
+      const cookieAdLength = getCookie("adLength", "");
+      const cookieScript = getCookie("script", "");
+      const cookieVoiceId = getCookie("voiceId", "");
+
+      // Check if the cookie values are empty strings
+      const areCookiesValid =
+        cookieAdLength !== "" && cookieScript !== "" && cookieVoiceId !== "";
+
+      if (!areCookiesValid) {
+        // Show SweetAlert2 modal if cookies are invalid
+        Swal.fire({
+          title: "Session Expired",
+          text: "Your session has expired. Please start a new ad.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Start Over",
+          cancelButtonText: "Stay",
+          reverseButtons: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // User confirmed, clear cookies and redirect
+            cookieCleaner(); // Clear all cookies
+            router.push("/create_ad"); // Redirect to the create ad page
+          }
+          // If the user cancels, just close the alert and stay on the page
+        });
+      } else {
+        // If cookies are valid, set the state
+        setAdLength(cookieAdLength);
+        setScript(cookieScript);
+        setVoice(cookieVoiceId);
+      }
     }
-  }, [adLengthQuery, scriptQuery, voiceQuery]);
+  }, [adLengthQuery, scriptQuery, voiceQuery, router]);
 
   // Load states from cookies on component mount
   useEffect(() => {
@@ -183,6 +205,7 @@ export default function AddMusic() {
   };
 
   const handleLogout = () => {
+    cookieCleaner(); // Clear all cookies
     localStorage.removeItem("user");
     router.push("/login");
   };

@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import VoiceAudioPlayer from "../components/VoiceAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
-import { getCookie, setCookie } from "../utils/cookieUtils";
+import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 
 export default function CreateAd() {
   const [script, setScript] = useState(() => {
@@ -161,6 +161,7 @@ export default function CreateAd() {
   };
 
   const handleLogout = () => {
+    cookieCleaner(); // Clear all cookies
     localStorage.removeItem("user");
     router.push("/login");
   };
