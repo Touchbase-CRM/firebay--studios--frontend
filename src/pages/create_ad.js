@@ -6,8 +6,9 @@ import VoiceAudioPlayer from "../components/VoiceAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
+import withAuth from "../hocs/withAuth";
 
-export default function CreateAd() {
+function CreateAd() {
   const [script, setScript] = useState(() => {
     return getCookie("script", "");
   });
@@ -327,3 +328,4 @@ export default function CreateAd() {
     </div>
   );
 }
+export default withAuth(CreateAd);
