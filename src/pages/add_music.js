@@ -8,12 +8,13 @@ import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import MusicAudioPlayer from "../components/MusicAudioPlayer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
+import withAuth from "../hocs/withAuth";
 
 function toSnakeCase(str) {
   return str.toLowerCase().replace(/\s+/g, "_");
 }
 
-export default function AddMusic() {
+function AddMusic() {
   const [noMusic, setNoMusic] = useState(() => {
     return getCookie("noMusic", false);
   });
@@ -396,3 +397,5 @@ export default function AddMusic() {
     </div>
   );
 }
+
+export default withAuth(AddMusic);
