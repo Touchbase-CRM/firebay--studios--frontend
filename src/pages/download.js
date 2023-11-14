@@ -11,6 +11,7 @@ import "firebase/compat/firestore";
 import { useAuth } from "../context/auth";
 import firebase from "../firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import withAuth from "../hocs/withAuth";
 
 const db = firebase.firestore();
 
@@ -282,4 +283,4 @@ const DownloadPage = () => {
   );
 };
 
-export default DownloadPage;
+export default withAuth(DownloadPage);
