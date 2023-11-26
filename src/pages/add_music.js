@@ -360,7 +360,7 @@ function AddMusic() {
                 </Form.Select>
               </Form.Group>
 
-              <div style={{ marginTop: "20px" }}>
+              {/* <div style={{ marginTop: "20px" }}>
                 <label htmlFor="volumeControl" className="form-label">
                   Music Volume Control
                   <i
@@ -380,7 +380,7 @@ function AddMusic() {
                   onChange={handleVolumeChange}
                   disabled={noMusic}
                 />
-              </div>
+              </div> */}
 
               <Button type="submit" className="mt-3">
                 Submit
