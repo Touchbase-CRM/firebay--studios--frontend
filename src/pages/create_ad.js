@@ -277,7 +277,7 @@ function CreateAd() {
                 className="mt-3"
                 style={{ marginRight: "10px", marginTop: "20px" }}
               >
-                Submit
+                Next
               </Button>
               <button
                 className="mt-3"

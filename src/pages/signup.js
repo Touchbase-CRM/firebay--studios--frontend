@@ -234,7 +234,7 @@ const SignupPage = () => {
               height={100}
               className="d-block mx-auto mb-3"
             />
-            <h2 className="text-center mb-4">Firebay Studios Sign Up (Demo)</h2>
+            <h2 className="text-center mb-4">Firebay Studios Sign Up</h2>
             <p className="text-center mb-5">
               Please enter your email and create a password!
             </p>

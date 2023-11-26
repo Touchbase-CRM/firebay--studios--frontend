@@ -98,7 +98,7 @@ const LoginPage = () => {
               className="d-block mx-auto mb-3"
             />
 
-            <h2 className="text-center mb-4">Firebay Studios Sign Up (Demo)</h2>
+            <h2 className="text-center mb-4">Firebay Studios Sign Up</h2>
             <p className="text-center mb-5">
               Please enter your login and password!
             </p>
