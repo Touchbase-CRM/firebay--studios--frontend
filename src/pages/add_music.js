@@ -9,12 +9,15 @@ import Swal from "sweetalert2";
 import MusicAudioPlayer from "../components/MusicAudioPlayer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
+import { usePostHog } from "posthog-js/react";
 
 function toSnakeCase(str) {
   return str.toLowerCase().replace(/\s+/g, "_");
 }
 
 function AddMusic() {
+  const posthog = usePostHog();
+
   const [noMusic, setNoMusic] = useState(() => {
     return getCookie("noMusic", false);
   });
@@ -168,6 +171,12 @@ function AddMusic() {
     const userId = firebase.auth().currentUser.uid;
     const snakeCaseGenre = toSnakeCase(genre);
     cancelTokenSourceRef.current = axios.CancelToken.source();
+
+    // Track the button click event with PostHog with only the required properties
+    posthog.capture("submit-button-clicked", {
+      date: new Date().toISOString(), // Capture the current date and time in ISO format
+      userId: userId, // Capture the Firebase user ID
+    });
 
     const payload = {
       user_id: userId,
