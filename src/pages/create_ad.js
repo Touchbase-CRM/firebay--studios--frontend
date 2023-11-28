@@ -7,8 +7,14 @@ import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
+import firebase from "../firebase";
+import "firebase/auth";
+
+import { usePostHog } from "posthog-js/react";
 
 function CreateAd() {
+  const posthog = usePostHog();
+
   const [script, setScript] = useState(() => {
     return getCookie("script", "");
   });
@@ -102,6 +108,14 @@ function CreateAd() {
     setVoiceId(e.target.value);
     setVoiceName(e.target[e.target.selectedIndex].text);
     setShouldPlayAudio(true);
+
+    const userId = firebase.auth().currentUser.uid;
+    posthog.capture("voice-change", {
+      date: new Date().toISOString(),
+      userId: userId,
+      voiceId: e.target.value,
+      voiceName: e.target[e.target.selectedIndex].text,
+    });
   };
 
   const checkKeywordsInScript = () => {

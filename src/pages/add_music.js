@@ -173,7 +173,7 @@ function AddMusic() {
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     // Track the button click event with PostHog with only the required properties
-    posthog.capture("submit-button-clicked", {
+    posthog.capture("add-music-submit-button-clicked", {
       date: new Date().toISOString(), // Capture the current date and time in ISO format
       userId: userId, // Capture the Firebase user ID
     });
