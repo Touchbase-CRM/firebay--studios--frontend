@@ -12,10 +12,12 @@ import { useAuth } from "../context/auth";
 import firebase from "../firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import withAuth from "../hocs/withAuth";
+import { usePostHog } from "posthog-js/react";
 
 const db = firebase.firestore();
 
 const DownloadPage = () => {
+  const posthog = usePostHog();
   const router = useRouter();
   const { audioUrl } = router.query;
   const { user } = useAuth();
@@ -45,6 +47,11 @@ const DownloadPage = () => {
 
   const handleDownload = () => {
     setIsDownloading(true); // Set downloading state to true
+    posthog.capture("download-download-button-clicked", {
+      date: new Date().toISOString(),
+      userId: user.uid,
+      // Additional properties can be added here if needed
+    });
 
     // Decrement credit_left in the database
     const docRef = db.collection("uid_to_org").doc(user.uid);
@@ -92,6 +99,26 @@ const DownloadPage = () => {
     } else {
       handleDownload();
     }
+  };
+
+  const handleChangeMusic = () => {
+    posthog.capture("download-change-music-clicked", {
+      date: new Date().toISOString(),
+      userId: user.uid,
+      // Additional properties can be added here if needed
+    });
+
+    router.push("/add_music");
+  };
+
+  const handleChangeScriptOrVoice = () => {
+    posthog.capture("download-change-script-or-voice-clicked", {
+      date: new Date().toISOString(),
+      userId: user.uid,
+      // Additional properties can be added here if needed
+    });
+
+    router.push("/create_ad");
   };
 
   return (
@@ -210,6 +237,7 @@ const DownloadPage = () => {
                     <button
                       className="btn btn-outline-light btn-lg"
                       style={{ width: "100%" }}
+                      onClick={handleChangeMusic}
                     >
                       Change Music
                     </button>
@@ -220,6 +248,7 @@ const DownloadPage = () => {
                     <button
                       className="btn btn-outline-light btn-lg"
                       style={{ width: "100%" }}
+                      onClick={handleChangeScriptOrVoice}
                     >
                       Change Script or Voice
                     </button>
