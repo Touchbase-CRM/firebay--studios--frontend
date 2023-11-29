@@ -110,7 +110,7 @@ function CreateAd() {
     setShouldPlayAudio(true);
 
     const userId = firebase.auth().currentUser.uid;
-    posthog.capture("voice-change", {
+    posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
       voiceId: e.target.value,
