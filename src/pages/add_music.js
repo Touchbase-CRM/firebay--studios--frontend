@@ -6,7 +6,7 @@ import "firebase/auth";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
-import MusicAudioPlayer from "../components/MusicAudioPlayer";
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
@@ -409,8 +409,8 @@ function AddMusic() {
             </Form>
           </Card>
           <div>
-            <MusicAudioPlayer
-              genre={genre}
+            <SimpleAudioPlayer
+              audioTitle={genre}
               audioSrc={musicPreviewLinks[genre]}
             />
           </div>

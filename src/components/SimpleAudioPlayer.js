@@ -10,7 +10,7 @@ function toTitleCase(str) {
     .join(" ");
 }
 
-export default function MusicAudioPlayer({ genre, audioSrc }) {
+export default function SimpleAudioPlayer({ audioTitle, audioSrc }) {
   return (
     <div className="fixed-bottom bg-light border-top">
       <div className="container pt-2 pb-2">
@@ -18,7 +18,7 @@ export default function MusicAudioPlayer({ genre, audioSrc }) {
           src={audioSrc || undefined}
           header={
             <span style={{ color: "black" }}>
-              Now playing: {toTitleCase(genre)}
+              Now playing: {toTitleCase(audioTitle)}
             </span>
           }
           showJumpControls={false}
