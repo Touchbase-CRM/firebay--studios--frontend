@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -32,6 +32,7 @@ function CreateAd() {
   });
 
   const router = useRouter();
+  const voiceAudioPlayerRef = useRef(null);
 
   const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
@@ -100,22 +101,43 @@ function CreateAd() {
     Kate: "cBijDV6IOSWp9c8dA7Xn",
   };
 
+  const voicePreviewLinks = {
+    Bryan:
+      "https://drive.google.com/uc?export=download&id=1XHZMuGSR6fmFxbEi6gAzIaMcZMpn8_eV",
+    Charley:
+      "https://drive.google.com/uc?export=download&id=1wngVcIpz3CUYTVcOSSVKaGjSafmOMETI",
+    Elizabeth:
+      "https://drive.google.com/uc?export=download&id=1OLfmzNm1EwaKYLhB1mkM1JUBQLcncsbN",
+    Joe: "https://drive.google.com/uc?export=download&id=1CwD3YjYRyRUGQSfIvHo8OR2TniyR8Lgg",
+    Kate: "https://drive.google.com/uc?export=download&id=17deqBO-9X_jJ_YQnCNi4vT7RYbPNFfGh",
+  };
+
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
   };
 
   const handleVoiceChange = (e) => {
-    setVoiceId(e.target.value);
-    setVoiceName(e.target[e.target.selectedIndex].text);
+    const newVoiceName = e.target[e.target.selectedIndex].text;
+    const newVoiceId = voicePreviewLinks[newVoiceName];
+
+    setVoiceId(newVoiceId);
+    setVoiceName(newVoiceName);
     setShouldPlayAudio(true);
 
     const userId = firebase.auth().currentUser.uid;
     posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
-      voiceId: e.target.value,
-      voiceName: e.target[e.target.selectedIndex].text,
+      voiceId: newVoiceId,
+      voiceName: newVoiceName,
     });
+
+    // Assuming you have a ref to your audio player
+    if (voiceAudioPlayerRef.current) {
+      voiceAudioPlayerRef.current.src = newVoiceId;
+      voiceAudioPlayerRef.current.load();
+      voiceAudioPlayerRef.current.play();
+    }
   };
 
   const checkKeywordsInScript = () => {
@@ -329,11 +351,8 @@ function CreateAd() {
             {/* Conditional rendering of VoiceAudioPlayer */}
             {shouldPlayAudio && (
               <VoiceAudioPlayer
-                text={sampleMessage}
-                voiceId={voiceId}
+                audioSrc={voicePreviewLinks[voiceName]}
                 voiceName={voiceName}
-                style={{ marginTop: "20px" }}
-                onAudioStart={() => setShouldPlayAudio(false)}
               />
             )}
           </div>
