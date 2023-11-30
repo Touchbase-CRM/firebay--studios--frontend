@@ -351,12 +351,12 @@ function CreateAd() {
 
           <div>
             {/* Conditional rendering of VoiceAudioPlayer */}
-            {shouldPlayAudio && (
-              <VoiceAudioPlayer
-                audioSrc={voicePreviewLinks[voiceName]}
-                voiceName={voiceName}
-              />
-            )}
+            {/* {shouldPlayAudio && ( */}
+            <VoiceAudioPlayer
+              audioSrc={voicePreviewLinks[voiceName]}
+              voiceName={voiceName}
+            />
+            {/* )} */}
           </div>
         </Col>
       </Row>
