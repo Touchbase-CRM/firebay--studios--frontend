@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles/DownloadPage.module.css";
 import { Card, Navbar, Nav, Button } from "react-bootstrap";
 import Link from "next/link";
-import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { cookieCleaner } from "../utils/cookieUtils";
@@ -13,6 +12,7 @@ import firebase from "../firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 
 const db = firebase.firestore();
 
@@ -291,22 +291,9 @@ const DownloadPage = () => {
       </div>
 
       {credits.creditLeft > 0 && (
-        <AudioPlayer
-          style={{
-            position: "fixed", // Fixed position
-            bottom: 0, // At the bottom
-            left: 0, // Aligned to the left
-            right: 0, // Stretch across the screen
-            zIndex: 1000, // Make sure it's above other elements
-          }}
-          src={audioUrl} // The source of the audio file
-          onPlay={(e) => console.log("onPlay")} // handle the play event
-          // Customize the download behavior
-          customAdditionalControls={[]}
-          customVolumeControls={[]}
-          showJumpControls={false}
-          header="Your Ad Audio" // optional header text
-        />
+        <div>
+          <SimpleAudioPlayer audioTitle="" audioSrc={audioUrl} />
+        </div>
       )}
     </div>
   );

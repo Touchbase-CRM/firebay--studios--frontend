@@ -6,7 +6,7 @@ import "firebase/auth";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
-import MusicAudioPlayer from "../components/MusicAudioPlayer";
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
@@ -16,6 +16,17 @@ function toSnakeCase(str) {
 }
 
 function AddMusic() {
+  const musicPreviewLinks = {
+    "Up Beat":
+      "https://drive.google.com/uc?export=download&id=1TXE74TAX6Ui3hakkEKYc_IRRJHoYFkV3",
+    Happy:
+      "https://drive.google.com/uc?export=download&id=1XZJZ-rgcIdlI6KVA43q_K_JXiKr8XB03",
+    Jazz: "https://drive.google.com/uc?export=download&id=145TkAsa4l2IT8sm2ULCwZu5sXXvzC126",
+    Motivational:
+      "https://drive.google.com/uc?export=download&id=13TBPm6axkQ1emcoRUgNDztZGAhbynMLN",
+    Rock: "https://drive.google.com/uc?export=download&id=18acx7Jg1E9KjnVACl8DZqjHzUK0cJTI3",
+  };
+
   const posthog = usePostHog();
 
   const [noMusic, setNoMusic] = useState(() => {
@@ -32,7 +43,6 @@ function AddMusic() {
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const router = useRouter();
   const [adLength, setAdLength] = useState(() => getCookie("adLength", ""));
-  const [shouldPlay, setShouldPlay] = useState(false);
 
   const goBack = () => {
     router.back();
@@ -122,7 +132,6 @@ function AddMusic() {
   const cancelTokenSourceRef = useRef(null);
 
   const cancelLoading = () => {
-    setShouldPlay(false);
     setPendingAdvertisement(false);
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel("Request canceled by the user.");
@@ -143,7 +152,6 @@ function AddMusic() {
   };
 
   const cancelAndRetryLoading = () => {
-    setShouldPlay(false);
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel(
         "Request canceled by the user for retry."
@@ -162,6 +170,10 @@ function AddMusic() {
   const handleVolumeChange = (event) => {
     const newVolume = event.target.value;
     setMusicVol(newVolume);
+  };
+
+  const handleGenreChange = (e) => {
+    setGenre(e.target.value);
   };
 
   const handleSubmit = (e) => {
@@ -354,10 +366,7 @@ function AddMusic() {
                 <Form.Select
                   aria-label="Genre select"
                   value={genre}
-                  onChange={(e) => {
-                    setGenre(e.target.value);
-                    setShouldPlay(true); // Play audio when a genre is selected
-                  }}
+                  onChange={handleGenreChange}
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
@@ -397,9 +406,10 @@ function AddMusic() {
             </Form>
           </Card>
           <div>
-            {shouldPlay && (
-              <MusicAudioPlayer genre={genre} style={{ marginTop: "20px" }} />
-            )}
+            <SimpleAudioPlayer
+              audioTitle={genre}
+              audioSrc={musicPreviewLinks[genre]}
+            />
           </div>
         </Col>
       </Row>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import VoiceAudioPlayer from "../components/VoiceAudioPlayer";
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
@@ -32,6 +32,7 @@ function CreateAd() {
   });
 
   const router = useRouter();
+  const voiceAudioPlayerRef = useRef(null);
 
   const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
@@ -43,7 +44,6 @@ function CreateAd() {
 
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
-  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`; // this message is currently not needed. But it will be useful if we directly use api to preview voice.
 
   // Load states from cookies on component mount
   useEffect(() => {
@@ -100,22 +100,45 @@ function CreateAd() {
     Kate: "cBijDV6IOSWp9c8dA7Xn",
   };
 
+  const voicePreviewLinks = {
+    Bryan:
+      "https://drive.google.com/uc?export=download&id=1XHZMuGSR6fmFxbEi6gAzIaMcZMpn8_eV",
+    Charley:
+      "https://drive.google.com/uc?export=download&id=1wngVcIpz3CUYTVcOSSVKaGjSafmOMETI",
+    Elizabeth:
+      "https://drive.google.com/uc?export=download&id=1OLfmzNm1EwaKYLhB1mkM1JUBQLcncsbN",
+    Joe: "https://drive.google.com/uc?export=download&id=1CwD3YjYRyRUGQSfIvHo8OR2TniyR8Lgg",
+    Kate: "https://drive.google.com/uc?export=download&id=17deqBO-9X_jJ_YQnCNi4vT7RYbPNFfGh",
+  };
+
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
   };
 
   const handleVoiceChange = (e) => {
-    setVoiceId(e.target.value);
-    setVoiceName(e.target[e.target.selectedIndex].text);
+    const newVoiceId = e.target.value;
+    const newVoiceName = Object.keys(voices).find(
+      (name) => voices[name] === newVoiceId
+    );
+
+    setVoiceId(newVoiceId);
+    setVoiceName(newVoiceName);
     setShouldPlayAudio(true);
 
     const userId = firebase.auth().currentUser.uid;
     posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
-      voiceId: e.target.value,
-      voiceName: e.target[e.target.selectedIndex].text,
+      voiceId: newVoiceId,
+      voiceName: newVoiceName,
     });
+
+    // Assuming you have a ref to your audio player
+    if (voiceAudioPlayerRef.current) {
+      voiceAudioPlayerRef.current.src = newVoiceId;
+      voiceAudioPlayerRef.current.load();
+      voiceAudioPlayerRef.current.play();
+    }
   };
 
   const checkKeywordsInScript = () => {
@@ -176,7 +199,7 @@ function CreateAd() {
   };
 
   const handleLogout = () => {
-    cookieCleaner(); // Clear all cookies
+    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };
@@ -326,16 +349,10 @@ function CreateAd() {
           </Card>
 
           <div>
-            {/* Conditional rendering of VoiceAudioPlayer */}
-            {shouldPlayAudio && (
-              <VoiceAudioPlayer
-                text={sampleMessage}
-                voiceId={voiceId}
-                voiceName={voiceName}
-                style={{ marginTop: "20px" }}
-                onAudioStart={() => setShouldPlayAudio(false)}
-              />
-            )}
+            <SimpleAudioPlayer
+              audioSrc={voicePreviewLinks[voiceName]}
+              audioTitle={voiceName}
+            />
           </div>
         </Col>
       </Row>
