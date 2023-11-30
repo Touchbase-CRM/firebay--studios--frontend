@@ -315,7 +315,7 @@ function CreateAd() {
                 } // Darken the info color on hover
                 onMouseOut={(e) => (e.target.style.backgroundColor = "#17a2b8")}
               >
-                Samples
+                Script Examples
               </button>
 
               <ExamplesViewer
