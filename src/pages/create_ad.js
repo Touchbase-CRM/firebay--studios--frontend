@@ -117,8 +117,10 @@ function CreateAd() {
   };
 
   const handleVoiceChange = (e) => {
-    const newVoiceName = e.target[e.target.selectedIndex].text;
-    const newVoiceId = voicePreviewLinks[newVoiceName];
+    const newVoiceId = e.target.value;
+    const newVoiceName = Object.keys(voices).find(
+      (name) => voices[name] === newVoiceId
+    );
 
     setVoiceId(newVoiceId);
     setVoiceName(newVoiceName);
