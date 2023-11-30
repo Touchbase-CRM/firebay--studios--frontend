@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import VoiceAudioPlayer from "../components/VoiceAudioPlayer";
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
@@ -44,7 +44,6 @@ function CreateAd() {
 
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
-  var sampleMessage = `Hi I’m ${voiceName}, feel free to use my voice to create an ad.`; // this message is currently not needed. But it will be useful if we directly use api to preview voice.
 
   // Load states from cookies on component mount
   useEffect(() => {
@@ -200,7 +199,7 @@ function CreateAd() {
   };
 
   const handleLogout = () => {
-    cookieCleaner(); // Clear all cookies
+    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };
@@ -350,13 +349,10 @@ function CreateAd() {
           </Card>
 
           <div>
-            {/* Conditional rendering of VoiceAudioPlayer */}
-            {/* {shouldPlayAudio && ( */}
-            <VoiceAudioPlayer
+            <SimpleAudioPlayer
               audioSrc={voicePreviewLinks[voiceName]}
-              voiceName={voiceName}
+              audioTitle={voiceName}
             />
-            {/* )} */}
           </div>
         </Col>
       </Row>
