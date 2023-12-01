@@ -37,28 +37,24 @@ const SignupPage = () => {
           const orgData = doc.data();
           setOrganization(orgData.org_name);
 
-          // Proceed to create user
-          return firebase
-            .auth()
-            .createUserWithEmailAndPassword(email, password);
+          // Proceed to create a temporary anonymous user
+          return firebase.auth().signInAnonymously();
         }
       })
+      .then((userCredential) => {
+        // Handle the new user here
+        // For example, you could store the user's email in Firestore or in the user's profile
+        const user = userCredential.user;
+        console.log("Temporary user created: ", user.uid);
+        // Additional code to handle the new user
+      })
       .catch((error) => {
-        if (error.code === "auth/email-already-in-use") {
-          Swal.fire({
-            icon: "error",
-            title: "Email Already in Use",
-            text: "The email address is already in use by another account.",
-          });
-        } else if (error.message !== "Organization not found.") {
-          // Handle other errors differently
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message,
-          });
-        }
-        // Log the error or handle the display of the error to the user
+        // Handle errors here, including errors from signInAnonymously
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message,
+        });
         console.error(error);
       });
   };
@@ -115,6 +111,7 @@ const SignupPage = () => {
                   }}
                 />
               </Form.Group>
+              <br></br>
 
               <Button
                 className="w-100"
