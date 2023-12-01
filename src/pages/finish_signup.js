@@ -14,7 +14,7 @@ import "firebase/compat/firestore";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
-const SignupPage = () => {
+const FinishSignupPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +28,12 @@ const SignupPage = () => {
   const [acceptsPrivacyPolicy, setAcceptsPrivacyPolicy] = useState(false);
   const [acceptsTermsAndConditions, setAcceptsTermsAndConditions] =
     useState(false);
+
+  useEffect(() => {
+    if (router.query.email) {
+      setEmail(router.query.email);
+    }
+  }, [router.query.email]);
 
   const handlePrivacyPolicyChange = (event) => {
     setAcceptsPrivacyPolicy(event.target.checked);
@@ -247,6 +253,27 @@ const SignupPage = () => {
                 -webkit-text-fill-color: white !important;
               }
             `}</style>
+
+            <Form.Group controlId="email" className="mb-3">
+              <Form.Label>Work Email address</Form.Label>
+              <div
+                className="mb-3 rounded"
+                style={{
+                  backgroundColor: "#2c3034", // slightly lighter than the card background
+                  padding: "10px",
+                  color: "white",
+                  fontSize: "1.1rem",
+                  border: "1px solid #343a40", // a border that blends in with the card but still stands out
+                  boxShadow: "0 2px 4px 0 rgba(0,0,0,0.2)", // subtle shadow for depth
+                  textOverflow: "ellipsis", // ensures the text doesn't overflow
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {email}
+              </div>
+            </Form.Group>
+
             <Form>
               <Form.Group controlId="firstName" className="mb-3">
                 <Form.Label>First Name</Form.Label>
@@ -271,22 +298,6 @@ const SignupPage = () => {
                   placeholder="Enter Last Name"
                   value={lastName}
                   onChange={handleLastNameChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="email" className="mb-3">
-                <Form.Label>Work Email address</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={handleEmailChange}
                   required
                   style={{
                     borderColor: "#ced4da",
@@ -399,4 +410,4 @@ const SignupPage = () => {
     </Container>
   );
 };
-export default SignupPage;
+export default FinishSignupPage;
