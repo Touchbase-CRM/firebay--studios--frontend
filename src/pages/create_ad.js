@@ -95,20 +95,12 @@ function CreateAd() {
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
-    // Bryan: "WA9uLg4JEEGnvosWUUIc",
-    // Joe: "TX3LPaxmHKxFdv7VOQHJ",
-    // Elizabeth: "gGqsateSZjogPUDNb6hx",
     Kate: "cBijDV6IOSWp9c8dA7Xn",
   };
 
   const voicePreviewLinks = {
-    // Bryan:
-    //   "https://drive.google.com/uc?export=download&id=1XHZMuGSR6fmFxbEi6gAzIaMcZMpn8_eV",
     Charley:
       "https://drive.google.com/uc?export=download&id=1wngVcIpz3CUYTVcOSSVKaGjSafmOMETI",
-    // Elizabeth:
-    //   "https://drive.google.com/uc?export=download&id=1OLfmzNm1EwaKYLhB1mkM1JUBQLcncsbN",
-    // Joe: "https://drive.google.com/uc?export=download&id=1CwD3YjYRyRUGQSfIvHo8OR2TniyR8Lgg",
     Kate: "https://drive.google.com/uc?export=download&id=17deqBO-9X_jJ_YQnCNi4vT7RYbPNFfGh",
   };
 
@@ -317,35 +309,6 @@ function CreateAd() {
               >
                 Next
               </Button>
-              {/* <button
-                className="mt-3"
-                type="button"
-                onClick={() => setShowExamples(true)}
-                style={{
-                  backgroundColor: "#17a2b8",
-                  border: "none",
-                  borderRadius: "5px",
-                  padding: "8px 16px",
-                  fontSize: "1rem",
-                  color: "white",
-                  cursor: "pointer",
-                  outline: "none",
-                  transition: "background-color 0.3s",
-                  float: "right", // This makes it align to the card's edge,
-                  marginTop: "20px",
-                }}
-                onMouseOver={(e) =>
-                  (e.target.style.backgroundColor = "#138496")
-                } // Darken the info color on hover
-                onMouseOut={(e) => (e.target.style.backgroundColor = "#17a2b8")}
-              >
-                Script Examples
-              </button>
-*/}
-              {/* <ExamplesViewer
-                show={showExamples}
-                onHide={() => setShowExamples(false)}
-              /> */}
             </Form>
           </Card>
 
