@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
+// for some reason when this component is removed the submit button of the IntonationManager does not work. So, don't delete this unused component until we figure out why.
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
@@ -34,7 +35,7 @@ function CreateAd() {
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
 
-  const [showExamples, setShowExamples] = useState(false);
+  // const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
@@ -316,7 +317,7 @@ function CreateAd() {
               >
                 Next
               </Button>
-              <button
+              {/* <button
                 className="mt-3"
                 type="button"
                 onClick={() => setShowExamples(true)}
@@ -340,11 +341,11 @@ function CreateAd() {
               >
                 Script Examples
               </button>
-
-              <ExamplesViewer
+*/}
+              {/* <ExamplesViewer
                 show={showExamples}
                 onHide={() => setShowExamples(false)}
-              />
+              /> */}
             </Form>
           </Card>
 
