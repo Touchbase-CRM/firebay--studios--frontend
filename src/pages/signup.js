@@ -11,40 +11,71 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
 
+  // Extract the domain from the email
+  const userEmailDomain = email.split("@")[1];
+
+  const checkEmailInUidToOrg = async () => {
+    const querySnapshot = await firebase
+      .firestore()
+      .collection("uid_to_org")
+      .where("work_email", "==", email)
+      .get();
+
+    return !querySnapshot.empty;
+  };
+
+  const checkOrganizationExists = async (userEmailDomain) => {
+    const doc = await firebase
+      .firestore()
+      .collection("organizations_meta_data")
+      .doc(userEmailDomain)
+      .get();
+
+    if (!doc.exists) {
+      Swal.fire({
+        icon: "error",
+        title: "Organization Not Found",
+        text: "Your email domain does not match any registered organization.",
+      });
+      throw new Error("Invalid organization");
+    }
+    // Organization exists, return true
+    return true;
+  };
+
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
 
-  const handleSignUp = (event) => {
+  const handleSignUp = async (event) => {
     event.preventDefault();
+
+    // Check if email already exists in uid_to_org
+    const emailExists = await checkEmailInUidToOrg();
+    if (emailExists) {
+      Swal.fire({
+        icon: "info",
+        title: "Email Already Exists",
+        text: "This email is already registered. Please login instead.",
+      });
+      return;
+    }
 
     // Extract the domain from the email
     const userEmailDomain = email.split("@")[1];
 
-    firebase
-      .firestore()
-      .collection("organizations_meta_data")
-      .doc(userEmailDomain)
-      .get()
-      .then((doc) => {
-        if (!doc.exists) {
-          Swal.fire({
-            icon: "error",
-            title: "Organization Not Found",
-            text: "Your email domain does not match any registered organization.",
-          });
-          throw new Error("Invalid organization"); // Modified error message
-        } else {
-          // Organization exists, navigate to 'finish_signup' page
-          router.push({
-            pathname: "/finish_signup",
-            query: { email: email },
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error checking organization:", error);
-      });
+    try {
+      const orgExists = await checkOrganizationExists(userEmailDomain);
+      if (orgExists) {
+        // Organization exists, navigate to 'finish_signup' page
+        router.push({
+          pathname: "/finish_signup",
+          query: { email: email },
+        });
+      }
+    } catch (error) {
+      console.error("Error checking organization:", error);
+    }
   };
 
   return (
