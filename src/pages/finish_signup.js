@@ -51,14 +51,6 @@ const FinishSignupPage = () => {
     setConfirmPassword(event.target.value);
   };
 
-  const handleFirstNameChange = (event) => {
-    setFirstName(event.target.value);
-  };
-
-  const handleLastNameChange = (event) => {
-    setLastName(event.target.value);
-  };
-
   const handleSignUp = (event) => {
     event.preventDefault();
     if (!acceptsPrivacyPolicy || !acceptsTermsAndConditions) {
@@ -144,8 +136,7 @@ const FinishSignupPage = () => {
           .doc(verificationUser.uid);
         batch.set(uidToOrgRef, {
           org_name: organization,
-          first_name: firstName,
-          last_name: lastName,
+          work_email: email,
           credit_allowance: 1000,
           credit_left: 1000,
         });
