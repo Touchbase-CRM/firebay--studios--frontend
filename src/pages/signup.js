@@ -2,10 +2,14 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Image from "next/image";
+import firebase from "../firebase";
+import "firebase/compat/firestore";
+import Swal from "sweetalert2";
 
 const SignupPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [organization, setOrganization] = useState("");
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -13,11 +17,34 @@ const SignupPage = () => {
 
   const handleSignUp = (event) => {
     event.preventDefault();
-    // Navigate to the 'finish_signup' page, passing the email as a query parameter
-    router.push({
-      pathname: "/finish_signup",
-      query: { email: email },
-    });
+
+    // Extract the domain from the email
+    const userEmailDomain = email.split("@")[1];
+
+    firebase
+      .firestore()
+      .collection("organizations_meta_data")
+      .doc(userEmailDomain)
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          Swal.fire({
+            icon: "error",
+            title: "Organization Not Found",
+            text: "Your email domain does not match any registered organization.",
+          });
+          throw new Error("Invalid organization"); // Modified error message
+        } else {
+          // Organization exists, navigate to 'finish_signup' page
+          router.push({
+            pathname: "/finish_signup",
+            query: { email: email },
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking organization:", error);
+      });
   };
 
   return (

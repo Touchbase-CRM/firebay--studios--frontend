@@ -43,10 +43,6 @@ const FinishSignupPage = () => {
     setAcceptsTermsAndConditions(event.target.checked);
   };
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
-
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
@@ -203,8 +199,8 @@ const FinishSignupPage = () => {
         <Modal.Title style={{ color: "black" }}>Email Verification</Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ color: "black" }}>
-        Please verify your email, then click continue. Do not close this tab
-        yet. Click cancel to abort the verification.
+        One more thing! Please verify your email, then click continue. Do not
+        close this tab yet. Click cancel to abort the verification.
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleCancel}>
@@ -233,6 +229,20 @@ const FinishSignupPage = () => {
               color: "white",
             }}
           >
+            {/* Email display in the top right corner */}
+            <div
+              style={{
+                position: "absolute",
+                top: "10px", // adjust top as needed
+                right: "10px", // closer to the right edge
+                color: "white",
+                backgroundColor: "transparent", // making background transparent
+                fontSize: "0.8rem", // smaller font size
+                fontWeight: "bold",
+              }}
+            >
+              {email}
+            </div>
             <Image
               src="/fire.png"
               alt="Firebay Studios"
@@ -240,9 +250,9 @@ const FinishSignupPage = () => {
               height={100}
               className="d-block mx-auto mb-3"
             />
-            <h2 className="text-center mb-4">Firebay Studios Sign Up</h2>
+            <h2 className="text-center mb-4">Firebay Studios</h2>
             <p className="text-center mb-5">
-              Please enter your email and create a password!
+              Please create a password and you are all set!
             </p>
             <style jsx global>{`
               input:-webkit-autofill,
@@ -254,59 +264,7 @@ const FinishSignupPage = () => {
               }
             `}</style>
 
-            <Form.Group controlId="email" className="mb-3">
-              <Form.Label>Work Email address</Form.Label>
-              <div
-                className="mb-3 rounded"
-                style={{
-                  backgroundColor: "#2c3034", // slightly lighter than the card background
-                  padding: "10px",
-                  color: "white",
-                  fontSize: "1.1rem",
-                  border: "1px solid #343a40", // a border that blends in with the card but still stands out
-                  boxShadow: "0 2px 4px 0 rgba(0,0,0,0.2)", // subtle shadow for depth
-                  textOverflow: "ellipsis", // ensures the text doesn't overflow
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {email}
-              </div>
-            </Form.Group>
-
             <Form>
-              <Form.Group controlId="firstName" className="mb-3">
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter First Name"
-                  value={firstName}
-                  onChange={handleFirstNameChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="lastName" className="mb-3">
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Last Name"
-                  value={lastName}
-                  onChange={handleLastNameChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
-
               <Form.Group controlId="password" className="mb-3">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
