@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore"; // Importing new Firestore methods
 import Swal from "sweetalert2";
 import app from "../firebase";
+import { getCheckoutUrl, getPortalUrl } from "../stripe_proxy_sdk";
 
 const db = getFirestore(app);
 
@@ -32,6 +33,13 @@ const SignupPage = () => {
     const querySnapshot = await getDocs(q);
 
     return !querySnapshot.empty;
+  };
+
+  // write a function to have the user payment portal link
+  const getUserPaymentPortalLink = async () => {
+    const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp";
+    const checkoutUrl = await getCheckoutUrl(app, priceId);
+    router.push(checkoutUrl);
   };
 
   const checkOrganizationExists = async (userEmailDomain) => {
@@ -73,6 +81,7 @@ const SignupPage = () => {
       const orgExists = await checkOrganizationExists(userEmailDomain);
       if (orgExists) {
         // Organization exists, navigate to 'finish_signup' page
+        getUserPaymentPortalLink();
         router.push({
           pathname: "/finish_signup",
           query: { email: email },
