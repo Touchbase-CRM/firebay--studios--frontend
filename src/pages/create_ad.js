@@ -7,13 +7,14 @@ import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
-import firebase from "../firebase";
-import "firebase/auth";
+// import firebase from "../firebase";
+import { getAuth } from "firebase/auth";
 
 import { usePostHog } from "posthog-js/react";
 
 function CreateAd() {
   const posthog = usePostHog();
+  const auth = getAuth();
 
   const [script, setScript] = useState(() => {
     return getCookie("script", "");
@@ -125,7 +126,7 @@ function CreateAd() {
     setVoiceName(newVoiceName);
     setShouldPlayAudio(true);
 
-    const userId = firebase.auth().currentUser.uid;
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
@@ -201,7 +202,14 @@ function CreateAd() {
   const handleLogout = () => {
     cookieCleaner();
     localStorage.removeItem("user");
-    router.push("/login");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
   };
 
   const wordCountStyle = {

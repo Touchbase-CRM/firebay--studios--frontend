@@ -1,6 +1,8 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
+// Import the functions you need from the SDKs you are using
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
+// Your Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -10,24 +12,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const dev = false // flip to false for production
+const dev = false; // flip to false for production
 const firebaseConfigDev = {
   apiKey: "AIzaSyA-Pn_blUVMK2GWhlNNtav9PARQv7Wm0no",
   authDomain: "touchbase--dev.firebaseapp.com",
   projectId: "touchbase--dev",
   storageBucket: "touchbase--dev.appspot.com",
   messagingSenderId: "1051216659960",
-  appId: "1:1051216659960:web:4afba10ee9047e2716820d"
+  appId: "1:1051216659960:web:4afba10ee9047e2716820d",
 };
 
+// Initialize Firebase
+const config = dev ? firebaseConfigDev : firebaseConfig;
+const app = !getApps().length ? initializeApp(config) : getApps()[0];
 
-if (!firebase.apps.length) {
-  if (dev) {
-    firebase.initializeApp(firebaseConfigDev);
-  }
-  else {
-    firebase.initializeApp(firebaseConfig);
-  }
+// Initialize Firebase Auth
+const auth = getAuth(app);
 
-}
-export default firebase;
+export default app;

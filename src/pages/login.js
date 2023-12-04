@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import firebase from "../firebase";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth"; // Importing new Auth methods
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
@@ -9,6 +13,7 @@ const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const auth = getAuth(); // Initialize Firebase Auth
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -21,9 +26,7 @@ const LoginPage = () => {
   const handleSignIn = (event) => {
     event.preventDefault();
 
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         var user = userCredential.user;
         if (user.emailVerified) {
@@ -55,9 +58,7 @@ const LoginPage = () => {
       return;
     }
 
-    firebase
-      .auth()
-      .sendPasswordResetEmail(email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         Swal.fire({
           icon: "success",

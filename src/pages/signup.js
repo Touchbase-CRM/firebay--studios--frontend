@@ -5,6 +5,8 @@ import Image from "next/image";
 import firebase from "../firebase";
 import "firebase/compat/firestore";
 import Swal from "sweetalert2";
+// import { getApp } from "@firebase/app";
+// import { getStripePayments } from "@invertase/firestore-stripe-payments";
 
 const SignupPage = () => {
   const router = useRouter();
