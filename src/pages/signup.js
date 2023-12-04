@@ -13,8 +13,6 @@ import {
 } from "firebase/firestore"; // Importing new Firestore methods
 import Swal from "sweetalert2";
 import app from "../firebase";
-// import { getApp } from "@firebase/app";
-// import { getStripePayments } from "@invertase/firestore-stripe-payments";
 
 const db = getFirestore(app);
 
