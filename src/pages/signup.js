@@ -2,11 +2,21 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Image from "next/image";
-import firebase from "../firebase";
-import "firebase/compat/firestore";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore"; // Importing new Firestore methods
 import Swal from "sweetalert2";
+import app from "../firebase";
 // import { getApp } from "@firebase/app";
 // import { getStripePayments } from "@invertase/firestore-stripe-payments";
+
+const db = getFirestore(app);
 
 const SignupPage = () => {
   const router = useRouter();
@@ -17,23 +27,20 @@ const SignupPage = () => {
   const userEmailDomain = email.split("@")[1];
 
   const checkEmailInUidToOrg = async () => {
-    const querySnapshot = await firebase
-      .firestore()
-      .collection("uid_to_org")
-      .where("work_email", "==", email)
-      .get();
+    const q = query(
+      collection(db, "uid_to_org"),
+      where("work_email", "==", email)
+    );
+    const querySnapshot = await getDocs(q);
 
     return !querySnapshot.empty;
   };
 
   const checkOrganizationExists = async (userEmailDomain) => {
-    const doc = await firebase
-      .firestore()
-      .collection("organizations_meta_data")
-      .doc(userEmailDomain)
-      .get();
+    const orgDocRef = doc(db, "organizations_meta_data", userEmailDomain);
+    const docSnap = await getDoc(orgDocRef);
 
-    if (!doc.exists) {
+    if (!docSnap.exists()) {
       Swal.fire({
         icon: "error",
         title: "Organization Not Found",
@@ -52,21 +59,19 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
 
-    // Check if email already exists in uid_to_org
-    const emailExists = await checkEmailInUidToOrg();
-    if (emailExists) {
-      Swal.fire({
-        icon: "info",
-        title: "Email Already Exists",
-        text: "This email is already registered. Please login instead.",
-      });
-      return;
-    }
-
-    // Extract the domain from the email
-    const userEmailDomain = email.split("@")[1];
-
     try {
+      // Check if email already exists in uid_to_org
+      const emailExists = await checkEmailInUidToOrg();
+      if (emailExists) {
+        Swal.fire({
+          icon: "info",
+          title: "Email Already Exists",
+          text: "This email is already registered. Please login instead.",
+        });
+        return;
+      }
+
+      const userEmailDomain = email.split("@")[1];
       const orgExists = await checkOrganizationExists(userEmailDomain);
       if (orgExists) {
         // Organization exists, navigate to 'finish_signup' page
