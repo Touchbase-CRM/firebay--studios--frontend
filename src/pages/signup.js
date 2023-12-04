@@ -1,96 +1,205 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import Image from "next/image";
+import firebase from "../firebase";
 import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore"; // Importing new Firestore methods
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Modal,
+} from "react-bootstrap";
+import "firebase/compat/firestore";
 import Swal from "sweetalert2";
-import app from "../firebase";
-import { getCheckoutUrl, getPortalUrl } from "../stripe_proxy_sdk";
-
-const db = getFirestore(app);
+import Image from "next/image";
 
 const SignupPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [organization, setOrganization] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [verificationUser, setVerificationUser] = useState(null);
 
-  // Extract the domain from the email
-  const userEmailDomain = email.split("@")[1];
+  useEffect(() => {
+    if (router.query.email) {
+      setEmail(router.query.email);
+    }
+  }, [router.query.email]);
 
-  const checkEmailInUidToOrg = async () => {
-    const q = query(
-      collection(db, "uid_to_org"),
-      where("work_email", "==", email)
-    );
-    const querySnapshot = await getDocs(q);
-
-    return !querySnapshot.empty;
+  const handlePrivacyPolicyChange = (event) => {
+    setAcceptsPrivacyPolicy(event.target.checked);
   };
 
-  // write a function to have the user payment portal link
-  const getUserPaymentPortalLink = async () => {
-    const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp";
-    const checkoutUrl = await getCheckoutUrl(app, priceId);
-    router.push(checkoutUrl);
+  const handleTermsAndConditionsChange = (event) => {
+    setAcceptsTermsAndConditions(event.target.checked);
   };
 
-  const checkOrganizationExists = async (userEmailDomain) => {
-    const orgDocRef = doc(db, "organizations_meta_data", userEmailDomain);
-    const docSnap = await getDoc(orgDocRef);
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
 
-    if (!docSnap.exists()) {
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPassword(event.target.value);
+  };
+
+  const handleSignUp = (event) => {
+    event.preventDefault();
+    if (!acceptsPrivacyPolicy || !acceptsTermsAndConditions) {
       Swal.fire({
         icon: "error",
-        title: "Organization Not Found",
-        text: "Your email domain does not match any registered organization.",
+        title: "Terms and Conditions/Privacy Policy",
+        text: "You must accept the Privacy Policy and Terms and Conditions to proceed.",
       });
-      throw new Error("Invalid organization");
+      return;
     }
-    // Organization exists, return true
-    return true;
+
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Passwords do not match",
+        text: "Please make sure your passwords match",
+      });
+      return;
+    }
+    const userEmailDomain = email.split("@")[1];
+
+    firebase
+      .firestore()
+      .collection("organizations_meta_data")
+      .doc(userEmailDomain)
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          Swal.fire({
+            icon: "error",
+            title: "Organization Not Found",
+            text: "Your email domain does not match any registered organization.",
+          });
+          throw new Error("Organization not found."); // Prevent further execution
+        } else {
+          // Organization exists, set the organization state
+          const orgData = doc.data();
+          setOrganization(orgData.org_name);
+
+          // Proceed to create user
+          return firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password);
+        }
+      })
+      .then((userCredential) => {
+        // User created, send email verification
+        setVerificationUser(userCredential.user);
+        return userCredential.user.sendEmailVerification();
+      })
+      .then(() => {
+        // Email verification sent, show modal
+        setShowModal(true);
+      })
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          Swal.fire({
+            icon: "error",
+            title: "Email Already in Use",
+            text: "The email address is already in use by another account.",
+          });
+        } else if (error.message !== "Organization not found.") {
+          // Handle other errors differently
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error.message,
+          });
+        }
+        // Log the error or handle the display of the error to the user
+        console.error(error);
+      });
   };
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
+  const handleContinue = () => {
+    verificationUser.reload().then(() => {
+      if (verificationUser.emailVerified) {
+        const db = firebase.firestore();
+        const batch = db.batch();
 
-  const handleSignUp = async (event) => {
-    event.preventDefault();
+        const uidToOrgRef = db
+          .collection("uid_to_org")
+          .doc(verificationUser.uid);
+        batch.set(uidToOrgRef, {
+          org_name: organization,
+          work_email: email,
+          credit_allowance: 1000,
+          credit_left: 1000,
+        });
 
-    try {
-      // Check if email already exists in uid_to_org
-      const emailExists = await checkEmailInUidToOrg();
-      if (emailExists) {
+        batch
+          .commit()
+          .then(() => {
+            router.push("/create_ad");
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: error.message,
+            });
+          });
+      } else {
         Swal.fire({
           icon: "info",
-          title: "Email Already Exists",
-          text: "This email is already registered. Please login instead.",
+          title: "Email Verification",
+          text: "Please verify your email before continuing",
         });
-        return;
       }
+    });
+  };
 
-      const userEmailDomain = email.split("@")[1];
-      const orgExists = await checkOrganizationExists(userEmailDomain);
-      if (orgExists) {
-        // Organization exists, navigate to 'finish_signup' page
-        getUserPaymentPortalLink();
-        router.push({
-          pathname: "/finish_signup",
-          query: { email: email },
+  const handleCancel = () => {
+    setShowModal(false);
+    setEmail(email);
+    setPassword(password);
+    setConfirmPassword(confirmPassword);
+    setOrganization(organization);
+    setFirstName(firstName);
+    setLastName(lastName);
+
+    if (verificationUser) {
+      verificationUser
+        .delete()
+        .then(() => {
+          console.log("User deleted");
+        })
+        .catch((error) => {
+          console.error("Error deleting user", error);
         });
-      }
-    } catch (error) {
-      console.error("Error checking organization:", error);
     }
   };
+
+  const VerificationModal = () => (
+    <Modal show={showModal}>
+      <Modal.Header>
+        <Modal.Title style={{ color: "black" }}>Email Verification</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ color: "black" }}>
+        One more thing! Please verify your email, then click continue. Do not
+        close this tab yet. Click cancel to abort the verification.
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleContinue}>
+          Continue
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 
   return (
     <Container
@@ -116,17 +225,42 @@ const SignupPage = () => {
               className="d-block mx-auto mb-3"
             />
             <h2 className="text-center mb-4">Firebay Studios</h2>
-            <p className="text-center mb-5">
-              Please enter your work email to get started!
-            </p>
-            <Form onSubmit={handleSignUp}>
-              <Form.Group controlId="email" className="mb-3">
-                <Form.Label>Work Email address</Form.Label>
+            <p className="text-center mb-5">Let's get you started!</p>
+
+            <Form.Group controlId="workEmail" className="mb-3">
+              <Form.Label>Work Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter your work email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={{
+                  borderColor: "#ced4da",
+                  backgroundColor: "#495057",
+                  color: "white",
+                }}
+              />
+            </Form.Group>
+            <style jsx global>{`
+              input:-webkit-autofill,
+              input:-webkit-autofill:focus,
+              input:-webkit-autofill:hover {
+                -webkit-box-shadow: 0 0 0 1000px #495057 inset;
+                box-shadow: 0 0 0 1000px #495057 inset;
+                -webkit-text-fill-color: white !important;
+              }
+            `}</style>
+
+            <Form>
+              <Form.Group controlId="password" className="mb-3">
+                <Form.Label>Password</Form.Label>
                 <Form.Control
-                  type="email"
-                  placeholder="Enter work email"
-                  value={email}
-                  onChange={handleEmailChange}
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  minLength={6}
                   required
                   style={{
                     borderColor: "#ced4da",
@@ -135,15 +269,69 @@ const SignupPage = () => {
                   }}
                 />
               </Form.Group>
+
+              <Form.Group controlId="confirmPassword" className="mb-3">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  minLength={6}
+                  required
+                  style={{
+                    borderColor: "#ced4da",
+                    backgroundColor: "#495057",
+                    color: "white",
+                  }}
+                />
+              </Form.Group>
+
+              {/* Added the sentence with hyperlinks */}
+              <div className="my-3 text-left" style={{ fontSize: "small" }}>
+                By clicking the Sign Up button below, you agree to our&nbsp;
+                <a
+                  href="https://www.firebaystudios.com/terms-of-service"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#0d6efd",
+                    marginRight: "4px",
+                  }}
+                >
+                  terms and conditions
+                </a>
+                &nbsp;as well as our&nbsp;
+                <a
+                  href="https://www.firebaystudios.com/privacy-policy"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#0d6efd",
+                    marginRight: "4px",
+                  }}
+                >
+                  privacy policy
+                </a>
+                .
+              </div>
+
               <Button
                 className="w-100"
                 variant="outline-light"
                 type="submit"
                 size="lg"
+                onClick={handleSignUp}
               >
-                Next
+                Sign Up
               </Button>
             </Form>
+            <VerificationModal />
+            {error && (
+              <div className="mt-3">
+                <p className="text-center text-danger">{error}</p>
+              </div>
+            )}
 
             <div className="my-3">
               <p className="text-center">
@@ -159,5 +347,4 @@ const SignupPage = () => {
     </Container>
   );
 };
-
 export default SignupPage;
