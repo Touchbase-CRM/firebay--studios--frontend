@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import firebase from "../firebase";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  writeBatch,
+} from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  deleteUser,
+} from "firebase/auth";
 import {
   Container,
   Row,
@@ -10,9 +22,12 @@ import {
   Button,
   Modal,
 } from "react-bootstrap";
-import "firebase/compat/firestore";
 import Swal from "sweetalert2";
 import Image from "next/image";
+
+// Initialize Firebase services
+const db = getFirestore(); // If you have Firebase initialized elsewhere, you can import it from there
+const auth = getAuth(); // Same as above, initialize only once
 
 const SignupPage = () => {
   const router = useRouter();
@@ -48,78 +63,75 @@ const SignupPage = () => {
     setConfirmPassword(event.target.value);
   };
 
-  const handleSignUp = (event) => {
+  const handleSignUp = async (event) => {
     event.preventDefault();
-    if (!acceptsPrivacyPolicy || !acceptsTermsAndConditions) {
-      Swal.fire({
-        icon: "error",
-        title: "Terms and Conditions/Privacy Policy",
-        text: "You must accept the Privacy Policy and Terms and Conditions to proceed.",
-      });
-      return;
-    }
 
     if (password !== confirmPassword) {
       Swal.fire({
         icon: "error",
         title: "Passwords do not match",
-        text: "Please make sure your passwords match",
+        text: "Please make sure your passwords match.",
       });
       return;
     }
-    const userEmailDomain = email.split("@")[1];
 
-    firebase
-      .firestore()
-      .collection("organizations_meta_data")
-      .doc(userEmailDomain)
-      .get()
-      .then((doc) => {
-        if (!doc.exists) {
-          Swal.fire({
-            icon: "error",
-            title: "Organization Not Found",
-            text: "Your email domain does not match any registered organization.",
-          });
-          throw new Error("Organization not found."); // Prevent further execution
-        } else {
-          // Organization exists, set the organization state
-          const orgData = doc.data();
-          setOrganization(orgData.org_name);
+    try {
+      const userEmailDomain = email.split("@")[1];
+      const orgMetaRef = doc(db, "organizations_meta_data", userEmailDomain);
+      const orgMetaSnap = await getDoc(orgMetaRef);
 
-          // Proceed to create user
-          return firebase
-            .auth()
-            .createUserWithEmailAndPassword(email, password);
-        }
-      })
-      .then((userCredential) => {
-        // User created, send email verification
-        setVerificationUser(userCredential.user);
-        return userCredential.user.sendEmailVerification();
-      })
-      .then(() => {
-        // Email verification sent, show modal
-        setShowModal(true);
-      })
-      .catch((error) => {
-        if (error.code === "auth/email-already-in-use") {
-          Swal.fire({
-            icon: "error",
-            title: "Email Already in Use",
-            text: "The email address is already in use by another account.",
-          });
-        } else if (error.message !== "Organization not found.") {
-          // Handle other errors differently
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message,
-          });
-        }
-        // Log the error or handle the display of the error to the user
-        console.error(error);
+      if (!orgMetaSnap.exists()) {
+        Swal.fire({
+          icon: "error",
+          title: "Organization Not Found",
+          text: "Your email domain does not match any registered organization.",
+        });
+        return; // Exit the function if organization is not found
+      }
+
+      const orgData = orgMetaSnap.data();
+      setOrganization(orgData.org_name);
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      setVerificationUser(user);
+
+      await sendEmailVerification(user);
+
+      setShowModal(true);
+
+      // If you want to add the user to your Firestore database
+      const batch = writeBatch(db);
+      const uidToOrgRef = doc(db, "uid_to_org", user.uid);
+      batch.set(uidToOrgRef, {
+        org_name: orgData.org_name,
+        work_email: email,
+        credit_allowance: 1000,
+        credit_left: 1000,
       });
+
+      await batch.commit();
+      // User is signed up and added to database, now you can redirect or show a success message
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        Swal.fire({
+          icon: "error",
+          title: "Email Already in Use",
+          text: "The email address is already in use by another account.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Signup Failed",
+          text: error.message,
+        });
+      }
+      console.error("Signup error", error);
+    }
   };
 
   const handleContinue = () => {
