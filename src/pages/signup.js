@@ -47,14 +47,6 @@ const SignupPage = () => {
     }
   }, [router.query.email]);
 
-  const handlePrivacyPolicyChange = (event) => {
-    setAcceptsPrivacyPolicy(event.target.checked);
-  };
-
-  const handleTermsAndConditionsChange = (event) => {
-    setAcceptsTermsAndConditions(event.target.checked);
-  };
-
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
