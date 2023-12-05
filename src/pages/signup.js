@@ -1,33 +1,18 @@
+import Swal from "sweetalert2";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  writeBatch,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   sendEmailVerification,
-  deleteUser,
 } from "firebase/auth";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Modal,
-} from "react-bootstrap";
-import Swal from "sweetalert2";
-import Image from "next/image";
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 
 // Initialize Firebase services
-const db = getFirestore(); // If you have Firebase initialized elsewhere, you can import it from there
-const auth = getAuth(); // Same as above, initialize only once
+const db = getFirestore();
+const auth = getAuth();
 
 const SignupPage = () => {
   const router = useRouter();
@@ -91,7 +76,7 @@ const SignupPage = () => {
 
       await sendEmailVerification(user);
 
-      // If you want to add the user to your Firestore database
+      // Map the users uid to their organization
       const batch = writeBatch(db);
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
@@ -102,7 +87,6 @@ const SignupPage = () => {
       });
 
       await batch.commit();
-      // User is signed up and added to database, now you can redirect or show a success message
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
