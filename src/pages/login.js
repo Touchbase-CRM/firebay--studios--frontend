@@ -8,6 +8,8 @@ import {
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import { getSubscriptionStatus } from "../stripe_proxy_sdk";
+import app from "../firebase";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -23,26 +25,44 @@ const LoginPage = () => {
     setPassword(event.target.value);
   };
 
-  const handleSignIn = (event) => {
+  const handleSignIn = async (event) => {
     event.preventDefault();
 
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         var user = userCredential.user;
-        if (user.emailVerified) {
-          router.push("/create_ad");
-        } else {
+
+        // Check if the user's email is verified
+        if (!user.emailVerified) {
           Swal.fire({
             icon: "info",
             title: "Email Verification",
             text: "Please verify your email before continuing.",
+          });
+          return;
+        }
+
+        // Check the subscription status before proceeding
+        try {
+          const isSubscribed = await getSubscriptionStatus(app);
+          if (!isSubscribed) {
+            throw new Error("You must have an active subscription to log in.");
+          }
+
+          // If the user has an active subscription, redirect to the create_ad page
+          router.push("/create_ad");
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Subscription Required",
+            text: error.message,
           });
         }
       })
       .catch((error) => {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: "Login Failed",
           text: "User not found, please sign in",
         });
       });
