@@ -8,7 +8,10 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
+import app from "../firebase";
+
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { getCheckoutUrl } from "../stripe_proxy_sdk";
 
 // Initialize Firebase services
 const db = getFirestore();
@@ -102,6 +105,19 @@ const SignupPage = () => {
         });
       }
       console.error("Signup error", error);
+    }
+    try {
+      // Define your Stripe priceId here (or fetch it as needed)
+      const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp";
+
+      // Call the getCheckoutUrl function to get the Stripe checkout URL
+      const checkoutUrl = await getCheckoutUrl(app, priceId);
+
+      // Redirect the user to the Stripe checkout page in a new tab
+      window.open(checkoutUrl, "_blank");
+    } catch (error) {
+      // Handle any errors here
+      console.error("Error during signup or Stripe checkout process", error);
     }
     handleContinue();
   };
