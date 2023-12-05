@@ -45,8 +45,6 @@ const VerificationPage = () => {
 
       await reload(user);
 
-      // Use the correct function name for checking subscription status
-      // Make sure the function exists and is exported from the SDK.
       const isSubscribed = await getSubscriptionStatus(app); // Assuming the function is named this
 
       if (!isSubscribed) {
@@ -97,8 +95,8 @@ const VerificationPage = () => {
             />
             <h2 className="text-center mb-4">Email Verification</h2>
             <p className="text-center mb-5">
-              Please verify your email to continue. A verification email has
-              been sent to your email address.
+              Thank you for your payment! Please verify your email to continue.
+              A verification email has been sent to your email address.
             </p>
 
             <Button
