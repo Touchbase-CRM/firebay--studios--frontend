@@ -35,10 +35,7 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [organization, setOrganization] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const [verificationUser, setVerificationUser] = useState(null);
 
   useEffect(() => {
@@ -94,19 +91,17 @@ const SignupPage = () => {
 
       await sendEmailVerification(user);
 
-      setShowModal(true);
-
       // If you want to add the user to your Firestore database
-      // const batch = writeBatch(db);
-      // const uidToOrgRef = doc(db, "uid_to_org", user.uid);
-      // batch.set(uidToOrgRef, {
-      //   org_name: orgData.org_name,
-      //   work_email: email,
-      //   credit_allowance: 1000,
-      //   credit_left: 1000,
-      // });
+      const batch = writeBatch(db);
+      const uidToOrgRef = doc(db, "uid_to_org", user.uid);
+      batch.set(uidToOrgRef, {
+        org_name: orgData.org_name,
+        work_email: email,
+        credit_allowance: 1000,
+        credit_left: 1000,
+      });
 
-      // await batch.commit();
+      await batch.commit();
       // User is signed up and added to database, now you can redirect or show a success message
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
@@ -124,85 +119,12 @@ const SignupPage = () => {
       }
       console.error("Signup error", error);
     }
+    handleContinue();
   };
 
   const handleContinue = () => {
-    // verificationUser.reload().then(() => {
-    //   if (verificationUser.emailVerified) {
-    //     const db = firebase.firestore();
-    //     const batch = db.batch();
-    //     const uidToOrgRef = db
-    //       .collection("uid_to_org")
-    //       .doc(verificationUser.uid);
-    //     batch.set(uidToOrgRef, {
-    //       org_name: organization,
-    //       work_email: email,
-    //       credit_allowance: 1000,
-    //       credit_left: 1000,
-    //     });
-    //     batch
-    //       .commit()
-    //       .then(() => {
-    //         router.push("/create_ad");
-    //       })
-    //       .catch((error) => {
-    //         Swal.fire({
-    //           icon: "error",
-    //           title: "Oops...",
-    //           text: error.message,
-    //         });
-    //       });
-    //   } else {
-    //     Swal.fire({
-    //       icon: "info",
-    //       title: "Email Verification",
-    //       text: "Please verify your email before continuing",
-    //     });
-    //   }
-    // });
     router.push("/verification");
   };
-
-  const handleCancel = () => {
-    setShowModal(false);
-    setEmail(email);
-    setPassword(password);
-    setConfirmPassword(confirmPassword);
-    setOrganization(organization);
-    setFirstName(firstName);
-    setLastName(lastName);
-
-    if (verificationUser) {
-      verificationUser
-        .delete()
-        .then(() => {
-          console.log("User deleted");
-        })
-        .catch((error) => {
-          console.error("Error deleting user", error);
-        });
-    }
-  };
-
-  const VerificationModal = () => (
-    <Modal show={showModal}>
-      <Modal.Header>
-        <Modal.Title style={{ color: "black" }}>Email Verification</Modal.Title>
-      </Modal.Header>
-      <Modal.Body style={{ color: "black" }}>
-        One more thing! Please verify your email, then click continue. Do not
-        close this tab yet. Click cancel to abort the verification.
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={handleContinue}>
-          Continue
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
 
   return (
     <Container
@@ -329,7 +251,7 @@ const SignupPage = () => {
                 Sign Up
               </Button>
             </Form>
-            <VerificationModal />
+
             {error && (
               <div className="mt-3">
                 <p className="text-center text-danger">{error}</p>
