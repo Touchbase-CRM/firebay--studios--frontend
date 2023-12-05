@@ -9,6 +9,7 @@ import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
+import CustomDropdown from "../components/CustomDropdown";
 
 import { usePostHog } from "posthog-js/react";
 
@@ -204,6 +205,14 @@ function CreateAd() {
       });
   };
 
+  const dropdownItems = [
+    {
+      text: "Logout",
+      handler: handleLogout, // This is the function that will be called for logout
+    },
+    // ... more items as needed
+  ];
+
   const wordCountStyle = {
     position: "absolute",
     bottom: "10px",
@@ -237,6 +246,7 @@ function CreateAd() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto"></Nav>
+          <CustomDropdown items={dropdownItems} />
         </Navbar.Collapse>
         <Button
           variant="danger"
