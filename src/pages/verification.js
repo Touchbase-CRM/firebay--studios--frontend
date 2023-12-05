@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getAuth, onAuthStateChanged, reload } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import { getSubscriptionStatus } from "../stripe_proxy_sdk";
+import app from "../firebase";
 
 const auth = getAuth();
 
@@ -25,12 +28,33 @@ const VerificationPage = () => {
   }, [router]);
 
   const handleContinue = async () => {
-    const user = auth.currentUser;
-    if (user) {
+    try {
+      // Make sure that the app instance is defined and has the necessary properties
+      if (!app || !app.container) {
+        throw new Error("Firebase app is not correctly initialized.");
+      }
+
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const user = auth.currentUser;
+
+      if (!user) {
+        router.push("/signup");
+        return;
+      }
+
       await reload(user);
+
+      // Use the correct function name for checking subscription status
+      // Make sure the function exists and is exported from the SDK.
+      const isSubscribed = await getSubscriptionStatus(app); // Assuming the function is named this
+
+      if (!isSubscribed) {
+        throw new Error("You must be subscribed to continue.");
+      }
+
       if (user.emailVerified) {
         setIsVerified(true);
-        // Redirect to the create_ad page after the email has been verified
         router.push("/create_ad");
       } else {
         Swal.fire({
@@ -39,6 +63,12 @@ const VerificationPage = () => {
           text: "Please verify your email before continuing.",
         });
       }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message,
+      });
     }
   };
 

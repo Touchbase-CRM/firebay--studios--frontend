@@ -11,7 +11,7 @@ import {
 import app from "../firebase";
 
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { getCheckoutUrl } from "../stripe_proxy_sdk";
+import { getCheckoutUrl, getSubscriptionStatus } from "../stripe_proxy_sdk";
 
 // Initialize Firebase services
 const db = getFirestore();
@@ -119,7 +119,7 @@ const SignupPage = () => {
       // Handle any errors here
       console.error("Error during signup or Stripe checkout process", error);
     }
-    handleContinue();
+    // handleContinue();
   };
 
   const handleContinue = () => {
