@@ -113,8 +113,8 @@ const SignupPage = () => {
       // Call the getCheckoutUrl function to get the Stripe checkout URL
       const checkoutUrl = await getCheckoutUrl(app, priceId);
 
-      // Redirect the user to the Stripe checkout page in a new tab
-      window.open(checkoutUrl, "_blank");
+      // Redirect the user to the Stripe checkout page in the same window
+      window.location.href = checkoutUrl;
     } catch (error) {
       // Handle any errors here
       console.error("Error during signup or Stripe checkout process", error);
