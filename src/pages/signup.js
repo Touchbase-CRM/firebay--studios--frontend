@@ -97,16 +97,16 @@ const SignupPage = () => {
       setShowModal(true);
 
       // If you want to add the user to your Firestore database
-      const batch = writeBatch(db);
-      const uidToOrgRef = doc(db, "uid_to_org", user.uid);
-      batch.set(uidToOrgRef, {
-        org_name: orgData.org_name,
-        work_email: email,
-        credit_allowance: 1000,
-        credit_left: 1000,
-      });
+      // const batch = writeBatch(db);
+      // const uidToOrgRef = doc(db, "uid_to_org", user.uid);
+      // batch.set(uidToOrgRef, {
+      //   org_name: orgData.org_name,
+      //   work_email: email,
+      //   credit_allowance: 1000,
+      //   credit_left: 1000,
+      // });
 
-      await batch.commit();
+      // await batch.commit();
       // User is signed up and added to database, now you can redirect or show a success message
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
@@ -127,41 +127,40 @@ const SignupPage = () => {
   };
 
   const handleContinue = () => {
-    verificationUser.reload().then(() => {
-      if (verificationUser.emailVerified) {
-        const db = firebase.firestore();
-        const batch = db.batch();
-
-        const uidToOrgRef = db
-          .collection("uid_to_org")
-          .doc(verificationUser.uid);
-        batch.set(uidToOrgRef, {
-          org_name: organization,
-          work_email: email,
-          credit_allowance: 1000,
-          credit_left: 1000,
-        });
-
-        batch
-          .commit()
-          .then(() => {
-            router.push("/create_ad");
-          })
-          .catch((error) => {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: error.message,
-            });
-          });
-      } else {
-        Swal.fire({
-          icon: "info",
-          title: "Email Verification",
-          text: "Please verify your email before continuing",
-        });
-      }
-    });
+    // verificationUser.reload().then(() => {
+    //   if (verificationUser.emailVerified) {
+    //     const db = firebase.firestore();
+    //     const batch = db.batch();
+    //     const uidToOrgRef = db
+    //       .collection("uid_to_org")
+    //       .doc(verificationUser.uid);
+    //     batch.set(uidToOrgRef, {
+    //       org_name: organization,
+    //       work_email: email,
+    //       credit_allowance: 1000,
+    //       credit_left: 1000,
+    //     });
+    //     batch
+    //       .commit()
+    //       .then(() => {
+    //         router.push("/create_ad");
+    //       })
+    //       .catch((error) => {
+    //         Swal.fire({
+    //           icon: "error",
+    //           title: "Oops...",
+    //           text: error.message,
+    //         });
+    //       });
+    //   } else {
+    //     Swal.fire({
+    //       icon: "info",
+    //       title: "Email Verification",
+    //       text: "Please verify your email before continuing",
+    //     });
+    //   }
+    // });
+    router.push("/verification");
   };
 
   const handleCancel = () => {
