@@ -8,7 +8,6 @@ import IntonationManager from "../components/IntonationManager";
 import ExamplesViewer from "../components/ExamplesViewer";
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
-// import firebase from "../firebase";
 import { getAuth } from "firebase/auth";
 
 import { usePostHog } from "posthog-js/react";

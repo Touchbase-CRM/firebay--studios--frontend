@@ -12,7 +12,7 @@ import app from "../firebase";
 import Spinner from "../components/Spinner";
 
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { getCheckoutUrl, getSubscriptionStatus } from "../stripe_proxy_sdk";
+import { getCheckoutUrl } from "../stripe_proxy_sdk";
 
 // Initialize Firebase services
 const db = getFirestore();
@@ -175,8 +175,20 @@ const SignupPage = () => {
                 backgroundColor: "#1a1a1a",
                 borderRadius: "1rem",
                 color: "white",
+                position: "relative", // Add this for positioning the step indicator
               }}
             >
+              {/* Step indicator */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "10px", // Adjust as needed
+                  left: "10px", // Adjust as needed
+                  fontSize: "small", // Small font size
+                }}
+              >
+                Step 1 of 3
+              </div>
               <Image
                 src="/fire.png"
                 alt="Firebay Studios"

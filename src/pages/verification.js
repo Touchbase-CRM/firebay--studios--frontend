@@ -29,13 +29,12 @@ const VerificationPage = () => {
 
   const handleContinue = async () => {
     try {
-      // Make sure that the app instance is defined and has the necessary properties
       if (!app || !app.container) {
         throw new Error("Firebase app is not correctly initialized.");
       }
 
       const auth = getAuth(app);
-      const db = getFirestore(app);
+      // const db = getFirestore(app);
       const user = auth.currentUser;
 
       if (!user) {
@@ -45,7 +44,7 @@ const VerificationPage = () => {
 
       await reload(user);
 
-      const isSubscribed = await getSubscriptionStatus(app); // Assuming the function is named this
+      const isSubscribed = await getSubscriptionStatus(app);
 
       if (!isSubscribed) {
         throw new Error("You must be subscribed to continue.");

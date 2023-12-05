@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
-// import firebase from "../firebase";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 import Spinner from "../components/Spinner";
