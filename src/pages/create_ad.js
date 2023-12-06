@@ -244,19 +244,20 @@ function CreateAd() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
-          <CustomDropdown items={dropdownItems} />
-        </Navbar.Collapse>
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={handleLogout}
-          style={{ marginRight: "10px" }}
+        <Navbar.Collapse
+          id="basic-navbar-nav"
+          className="justify-content-between"
         >
-          Logout
-        </Button>
+          <Nav className="mr-auto">
+            {/* Other nav links or content can go here */}
+          </Nav>
+          {/* This will ensure the CustomDropdown is aligned to the right */}
+          <div style={{ paddingRight: "25px" }}>
+            <CustomDropdown items={dropdownItems} />
+          </div>
+        </Navbar.Collapse>
       </Navbar>
+
       <Row>
         <Col md={10} className="mx-auto">
           <Card
