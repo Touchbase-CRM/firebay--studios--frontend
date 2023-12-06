@@ -208,6 +208,15 @@ function CreateAd() {
   };
   const handleManageSubscription = async () => {
     try {
+      // SweetAlert2 confirmation dialog
+      const result = Swal.fire({
+        title: "Redirecting to Subscription Management",
+        text: "You will be redirected to the subscription management page in a new tab.",
+        icon: "info",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "Got it!",
+      });
+
       const portalUrl = await getPortalUrl(app);
       window.open(portalUrl, "_blank"); // Attempt to open the portal URL
     } catch (error) {
