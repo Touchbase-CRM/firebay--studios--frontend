@@ -82,32 +82,41 @@ export const getSubscriptionStatus = async (app) => {
   });
 };
 
-// export const getPortalUrl = async (app) => {
-//   const auth = getAuth(app);
-//   const user = auth.currentUser;
+export const getPortalUrl = async (app) => {
+  const auth = getAuth(app);
+  const user = auth.currentUser;
 
-//   let dataWithUrl;
-//   try {
-//     const functions = getFunctions(app, "us-central1");
-//     const functionRef = httpsCallable(
-//       functions,
-//       "ext-firestore-stripe-payments-createPortalLink"
-//     );
-//     const response = await functionRef({
-//       customerId: user?.uid,
-//       returnUrl: window.location.origin,
-//     });
-//     dataWithUrl = response.data;
-//     console.log("Reroute to Stripe portal: ", dataWithUrl.url);
-//   } catch (error) {
-//     console.error(error);
-//   }
+  if (!user) {
+    throw new Error("No user logged in");
+  }
 
-//   return new Promise((resolve, reject) => {
-//     if (dataWithUrl && dataWithUrl.url) {
-//       resolve(dataWithUrl.url);
-//     } else {
-//       reject(new Error("No url returned"));
-//     }
-//   });
-// };
+  console.log(user.uid);
+
+  try {
+    const functions = getFunctions(app, "us-west2");
+    const functionRef = httpsCallable(
+      functions,
+      "ext-firestore-stripe-payments-createPortalLink"
+    );
+
+    const response = await functionRef({
+      customerId: user.uid,
+      returnUrl: window.location.origin,
+      locale: "auto", // Optional, defaults to "auto"
+      // Remove or update the line below based on your Stripe setup
+      // configuration: "correct_configuration_id", // Optional
+    });
+
+    const dataWithUrl = response.data;
+    console.log("Reroute to Stripe portal: ", dataWithUrl.url);
+
+    if (dataWithUrl && dataWithUrl.url) {
+      return dataWithUrl.url;
+    } else {
+      throw new Error("No URL returned");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error; // Rethrow the error to handle it outside this function if needed
+  }
+};

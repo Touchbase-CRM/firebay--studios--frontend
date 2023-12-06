@@ -10,8 +10,10 @@ import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import CustomDropdown from "../components/CustomDropdown";
+import { getPortalUrl } from "../stripe_proxy_sdk";
 
 import { usePostHog } from "posthog-js/react";
+import app from "../firebase";
 
 function CreateAd() {
   const posthog = usePostHog();
@@ -204,8 +206,16 @@ function CreateAd() {
         console.error("Logout Error:", error);
       });
   };
+  const handleManageSubscription = async () => {
+    const portalUrl = await getPortalUrl(app);
+    router.push(portalUrl);
+  };
 
   const dropdownItems = [
+    {
+      text: "Manage Subscription",
+      handler: handleManageSubscription,
+    },
     {
       text: "Logout",
       handler: handleLogout, // This is the function that will be called for logout
