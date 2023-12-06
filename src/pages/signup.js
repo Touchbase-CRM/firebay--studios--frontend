@@ -46,7 +46,7 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     setIsLoading(true); // Start loading
-    setStatusMessage("Creating your Firebay Studios account...");
+    setStatusMessage("Step 1 of 3: Creating your Firebay Studios account...");
 
     if (password !== confirmPassword) {
       Swal.fire({
@@ -98,11 +98,15 @@ const SignupPage = () => {
 
       await batch.commit();
 
-      setStatusMessage("Firebay Studios account has been created.");
+      setStatusMessage(
+        "Step 1 of 3: Your Firebay Studios account has been created."
+      );
       // Wait a moment before changing the message
       setTimeout(
         () =>
-          setStatusMessage("Redirecting you to the payment page, sit tight..."),
+          setStatusMessage(
+            "Step 2 of 3: Redirecting you to the payment page, sit tight..."
+          ),
         2000
       );
 

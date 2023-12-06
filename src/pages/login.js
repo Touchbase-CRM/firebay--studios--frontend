@@ -32,16 +32,6 @@ const LoginPage = () => {
       .then(async (userCredential) => {
         var user = userCredential.user;
 
-        // Check if the user's email is verified
-        if (!user.emailVerified) {
-          Swal.fire({
-            icon: "info",
-            title: "Email Verification",
-            text: "Please verify your email before continuing.",
-          });
-          return;
-        }
-
         // Check the subscription status before proceeding
         try {
           const isSubscribed = await getSubscriptionStatus(app);
@@ -49,13 +39,27 @@ const LoginPage = () => {
             throw new Error("You must have an active subscription to log in.");
           }
 
-          // If the user has an active subscription, redirect to the create_ad page
+          // Check if the user's email is verified
+          if (!user.emailVerified) {
+            Swal.fire({
+              icon: "info",
+              title: "Email Verification",
+              text: "Please verify your email before continuing.",
+            });
+            return;
+          }
+
+          // If the user has an active subscription and verified email, redirect to the create_ad page
           router.push("/create_ad");
         } catch (error) {
           Swal.fire({
             icon: "error",
-            title: "Subscription Required",
-            text: error.message,
+            title:
+              '<span style="font-size: 14px;">Subscription Required</span>',
+            html:
+              '<span style="font-size: 12px;">Contact kjayamanna@firebaystudios.com for more information.<br>' +
+              error.message +
+              "</span>",
           });
         }
       })
