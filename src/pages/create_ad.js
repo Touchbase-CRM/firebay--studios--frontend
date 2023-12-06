@@ -207,8 +207,12 @@ function CreateAd() {
       });
   };
   const handleManageSubscription = async () => {
-    const portalUrl = await getPortalUrl(app);
-    router.push(portalUrl);
+    try {
+      const portalUrl = await getPortalUrl(app);
+      window.open(portalUrl, "_blank"); // Attempt to open the portal URL
+    } catch (error) {
+      console.error("Error opening portal: ", error); // Log any errors
+    }
   };
 
   const dropdownItems = [
