@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
-import Swal from "sweetalert2";
+
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
-// for some reason when this component is removed the submit button of the IntonationManager does not work. So, don't delete this unused component until we figure out why.
-import ExamplesViewer from "../components/ExamplesViewer";
+import CustomDropdown from "../components/CustomDropdown";
+import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
+
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import CustomDropdown from "../components/CustomDropdown";
-import { getPortalUrl } from "../stripe_proxy_sdk";
-
-import { usePostHog } from "posthog-js/react";
 import app from "../firebase";
+
+import { getPortalUrl } from "../stripe_proxy_sdk";
+import { usePostHog } from "posthog-js/react";
+import Swal from "sweetalert2";
 
 function CreateAd() {
   const posthog = usePostHog();
@@ -218,9 +219,9 @@ function CreateAd() {
       });
 
       const portalUrl = await getPortalUrl(app);
-      window.open(portalUrl, "_blank"); // Attempt to open the portal URL
+      window.open(portalUrl, "_blank");
     } catch (error) {
-      console.error("Error opening portal: ", error); // Log any errors
+      console.error("Error opening portal: ", error);
     }
   };
 
@@ -231,7 +232,7 @@ function CreateAd() {
     },
     {
       text: "Logout",
-      handler: handleLogout, // This is the function that will be called for logout
+      handler: handleLogout,
     },
     // ... more items as needed
   ];

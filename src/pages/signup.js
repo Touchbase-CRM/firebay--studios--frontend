@@ -1,7 +1,9 @@
 import Swal from "sweetalert2";
 import Image from "next/image";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+
 import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
 import {
   getAuth,
@@ -9,8 +11,8 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import app from "../firebase";
-import Spinner from "../components/Spinner";
 
+import Spinner from "../components/Spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { getCheckoutUrl } from "../stripe_proxy_sdk";
 

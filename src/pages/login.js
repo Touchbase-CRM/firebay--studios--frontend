@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
-} from "firebase/auth"; // Importing new Auth methods
+} from "firebase/auth";
+import app from "../firebase";
+
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
+
 import { getSubscriptionStatus } from "../stripe_proxy_sdk";
-import app from "../firebase";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const auth = getAuth(); // Initialize Firebase Auth
+  const auth = getAuth();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);

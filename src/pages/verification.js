@@ -34,7 +34,6 @@ const VerificationPage = () => {
       }
 
       const auth = getAuth(app);
-      // const db = getFirestore(app);
       const user = auth.currentUser;
 
       if (!user) {

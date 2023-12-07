@@ -1,18 +1,21 @@
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import styles from "../styles/DownloadPage.module.css";
-import { Card, Navbar, Nav, Button } from "react-bootstrap";
+
 import Link from "next/link";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { cookieCleaner } from "../utils/cookieUtils";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import styles from "../styles/DownloadPage.module.css";
+import { Card, Navbar, Nav, Button } from "react-bootstrap";
+
 import { getFirestore, doc, getDoc, runTransaction } from "firebase/firestore";
 import { useAuth } from "../context/auth";
 import app from "../firebase";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import withAuth from "../hocs/withAuth";
+
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import { cookieCleaner } from "../utils/cookieUtils";
 
 const db = getFirestore(app);
 
