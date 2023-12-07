@@ -1,18 +1,24 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import firebase from "../firebase";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Modal,
-} from "react-bootstrap";
-import "firebase/compat/firestore";
 import Swal from "sweetalert2";
 import Image from "next/image";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+
+import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import app from "../firebase";
+
+import Spinner from "../components/Spinner";
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { getCheckoutUrl } from "../stripe_proxy_sdk";
+
+// Initialize Firebase services
+const db = getFirestore();
+const auth = getAuth();
 
 const SignupPage = () => {
   const router = useRouter();
@@ -20,26 +26,16 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [organization, setOrganization] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const [verificationUser, setVerificationUser] = useState(null);
-  const [acceptsPrivacyPolicy, setAcceptsPrivacyPolicy] = useState(false);
-  const [acceptsTermsAndConditions, setAcceptsTermsAndConditions] =
-    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
-  const handlePrivacyPolicyChange = (event) => {
-    setAcceptsPrivacyPolicy(event.target.checked);
-  };
-
-  const handleTermsAndConditionsChange = (event) => {
-    setAcceptsTermsAndConditions(event.target.checked);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
+  useEffect(() => {
+    if (router.query.email) {
+      setEmail(router.query.email);
+    }
+  }, [router.query.email]);
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
@@ -49,167 +45,103 @@ const SignupPage = () => {
     setConfirmPassword(event.target.value);
   };
 
-  const handleFirstNameChange = (event) => {
-    setFirstName(event.target.value);
-  };
-
-  const handleLastNameChange = (event) => {
-    setLastName(event.target.value);
-  };
-
-  const handleSignUp = (event) => {
+  const handleSignUp = async (event) => {
     event.preventDefault();
-    if (!acceptsPrivacyPolicy || !acceptsTermsAndConditions) {
-      Swal.fire({
-        icon: "error",
-        title: "Terms and Conditions/Privacy Policy",
-        text: "You must accept the Privacy Policy and Terms and Conditions to proceed.",
-      });
-      return;
-    }
+    setIsLoading(true); // Start loading
+    setStatusMessage("Step 1 of 3: Creating your Firebay Studios account...");
 
     if (password !== confirmPassword) {
       Swal.fire({
         icon: "error",
         title: "Passwords do not match",
-        text: "Please make sure your passwords match",
+        text: "Please make sure your passwords match.",
       });
+      setIsLoading(false); // Stop loading
       return;
     }
-    const userEmailDomain = email.split("@")[1];
 
-    firebase
-      .firestore()
-      .collection("organizations_meta_data")
-      .doc(userEmailDomain)
-      .get()
-      .then((doc) => {
-        if (!doc.exists) {
-          Swal.fire({
-            icon: "error",
-            title: "Organization Not Found",
-            text: "Your email domain does not match any registered organization.",
-          });
-          throw new Error("Organization not found."); // Prevent further execution
-        } else {
-          // Organization exists, set the organization state
-          const orgData = doc.data();
-          setOrganization(orgData.org_name);
+    try {
+      const userEmailDomain = email.split("@")[1];
+      const orgMetaRef = doc(db, "organizations_meta_data", userEmailDomain);
+      const orgMetaSnap = await getDoc(orgMetaRef);
 
-          // Proceed to create user
-          return firebase
-            .auth()
-            .createUserWithEmailAndPassword(email, password);
-        }
-      })
-      .then((userCredential) => {
-        // User created, send email verification
-        setVerificationUser(userCredential.user);
-        return userCredential.user.sendEmailVerification();
-      })
-      .then(() => {
-        // Email verification sent, show modal
-        setShowModal(true);
-      })
-      .catch((error) => {
-        if (error.code === "auth/email-already-in-use") {
-          Swal.fire({
-            icon: "error",
-            title: "Email Already in Use",
-            text: "The email address is already in use by another account.",
-          });
-        } else if (error.message !== "Organization not found.") {
-          // Handle other errors differently
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message,
-          });
-        }
-        // Log the error or handle the display of the error to the user
-        console.error(error);
+      if (!orgMetaSnap.exists()) {
+        Swal.fire({
+          icon: "error",
+          title: "Organization Not Found",
+          text: "Your email domain does not match any registered organization.",
+        });
+        setIsLoading(false); // Stop loading
+        return;
+      }
+
+      const orgData = orgMetaSnap.data();
+      setOrganization(orgData.org_name);
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      setVerificationUser(user);
+
+      await sendEmailVerification(user);
+
+      // Map the users uid to their organization
+      const batch = writeBatch(db);
+      const uidToOrgRef = doc(db, "uid_to_org", user.uid);
+      batch.set(uidToOrgRef, {
+        org_name: orgData.org_name,
+        work_email: email,
+        credit_allowance: 1000,
+        credit_left: 1000,
       });
+
+      await batch.commit();
+
+      setStatusMessage(
+        "Step 1 of 3: Your Firebay Studios account has been created."
+      );
+      // Wait a moment before changing the message
+      setTimeout(
+        () =>
+          setStatusMessage(
+            "Step 2 of 3: Redirecting you to the payment page, sit tight..."
+          ),
+        2000
+      );
+
+      // Define your Stripe priceId here (or fetch it as needed)
+      const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
+
+      // Call the getCheckoutUrl function to get the Stripe checkout URL
+      const checkoutUrl = await getCheckoutUrl(app, priceId);
+
+      // Redirect the user to the Stripe checkout page in the same window
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        Swal.fire({
+          icon: "error",
+          title: "Email Already in Use",
+          text: "The email address is already in use by another account.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Signup Failed",
+          text: error.message,
+        });
+      }
+      console.error("Signup error", error);
+      setIsLoading(false); // Stop loading
+    }
   };
 
   const handleContinue = () => {
-    verificationUser.reload().then(() => {
-      if (verificationUser.emailVerified) {
-        const db = firebase.firestore();
-        const batch = db.batch();
-
-        const uidToOrgRef = db
-          .collection("uid_to_org")
-          .doc(verificationUser.uid);
-        batch.set(uidToOrgRef, {
-          org_name: organization,
-          first_name: firstName,
-          last_name: lastName,
-          credit_allowance: 1000,
-          credit_left: 1000,
-        });
-
-        batch
-          .commit()
-          .then(() => {
-            router.push("/create_ad");
-          })
-          .catch((error) => {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: error.message,
-            });
-          });
-      } else {
-        Swal.fire({
-          icon: "info",
-          title: "Email Verification",
-          text: "Please verify your email before continuing",
-        });
-      }
-    });
+    router.push("/verification");
   };
-
-  const handleCancel = () => {
-    setShowModal(false);
-    setEmail(email);
-    setPassword(password);
-    setConfirmPassword(confirmPassword);
-    setOrganization(organization);
-    setFirstName(firstName);
-    setLastName(lastName);
-
-    if (verificationUser) {
-      verificationUser
-        .delete()
-        .then(() => {
-          console.log("User deleted");
-        })
-        .catch((error) => {
-          console.error("Error deleting user", error);
-        });
-    }
-  };
-
-  const VerificationModal = () => (
-    <Modal show={showModal}>
-      <Modal.Header>
-        <Modal.Title style={{ color: "black" }}>Email Verification</Modal.Title>
-      </Modal.Header>
-      <Modal.Body style={{ color: "black" }}>
-        Please verify your email, then click continue. Do not close this tab
-        yet. Click cancel to abort the verification.
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={handleContinue}>
-          Continue
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
 
   return (
     <Container
@@ -217,76 +149,69 @@ const SignupPage = () => {
       className="vh-100 d-flex justify-content-center align-items-center"
       style={{ backgroundColor: "#343a40" }}
     >
-      <Row className="w-100">
-        <Col md={6} className="mx-auto">
-          <Card
-            className="my-5 mx-1 p-4"
+      {isLoading && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            textAlign: "center",
+          }}
+        >
+          <div
             style={{
-              backgroundColor: "#1a1a1a",
-              borderRadius: "1rem",
-              color: "white",
+              position: "relative",
+              width: "120px",
+              height: "120px",
             }}
           >
-            <Image
-              src="/fire.png"
-              alt="Firebay Studios"
-              width={100}
-              height={100}
-              className="d-block mx-auto mb-3"
-            />
-            <h2 className="text-center mb-4">Firebay Studios Sign Up</h2>
-            <p className="text-center mb-5">
-              Please enter your email and create a password!
-            </p>
-            <style jsx global>{`
-              input:-webkit-autofill,
-              input:-webkit-autofill:focus,
-              input:-webkit-autofill:hover {
-                -webkit-box-shadow: 0 0 0 1000px #495057 inset;
-                box-shadow: 0 0 0 1000px #495057 inset;
-                -webkit-text-fill-color: white !important;
-              }
-            `}</style>
-            <Form>
-              <Form.Group controlId="firstName" className="mb-3">
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter First Name"
-                  value={firstName}
-                  onChange={handleFirstNameChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
+            <Spinner />
+          </div>
+          <p style={{ marginTop: "20px", color: "white" }}>{statusMessage}</p>
+        </div>
+      )}
+      {!isLoading && (
+        <Row className="w-100">
+          <Col md={6} className="mx-auto">
+            <Card
+              className="my-5 mx-1 p-4"
+              style={{
+                backgroundColor: "#1a1a1a",
+                borderRadius: "1rem",
+                color: "white",
+                position: "relative", // Add this for positioning the step indicator
+              }}
+            >
+              {/* Step indicator */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "10px", // Adjust as needed
+                  left: "10px", // Adjust as needed
+                  fontSize: "small", // Small font size
+                }}
+              >
+                Step 1 of 3
+              </div>
+              <Image
+                src="/fire.png"
+                alt="Firebay Studios"
+                width={100}
+                height={100}
+                className="d-block mx-auto mb-3"
+              />
+              <h2 className="text-center mb-4">Firebay Studios</h2>
+              <p className="text-center mb-5">Let's get you started!</p>
 
-              <Form.Group controlId="lastName" className="mb-3">
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Last Name"
-                  value={lastName}
-                  onChange={handleLastNameChange}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="email" className="mb-3">
-                <Form.Label>Work Email address</Form.Label>
+              <Form.Group controlId="workEmail" className="mb-3">
+                <Form.Label>Work Email</Form.Label>
                 <Form.Control
                   type="email"
-                  placeholder="Enter email"
+                  placeholder="Enter your work email"
                   value={email}
-                  onChange={handleEmailChange}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   style={{
                     borderColor: "#ced4da",
@@ -295,107 +220,112 @@ const SignupPage = () => {
                   }}
                 />
               </Form.Group>
+              <style jsx global>{`
+                input:-webkit-autofill,
+                input:-webkit-autofill:focus,
+                input:-webkit-autofill:hover {
+                  -webkit-box-shadow: 0 0 0 1000px #495057 inset;
+                  box-shadow: 0 0 0 1000px #495057 inset;
+                  -webkit-text-fill-color: white !important;
+                }
+              `}</style>
 
-              <Form.Group controlId="password" className="mb-3">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  minLength={6}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
+              <Form>
+                <Form.Group controlId="password" className="mb-3">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                    minLength={6}
+                    required
+                    style={{
+                      borderColor: "#ced4da",
+                      backgroundColor: "#495057",
+                      color: "white",
+                    }}
+                  />
+                </Form.Group>
 
-              <Form.Group controlId="confirmPassword" className="mb-3">
-                <Form.Label>Confirm Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  minLength={6}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group>
+                <Form.Group controlId="confirmPassword" className="mb-3">
+                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    minLength={6}
+                    required
+                    style={{
+                      borderColor: "#ced4da",
+                      backgroundColor: "#495057",
+                      color: "white",
+                    }}
+                  />
+                </Form.Group>
 
-              <Form.Group>
-                <Form.Check
-                  required
-                  type="checkbox"
-                  id="privacyPolicyCheckbox"
-                  label={
-                    <a
-                      href="https://www.firebaystudios.com/privacy-policy"
-                      target="_blank"
-                    >
-                      I agree to the Privacy Policy
-                    </a>
-                  }
-                  checked={acceptsPrivacyPolicy}
-                  onChange={handlePrivacyPolicyChange}
-                />
-              </Form.Group>
+                {/* Added the sentence with hyperlinks */}
+                <div className="my-3 text-left" style={{ fontSize: "small" }}>
+                  By clicking the Sign Up button below, you agree to our&nbsp;
+                  <a
+                    href="https://www.firebaystudios.com/terms-of-service"
+                    target="_blank"
+                    style={{
+                      textDecoration: "underline",
+                      color: "#0d6efd",
+                      marginRight: "4px",
+                    }}
+                  >
+                    terms and conditions
+                  </a>
+                  &nbsp;as well as our&nbsp;
+                  <a
+                    href="https://www.firebaystudios.com/privacy-policy"
+                    target="_blank"
+                    style={{
+                      textDecoration: "underline",
+                      color: "#0d6efd",
+                      marginRight: "4px",
+                    }}
+                  >
+                    privacy policy
+                  </a>
+                  .
+                </div>
 
-              <Form.Group>
-                <Form.Check
-                  required
-                  type="checkbox"
-                  id="termsAndConditionsCheckbox"
-                  label={
-                    <a
-                      href="https://www.firebaystudios.com/terms-of-service"
-                      target="_blank"
-                    >
-                      I agree to the Terms and Conditions
-                    </a>
-                  }
-                  checked={acceptsTermsAndConditions}
-                  onChange={handleTermsAndConditionsChange}
-                />
-              </Form.Group>
+                <Button
+                  className="w-100"
+                  variant="outline-light"
+                  type="submit"
+                  size="lg"
+                  onClick={handleSignUp}
+                >
+                  Sign Up
+                </Button>
+              </Form>
 
-              <br></br>
+              {error && (
+                <div className="mt-3">
+                  <p className="text-center text-danger">{error}</p>
+                </div>
+              )}
 
-              <Button
-                className="w-100"
-                variant="outline-light"
-                type="submit"
-                size="lg"
-                onClick={handleSignUp}
-              >
-                Sign Up
-              </Button>
-            </Form>
-            <VerificationModal />
-            {error && (
-              <div className="mt-3">
-                <p className="text-center text-danger">{error}</p>
+              <div className="my-3">
+                <p className="text-center">
+                  Already have an account?{" "}
+                  <a
+                    href="/login"
+                    style={{ color: "#fff", fontWeight: "bold" }}
+                  >
+                    Login
+                  </a>
+                </p>
               </div>
-            )}
-
-            <div className="my-3">
-              <p className="text-center">
-                Already have an account?{" "}
-                <a href="/login" style={{ color: "#fff", fontWeight: "bold" }}>
-                  Login
-                </a>
-              </p>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
     </Container>
   );
 };

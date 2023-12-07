@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Offcanvas, Container } from "react-bootstrap";
-import firebase from "../firebase";
-import "firebase/compat/firestore";
+import { getFirestore, collection, doc, getDocs } from "firebase/firestore"; // Importing new Firestore methods
 import "bootstrap-icons/font/bootstrap-icons.css";
+import app from "../firebase"; // Ensure this points to the updated firebase.js file
 
-const db = firebase.firestore();
+const db = getFirestore(app); // Initialize Firestore with Firebase app
 
 export default function ExamplesViewer({ show, onHide }) {
   const [thirtySecSamples, setThirtySecSamples] = useState([]);
@@ -23,11 +23,8 @@ export default function ExamplesViewer({ show, onHide }) {
   }, [show]);
 
   const fetchExamples = async (type) => {
-    const snapshot = await db
-      .collection("examples")
-      .doc("sample_scripts")
-      .collection(type)
-      .get();
+    const examplesColRef = collection(db, "examples", "sample_scripts", type);
+    const snapshot = await getDocs(examplesColRef);
     const scripts = snapshot.docs.map((doc) => ({
       title: doc.data().title,
       script: doc.data().script,

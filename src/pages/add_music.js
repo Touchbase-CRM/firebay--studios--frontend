@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
-import firebase from "../firebase";
-import "firebase/auth";
+import { getAuth } from "firebase/auth";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
@@ -28,6 +27,7 @@ function AddMusic() {
   };
 
   const posthog = usePostHog();
+  const auth = getAuth();
 
   const [noMusic, setNoMusic] = useState(() => {
     return getCookie("noMusic", false);
@@ -180,7 +180,7 @@ function AddMusic() {
     e.preventDefault();
     setPendingAdvertisement(true); // Set pending before API call starts
 
-    const userId = firebase.auth().currentUser.uid;
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     const snakeCaseGenre = toSnakeCase(genre);
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
@@ -243,7 +243,14 @@ function AddMusic() {
   const handleLogout = () => {
     cookieCleaner();
     localStorage.removeItem("user");
-    router.push("/login");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
   };
 
   if (pendingAdvertisement) {

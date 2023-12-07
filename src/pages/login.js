@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import firebase from "../firebase";
+
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import app from "../firebase";
+
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
+
+import { getSubscriptionStatus } from "../stripe_proxy_sdk";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const auth = getAuth();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -18,28 +28,48 @@ const LoginPage = () => {
     setPassword(event.target.value);
   };
 
-  const handleSignIn = (event) => {
+  const handleSignIn = async (event) => {
     event.preventDefault();
 
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
         var user = userCredential.user;
-        if (user.emailVerified) {
+
+        // Check the subscription status before proceeding
+        try {
+          const isSubscribed = await getSubscriptionStatus(app);
+          if (!isSubscribed) {
+            throw new Error("You must have an active subscription to log in.");
+          }
+
+          // Check if the user's email is verified
+          if (!user.emailVerified) {
+            Swal.fire({
+              icon: "info",
+              title: "Email Verification",
+              text: "Please verify your email before continuing.",
+            });
+            return;
+          }
+
+          // If the user has an active subscription and verified email, redirect to the create_ad page
           router.push("/create_ad");
-        } else {
+        } catch (error) {
           Swal.fire({
-            icon: "info",
-            title: "Email Verification",
-            text: "Please verify your email before continuing.",
+            icon: "error",
+            title:
+              '<span style="font-size: 14px;">Subscription Required</span>',
+            html:
+              '<span style="font-size: 12px;">Contact kjayamanna@firebaystudios.com for more information.<br>' +
+              error.message +
+              "</span>",
           });
         }
       })
       .catch((error) => {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: "Login Failed",
           text: "User not found, please sign in",
         });
       });
@@ -55,9 +85,7 @@ const LoginPage = () => {
       return;
     }
 
-    firebase
-      .auth()
-      .sendPasswordResetEmail(email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         Swal.fire({
           icon: "success",
@@ -98,7 +126,7 @@ const LoginPage = () => {
               className="d-block mx-auto mb-3"
             />
 
-            <h2 className="text-center mb-4">Firebay Studios Sign Up</h2>
+            <h2 className="text-center mb-4">Firebay Studios Login</h2>
             <p className="text-center mb-5">
               Please enter your login and password!
             </p>

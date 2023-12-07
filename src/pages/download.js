@@ -1,20 +1,23 @@
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
-import styles from "../styles/DownloadPage.module.css";
-import { Card, Navbar, Nav, Button } from "react-bootstrap";
+
 import Link from "next/link";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { cookieCleaner } from "../utils/cookieUtils";
-import "firebase/compat/firestore";
-import { useAuth } from "../context/auth";
-import firebase from "../firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import styles from "../styles/DownloadPage.module.css";
+import { Card, Navbar, Nav, Button } from "react-bootstrap";
+
+import { getFirestore, doc, getDoc, runTransaction } from "firebase/firestore";
+import { useAuth } from "../context/auth";
+import app from "../firebase";
 import withAuth from "../hocs/withAuth";
+
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import { cookieCleaner } from "../utils/cookieUtils";
 
-const db = firebase.firestore();
+const db = getFirestore(app);
 
 const DownloadPage = () => {
   const posthog = usePostHog();
@@ -26,13 +29,12 @@ const DownloadPage = () => {
 
   useEffect(() => {
     if (user?.uid) {
-      const docRef = db.collection("uid_to_org").doc(user.uid);
+      const docRef = doc(db, "uid_to_org", user.uid);
 
-      docRef
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
+      getDoc(docRef)
+        .then((docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
             setCredits({
               creditLeft: data.credit_left,
               creditAllowance: data.credit_allowance,
@@ -54,14 +56,14 @@ const DownloadPage = () => {
     });
 
     // Decrement credit_left in the database
-    const docRef = db.collection("uid_to_org").doc(user.uid);
-    db.runTransaction((transaction) => {
-      return transaction.get(docRef).then((doc) => {
-        if (!doc.exists) {
+    const docRef = doc(db, "uid_to_org", user.uid);
+    runTransaction(db, (transaction) => {
+      return transaction.get(docRef).then((docSnap) => {
+        if (!docSnap.exists()) {
           throw "Document does not exist!";
         }
 
-        let newCreditLeft = (doc.data().credit_left || 0) - 1;
+        let newCreditLeft = (docSnap.data().credit_left || 0) - 1;
         transaction.update(docRef, { credit_left: newCreditLeft });
         return newCreditLeft; // This value is passed to the .then() handler
       });

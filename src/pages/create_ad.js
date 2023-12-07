@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
-import Swal from "sweetalert2";
+
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
-// for some reason when this component is removed the submit button of the IntonationManager does not work. So, don't delete this unused component until we figure out why.
-import ExamplesViewer from "../components/ExamplesViewer";
+import CustomDropdown from "../components/CustomDropdown";
+import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
-import withAuth from "../hocs/withAuth";
-import firebase from "../firebase";
-import "firebase/auth";
 
+import withAuth from "../hocs/withAuth";
+import { getAuth } from "firebase/auth";
+import app from "../firebase";
+
+import { getPortalUrl } from "../stripe_proxy_sdk";
 import { usePostHog } from "posthog-js/react";
+import Swal from "sweetalert2";
 
 function CreateAd() {
   const posthog = usePostHog();
+  const auth = getAuth();
 
   const [script, setScript] = useState(() => {
     return getCookie("script", "");
@@ -118,7 +122,7 @@ function CreateAd() {
     setVoiceName(newVoiceName);
     setShouldPlayAudio(true);
 
-    const userId = firebase.auth().currentUser.uid;
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
@@ -194,8 +198,44 @@ function CreateAd() {
   const handleLogout = () => {
     cookieCleaner();
     localStorage.removeItem("user");
-    router.push("/login");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
   };
+  const handleManageSubscription = async () => {
+    try {
+      // SweetAlert2 confirmation dialog
+      const result = Swal.fire({
+        title: "Redirecting to Subscription Management",
+        text: "You will be redirected to the subscription management page in a new tab.",
+        icon: "info",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "Got it!",
+      });
+
+      const portalUrl = await getPortalUrl(app);
+      window.open(portalUrl, "_blank");
+    } catch (error) {
+      console.error("Error opening portal: ", error);
+    }
+  };
+
+  const dropdownItems = [
+    {
+      text: "Manage Subscription",
+      handler: handleManageSubscription,
+    },
+    {
+      text: "Logout",
+      handler: handleLogout,
+    },
+    // ... more items as needed
+  ];
 
   const wordCountStyle = {
     position: "absolute",
@@ -228,18 +268,20 @@ function CreateAd() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
-        </Navbar.Collapse>
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={handleLogout}
-          style={{ marginRight: "10px" }}
+        <Navbar.Collapse
+          id="basic-navbar-nav"
+          className="justify-content-between"
         >
-          Logout
-        </Button>
+          <Nav className="mr-auto">
+            {/* Other nav links or content can go here */}
+          </Nav>
+          {/* This will ensure the CustomDropdown is aligned to the right */}
+          <div style={{ paddingRight: "25px" }}>
+            <CustomDropdown items={dropdownItems} />
+          </div>
+        </Navbar.Collapse>
       </Navbar>
+
       <Row>
         <Col md={10} className="mx-auto">
           <Card
