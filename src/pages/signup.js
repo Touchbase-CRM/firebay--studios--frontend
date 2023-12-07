@@ -111,7 +111,7 @@ const SignupPage = () => {
       );
 
       // Define your Stripe priceId here (or fetch it as needed)
-      const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp";
+      const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
 
       // Call the getCheckoutUrl function to get the Stripe checkout URL
       const checkoutUrl = await getCheckoutUrl(app, priceId);

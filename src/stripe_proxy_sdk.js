@@ -13,7 +13,6 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 export const getCheckoutUrl = async (app, priceId) => {
   const auth = getAuth(app);
   const userId = auth.currentUser?.uid;
-  console.log("User ID:", userId);
   if (!userId) throw new Error("User is not authenticated");
 
   const db = getFirestore(app);
