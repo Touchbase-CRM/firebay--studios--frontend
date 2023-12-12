@@ -99,7 +99,25 @@ function CreateAd() {
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
+    Craig: "fDte6eby6sYdcYcjHbl0",
+    Jim: "9oqLJH1XFK0K90OEebQ5",
+    Connor: "9F4C8ztpNUmXkdDDbz3J",
+    Russell: "Hvs3xuGjAWNJAS9rCUH8",
+    Timothy: "59WLD3GpFaAujZiGGIdJ",
+    Joseph: "cMvWnGm0kHd0m3Jjb3Ss",
+    Jabari: "Q4CesJn2rW0ITUs66gST",
+    Ike: "qYgN2KN4yu2ReeLmOu8F",
+    Ayaan: "6gF9Bpd8RCQIF5ZGzETu",
     Kate: "cBijDV6IOSWp9c8dA7Xn",
+    Puja: "xIexz7Yl0JBblW0l0UJv",
+    McKenna: "yPh7KyOT84PcyPINBrfi",
+    Carol: "BwsRV8gluuGcJrvENPbd",
+    Beth: "VCr9UgezI1qi2hMOKWVK",
+    Meg: "sQAyEY9ksexU3gWxo7gG",
+    Darcy: "rI34FMqFgY9kQxffNV58",
+    Hannah: "iLiLWmBplDMUW2SuUEnM",
+    Kamala: "xShUaiOOq6sZGIVKUWun",
+    Allie: "ErSJLlt5kqsnEqVocE1t",
   };
 
   const voicePreviewLinks = {
