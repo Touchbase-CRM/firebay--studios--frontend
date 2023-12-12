@@ -7,6 +7,7 @@ import IntonationManager from "../components/IntonationManager";
 import CustomDropdown from "../components/CustomDropdown";
 import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
+import { getFullUrl } from "../utils/string_manipulation";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -146,10 +147,6 @@ function CreateAd() {
     Meg: "female/meg.mp3",
     Puja: "female/puja.mp3",
   };
-
-  function getFullUrl(baseUrl, voiceName, relationshipMapping) {
-    return baseUrl + relationshipMapping[voiceName];
-  }
 
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
