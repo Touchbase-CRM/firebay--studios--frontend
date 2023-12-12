@@ -97,19 +97,20 @@ function CreateAd() {
     }
   }, [script, isFormSubmitted, adLength, voiceId, router]);
 
-  const voices = {
+  const voicesToElevenLabsIds = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
     Craig: "fDte6eby6sYdcYcjHbl0",
     Jim: "9oqLJH1XFK0K90OEebQ5",
     Connor: "9F4C8ztpNUmXkdDDbz3J",
     Russell: "Hvs3xuGjAWNJAS9rCUH8",
-    Timothy: "59WLD3GpFaAujZiGGIdJ",
+    Timothy: "T7QGPtToiqH4S8VlIkMJ",
     Joseph: "cMvWnGm0kHd0m3Jjb3Ss",
+    Edward: "8bRmOvh6tl1JtNu7uUdF",
     Jabari: "Q4CesJn2rW0ITUs66gST",
     Ike: "qYgN2KN4yu2ReeLmOu8F",
     Ayaan: "6gF9Bpd8RCQIF5ZGzETu",
     Kate: "cBijDV6IOSWp9c8dA7Xn",
-    Puja: "xIexz7Yl0JBblW0l0UJv",
+    Puja: "jA08rXmVrpvXnqEEEYwl",
     McKenna: "yPh7KyOT84PcyPINBrfi",
     Carol: "BwsRV8gluuGcJrvENPbd",
     Beth: "VCr9UgezI1qi2hMOKWVK",
@@ -117,14 +118,38 @@ function CreateAd() {
     Darcy: "rI34FMqFgY9kQxffNV58",
     Hannah: "iLiLWmBplDMUW2SuUEnM",
     Kamala: "xShUaiOOq6sZGIVKUWun",
-    Allie: "ErSJLlt5kqsnEqVocE1t",
   };
 
-  const voicePreviewLinks = {
-    Charley:
-      "https://drive.google.com/uc?export=download&id=1wngVcIpz3CUYTVcOSSVKaGjSafmOMETI",
-    Kate: "https://drive.google.com/uc?export=download&id=17deqBO-9X_jJ_YQnCNi4vT7RYbPNFfGh",
+  const baseVoicePreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
+  const voicesToPreviewPaths = {
+    Ayaan: "male/ayaan.mp3",
+    Charley: "male/charley.mp3",
+    Connor: "male/connor.mp3",
+    Craig: "male/craig.mp3",
+    Edward: "male/edward.mp3",
+    Ike: "male/ike.mp3",
+    Jabari: "male/jabari.mp3",
+    Jim: "male/jim.mp3",
+    Joseph: "male/joseph.mp3",
+    Russell: "male/russell.mp3",
+    Timothy: "male/timothy.mp3",
+    Allie: "female/allie.mp3",
+    Beth: "female/beth.mp3",
+    Carol: "female/carol.mp3",
+    Darcy: "female/darcy.mp3",
+    Hannah: "female/hannah.mp3",
+    Kamala: "female/kamala.mp3",
+    Kate: "female/kate.mp3",
+    McKenna: "female/mckenna.mp3",
+    Meg: "female/meg.mp3",
+    Puja: "female/puja.mp3",
   };
+
+  function getFullUrl(baseUrl, voiceName, relationshipMapping) {
+    return baseUrl + relationshipMapping[voiceName];
+  }
 
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
@@ -132,8 +157,8 @@ function CreateAd() {
 
   const handleVoiceChange = (e) => {
     const newVoiceId = e.target.value;
-    const newVoiceName = Object.keys(voices).find(
-      (name) => voices[name] === newVoiceId
+    const newVoiceName = Object.keys(voicesToElevenLabsIds).find(
+      (name) => voicesToElevenLabsIds[name] === newVoiceId
     );
 
     setVoiceId(newVoiceId);
@@ -354,7 +379,7 @@ function CreateAd() {
                   onChange={handleVoiceChange}
                   style={{ color: "black" }}
                 >
-                  {Object.entries(voices).map(([name, code]) => (
+                  {Object.entries(voicesToElevenLabsIds).map(([name, code]) => (
                     <option key={code} value={code}>
                       {name}
                     </option>
@@ -371,10 +396,13 @@ function CreateAd() {
               </Button>
             </Form>
           </Card>
-
           <div>
             <SimpleAudioPlayer
-              audioSrc={voicePreviewLinks[voiceName]}
+              audioSrc={getFullUrl(
+                baseVoicePreviewsUrl,
+                voiceName,
+                voicesToPreviewPaths
+              )}
               audioTitle={voiceName}
             />
           </div>
