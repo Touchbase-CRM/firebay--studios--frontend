@@ -17,13 +17,13 @@ function toSnakeCase(str) {
 function AddMusic() {
   const musicPreviewLinks = {
     "Up Beat":
-      "https://drive.google.com/uc?export=download&id=1TXE74TAX6Ui3hakkEKYc_IRRJHoYFkV3",
+      "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/preview_catch-it.mp3",
     Happy:
-      "https://drive.google.com/uc?export=download&id=1XZJZ-rgcIdlI6KVA43q_K_JXiKr8XB03",
-    Jazz: "https://drive.google.com/uc?export=download&id=145TkAsa4l2IT8sm2ULCwZu5sXXvzC126",
+      "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/preview_happy-acoustic-guitar-background-music.mp3",
+    Jazz: "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/preview_fun-upbeat-rock-move.mp3",
     Motivational:
-      "https://drive.google.com/uc?export=download&id=13TBPm6axkQ1emcoRUgNDztZGAhbynMLN",
-    Rock: "https://drive.google.com/uc?export=download&id=18acx7Jg1E9KjnVACl8DZqjHzUK0cJTI3",
+      "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/preview_motivation-hip-hop-epic-sport-hip-hop-background-music.mp3",
+    Rock: "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/preview_pipeline-rock.mp3",
   };
 
   const posthog = usePostHog();
