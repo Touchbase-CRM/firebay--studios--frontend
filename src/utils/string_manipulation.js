@@ -1,3 +1,3 @@
-export function getFullUrl(baseUrl, voiceName, relationshipMapping) {
-  return baseUrl + relationshipMapping[voiceName];
+export function getFullUrl(baseUrl, mappingKey, relationshipMapping) {
+  return baseUrl + relationshipMapping[mappingKey];
 }
