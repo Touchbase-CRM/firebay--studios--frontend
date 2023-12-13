@@ -20,9 +20,9 @@ function AddMusic() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
 
   const genreToFileName = {
-    "Up Beat": "preview_catch-it.mp3",
+    "Up Beat": "preview_fun-upbeat-rock-move.mp3",
     Happy: "preview_happy-acoustic-guitar-background-music.mp3",
-    Jazz: "preview_fun-upbeat-rock-move.mp3",
+    Jazz: "preview_catch-it.mp3",
     Motivational:
       "preview_motivation-hip-hop-epic-sport-hip-hop-background-music.mp3",
     Rock: "preview_pipeline-rock.mp3",
