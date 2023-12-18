@@ -6,7 +6,6 @@ import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
 import useUserInputsStore from "../store/userInputs";
 import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
