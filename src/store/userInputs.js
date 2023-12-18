@@ -1,23 +1,34 @@
 // store/userInputs.js
 import { create } from "zustand";
 
-const useUserInputsStore = create((set) => ({
-  // create ad page
+// Default values
+const defaultState = {
+  // create ad page defaults
   script: "",
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   adLength: "30",
+  // add music page defaults
+  noMusic: false,
+  genre: "Up Beat",
+  musicVol: 0.1,
+};
+
+const useUserInputsStore = create((set) => ({
+  // Initial state
+  ...defaultState,
+
+  // Setters
   setScript: (script) => set({ script }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
   setAdLength: (adLength) => set({ adLength }),
-  // add music page
-  noMusic: false,
-  genre: "Up Beat",
-  musicVol: 0.1,
   setNoMusic: (noMusic) => set({ noMusic }),
   setGenre: (genre) => set({ genre }),
   setMusicVol: (musicVol) => set({ musicVol }),
+
+  // Reset function
+  reset: () => set({ ...defaultState }),
 }));
 
 export default useUserInputsStore;

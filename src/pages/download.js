@@ -15,6 +15,7 @@ import withAuth from "../hocs/withAuth";
 
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import useUserInputsStore from "../store/userInputs";
 
 const db = getFirestore(app);
 
@@ -25,6 +26,7 @@ const DownloadPage = () => {
   const { user } = useAuth();
   const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
+  const { reset } = useUserInputsStore();
 
   useEffect(() => {
     if (user?.uid) {
@@ -81,6 +83,7 @@ const DownloadPage = () => {
   };
 
   const handleNewAd = () => {
+    reset();
     router.push("/create_ad");
     URL.revokeObjectURL(audioUrl);
   };
