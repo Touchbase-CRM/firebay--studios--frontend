@@ -27,7 +27,8 @@
     "react-dom": "18.2.0",
     "react-h5-audio-player": "^3.9.0",
     "redis": "^4.6.10",
-    "sweetalert2": "^11.6.13"
+    "sweetalert2": "^11.6.13",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
     "cypress": "^13.3.1",
