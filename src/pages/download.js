@@ -15,7 +15,6 @@ import withAuth from "../hocs/withAuth";
 
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import { cookieCleaner } from "../utils/cookieUtils";
 
 const db = getFirestore(app);
 
@@ -82,13 +81,11 @@ const DownloadPage = () => {
   };
 
   const handleNewAd = () => {
-    cookieCleaner();
     router.push("/create_ad");
     URL.revokeObjectURL(audioUrl);
   };
 
   const handleLogout = () => {
-    cookieCleaner();
     localStorage.removeItem("user");
     router.push("/login");
   };

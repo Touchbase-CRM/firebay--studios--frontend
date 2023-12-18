@@ -6,8 +6,9 @@ import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import IntonationManager from "../components/IntonationManager";
 import CustomDropdown from "../components/CustomDropdown";
 import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
-import { getCookie, setCookie, cookieCleaner } from "../utils/cookieUtils";
+
 import { getFullUrl } from "../utils/string_manipulation";
+import useUserInputsStore from "../store/userInputs";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -21,24 +22,20 @@ function CreateAd() {
   const posthog = usePostHog();
   const auth = getAuth();
 
-  const [script, setScript] = useState(() => {
-    return getCookie("script", "");
-  });
-
-  const [voiceId, setVoiceId] = useState(() => {
-    return getCookie("voiceId", "6wLJ4Wm2OxvAvetEUBCS");
-  });
-
-  const [voiceName, setVoiceName] = useState(() => {
-    return getCookie("voiceName", "Charley");
-  });
-
-  const [adLength, setAdLength] = useState(() => {
-    return getCookie("adLength", "30");
-  });
-
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
+
+  // Zustand store hooks
+  const {
+    script,
+    setScript,
+    voiceId,
+    setVoiceId,
+    voiceName,
+    setVoiceName,
+    adLength,
+    setAdLength,
+  } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [keywords, setKeywords] = useState([]);
@@ -51,52 +48,11 @@ function CreateAd() {
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
-  // Load states from cookies on component mount
-  useEffect(() => {
-    // Initialize states from cookies using the getCookie function
-    const savedScript = getCookie("script", "");
-    const savedVoiceId = getCookie("voiceId", "6wLJ4Wm2OxvAvetEUBCS");
-    const savedVoiceName = getCookie("voiceName", "Charley");
-    const savedAdLength = getCookie("adLength", "30");
-
-    // Set states
-    setScript(savedScript);
-    setVoiceId(savedVoiceId);
-    setVoiceName(savedVoiceName);
-    setAdLength(savedAdLength);
-  }, []);
-
-  // Save states to cookies whenever they change
-  useEffect(() => {
-    if (script) setCookie("script", script);
-  }, [script]);
-
-  useEffect(() => {
-    if (voiceId) setCookie("voiceId", voiceId);
-  }, [voiceId]);
-
-  useEffect(() => {
-    if (voiceName) setCookie("voiceName", voiceName);
-  }, [voiceName]);
-
-  useEffect(() => {
-    if (adLength) setCookie("adLength", adLength);
-  }, [adLength]);
-
   useEffect(() => {
     if (isFormSubmitted) {
-      setFormSubmitted(false);
+      router.push("/add_music");
     }
-  }, [isFormSubmitted]);
-
-  useEffect(() => {
-    if (isFormSubmitted) {
-      router.push({
-        pathname: "/add_music",
-        query: { adLength, script, voiceId },
-      });
-    }
-  }, [script, isFormSubmitted, adLength, voiceId, router]);
+  }, [isFormSubmitted, router]);
 
   const voicesToElevenLabsIds = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
@@ -274,7 +230,6 @@ function CreateAd() {
       text: "Logout",
       handler: handleLogout,
     },
-    // ... more items as needed
   ];
 
   const wordCountStyle = {

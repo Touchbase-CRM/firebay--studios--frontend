@@ -1,4 +1,5 @@
 // utils/cookieUtils.js
+// Not in use currently since we moved to Zustand!
 import Cookies from "js-cookie";
 
 const COOKIE_EXPIRATION_DAYS = 1 / 96; // 15 minutes
