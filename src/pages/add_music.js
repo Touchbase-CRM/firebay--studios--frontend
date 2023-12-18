@@ -167,7 +167,6 @@ function AddMusic() {
   };
 
   const handleLogout = () => {
-    cookieCleaner();
     localStorage.removeItem("user");
     auth
       .signOut()

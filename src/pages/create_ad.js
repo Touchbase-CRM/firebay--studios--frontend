@@ -192,7 +192,6 @@ function CreateAd() {
   };
 
   const handleLogout = () => {
-    cookieCleaner();
     localStorage.removeItem("user");
     auth
       .signOut()
