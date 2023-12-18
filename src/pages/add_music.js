@@ -42,6 +42,7 @@ function AddMusic() {
     script,
     voiceId,
     adLength,
+    reset,
   } = useUserInputsStore();
 
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
@@ -69,6 +70,8 @@ function AddMusic() {
     }).then((result) => {
       // If the modal was closed by the confirmation button, redirect.
       if (result.isConfirmed) {
+        reset(); // Reset the user inputs to default values
+
         router.push("/create_ad");
       }
     });
