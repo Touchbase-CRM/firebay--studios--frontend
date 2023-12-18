@@ -41,11 +41,8 @@ function AddMusic() {
     musicVol,
     setMusicVol,
     script,
-    setScript,
     voiceId,
-    setVoiceId,
     adLength,
-    setAdLength,
   } = useUserInputsStore();
 
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
@@ -54,86 +51,6 @@ function AddMusic() {
   const goBack = () => {
     router.back();
   };
-
-  const {
-    adLength: adLengthQuery,
-    script: scriptQuery,
-    voiceId: voiceQuery,
-  } = router.query;
-
-  // useEffect(() => {
-  //   // Check if all query params are present and not empty
-  //   const hasAdLengthQuery = adLengthQuery && adLengthQuery !== "";
-  //   const hasScriptQuery = scriptQuery && scriptQuery !== "";
-  //   const hasVoiceQuery = voiceQuery && voiceQuery !== "";
-
-  //   // If all query params are present and not empty, use them to set the state
-  //   if (hasAdLengthQuery && hasScriptQuery && hasVoiceQuery) {
-  //     setAdLength(adLengthQuery);
-  //     setScript(scriptQuery);
-  //     setVoice(voiceQuery);
-  //   } else {
-  //     // Attempt to reassign state from cookies
-  //     const cookieAdLength = getCookie("adLength", "");
-  //     const cookieScript = getCookie("script", "");
-  //     const cookieVoiceId = getCookie("voiceId", "");
-
-  //     // Check if the cookie values are empty strings
-  //     const areCookiesValid =
-  //       cookieAdLength !== "" && cookieScript !== "" && cookieVoiceId !== "";
-
-  //     if (!areCookiesValid) {
-  //       // Show SweetAlert2 modal if cookies are invalid
-  //       Swal.fire({
-  //         title: "Session Expired",
-  //         text: "Your session has expired. Please start a new ad.",
-  //         icon: "warning",
-  //         showCancelButton: true,
-  //         confirmButtonText: "Start Over",
-  //         cancelButtonText: "Stay",
-  //         reverseButtons: true,
-  //       }).then((result) => {
-  //         if (result.isConfirmed) {
-  //           // User confirmed, clear cookies and redirect
-  //           cookieCleaner(); // Clear all cookies
-  //           router.push("/create_ad"); // Redirect to the create ad page
-  //         }
-  //         // If the user cancels, just close the alert and stay on the page
-  //       });
-  //     } else {
-  //       // If cookies are valid, set the state
-  //       setAdLength(cookieAdLength);
-  //       setScript(cookieScript);
-  //       setVoice(cookieVoiceId);
-  //     }
-  //   }
-  // }, [adLengthQuery, scriptQuery, voiceQuery, router]);
-
-  // Load states from cookies on component mount
-  // useEffect(() => {
-  //   // Initialize states from cookies using the getCookie function
-  //   const savedGenre = getCookie("genre", "Up Beat");
-  //   const savedNoMusic = getCookie("noMusic", false);
-  //   const musicVol = getCookie("musicVol", 0.1);
-
-  //   // Set states
-  //   setGenre(savedGenre);
-  //   setNoMusic(savedNoMusic);
-  //   setMusicVol(musicVol);
-  // }, []);
-
-  // // Save states to cookies whenever they change
-  // useEffect(() => {
-  //   if (genre) setCookie("genre", genre);
-  // }, [genre]);
-  // useEffect(() => {
-  //   if (musicVol) setCookie("musicVol", musicVol);
-  // }, [musicVol]);
-
-  // useEffect(() => {
-  //   // This will set the cookie for both true and false values of noMusic
-  //   setCookie("noMusic", noMusic);
-  // }, [noMusic]);
 
   // Cancel token source for the Axios request
   const cancelTokenSourceRef = useRef(null);

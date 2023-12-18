@@ -50,12 +50,9 @@ function CreateAd() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push({
-        pathname: "/add_music",
-        query: { adLength, script, voiceId },
-      });
+      router.push("/add_music");
     }
-  }, [script, isFormSubmitted, adLength, voiceId, router]);
+  }, [isFormSubmitted, router]);
 
   const voicesToElevenLabsIds = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
