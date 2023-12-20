@@ -11,22 +11,28 @@ import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
 
-function toSnakeCase(str) {
-  return str.toLowerCase().replace(/\s+/g, "_");
-}
-
 function AddMusic() {
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
 
   const genreToFileName = {
-    "Up Beat": "preview_fun-upbeat-rock-move.mp3",
-    Happy: "preview_happy-acoustic-guitar-background-music.mp3",
-    Jazz: "preview_catch-it.mp3",
-    Motivational:
-      "preview_motivation-hip-hop-epic-sport-hip-hop-background-music.mp3",
-    Rock: "preview_pipeline-rock.mp3",
+    "Motivational: Freedom": "preview_Freedom_Motivational.mp3",
+    "Motivational: Winning Elevation": "preview_Winning Elevation.mp3",
+    "Motivational: Inspiring": "preview_Inspiring_Motivational.mp3",
+    "Jazz: Young and Alive": "preview_Young and Alive_Jazz.mp3",
+    "Jazz: Sweet Jazzy Love": "preview_Sweet Jazzy Love_Jazz.mp3",
+    "Jazz: Special Jazz": "preview_Special Jazz_Jazz.mp3",
+    "Cinematic: Time Lapse": "preview_Time Lapse_Cinematic.mp3",
+    "Cinematic: Eco Tech": "preview_Eco Tech_Cinematic.mp3",
+    "Cinematic: Mysterious": "preview_Mysterious_Cinematic.mp3",
+    "Rock: Electro Sport": "preview_Electro Sport_Rock.mp3",
+    "Rock: 80’s Rock": "preview_80's Rock_Rock.mp3",
+    "Rock: Indie Rock": "preview_Indie Rock_Rock.mp3",
+    "Upbeat: Happy Day": "preview_Happy Day.mp3",
+    "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
+    "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
+  const genreOptions = Object.keys(genreToFileName);
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -107,7 +113,6 @@ function AddMusic() {
     setPendingAdvertisement(true); // Set pending before API call starts
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    const snakeCaseGenre = toSnakeCase(genre);
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     // Track the button click event with PostHog with only the required properties
@@ -119,7 +124,7 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_type: snakeCaseGenre,
+      music_genre: genre,
       script: script,
       voice: voiceId,
       ad_length: adLength,
@@ -302,11 +307,11 @@ function AddMusic() {
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
-                  <option>Up Beat</option>
-                  <option>Happy</option>
-                  <option>Jazz</option>
-                  <option>Motivational</option>
-                  <option>Rock</option>
+                  {genreOptions.map((genreOption, index) => (
+                    <option key={index} value={genreOption}>
+                      {genreOption}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 

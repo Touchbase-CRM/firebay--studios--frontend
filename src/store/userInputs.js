@@ -10,7 +10,7 @@ const defaultState = {
   adLength: "30",
   // add music page defaults
   noMusic: false,
-  genre: "Up Beat",
+  genre: "Rock: Electro Sport",
   musicVol: 0.1,
 };
 
