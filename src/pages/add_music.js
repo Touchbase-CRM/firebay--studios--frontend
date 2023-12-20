@@ -11,15 +11,11 @@ import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
 
-function toSnakeCase(str) {
-  return str.toLowerCase().replace(/\s+/g, "_");
-}
-
 function AddMusic() {
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
 
-  const musicChoiceToFileName = {
+  const genreToFileName = {
     "Motivational: Freedom": "preview_Freedom_Motivational.mp3",
     "Motivational: Winning Elevation": "preview_Winning Elevation.mp3",
     "Motivational: Inspiring": "preview_Inspiring_Motivational.mp3",
@@ -36,7 +32,7 @@ function AddMusic() {
     "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
     "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
-  const musicChoiceOptions = Object.keys(musicChoiceToFileName);
+  const genreOptions = Object.keys(genreToFileName);
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -45,7 +41,7 @@ function AddMusic() {
   const {
     noMusic,
     setNoMusic,
-    musicChoice,
+    genre,
     setGenre,
     musicVol,
     setMusicVol,
@@ -117,7 +113,6 @@ function AddMusic() {
     setPendingAdvertisement(true); // Set pending before API call starts
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    const snakeCaseGenre = toSnakeCase(musicChoice);
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     // Track the button click event with PostHog with only the required properties
@@ -129,18 +124,17 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_choice: musicChoice,
+      music_genre: genre,
       script: script,
       voice: voiceId,
       ad_length: adLength,
       music_vol: musicVol,
     };
-    console.log("Payload:", payload);
 
     // Endpoint URL
-    // const url =
-    //   "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
-    const url = "http://localhost:8000/generate-mix"; // For local testing
+    const url =
+      "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
+    // const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
@@ -304,11 +298,11 @@ function AddMusic() {
 
               <br></br>
 
-              <Form.Group controlId="musicChoice">
+              <Form.Group controlId="genre">
                 <Form.Label>Genre</Form.Label>
                 <Form.Select
                   aria-label="Genre select"
-                  value={musicChoice}
+                  value={genre}
                   onChange={handleGenreChange}
                   disabled={noMusic}
                   style={{ color: "black" }}
@@ -350,10 +344,10 @@ function AddMusic() {
           </Card>
           <div>
             <SimpleAudioPlayer
-              audioTitle={musicChoice}
+              audioTitle={genre}
               audioSrc={getFullUrl(
                 baseMusicPreviewsUrl,
-                musicChoice,
+                genre,
                 genreToFileName
               )}
             />
