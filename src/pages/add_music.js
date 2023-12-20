@@ -19,7 +19,7 @@ function AddMusic() {
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
 
-  const genreToFileName = {
+  const musicChoiceToFileName = {
     "Motivational: Freedom": "preview_Freedom_Motivational.mp3",
     "Motivational: Winning Elevation": "preview_Winning Elevation.mp3",
     "Motivational: Inspiring": "preview_Inspiring_Motivational.mp3",
@@ -36,7 +36,7 @@ function AddMusic() {
     "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
     "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
-  const genreOptions = Object.keys(genreToFileName);
+  const musicChoiceOptions = Object.keys(musicChoiceToFileName);
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -45,7 +45,7 @@ function AddMusic() {
   const {
     noMusic,
     setNoMusic,
-    genre,
+    musicChoice,
     setGenre,
     musicVol,
     setMusicVol,
@@ -117,7 +117,7 @@ function AddMusic() {
     setPendingAdvertisement(true); // Set pending before API call starts
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    const snakeCaseGenre = toSnakeCase(genre);
+    const snakeCaseGenre = toSnakeCase(musicChoice);
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     // Track the button click event with PostHog with only the required properties
@@ -129,7 +129,7 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_choice: genre,
+      music_choice: musicChoice,
       script: script,
       voice: voiceId,
       ad_length: adLength,
@@ -304,11 +304,11 @@ function AddMusic() {
 
               <br></br>
 
-              <Form.Group controlId="genre">
+              <Form.Group controlId="musicChoice">
                 <Form.Label>Genre</Form.Label>
                 <Form.Select
                   aria-label="Genre select"
-                  value={genre}
+                  value={musicChoice}
                   onChange={handleGenreChange}
                   disabled={noMusic}
                   style={{ color: "black" }}
@@ -350,10 +350,10 @@ function AddMusic() {
           </Card>
           <div>
             <SimpleAudioPlayer
-              audioTitle={genre}
+              audioTitle={musicChoice}
               audioSrc={getFullUrl(
                 baseMusicPreviewsUrl,
-                genre,
+                musicChoice,
                 genreToFileName
               )}
             />
