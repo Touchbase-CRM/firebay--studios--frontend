@@ -20,14 +20,23 @@ function AddMusic() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
 
   const genreToFileName = {
-    "Up Beat": "preview_fun-upbeat-rock-move.mp3",
-    Happy: "preview_happy-acoustic-guitar-background-music.mp3",
-    Jazz: "preview_catch-it.mp3",
-    Motivational:
-      "preview_motivation-hip-hop-epic-sport-hip-hop-background-music.mp3",
-    Rock: "preview_pipeline-rock.mp3",
+    "Motivational: Freedom": "preview_Freedom_Motivational.mp3",
+    "Motivational: Winning Elevation": "preview_Winning Elevation.mp3",
+    "Motivational: Inspiring": "preview_Inspiring_Motivational.mp3",
+    "Jazz: Young and Alive": "preview_Young and Alive_Jazz.mp3",
+    "Jazz: Sweet Jazzy Love": "preview_Sweet Jazzy Love_Jazz.mp3",
+    "Jazz: Special Jazz": "preview_Special Jazz_Jazz.mp3",
+    "Cinematic: Time Lapse": "preview_Time Lapse_Cinematic.mp3",
+    "Cinematic: Eco Tech": "preview_Eco Tech_Cinematic.mp3",
+    "Cinematic: Mysterious": "preview_Mysterious_Cinematic.mp3",
+    "Rock: Electro Sport": "preview_Electro Sport_Rock.mp3",
+    "Rock: 80’s Rock": "preview_80's Rock_Rock.mp3",
+    "Rock: Indie Rock": "preview_Indie Rock_Rock.mp3",
+    "Upbeat: Happy Day": "preview_Happy Day.mp3",
+    "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
+    "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
-  const genreOptions = ["Up Beat", "Happy", "Jazz", "Motivational", "Rock"]; // Define your genres here
+  const genreOptions = Object.keys(genreToFileName);
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -120,17 +129,18 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_type: snakeCaseGenre,
+      music_choice: genre,
       script: script,
       voice: voiceId,
       ad_length: adLength,
       music_vol: musicVol,
     };
+    console.log("Payload:", payload);
 
     // Endpoint URL
-    const url =
-      "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
+    // const url =
+    //   "https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix";
+    const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
