@@ -27,6 +27,7 @@ function AddMusic() {
       "preview_motivation-hip-hop-epic-sport-hip-hop-background-music.mp3",
     Rock: "preview_pipeline-rock.mp3",
   };
+  const genreOptions = ["Up Beat", "Happy", "Jazz", "Motivational", "Rock"]; // Define your genres here
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -302,11 +303,11 @@ function AddMusic() {
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
-                  <option>Up Beat</option>
-                  <option>Happy</option>
-                  <option>Jazz</option>
-                  <option>Motivational</option>
-                  <option>Rock</option>
+                  {genreOptions.map((genreOption, index) => (
+                    <option key={index} value={genreOption}>
+                      {genreOption}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 
