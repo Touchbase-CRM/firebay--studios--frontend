@@ -10,6 +10,17 @@ import useUserInputsStore from "../store/userInputs";
 import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
+import { getDatabase, ref, onValue } from "firebase/database";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+} from "firebase/firestore";
+import app from "../firebase";
+
+const db = getFirestore(app);
 
 function AddMusic() {
   const baseMusicPreviewsUrl =
@@ -32,6 +43,7 @@ function AddMusic() {
     "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
     "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
+  const [musicChoices, setMusicChoices] = useState([]);
   const genreOptions = Object.keys(genreToFileName);
 
   const posthog = usePostHog();
@@ -60,6 +72,42 @@ function AddMusic() {
 
   // Cancel token source for the Axios request
   const cancelTokenSourceRef = useRef(null);
+
+  useEffect(() => {
+    console.log("Attempting to fetch music choices from Firestore...");
+
+    const fetchMusicChoices = async () => {
+      try {
+        // Define the path to the specific document
+        const musicChoicesDocRef = doc(
+          db,
+          "fetch_data_to_frontend",
+          "background_music"
+        );
+
+        // Fetch the document
+        const docSnapshot = await getDoc(musicChoicesDocRef);
+
+        if (docSnapshot.exists()) {
+          const musicChoicesData = docSnapshot.data();
+          console.log("Music choices data:", musicChoicesData);
+
+          // Accessing the 'background_music_choices' array field
+          if (musicChoicesData.background_music_choices) {
+            setMusicChoices(musicChoicesData.background_music_choices);
+          } else {
+            console.log("'background_music_choices' field is not available.");
+          }
+        } else {
+          console.log("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching music choices:", error);
+      }
+    };
+
+    fetchMusicChoices();
+  }, []);
 
   const cancelLoading = () => {
     setPendingAdvertisement(false);
@@ -307,7 +355,7 @@ function AddMusic() {
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
-                  {genreOptions.map((genreOption, index) => (
+                  {musicChoices.map((genreOption, index) => (
                     <option key={index} value={genreOption}>
                       {genreOption}
                     </option>
