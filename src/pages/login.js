@@ -203,7 +203,7 @@ const LoginPage = () => {
                 </a>
               </p>
             </div>
-            {/* Add the secondary branding at the bottom left corner */}
+            {/* Add the secondary branding at the bottom right corner */}
             <div
               style={{
                 position: "absolute",
