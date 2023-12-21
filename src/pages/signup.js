@@ -200,7 +200,7 @@ const SignupPage = () => {
                 height={100}
                 className="d-block mx-auto mb-3"
               />
-              <h2 className="text-center mb-4">Pyro</h2>
+              <h2 className="text-center mb-4">Pyro Sign Up</h2>
               <p className="text-center mb-5">Let's get you started!</p>
 
               <Form.Group controlId="workEmail" className="mb-3">
@@ -331,7 +331,7 @@ const SignupPage = () => {
                   fontStyle: "italic",
                 }}
               >
-                From Firebay Studios
+                By Firebay Studios
               </div>
             </Card>
           </Col>

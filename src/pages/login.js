@@ -126,7 +126,7 @@ const LoginPage = () => {
               className="d-block mx-auto mb-3"
             />
 
-            <h2 className="text-center mb-4">Pyro</h2>
+            <h2 className="text-center mb-4">Pyro Login</h2>
             <p className="text-center mb-5">
               Please enter your login with your work email and password!
             </p>
@@ -214,7 +214,7 @@ const LoginPage = () => {
                 fontStyle: "italic",
               }}
             >
-              From Firebay Studios
+              By Firebay Studios
             </div>
           </Card>
         </Col>
