@@ -126,9 +126,9 @@ const LoginPage = () => {
               className="d-block mx-auto mb-3"
             />
 
-            <h2 className="text-center mb-4">Firebay Studios Login</h2>
+            <h2 className="text-center mb-4">Pyro Login</h2>
             <p className="text-center mb-5">
-              Please enter your login and password!
+              Please enter your login with your work email and password!
             </p>
             <style jsx global>{`
               input:-webkit-autofill,
@@ -202,6 +202,19 @@ const LoginPage = () => {
                   Sign Up
                 </a>
               </p>
+            </div>
+            {/* Add the secondary branding at the bottom right corner */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                right: "10px",
+                fontSize: "small",
+                fontWeight: "bold",
+                fontStyle: "italic",
+              }}
+            >
+              By Firebay Studios
             </div>
           </Card>
         </Col>

@@ -48,7 +48,7 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     setIsLoading(true); // Start loading
-    setStatusMessage("Step 1 of 3: Creating your Firebay Studios account...");
+    setStatusMessage("Step 1 of 3: Creating your Pyro account...");
 
     if (password !== confirmPassword) {
       Swal.fire({
@@ -100,9 +100,7 @@ const SignupPage = () => {
 
       await batch.commit();
 
-      setStatusMessage(
-        "Step 1 of 3: Your Firebay Studios account has been created."
-      );
+      setStatusMessage("Step 1 of 3: Your Pyro account has been created.");
       // Wait a moment before changing the message
       setTimeout(
         () =>
@@ -202,7 +200,7 @@ const SignupPage = () => {
                 height={100}
                 className="d-block mx-auto mb-3"
               />
-              <h2 className="text-center mb-4">Firebay Studios</h2>
+              <h2 className="text-center mb-4">Pyro Sign Up</h2>
               <p className="text-center mb-5">Let's get you started!</p>
 
               <Form.Group controlId="workEmail" className="mb-3">
@@ -321,6 +319,19 @@ const SignupPage = () => {
                     Login
                   </a>
                 </p>
+              </div>
+              {/* Add the secondary branding at the bottom right corner */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  right: "10px",
+                  fontSize: "small",
+                  fontWeight: "bold",
+                  fontStyle: "italic",
+                }}
+              >
+                By Firebay Studios
               </div>
             </Card>
           </Col>
