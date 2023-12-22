@@ -10,14 +10,7 @@ import useUserInputsStore from "../store/userInputs";
 import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
-import { getDatabase, ref, onValue } from "firebase/database";
-import {
-  getFirestore,
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 import app from "../firebase";
 
 const db = getFirestore(app);
@@ -44,7 +37,6 @@ function AddMusic() {
     "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
   };
   const [musicChoices, setMusicChoices] = useState([]);
-  const genreOptions = Object.keys(genreToFileName);
 
   const posthog = usePostHog();
   const auth = getAuth();
