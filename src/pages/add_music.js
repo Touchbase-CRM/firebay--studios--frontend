@@ -26,6 +26,8 @@ function AddMusic() {
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
+  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+  const router = useRouter();
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -34,8 +36,8 @@ function AddMusic() {
   const {
     noMusic,
     setNoMusic,
-    genre,
-    setGenre,
+    chosenMusic,
+    setChosenMusic,
     previewFileName,
     setPreviewFileName,
     musicVol,
@@ -45,9 +47,6 @@ function AddMusic() {
     adLength,
     reset,
   } = useUserInputsStore();
-
-  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
-  const router = useRouter();
 
   const goBack = () => {
     router.back();
@@ -125,26 +124,21 @@ function AddMusic() {
     setMusicVol(newVolume);
   };
 
-  // Helper function to fetch preview filename from Firestore
-  const fetchPreviewFilename = async (genreName) => {
+  const fetchPreviewFilename = async (musicChoice) => {
     try {
-      // Define a query against the collection
-      const q = query(
+      const pyroNameQuery = query(
         collection(db, "background_music"),
-        where("pyro_name", "==", genreName) // Replace 'pyro_name' with the actual field name
+        where("pyro_name", "==", musicChoice)
       );
 
-      // Execute the query
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(pyroNameQuery);
 
       if (!querySnapshot.empty) {
-        const musicFileData = querySnapshot.docs[0].data(); // Take the first matching document
-        console.log("Music file data:", musicFileData);
+        const musicFileData = querySnapshot.docs[0].data();
 
-        // Return the preview filename
         return musicFileData.preview_filename || "";
       } else {
-        console.log("No document matches the selected genre.");
+        console.log("No document matches the selected chosenMusic.");
         return "";
       }
     } catch (error) {
@@ -153,10 +147,9 @@ function AddMusic() {
     }
   };
 
-  // Event handler for genre change
   const handleGenreChange = async (e) => {
     const selectedGenre = e.target.value;
-    setGenre(selectedGenre);
+    setChosenMusic(selectedGenre);
 
     const filename = await fetchPreviewFilename(selectedGenre);
     setPreviewFileName(filename);
@@ -178,7 +171,7 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_genre: genre,
+      music_genre: chosenMusic,
       script: script,
       voice: voiceId,
       ad_length: adLength,
@@ -352,11 +345,11 @@ function AddMusic() {
 
               <br></br>
 
-              <Form.Group controlId="genre">
-                <Form.Label>Genre</Form.Label>
+              <Form.Group controlId="chosenMusic">
+                <Form.Label>Choose Music</Form.Label>
                 <Form.Select
-                  aria-label="Genre select"
-                  value={genre}
+                  aria-label="Music selection"
+                  value={chosenMusic}
                   onChange={handleGenreChange}
                   disabled={noMusic}
                   style={{ color: "black" }}
@@ -398,7 +391,7 @@ function AddMusic() {
           </Card>
           <div>
             <SimpleAudioPlayer
-              audioTitle={genre}
+              audioTitle={chosenMusic}
               audioSrc={baseMusicPreviewsUrl + previewFileName}
             />
           </div>

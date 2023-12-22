@@ -10,7 +10,7 @@ const defaultState = {
   adLength: "30",
   // add music page defaults
   noMusic: false,
-  genre: "Rock: Electro Sport",
+  chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
   musicVol: 0.1,
 };
@@ -25,7 +25,7 @@ const useUserInputsStore = create((set) => ({
   setVoiceName: (voiceName) => set({ voiceName }),
   setAdLength: (adLength) => set({ adLength }),
   setNoMusic: (noMusic) => set({ noMusic }),
-  setGenre: (genre) => set({ genre }),
+  setChosenMusic: (chosenMusic) => set({ chosenMusic }),
   setMusicVol: (musicVol) => set({ musicVol }),
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
 
