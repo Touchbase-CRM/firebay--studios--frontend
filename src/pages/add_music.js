@@ -7,10 +7,17 @@ import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import useUserInputsStore from "../store/userInputs";
-import { getFullUrl } from "../utils/string_manipulation";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
 import app from "../firebase";
 
 const db = getFirestore(app);
@@ -18,25 +25,7 @@ const db = getFirestore(app);
 function AddMusic() {
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
-
-  const genreToFileName = {
-    "Motivational: Freedom": "preview_Freedom_Motivational.mp3",
-    "Motivational: Winning Elevation": "preview_Winning Elevation.mp3",
-    "Motivational: Inspiring": "preview_Inspiring_Motivational.mp3",
-    "Jazz: Young and Alive": "preview_Young and Alive_Jazz.mp3",
-    "Jazz: Sweet Jazzy Love": "preview_Sweet Jazzy Love_Jazz.mp3",
-    "Jazz: Special Jazz": "preview_Special Jazz_Jazz.mp3",
-    "Cinematic: Time Lapse": "preview_Time Lapse_Cinematic.mp3",
-    "Cinematic: Eco Tech": "preview_Eco Tech_Cinematic.mp3",
-    "Cinematic: Mysterious": "preview_Mysterious_Cinematic.mp3",
-    "Rock: Electro Sport": "preview_Electro Sport_Rock.mp3",
-    "Rock: 80’s Rock": "preview_80's Rock_Rock.mp3",
-    "Rock: Indie Rock": "preview_Indie Rock_Rock.mp3",
-    "Upbeat: Happy Day": "preview_Happy Day.mp3",
-    "Upbeat: Good Vibe": "preview_Good Vibe.mp3",
-    "Upbeat: Upbeat Funk": "preview_Upbeat Funk.mp3",
-  };
-  const [musicChoices, setMusicChoices] = useState([]);
+  const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
 
   const posthog = usePostHog();
   const auth = getAuth();
@@ -47,6 +36,8 @@ function AddMusic() {
     setNoMusic,
     genre,
     setGenre,
+    previewFileName,
+    setPreviewFileName,
     musicVol,
     setMusicVol,
     script,
@@ -144,8 +135,41 @@ function AddMusic() {
     setMusicVol(newVolume);
   };
 
-  const handleGenreChange = (e) => {
-    setGenre(e.target.value);
+  // Helper function to fetch preview filename from Firestore
+  const fetchPreviewFilename = async (genreName) => {
+    try {
+      // Define a query against the collection
+      const q = query(
+        collection(db, "background_music"),
+        where("pyro_name", "==", genreName) // Replace 'pyro_name' with the actual field name
+      );
+
+      // Execute the query
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const musicFileData = querySnapshot.docs[0].data(); // Take the first matching document
+        console.log("Music file data:", musicFileData);
+
+        // Return the preview filename
+        return musicFileData.preview_filename || "";
+      } else {
+        console.log("No document matches the selected genre.");
+        return "";
+      }
+    } catch (error) {
+      console.error("Error fetching music file data:", error);
+      return "";
+    }
+  };
+
+  // Event handler for genre change
+  const handleGenreChange = async (e) => {
+    const selectedGenre = e.target.value;
+    setGenre(selectedGenre);
+
+    const filename = await fetchPreviewFilename(selectedGenre);
+    setPreviewFileName(filename);
   };
 
   const handleSubmit = (e) => {
@@ -385,11 +409,7 @@ function AddMusic() {
           <div>
             <SimpleAudioPlayer
               audioTitle={genre}
-              audioSrc={getFullUrl(
-                baseMusicPreviewsUrl,
-                genre,
-                genreToFileName
-              )}
+              audioSrc={baseMusicPreviewsUrl + previewFileName}
             />
           </div>
         </Col>
