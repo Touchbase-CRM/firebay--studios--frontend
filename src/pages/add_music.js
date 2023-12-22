@@ -147,11 +147,11 @@ function AddMusic() {
     }
   };
 
-  const handleGenreChange = async (e) => {
-    const selectedGenre = e.target.value;
-    setChosenMusic(selectedGenre);
+  const handleMusicChange = async (e) => {
+    const selectedMusic = e.target.value;
+    setChosenMusic(selectedMusic);
 
-    const filename = await fetchPreviewFilename(selectedGenre);
+    const filename = await fetchPreviewFilename(selectedMusic);
     setPreviewFileName(filename);
   };
 
@@ -175,7 +175,7 @@ function AddMusic() {
       script: script,
       voice: voiceId,
       ad_length: adLength,
-      music_vol: musicVol,
+      music_vol: musicVol, // technical debt
     };
 
     // Endpoint URL
@@ -350,13 +350,13 @@ function AddMusic() {
                 <Form.Select
                   aria-label="Music selection"
                   value={chosenMusic}
-                  onChange={handleGenreChange}
+                  onChange={handleMusicChange}
                   disabled={noMusic}
                   style={{ color: "black" }}
                 >
-                  {musicChoices.map((genreOption, index) => (
-                    <option key={index} value={genreOption}>
-                      {genreOption}
+                  {musicChoices.map((musicOption, index) => (
+                    <option key={index} value={musicOption}>
+                      {musicOption}
                     </option>
                   ))}
                 </Form.Select>
