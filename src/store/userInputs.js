@@ -12,6 +12,7 @@ const defaultState = {
   noMusic: false,
   chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
+  backgroundMusicFilename: "Electro Sport_Rock.mp3",
   musicVol: 0.1,
 };
 
@@ -28,6 +29,8 @@ const useUserInputsStore = create((set) => ({
   setChosenMusic: (chosenMusic) => set({ chosenMusic }),
   setMusicVol: (musicVol) => set({ musicVol }),
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
+  setBackgroundMusicFilename: (backgroundMusicFilename) =>
+    set({ backgroundMusicFilename }),
 
   // Reset function
   reset: () => set({ ...defaultState }),

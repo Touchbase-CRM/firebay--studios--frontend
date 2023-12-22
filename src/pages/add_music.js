@@ -40,6 +40,8 @@ function AddMusic() {
     setChosenMusic,
     previewFileName,
     setPreviewFileName,
+    backgroundMusicFilename,
+    setBackgroundMusicFilename,
     musicVol,
     setMusicVol,
     script,
@@ -124,7 +126,7 @@ function AddMusic() {
     setMusicVol(newVolume);
   };
 
-  const fetchPreviewFilename = async (musicChoice) => {
+  const fetchBackgroundMusicMetaData = async (musicChoice) => {
     try {
       const pyroNameQuery = query(
         collection(db, "background_music"),
@@ -136,14 +138,28 @@ function AddMusic() {
       if (!querySnapshot.empty) {
         const musicFileData = querySnapshot.docs[0].data();
 
-        return musicFileData.preview_filename || "";
+        // have seperate fields for maintainability and bundled this read op for cost optimization
+        const backgroundMusicFilename =
+          musicFileData.background_music_filename || "";
+        const previewFilename = musicFileData.preview_filename || "";
+
+        return {
+          backgroundMusicFilename,
+          previewFilename,
+        };
       } else {
         console.log("No document matches the selected chosenMusic.");
-        return "";
+        return {
+          backgroundMusicFilename: "",
+          previewFilename: "",
+        };
       }
     } catch (error) {
-      console.error("Error fetching music file data:", error);
-      return "";
+      console.error("Error fetching background music metadata:", error);
+      return {
+        backgroundMusicFilename: "",
+        previewFilename: "",
+      };
     }
   };
 
@@ -151,12 +167,15 @@ function AddMusic() {
     const selectedMusic = e.target.value;
     setChosenMusic(selectedMusic);
 
-    const filename = await fetchPreviewFilename(selectedMusic);
-    setPreviewFileName(filename);
+    const { backgroundMusicFilename, previewFilename } =
+      await fetchBackgroundMusicMetaData(selectedMusic);
+    setBackgroundMusicFilename(backgroundMusicFilename);
+    setPreviewFileName(previewFilename);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(backgroundMusicFilename);
     setPendingAdvertisement(true); // Set pending before API call starts
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
@@ -171,7 +190,7 @@ function AddMusic() {
     const payload = {
       user_id: userId,
       no_music: noMusic,
-      music_genre: chosenMusic,
+      music_choice: backgroundMusicFilename,
       script: script,
       voice: voiceId,
       ad_length: adLength,
