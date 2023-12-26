@@ -3,7 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import IntonationManager from "../components/IntonationManager";
+import ClickableWordEditor from "../components/ClickableWordEditor";
 import CustomDropdown from "../components/CustomDropdown";
 import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 
@@ -38,6 +38,8 @@ function CreateAd() {
   const {
     script,
     setScript,
+    newscript,
+    setNewscript,
     voiceId,
     setVoiceId,
     voiceName,
@@ -91,8 +93,14 @@ function CreateAd() {
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
-  const handleKeywordsChange = (updatedKeywords) => {
-    setKeywords(updatedKeywords);
+  const handlescriptChange = (e) => {
+    const updatedscript = e.target.value;
+    setNewscript(updatedscript);
+    setScript(updatedscript.split(" "));
+  };
+
+  const handleTransformedscriptChange = (transformedscript) => {
+    setNewscript(transformedscript);
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
@@ -152,42 +160,8 @@ function CreateAd() {
     }
   };
 
-  const checkKeywordsInScript = () => {
-    const Intonator = "'";
-    let updatedScript = script;
-    const notFoundKeywords = [];
-
-    keywords.forEach((keyword) => {
-      if (updatedScript.includes(keyword)) {
-        // Surround the keyword with the Intonator character for emphasis
-        updatedScript = updatedScript.replace(
-          new RegExp(`\\b${keyword}\\b`, "g"),
-          `${Intonator}${keyword}${Intonator}`
-        );
-      } else {
-        notFoundKeywords.push(keyword);
-      }
-    });
-
-    setScript(updatedScript);
-
-    if (notFoundKeywords.length > 0) {
-      Swal.fire({
-        icon: "error",
-        title: "Keywords Not Found",
-        text: `The following keywords were not found in the script: ${notFoundKeywords.join(
-          ", "
-        )}. Please remove them or add them to your script to continue.`,
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!checkKeywordsInScript()) return;
 
     if (script.length > charLimit) {
       Swal.fire({
@@ -325,8 +299,8 @@ function CreateAd() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={script}
-                  onChange={(e) => setScript(e.target.value)}
+                  value={newscript}
+                  onChange={handlescriptChange}
                   style={{
                     color: "black",
                     height: "200px",
@@ -338,8 +312,13 @@ function CreateAd() {
                 </div>
               </Form.Group>
 
-              <IntonationManager onKeywordsChange={handleKeywordsChange} />
-
+              {/* <IntonationManager onKeywordsChange={handleKeywordsChange} /> */}
+              <div>
+                <ClickableWordEditor
+                  script={script}
+                  onTransformedscriptChange={handleTransformedscriptChange}
+                />
+              </div>
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
                 <Form.Select
