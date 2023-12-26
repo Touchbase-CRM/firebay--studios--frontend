@@ -7,6 +7,7 @@ const defaultState = {
   script: "",
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
+  voicePreviewFilename: "male/charley.mp3",
   adLength: "30",
   // add music page defaults
   noMusic: false,
@@ -24,6 +25,8 @@ const useUserInputsStore = create((set) => ({
   setScript: (script) => set({ script }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
+  setVoicePreviewFilename: (filename) =>
+    set(() => ({ voicePreviewFilename: filename })),
   setAdLength: (adLength) => set({ adLength }),
   setNoMusic: (noMusic) => set({ noMusic }),
   setChosenMusic: (chosenMusic) => set({ chosenMusic }),
