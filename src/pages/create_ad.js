@@ -18,6 +18,16 @@ import { getPortalUrl } from "../stripe_proxy_sdk";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
+
 function CreateAd() {
   const posthog = usePostHog();
   const auth = getAuth();
@@ -33,11 +43,14 @@ function CreateAd() {
     setVoiceId,
     voiceName,
     setVoiceName,
+    voicePreviewFilename,
+    setVoicePreviewFilename,
     adLength,
     setAdLength,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
+  const [voiceOptions, setVoiceOptions] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
@@ -54,81 +67,141 @@ function CreateAd() {
     }
   }, [isFormSubmitted, router]);
 
-  const voicesToElevenLabsIds = {
-    Charley: "6wLJ4Wm2OxvAvetEUBCS",
-    Craig: "fDte6eby6sYdcYcjHbl0",
-    Jim: "9oqLJH1XFK0K90OEebQ5",
-    Connor: "9F4C8ztpNUmXkdDDbz3J",
-    Russell: "Hvs3xuGjAWNJAS9rCUH8",
-    Timothy: "T7QGPtToiqH4S8VlIkMJ",
-    Joseph: "cMvWnGm0kHd0m3Jjb3Ss",
-    Edward: "8bRmOvh6tl1JtNu7uUdF",
-    Jabari: "Q4CesJn2rW0ITUs66gST",
-    Ike: "qYgN2KN4yu2ReeLmOu8F",
-    Ayaan: "6gF9Bpd8RCQIF5ZGzETu",
-    Kate: "cBijDV6IOSWp9c8dA7Xn",
-    Puja: "jA08rXmVrpvXnqEEEYwl",
-    McKenna: "yPh7KyOT84PcyPINBrfi",
-    Carol: "BwsRV8gluuGcJrvENPbd",
-    Beth: "VCr9UgezI1qi2hMOKWVK",
-    Meg: "sQAyEY9ksexU3gWxo7gG",
-    Darcy: "rI34FMqFgY9kQxffNV58",
-    Hannah: "iLiLWmBplDMUW2SuUEnM",
-    Kamala: "xShUaiOOq6sZGIVKUWun",
-  };
+  useEffect(() => {
+    const fetchVoiceOptions = async () => {
+      const voicesDocRef = doc(
+        getFirestore(app),
+        "fetch_data_to_frontend",
+        "pyro_voices"
+      );
+      try {
+        const docSnapshot = await getDoc(voicesDocRef);
+        if (docSnapshot.exists()) {
+          // Assuming 'pyro_voice_choices' is the field with voice names
+          setVoiceOptions(docSnapshot.data().pyro_voice_choices);
+          console.log(
+            "Voice options fetched: ",
+            docSnapshot.data().pyro_voice_choices
+          ); // Log to check data
+        } else {
+          console.log("No voice options found in document");
+        }
+      } catch (error) {
+        console.error("Error fetching voice options:", error);
+      }
+    };
+
+    fetchVoiceOptions();
+  }, []);
+
+  // const voicesToElevenLabsIds = {
+  //   Charley: "6wLJ4Wm2OxvAvetEUBCS",
+  //   Craig: "fDte6eby6sYdcYcjHbl0",
+  //   Jim: "9oqLJH1XFK0K90OEebQ5",
+  //   Connor: "9F4C8ztpNUmXkdDDbz3J",
+  //   Russell: "Hvs3xuGjAWNJAS9rCUH8",
+  //   Timothy: "T7QGPtToiqH4S8VlIkMJ",
+  //   Joseph: "cMvWnGm0kHd0m3Jjb3Ss",
+  //   Edward: "8bRmOvh6tl1JtNu7uUdF",
+  //   Jabari: "Q4CesJn2rW0ITUs66gST",
+  //   Ike: "qYgN2KN4yu2ReeLmOu8F",
+  //   Ayaan: "6gF9Bpd8RCQIF5ZGzETu",
+  //   Kate: "cBijDV6IOSWp9c8dA7Xn",
+  //   Puja: "jA08rXmVrpvXnqEEEYwl",
+  //   McKenna: "yPh7KyOT84PcyPINBrfi",
+  //   Carol: "BwsRV8gluuGcJrvENPbd",
+  //   Beth: "VCr9UgezI1qi2hMOKWVK",
+  //   Meg: "sQAyEY9ksexU3gWxo7gG",
+  //   Darcy: "rI34FMqFgY9kQxffNV58",
+  //   Hannah: "iLiLWmBplDMUW2SuUEnM",
+  //   Kamala: "xShUaiOOq6sZGIVKUWun",
+  // };
 
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
-  const voicesToPreviewPaths = {
-    Ayaan: "male/ayaan.mp3",
-    Charley: "male/charley.mp3",
-    Connor: "male/connor.mp3",
-    Craig: "male/craig.mp3",
-    Edward: "male/edward.mp3",
-    Ike: "male/ike.mp3",
-    Jabari: "male/jabari.mp3",
-    Jim: "male/jim.mp3",
-    Joseph: "male/joseph.mp3",
-    Russell: "male/russell.mp3",
-    Timothy: "male/timothy.mp3",
-    Allie: "female/allie.mp3",
-    Beth: "female/beth.mp3",
-    Carol: "female/carol.mp3",
-    Darcy: "female/darcy.mp3",
-    Hannah: "female/hannah.mp3",
-    Kamala: "female/kamala.mp3",
-    Kate: "female/kate.mp3",
-    McKenna: "female/mckenna.mp3",
-    Meg: "female/meg.mp3",
-    Puja: "female/puja.mp3",
-  };
+  // const voicesToPreviewPaths = {
+  //   Ayaan: "male/ayaan.mp3",
+  //   Charley: "male/charley.mp3",
+  //   Connor: "male/connor.mp3",
+  //   Craig: "male/craig.mp3",
+  //   Edward: "male/edward.mp3",
+  //   Ike: "male/ike.mp3",
+  //   Jabari: "male/jabari.mp3",
+  //   Jim: "male/jim.mp3",
+  //   Joseph: "male/joseph.mp3",
+  //   Russell: "male/russell.mp3",
+  //   Timothy: "male/timothy.mp3",
+  //   Allie: "female/allie.mp3",
+  //   Beth: "female/beth.mp3",
+  //   Carol: "female/carol.mp3",
+  //   Darcy: "female/darcy.mp3",
+  //   Hannah: "female/hannah.mp3",
+  //   Kamala: "female/kamala.mp3",
+  //   Kate: "female/kate.mp3",
+  //   McKenna: "female/mckenna.mp3",
+  //   Meg: "female/meg.mp3",
+  //   Puja: "female/puja.mp3",
+  // };
 
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
   };
 
-  const handleVoiceChange = (e) => {
-    const newVoiceId = e.target.value;
-    const newVoiceName = Object.keys(voicesToElevenLabsIds).find(
-      (name) => voicesToElevenLabsIds[name] === newVoiceId
+  const fetchVoiceMetaData = async (voiceName) => {
+    const db = getFirestore(app);
+    const voiceQuery = query(
+      collection(db, "pyro_voices"),
+      where("pyro_name", "==", voiceName)
     );
 
-    setVoiceId(newVoiceId);
-    setVoiceName(newVoiceName);
-    setShouldPlayAudio(true);
+    try {
+      const querySnapshot = await getDocs(voiceQuery);
+      if (!querySnapshot.empty) {
+        const docData = querySnapshot.docs[0].data();
+        return {
+          newVoiceId: docData.elevenlabs_id,
+          newVoicePreviewFilename: docData.voice_preview_filename,
+        };
+      } else {
+        console.log("No matching documents found for voice:", voiceName);
+        return {}; // Return an empty object instead of null
+      }
+    } catch (error) {
+      console.error("Error fetching voice metadata:", error);
+      return {}; // Return an empty object in case of error
+    }
+  };
+
+  const handleVoiceChange = async (e) => {
+    const selectedVoiceName = e.target.value;
+    const metadata = await fetchVoiceMetaData(selectedVoiceName);
+
+    if (metadata && metadata.newVoiceId && metadata.newVoicePreviewFilename) {
+      setVoiceId(metadata.newVoiceId);
+      setVoicePreviewFilename(metadata.newVoicePreviewFilename);
+      setVoiceName(selectedVoiceName);
+      setShouldPlayAudio(true);
+    } else {
+      // Handle the case when no metadata is found
+      console.log(
+        "No metadata found for the selected voice:",
+        selectedVoiceName
+      );
+      // Optionally clear the selection or show an error message
+    }
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     posthog.capture("create-ad-voice-change-drop-down-expanded", {
       date: new Date().toISOString(),
       userId: userId,
-      voiceId: newVoiceId,
-      voiceName: newVoiceName,
+      voiceId: voiceId,
+      voiceName: voiceName,
     });
 
     // Assuming you have a ref to your audio player
     if (voiceAudioPlayerRef.current) {
-      voiceAudioPlayerRef.current.src = newVoiceId;
+      voiceAudioPlayerRef.current.src = voiceId;
       voiceAudioPlayerRef.current.load();
       voiceAudioPlayerRef.current.play();
     }
@@ -326,13 +399,15 @@ function CreateAd() {
                 <Form.Label>Voice</Form.Label>
                 <Form.Select
                   aria-label="Voice select"
-                  value={voiceId}
+                  value={voiceName} // This should be the voice name, not the ID
                   onChange={handleVoiceChange}
                   style={{ color: "black" }}
                 >
-                  {Object.entries(voicesToElevenLabsIds).map(([name, code]) => (
-                    <option key={code} value={code}>
-                      {name}
+                  {voiceOptions.map((voice, index) => (
+                    <option key={index} value={voice}>
+                      {" "}
+                      {/* Use unique index or better yet, a unique ID */}
+                      {voice}
                     </option>
                   ))}
                 </Form.Select>
@@ -349,11 +424,7 @@ function CreateAd() {
           </Card>
           <div>
             <SimpleAudioPlayer
-              audioSrc={getFullUrl(
-                baseVoicePreviewsUrl,
-                voiceName,
-                voicesToPreviewPaths
-              )}
+              audioSrc={baseVoicePreviewsUrl + voicePreviewFilename}
               audioTitle={voiceName}
             />
           </div>
