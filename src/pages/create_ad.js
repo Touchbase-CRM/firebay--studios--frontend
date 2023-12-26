@@ -7,7 +7,6 @@ import IntonationManager from "../components/IntonationManager";
 import CustomDropdown from "../components/CustomDropdown";
 import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 
-import { getFullUrl } from "../utils/string_manipulation";
 import useUserInputsStore from "../store/userInputs";
 
 import withAuth from "../hocs/withAuth";
@@ -77,12 +76,7 @@ function CreateAd() {
       try {
         const docSnapshot = await getDoc(voicesDocRef);
         if (docSnapshot.exists()) {
-          // Assuming 'pyro_voice_choices' is the field with voice names
           setVoiceOptions(docSnapshot.data().pyro_voice_choices);
-          console.log(
-            "Voice options fetched: ",
-            docSnapshot.data().pyro_voice_choices
-          ); // Log to check data
         } else {
           console.log("No voice options found in document");
         }
@@ -94,55 +88,8 @@ function CreateAd() {
     fetchVoiceOptions();
   }, []);
 
-  // const voicesToElevenLabsIds = {
-  //   Charley: "6wLJ4Wm2OxvAvetEUBCS",
-  //   Craig: "fDte6eby6sYdcYcjHbl0",
-  //   Jim: "9oqLJH1XFK0K90OEebQ5",
-  //   Connor: "9F4C8ztpNUmXkdDDbz3J",
-  //   Russell: "Hvs3xuGjAWNJAS9rCUH8",
-  //   Timothy: "T7QGPtToiqH4S8VlIkMJ",
-  //   Joseph: "cMvWnGm0kHd0m3Jjb3Ss",
-  //   Edward: "8bRmOvh6tl1JtNu7uUdF",
-  //   Jabari: "Q4CesJn2rW0ITUs66gST",
-  //   Ike: "qYgN2KN4yu2ReeLmOu8F",
-  //   Ayaan: "6gF9Bpd8RCQIF5ZGzETu",
-  //   Kate: "cBijDV6IOSWp9c8dA7Xn",
-  //   Puja: "jA08rXmVrpvXnqEEEYwl",
-  //   McKenna: "yPh7KyOT84PcyPINBrfi",
-  //   Carol: "BwsRV8gluuGcJrvENPbd",
-  //   Beth: "VCr9UgezI1qi2hMOKWVK",
-  //   Meg: "sQAyEY9ksexU3gWxo7gG",
-  //   Darcy: "rI34FMqFgY9kQxffNV58",
-  //   Hannah: "iLiLWmBplDMUW2SuUEnM",
-  //   Kamala: "xShUaiOOq6sZGIVKUWun",
-  // };
-
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
-
-  // const voicesToPreviewPaths = {
-  //   Ayaan: "male/ayaan.mp3",
-  //   Charley: "male/charley.mp3",
-  //   Connor: "male/connor.mp3",
-  //   Craig: "male/craig.mp3",
-  //   Edward: "male/edward.mp3",
-  //   Ike: "male/ike.mp3",
-  //   Jabari: "male/jabari.mp3",
-  //   Jim: "male/jim.mp3",
-  //   Joseph: "male/joseph.mp3",
-  //   Russell: "male/russell.mp3",
-  //   Timothy: "male/timothy.mp3",
-  //   Allie: "female/allie.mp3",
-  //   Beth: "female/beth.mp3",
-  //   Carol: "female/carol.mp3",
-  //   Darcy: "female/darcy.mp3",
-  //   Hannah: "female/hannah.mp3",
-  //   Kamala: "female/kamala.mp3",
-  //   Kate: "female/kate.mp3",
-  //   McKenna: "female/mckenna.mp3",
-  //   Meg: "female/meg.mp3",
-  //   Puja: "female/puja.mp3",
-  // };
 
   const handleKeywordsChange = (updatedKeywords) => {
     setKeywords(updatedKeywords);
@@ -188,7 +135,6 @@ function CreateAd() {
         "No metadata found for the selected voice:",
         selectedVoiceName
       );
-      // Optionally clear the selection or show an error message
     }
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
@@ -199,7 +145,6 @@ function CreateAd() {
       voiceName: voiceName,
     });
 
-    // Assuming you have a ref to your audio player
     if (voiceAudioPlayerRef.current) {
       voiceAudioPlayerRef.current.src = voiceId;
       voiceAudioPlayerRef.current.load();
