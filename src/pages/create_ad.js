@@ -95,11 +95,11 @@ function CreateAd() {
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
-  const handlescriptChange = (e) => {
-    const updatedscript = e.target.value;
-    setNewscript(updatedscript);
-    setScript(updatedscript.split(" "));
-  };
+  // const handlescriptChange = (e) => {
+  //   const updatedscript = e.target.value;
+  //   setNewscript(updatedscript);
+  //   setScript(updatedscript.split(" "));
+  // };
 
   const handleTransformedscriptChange = (transformedscript) => {
     setNewscript(transformedscript);
@@ -146,7 +146,7 @@ function CreateAd() {
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setNewScript(updatedScript);
+    setNewscript(updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -404,7 +404,7 @@ function CreateAd() {
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
                   value={newscript}
-                  onChange={handlescriptChange}
+                  onChange={handleScriptChange}
                   style={{
                     color: "black",
                     height: "140px",
