@@ -425,9 +425,13 @@ function CreateAd() {
                   marginTop: "10px",
                 }}
               >
-                <Form.Label>
-                  Emphasize your keywords by clicking the words below
-                </Form.Label>
+                <div>
+                  {" "}
+                  <Form.Label>
+                    Emphasize your keywords by clicking the words below
+                  </Form.Label>
+                </div>
+
                 {script.map((word, index) => (
                   <span
                     key={index}
