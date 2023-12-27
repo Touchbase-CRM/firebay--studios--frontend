@@ -44,7 +44,7 @@ function AddMusic() {
     setBackgroundMusicFilename,
     musicVol,
     setMusicVol,
-    script,
+    newScript,
     voiceId,
     adLength,
     reset,
@@ -191,7 +191,7 @@ function AddMusic() {
       user_id: userId,
       no_music: noMusic,
       music_choice: backgroundMusicFilename,
-      script: script,
+      script: newScript,
       voice: voiceId,
       ad_length: adLength,
       music_vol: musicVol, // technical debt

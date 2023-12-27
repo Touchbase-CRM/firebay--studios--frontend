@@ -3,10 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import IntonationManager from "../components/IntonationManager";
 import CustomDropdown from "../components/CustomDropdown";
-import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
-
 import useUserInputsStore from "../store/userInputs";
 
 import withAuth from "../hocs/withAuth";
@@ -38,6 +35,10 @@ function CreateAd() {
   const {
     script,
     setScript,
+    newScript,
+    setNewScript,
+    transformedWords,
+    setTransformedWords,
     voiceId,
     setVoiceId,
     voiceName,
@@ -50,9 +51,12 @@ function CreateAd() {
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
-  const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -91,8 +95,56 @@ function CreateAd() {
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
-  const handleKeywordsChange = (updatedKeywords) => {
-    setKeywords(updatedKeywords);
+  const handleLeftClick = (event, index) => {
+    event.preventDefault();
+    setShowMenu(!showMenu);
+    setMenuPosition({ x: event.clientX, y: event.clientY });
+    setSelectedWordIndex(index);
+  };
+
+  const transformWord = (action) => {
+    let currentWord =
+      transformedWords[selectedWordIndex] || script[selectedWordIndex];
+
+    switch (action) {
+      case "upper":
+        transformedWords[selectedWordIndex] = currentWord.toUpperCase();
+        break;
+      case "lower":
+        transformedWords[selectedWordIndex] = currentWord.toLowerCase();
+        break;
+      case "emphasize":
+        if (currentWord.startsWith("'") && currentWord.endsWith("'")) {
+          transformedWords[selectedWordIndex] = currentWord.slice(1, -1);
+        } else {
+          transformedWords[selectedWordIndex] = `'${currentWord}'`;
+        }
+        break;
+      case "reset":
+        delete transformedWords[selectedWordIndex];
+        break;
+      default:
+        break;
+    }
+
+    setTransformedWords({ ...transformedWords });
+    setShowMenu(false);
+  };
+
+  const handleScriptChange = (e) => {
+    const updatedScript = e.target.value;
+    setNewScript(updatedScript);
+    const newWords = updatedScript.split(" ");
+    const newTransformedWords = {};
+
+    newWords.forEach((word, index) => {
+      if (script[index] === word && transformedWords[index]) {
+        newTransformedWords[index] = transformedWords[index];
+      }
+    });
+
+    setScript(newWords);
+    setTransformedWords(newTransformedWords);
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
@@ -152,44 +204,10 @@ function CreateAd() {
     }
   };
 
-  const checkKeywordsInScript = () => {
-    const Intonator = "'";
-    let updatedScript = script;
-    const notFoundKeywords = [];
-
-    keywords.forEach((keyword) => {
-      if (updatedScript.includes(keyword)) {
-        // Surround the keyword with the Intonator character for emphasis
-        updatedScript = updatedScript.replace(
-          new RegExp(`\\b${keyword}\\b`, "g"),
-          `${Intonator}${keyword}${Intonator}`
-        );
-      } else {
-        notFoundKeywords.push(keyword);
-      }
-    });
-
-    setScript(updatedScript);
-
-    if (notFoundKeywords.length > 0) {
-      Swal.fire({
-        icon: "error",
-        title: "Keywords Not Found",
-        text: `The following keywords were not found in the script: ${notFoundKeywords.join(
-          ", "
-        )}. Please remove them or add them to your script to continue.`,
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!checkKeywordsInScript()) return;
-
-    if (script.length > charLimit) {
+    if (newScript.length > charLimit) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -197,7 +215,7 @@ function CreateAd() {
       });
       return;
     }
-    if (script.length < 1) {
+    if (newScript.length < 1) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -268,7 +286,12 @@ function CreateAd() {
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        bg="dark"
+        variant="dark"
+        expand="lg"
+        style={{ marginBottom: "20px" }}
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
@@ -299,13 +322,13 @@ function CreateAd() {
           <Card
             className="p-4 bg-dark text-white"
             style={{
-              marginTop: "70px",
-              height: "800px",
-              marginBottom: "140px",
+              marginTop: "10px",
+              height: "250px",
+              marginBottom: "10px",
             }}
           >
-            <h2 className="mb-4">Voice Settings</h2>
-            <Form onSubmit={handleSubmit}>
+            <Card.Title>Voice Editor</Card.Title>
+            <Form>
               <Form.Group controlId="adLength">
                 <Form.Label>Choose Ad Length</Form.Label>
                 <Form.Select
@@ -318,27 +341,6 @@ function CreateAd() {
                   <option value="60">60 seconds</option>
                 </Form.Select>
               </Form.Group>
-
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={script}
-                  onChange={(e) => setScript(e.target.value)}
-                  style={{
-                    color: "black",
-                    height: "200px",
-                    marginBottom: "20px",
-                  }}
-                />
-                <div style={wordCountStyle}>
-                  {script.length}/{charLimit}
-                </div>
-              </Form.Group>
-
-              <IntonationManager onKeywordsChange={handleKeywordsChange} />
 
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
@@ -357,14 +359,6 @@ function CreateAd() {
                   ))}
                 </Form.Select>
               </Form.Group>
-
-              <Button
-                type="submit"
-                className="mt-3"
-                style={{ marginRight: "10px", marginTop: "20px" }}
-              >
-                Next
-              </Button>
             </Form>
           </Card>
           <div>
@@ -373,6 +367,152 @@ function CreateAd() {
               audioTitle={voiceName}
             />
           </div>
+        </Col>
+      </Row>
+      <Row>
+        <Col md={10} className="mx-auto">
+          <Card
+            className="p-4 bg-dark text-white"
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              marginTop: "10px",
+              height: "500px",
+              marginBottom: "10px",
+            }}
+          >
+            <Card.Body>
+              <Card.Title>Script Editor</Card.Title>
+
+              <Form.Group controlId="script" style={{ position: "relative" }}>
+                <Form.Label>Script</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                  value={newScript}
+                  onChange={handleScriptChange}
+                  style={{
+                    color: "black",
+                    height: "140px",
+                    marginBottom: "20px",
+                  }}
+                />
+                <div style={wordCountStyle}>
+                  {newScript.length}/{charLimit}
+                </div>
+              </Form.Group>
+
+              <div>
+                {" "}
+                <Form.Label>Click on a word to change its emphasis</Form.Label>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "#282c34",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginTop: "10px",
+                }}
+              >
+                {script.map((word, index) => (
+                  <span
+                    key={index}
+                    onClick={(e) => handleLeftClick(e, index)}
+                    style={{
+                      marginRight: "5px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      textDecorationColor: "transparent",
+                      color: "orange",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.textDecorationColor = "orange")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.textDecorationColor = "transparent")
+                    }
+                  >
+                    {transformedWords[index] || word}
+                  </span>
+                ))}
+              </div>
+            </Card.Body>
+          </Card>
+          <Button
+            className="mt-3"
+            style={{ marginRight: "10px", marginTop: "20px" }}
+            onClick={handleSubmit}
+          >
+            Next
+          </Button>
+
+          {showMenu && (
+            <div
+              style={{
+                position: "absolute",
+                top: menuPosition.y,
+                left: menuPosition.x,
+                zIndex: 1000,
+                backgroundColor: "#f8f9fa",
+                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <h6
+                style={{
+                  marginBottom: "10px",
+                  color: "#333",
+                  fontWeight: "500",
+                  fontSize: "13px",
+                }}
+              >
+                Word Smith
+              </h6>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("upper")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Upper Case
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("lower")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Lower Case
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasize")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Emphasize
+              </button>
+
+              <button
+                className="btn btn-light"
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+                onClick={() => transformWord("reset")}
+              >
+                Reset Word
+              </button>
+
+              <button
+                className="btn btn-light"
+                onClick={() => setShowMenu(false)}
+                style={{ fontSize: "12px" }}
+              >
+                Close
+              </button>
+            </div>
+          )}
         </Col>
       </Row>
     </div>
