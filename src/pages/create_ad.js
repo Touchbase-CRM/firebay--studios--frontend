@@ -417,6 +417,11 @@ function CreateAd() {
                   {newscript.length}/{charLimit}
                 </div>
               </Form.Group>
+
+              <div>
+                {" "}
+                <Form.Label>Click on a word to change its emphasis</Form.Label>
+              </div>
               <div
                 style={{
                   backgroundColor: "#282c34",
@@ -425,13 +430,6 @@ function CreateAd() {
                   marginTop: "10px",
                 }}
               >
-                <div>
-                  {" "}
-                  <Form.Label>
-                    Emphasize your keywords by clicking the words below
-                  </Form.Label>
-                </div>
-
                 {script.map((word, index) => (
                   <span
                     key={index}
