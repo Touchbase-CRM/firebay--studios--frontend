@@ -6,6 +6,7 @@ const defaultState = {
   // create ad page defaults
   script: "".split(" "),
   newscript: "",
+  transformedWords: {},
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",
@@ -25,6 +26,7 @@ const useUserInputsStore = create((set) => ({
   // Setters
   setScript: (script) => set({ script }),
   setNewscript: (newscript) => set({ newscript }),
+  setTransformedWords: (transformedWords) => set({ transformedWords }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
   setVoicePreviewFilename: (filename) =>

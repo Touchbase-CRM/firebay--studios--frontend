@@ -4,8 +4,6 @@ import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import CustomDropdown from "../components/CustomDropdown";
-import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
-
 import useUserInputsStore from "../store/userInputs";
 
 import withAuth from "../hocs/withAuth";
@@ -39,6 +37,8 @@ function CreateAd() {
     setScript,
     newscript,
     setNewscript,
+    transformedWords,
+    setTransformedWords,
     voiceId,
     setVoiceId,
     voiceName,
@@ -51,11 +51,9 @@ function CreateAd() {
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
-  const [keywords, setKeywords] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
 
-  const [transformedWords, setTransformedWords] = useState({});
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
@@ -343,7 +341,7 @@ function CreateAd() {
             }}
           >
             <Card.Title>Voice Editor</Card.Title>
-            <Form onSubmit={handleSubmit}>
+            <Form>
               <Form.Group controlId="adLength">
                 <Form.Label>Choose Ad Length</Form.Label>
                 <Form.Select
@@ -455,9 +453,9 @@ function CreateAd() {
             </Card.Body>
           </Card>
           <Button
-            type="submit"
             className="mt-3"
             style={{ marginRight: "10px", marginTop: "20px" }}
+            onClick={handleSubmit}
           >
             Next
           </Button>
