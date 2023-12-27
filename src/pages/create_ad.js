@@ -222,7 +222,7 @@ function CreateAd() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (script.length > charLimit) {
+    if (newscript.length > charLimit) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -230,7 +230,7 @@ function CreateAd() {
       });
       return;
     }
-    if (script.length < 1) {
+    if (newscript.length < 1) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -414,7 +414,7 @@ function CreateAd() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {script.length}/{charLimit}
+                  {newscript.length}/{charLimit}
                 </div>
               </Form.Group>
               <div
