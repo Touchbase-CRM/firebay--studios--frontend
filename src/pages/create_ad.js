@@ -3,7 +3,6 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import ClickableWordEditor from "../components/ClickableWordEditor";
 import CustomDropdown from "../components/CustomDropdown";
 import ExamplesViewer from "../components/ExamplesViewer"; // for some reason when this component is removed the submit button of the IntonationManager does not have the correct styling. So, don't delete this unused component until we figure out why.
 
@@ -56,6 +55,11 @@ function CreateAd() {
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
 
+  const [transformedWords, setTransformedWords] = useState({});
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
+
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
@@ -101,6 +105,61 @@ function CreateAd() {
 
   const handleTransformedscriptChange = (transformedscript) => {
     setNewscript(transformedscript);
+  };
+
+  const handleLeftClick = (event, index) => {
+    event.preventDefault();
+    setShowMenu(!showMenu);
+    setMenuPosition({ x: event.clientX, y: event.clientY });
+    setSelectedWordIndex(index);
+  };
+
+  const transformWord = (action) => {
+    let currentWord =
+      transformedWords[selectedWordIndex] || script[selectedWordIndex];
+
+    switch (action) {
+      case "upper":
+        transformedWords[selectedWordIndex] = currentWord.toUpperCase();
+        break;
+      case "lower":
+        transformedWords[selectedWordIndex] = currentWord.toLowerCase();
+        break;
+      case "emphasize":
+        if (currentWord.startsWith("'") && currentWord.endsWith("'")) {
+          transformedWords[selectedWordIndex] = currentWord.slice(1, -1);
+        } else {
+          transformedWords[selectedWordIndex] = `'${currentWord}'`;
+        }
+        break;
+      case "reset":
+        delete transformedWords[selectedWordIndex];
+        break;
+      default:
+        break;
+    }
+
+    setTransformedWords({ ...transformedWords });
+    setShowMenu(false);
+  };
+  const resetAllTransformations = () => {
+    setTransformedWords({});
+  };
+
+  const handleScriptChange = (e) => {
+    const updatedScript = e.target.value;
+    setNewScript(updatedScript);
+    const newWords = updatedScript.split(" ");
+    const newTransformedWords = {};
+
+    newWords.forEach((word, index) => {
+      if (script[index] === word && transformedWords[index]) {
+        newTransformedWords[index] = transformedWords[index];
+      }
+    });
+
+    setScript(newWords);
+    setTransformedWords(newTransformedWords);
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
@@ -273,9 +332,9 @@ function CreateAd() {
           <Card
             className="p-4 bg-dark text-white"
             style={{
-              marginTop: "70px",
-              height: "800px",
-              marginBottom: "140px",
+              marginTop: "10px",
+              height: "600px",
+              marginBottom: "50px",
             }}
           >
             <h2 className="mb-4">Voice Settings</h2>
@@ -303,7 +362,7 @@ function CreateAd() {
                   onChange={handlescriptChange}
                   style={{
                     color: "black",
-                    height: "200px",
+                    height: "140px",
                     marginBottom: "20px",
                   }}
                 />
@@ -312,13 +371,6 @@ function CreateAd() {
                 </div>
               </Form.Group>
 
-              {/* <IntonationManager onKeywordsChange={handleKeywordsChange} /> */}
-              <div>
-                <ClickableWordEditor
-                  script={script}
-                  onTransformedscriptChange={handleTransformedscriptChange}
-                />
-              </div>
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
                 <Form.Select
@@ -352,6 +404,116 @@ function CreateAd() {
               audioTitle={voiceName}
             />
           </div>
+        </Col>
+      </Row>
+      <Row>
+        <Col md={10} className="mx-auto">
+          <Card
+            className="p-4 bg-dark text-white"
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              marginTop: "10px",
+              height: "250px",
+              marginBottom: "20px",
+            }}
+          >
+            <Card.Body>
+              <Card.Title>
+                Emphasize your keywords by clicking the words below
+              </Card.Title>
+              <div>
+                {script.map((word, index) => (
+                  <span
+                    key={index}
+                    onClick={(e) => handleLeftClick(e, index)}
+                    style={{
+                      marginRight: "5px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      textDecorationColor: "transparent",
+                      color: "orange",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.textDecorationColor = "orange")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.textDecorationColor = "transparent")
+                    }
+                  >
+                    {transformedWords[index] || word}
+                  </span>
+                ))}
+              </div>
+            </Card.Body>
+          </Card>
+
+          {showMenu && (
+            <div
+              style={{
+                position: "absolute",
+                top: menuPosition.y,
+                left: menuPosition.x,
+                zIndex: 1000,
+                backgroundColor: "#f8f9fa",
+                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <h6
+                style={{
+                  marginBottom: "10px",
+                  color: "#333",
+                  fontWeight: "500",
+                  fontSize: "13px",
+                }}
+              >
+                Word Smith
+              </h6>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("upper")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Upper Case
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("lower")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Lower Case
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasize")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Emphasize
+              </button>
+
+              <button
+                className="btn btn-light"
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+                onClick={() => transformWord("reset")}
+              >
+                Reset Word
+              </button>
+
+              <button
+                className="btn btn-light"
+                onClick={() => setShowMenu(false)}
+                style={{ fontSize: "12px" }}
+              >
+                Close
+              </button>
+            </div>
+          )}
         </Col>
       </Row>
     </div>
