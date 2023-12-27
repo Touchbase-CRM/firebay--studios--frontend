@@ -44,7 +44,8 @@ function AddMusic() {
     setBackgroundMusicFilename,
     musicVol,
     setMusicVol,
-    newScript,
+    script,
+    transformedWords,
     voiceId,
     adLength,
     reset,
@@ -172,6 +173,11 @@ function AddMusic() {
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
   };
+  const getFinalScript = () => {
+    return script
+      .map((word, index) => transformedWords[index] || word)
+      .join(" ");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -191,7 +197,7 @@ function AddMusic() {
       user_id: userId,
       no_music: noMusic,
       music_choice: backgroundMusicFilename,
-      script: newScript,
+      script: getFinalScript(),
       voice: voiceId,
       ad_length: adLength,
       music_vol: musicVol, // technical debt
