@@ -301,7 +301,12 @@ function CreateAd() {
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        bg="dark"
+        variant="dark"
+        expand="lg"
+        style={{ marginBottom: "20px" }}
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
@@ -333,11 +338,11 @@ function CreateAd() {
             className="p-4 bg-dark text-white"
             style={{
               marginTop: "10px",
-              height: "600px",
-              marginBottom: "50px",
+              height: "250px",
+              marginBottom: "10px",
             }}
           >
-            <h2 className="mb-4">Voice Settings</h2>
+            <Card.Title>Voice Editor</Card.Title>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="adLength">
                 <Form.Label>Choose Ad Length</Form.Label>
@@ -350,25 +355,6 @@ function CreateAd() {
                   <option value="30">30 seconds</option>
                   <option value="60">60 seconds</option>
                 </Form.Select>
-              </Form.Group>
-
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={newscript}
-                  onChange={handlescriptChange}
-                  style={{
-                    color: "black",
-                    height: "140px",
-                    marginBottom: "20px",
-                  }}
-                />
-                <div style={wordCountStyle}>
-                  {script.length}/{charLimit}
-                </div>
               </Form.Group>
 
               <Form.Group controlId="voice">
@@ -388,14 +374,6 @@ function CreateAd() {
                   ))}
                 </Form.Select>
               </Form.Group>
-
-              <Button
-                type="submit"
-                className="mt-3"
-                style={{ marginRight: "10px", marginTop: "20px" }}
-              >
-                Next
-              </Button>
             </Form>
           </Card>
           <div>
@@ -414,15 +392,42 @@ function CreateAd() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "250px",
-              marginBottom: "20px",
+              height: "500px",
+              marginBottom: "10px",
             }}
           >
             <Card.Body>
-              <Card.Title>
-                Emphasize your keywords by clicking the words below
-              </Card.Title>
-              <div>
+              <Card.Title>Script Editor</Card.Title>
+
+              <Form.Group controlId="script" style={{ position: "relative" }}>
+                <Form.Label>Script</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                  value={newscript}
+                  onChange={handlescriptChange}
+                  style={{
+                    color: "black",
+                    height: "140px",
+                    marginBottom: "20px",
+                  }}
+                />
+                <div style={wordCountStyle}>
+                  {script.length}/{charLimit}
+                </div>
+              </Form.Group>
+              <div
+                style={{
+                  backgroundColor: "#282c34",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginTop: "10px",
+                }}
+              >
+                <Form.Label>
+                  Emphasize your keywords by clicking the words below
+                </Form.Label>
                 {script.map((word, index) => (
                   <span
                     key={index}
@@ -447,6 +452,13 @@ function CreateAd() {
               </div>
             </Card.Body>
           </Card>
+          <Button
+            type="submit"
+            className="mt-3"
+            style={{ marginRight: "10px", marginTop: "20px" }}
+          >
+            Next
+          </Button>
 
           {showMenu && (
             <div
