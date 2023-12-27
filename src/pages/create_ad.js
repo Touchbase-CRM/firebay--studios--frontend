@@ -35,8 +35,8 @@ function CreateAd() {
   const {
     script,
     setScript,
-    newscript,
-    setNewscript,
+    newScript,
+    setNewScript,
     transformedWords,
     setTransformedWords,
     voiceId,
@@ -95,16 +95,6 @@ function CreateAd() {
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
-  // const handlescriptChange = (e) => {
-  //   const updatedscript = e.target.value;
-  //   setNewscript(updatedscript);
-  //   setScript(updatedscript.split(" "));
-  // };
-
-  const handleTransformedscriptChange = (transformedscript) => {
-    setNewscript(transformedscript);
-  };
-
   const handleLeftClick = (event, index) => {
     event.preventDefault();
     setShowMenu(!showMenu);
@@ -140,13 +130,10 @@ function CreateAd() {
     setTransformedWords({ ...transformedWords });
     setShowMenu(false);
   };
-  const resetAllTransformations = () => {
-    setTransformedWords({});
-  };
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setNewscript(updatedScript);
+    setNewScript(updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -220,7 +207,7 @@ function CreateAd() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (newscript.length > charLimit) {
+    if (newScript.length > charLimit) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -228,7 +215,7 @@ function CreateAd() {
       });
       return;
     }
-    if (newscript.length < 1) {
+    if (newScript.length < 1) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -403,7 +390,7 @@ function CreateAd() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={newscript}
+                  value={newScript}
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
@@ -412,7 +399,7 @@ function CreateAd() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {newscript.length}/{charLimit}
+                  {newScript.length}/{charLimit}
                 </div>
               </Form.Group>
 
