@@ -361,12 +361,6 @@ function CreateAd() {
               </Form.Group>
             </Form>
           </Card>
-          <div>
-            <SimpleAudioPlayer
-              audioSrc={baseVoicePreviewsUrl + voicePreviewFilename}
-              audioTitle={voiceName}
-            />
-          </div>
         </Col>
       </Row>
       <Row>
@@ -377,7 +371,7 @@ function CreateAd() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "500px",
+              height: "600px",
               marginBottom: "10px",
             }}
           >
@@ -437,15 +431,33 @@ function CreateAd() {
                   </span>
                 ))}
               </div>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  left: "10px",
+                  fontSize: "small",
+                  fontWeight: "bold",
+                  fontStyle: "italic",
+                }}
+              >
+                <Button
+                  className="mt-3"
+                  style={{ marginRight: "10px", marginTop: "20px" }}
+                  onClick={handleSubmit}
+                >
+                  Next
+                </Button>
+              </div>
             </Card.Body>
           </Card>
-          <Button
-            className="mt-3"
-            style={{ marginRight: "10px", marginTop: "20px" }}
-            onClick={handleSubmit}
-          >
-            Next
-          </Button>
+          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
+          <div style={{ position: "relative", marginTop: "400px" }}>
+            <SimpleAudioPlayer
+              audioSrc={baseVoicePreviewsUrl + voicePreviewFilename}
+              audioTitle={voiceName}
+            />
+          </div>
 
           {showMenu && (
             <div
