@@ -43,14 +43,14 @@ const LoginPage = () => {
           }
 
           // Check if the user's email is verified
-          if (!user.emailVerified) {
-            Swal.fire({
-              icon: "info",
-              title: "Email Verification",
-              text: "Please verify your email before continuing.",
-            });
-            return;
-          }
+          // if (!user.emailVerified) {
+          //   Swal.fire({
+          //     icon: "info",
+          //     title: "Email Verification",
+          //     text: "Please verify your email before continuing.",
+          //   });
+          //   return;
+          // }
 
           // If the user has an active subscription and verified email, redirect to the create_ad page
           router.push("/create_ad");
