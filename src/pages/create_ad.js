@@ -239,6 +239,16 @@ function CreateAd() {
       });
   };
   const handleManageSubscription = async () => {
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+
+    if (userId === process.env.NEXT_PUBLIC_PYRO_GUEST_FIREBASE_UID) {
+      Swal.fire({
+        icon: "info",
+        title: "Oops...",
+        text: "Trial users are not authorized to manage subscriptions.",
+      });
+      return;
+    }
     try {
       // SweetAlert2 confirmation dialog
       const result = Swal.fire({

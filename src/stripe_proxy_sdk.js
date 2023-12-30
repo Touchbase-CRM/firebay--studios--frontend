@@ -10,7 +10,9 @@ import {
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
-const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_API_KEY);
+const stripe = require("stripe")(
+  process.env.NEXT_PUBLIC_STRIPE_RESTRICTED_SECRET_KEY
+);
 
 export const getCheckoutUrl = async (app, priceId) => {
   const auth = getAuth(app);
@@ -116,7 +118,6 @@ export const getPortalUrl = async (app) => {
 };
 
 async function findCustomerIdByEmail(email) {
-  console.log(process.env.NEXT_PUBLIC_STRIPE_API_KEY);
   try {
     const customers = await stripe.customers.list({ email: email, limit: 1 });
     if (customers.data.length > 0) {

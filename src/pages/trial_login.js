@@ -35,7 +35,7 @@ const TrialLoginPage = () => {
 
         Swal.fire({
           icon: "info",
-          title: "Trial Expired",
+          title: "Sorry! you don't have an active trial",
           text: trialDurationMessage,
         });
         return;
