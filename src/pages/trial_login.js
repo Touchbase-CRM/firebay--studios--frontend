@@ -1,32 +1,24 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-} from "firebase/auth";
-import app from "../firebase";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
 import { stripeTrialAuthenticator } from "../stripe_proxy_sdk";
+import { usePostHog } from "posthog-js/react";
 
 const TrialLoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
   const auth = getAuth();
+  const posthog = usePostHog();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
-
-  //   const handlePasswordChange = (event) => {
-  //     setPassword(event.target.value);
-  //   };
 
   const handleSignIn = async (event) => {
     event.preventDefault();
@@ -34,7 +26,6 @@ const TrialLoginPage = () => {
     // Call stripeTrialAuthenticator to check the trial status
     try {
       const trialInfo = await stripeTrialAuthenticator(email);
-      console.log(trialInfo);
 
       if (!trialInfo.trial) {
         // If trial is false, show a SweetAlert and don't proceed further
@@ -49,6 +40,10 @@ const TrialLoginPage = () => {
         });
         return;
       }
+      posthog.capture("trial-login-user-clicked-login", {
+        date: new Date().toISOString(),
+        email: email,
+      });
 
       // Proceed with the login process if the trial is true
       const predefinedEmail = process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL;
@@ -77,33 +72,6 @@ const TrialLoginPage = () => {
           "An error occurred while verifying trial status: " + error.message,
       });
     }
-  };
-
-  const handleForgotPassword = () => {
-    if (!email) {
-      Swal.fire({
-        icon: "warning",
-        title: "Oops...",
-        text: "Please enter an email address.",
-      });
-      return;
-    }
-
-    sendPasswordResetEmail(auth, email)
-      .then(() => {
-        Swal.fire({
-          icon: "success",
-          title: "Email Sent",
-          text: "Password reset email sent. Please check your email.",
-        });
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error.message,
-        });
-      });
   };
 
   return (
@@ -159,33 +127,6 @@ const TrialLoginPage = () => {
                   }}
                 />
               </Form.Group>
-
-              {/* <Form.Group controlId="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  minLength={6}
-                  required
-                  style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
-                  }}
-                />
-              </Form.Group> */}
-
-              {/* <Form.Group className="text-center small mt-3 mb-3 pb-lg-2">
-                <a
-                  href="#!"
-                  onClick={handleForgotPassword}
-                  tyle={{ color: "#fff", fontWeight: "bold" }}
-                >
-                  Forgot password?
-                </a>
-              </Form.Group> */}
               <br></br>
 
               <Button

@@ -192,7 +192,7 @@ const SignupPage = () => {
                   fontSize: "small", // Small font size
                 }}
               >
-                Step 1 of 3
+                Step 1 of 2
               </div>
               <Image
                 src="/fire.png"
@@ -205,10 +205,10 @@ const SignupPage = () => {
               <p className="text-center mb-5">Let's get you started!</p>
 
               <Form.Group controlId="workEmail" className="mb-3">
-                <Form.Label>Work Email</Form.Label>
+                <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
-                  placeholder="Enter your work email"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -312,7 +312,16 @@ const SignupPage = () => {
 
               <div className="my-3">
                 <p className="text-center">
-                  Already have an account?{" "}
+                  On Trial?{" "}
+                  <a
+                    href="/trial_login"
+                    style={{ color: "#fff", fontWeight: "bold" }}
+                  >
+                    Trial Login
+                  </a>
+                </p>
+                <p className="text-center">
+                  Already a subscriber?{" "}
                   <a
                     href="/login"
                     style={{ color: "#fff", fontWeight: "bold" }}
