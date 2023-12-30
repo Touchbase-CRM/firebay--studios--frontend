@@ -48,7 +48,6 @@ const TrialLoginPage = () => {
       // Proceed with the login process if the trial is true
       const predefinedEmail = process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL;
       const predefinedPassword = process.env.NEXT_PUBLIC_PYRO_GUEST_PASSWORD;
-
       signInWithEmailAndPassword(auth, predefinedEmail, predefinedPassword)
         .then(async (userCredential) => {
           // Logic after successful login
