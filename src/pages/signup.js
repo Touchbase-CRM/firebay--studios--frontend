@@ -8,7 +8,7 @@ import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  sendEmailVerification,
+  // sendEmailVerification,
 } from "firebase/auth";
 import app from "../firebase";
 
@@ -25,9 +25,9 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [organization, setOrganization] = useState("");
+  // const [organization, setOrganization] = useState("");
   const [error, setError] = useState("");
-  const [verificationUser, setVerificationUser] = useState(null);
+  // const [verificationUser, setVerificationUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -48,7 +48,7 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     setIsLoading(true); // Start loading
-    setStatusMessage("Step 1 of 3: Creating your Pyro account...");
+    setStatusMessage("Step 1 of 2: Creating your Pyro account...");
 
     if (password !== confirmPassword) {
       Swal.fire({
@@ -61,22 +61,22 @@ const SignupPage = () => {
     }
 
     try {
-      const userEmailDomain = email.split("@")[1];
-      const orgMetaRef = doc(db, "organizations_meta_data", userEmailDomain);
-      const orgMetaSnap = await getDoc(orgMetaRef);
+      // const userEmailDomain = email.split("@")[1];
+      // const orgMetaRef = doc(db, "organizations_meta_data", userEmailDomain);
+      // const orgMetaSnap = await getDoc(orgMetaRef);
 
-      if (!orgMetaSnap.exists()) {
-        Swal.fire({
-          icon: "error",
-          title: "Organization Not Found",
-          text: "Your email domain does not match any registered organization.",
-        });
-        setIsLoading(false); // Stop loading
-        return;
-      }
+      // if (!orgMetaSnap.exists()) {
+      //   Swal.fire({
+      //     icon: "error",
+      //     title: "Organization Not Found",
+      //     text: "Your email domain does not match any registered organization.",
+      //   });
+      //   setIsLoading(false); // Stop loading
+      //   return;
+      // }
 
-      const orgData = orgMetaSnap.data();
-      setOrganization(orgData.org_name);
+      // const orgData = orgMetaSnap.data();
+      // setOrganization(orgData.org_name);
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -84,15 +84,15 @@ const SignupPage = () => {
         password
       );
       const user = userCredential.user;
-      setVerificationUser(user);
+      // setVerificationUser(user);
 
-      await sendEmailVerification(user);
+      // await sendEmailVerification(user);
 
       // Map the users uid to their organization
       const batch = writeBatch(db);
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
-        org_name: orgData.org_name,
+        // org_name: orgData.org_name,
         work_email: email,
         credit_allowance: 1000,
         credit_left: 1000,
@@ -100,18 +100,19 @@ const SignupPage = () => {
 
       await batch.commit();
 
-      setStatusMessage("Step 1 of 3: Your Pyro account has been created.");
+      setStatusMessage("Step 1 of 2: Your Pyro account has been created.");
       // Wait a moment before changing the message
       setTimeout(
         () =>
           setStatusMessage(
-            "Step 2 of 3: Redirecting you to the payment page, sit tight..."
+            "Step 2 of 2: Redirecting you to the payment page, sit tight..."
           ),
         2000
       );
 
       // Define your Stripe priceId here (or fetch it as needed)
       const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
+      // const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp"; // test priceId
 
       // Call the getCheckoutUrl function to get the Stripe checkout URL
       const checkoutUrl = await getCheckoutUrl(app, priceId);
@@ -137,9 +138,9 @@ const SignupPage = () => {
     }
   };
 
-  const handleContinue = () => {
-    router.push("/verification");
-  };
+  // const handleContinue = () => {
+  //   router.push("/verification");
+  // };
 
   return (
     <Container
@@ -191,7 +192,7 @@ const SignupPage = () => {
                   fontSize: "small", // Small font size
                 }}
               >
-                Step 1 of 3
+                Step 1 of 2
               </div>
               <Image
                 src="/fire.png"
@@ -204,10 +205,10 @@ const SignupPage = () => {
               <p className="text-center mb-5">Let's get you started!</p>
 
               <Form.Group controlId="workEmail" className="mb-3">
-                <Form.Label>Work Email</Form.Label>
+                <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
-                  placeholder="Enter your work email"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -311,7 +312,16 @@ const SignupPage = () => {
 
               <div className="my-3">
                 <p className="text-center">
-                  Already have an account?{" "}
+                  On Trial?{" "}
+                  <a
+                    href="/trial_login"
+                    style={{ color: "#fff", fontWeight: "bold" }}
+                  >
+                    Trial Login
+                  </a>
+                </p>
+                <p className="text-center">
+                  Already a subscriber?{" "}
                   <a
                     href="/login"
                     style={{ color: "#fff", fontWeight: "bold" }}

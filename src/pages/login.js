@@ -43,14 +43,14 @@ const LoginPage = () => {
           }
 
           // Check if the user's email is verified
-          if (!user.emailVerified) {
-            Swal.fire({
-              icon: "info",
-              title: "Email Verification",
-              text: "Please verify your email before continuing.",
-            });
-            return;
-          }
+          // if (!user.emailVerified) {
+          //   Swal.fire({
+          //     icon: "info",
+          //     title: "Email Verification",
+          //     text: "Please verify your email before continuing.",
+          //   });
+          //   return;
+          // }
 
           // If the user has an active subscription and verified email, redirect to the create_ad page
           router.push("/create_ad");
@@ -128,7 +128,7 @@ const LoginPage = () => {
 
             <h2 className="text-center mb-4">Pyro Login</h2>
             <p className="text-center mb-5">
-              Please enter your login with your work email and password!
+              Please enter your login with your email and password!
             </p>
             <style jsx global>{`
               input:-webkit-autofill,
@@ -197,7 +197,16 @@ const LoginPage = () => {
 
             <div className="my-3">
               <p className="text-center">
-                Don&apos;t have an account?{" "}
+                On Trial?{" "}
+                <a
+                  href="/trial_login"
+                  style={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  Trial Login
+                </a>
+              </p>
+              <p className="text-center">
+                Want to become a subscriber?{" "}
                 <a href="/signup" style={{ color: "#fff", fontWeight: "bold" }}>
                   Sign Up
                 </a>

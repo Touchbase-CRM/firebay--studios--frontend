@@ -10,6 +10,10 @@ import {
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
+const stripe = require("stripe")(
+  process.env.NEXT_PUBLIC_STRIPE_RESTRICTED_SECRET_KEY
+);
+
 export const getCheckoutUrl = async (app, priceId) => {
   const auth = getAuth(app);
   const userId = auth.currentUser?.uid;
@@ -25,7 +29,7 @@ export const getCheckoutUrl = async (app, priceId) => {
 
   const docRef = await addDoc(checkoutSessionRef, {
     price: priceId,
-    success_url: window.location.origin + "/verification",
+    success_url: window.location.origin + "/login",
     cancel_url: window.location.origin + "/signup",
   });
 
@@ -112,3 +116,63 @@ export const getPortalUrl = async (app) => {
     throw error;
   }
 };
+
+async function findCustomerIdByEmail(email) {
+  try {
+    const customers = await stripe.customers.list({ email: email, limit: 1 });
+    if (customers.data.length > 0) {
+      return customers.data[0].id;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in findCustomerIdByEmail:", error);
+    throw error;
+  }
+}
+
+export async function stripeTrialAuthenticator(email) {
+  try {
+    const customerId = await findCustomerIdByEmail(email);
+    if (!customerId) {
+      return {
+        trial: false,
+        trialStart: null,
+        trialEnd: null,
+        message: "No customer found with this email.",
+      };
+    }
+
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "all",
+      expand: ["data.default_payment_method"],
+    });
+
+    let trialInfo = {
+      trial: false,
+      trialStart: null,
+      trialEnd: null,
+      message: "",
+    };
+
+    subscriptions.data.forEach((subscription) => {
+      if (subscription.trial_end) {
+        const trialEndDate = new Date(subscription.trial_end * 1000);
+        const trialStartDate = new Date(subscription.trial_start * 1000);
+        // Update trial info if this subscription has the latest trial end date
+        if (!trialInfo.trialEnd || trialEndDate > trialInfo.trialEnd) {
+          trialInfo.trialEnd = trialEndDate;
+          trialInfo.trialStart = trialStartDate;
+          // Check if the trial is currently active
+          trialInfo.trial = trialEndDate >= new Date();
+        }
+      }
+    });
+
+    return trialInfo;
+  } catch (error) {
+    console.error("Error fetching subscription status:", error);
+    throw error;
+  }
+}
