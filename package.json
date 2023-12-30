@@ -27,6 +27,7 @@
     "react-dom": "18.2.0",
     "react-h5-audio-player": "^3.9.0",
     "redis": "^4.6.10",
+    "stripe": "^14.10.0",
     "sweetalert2": "^11.6.13",
     "zustand": "^4.4.7"
   },
