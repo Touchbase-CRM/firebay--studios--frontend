@@ -12,7 +12,7 @@ import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
-import { getSubscriptionStatus } from "../stripe_proxy_sdk";
+import { stripeTrialAuthenticator } from "../stripe_proxy_sdk";
 
 const TrialLoginPage = () => {
   const router = useRouter();
@@ -30,29 +30,53 @@ const TrialLoginPage = () => {
 
   const handleSignIn = async (event) => {
     event.preventDefault();
-    console.log(process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL);
-    console.log(process.env.NEXT_PUBLIC_PYRO_GUEST_PASSWORD);
 
-    const predefinedEmail = process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL;
-    const predefinedPassword = process.env.NEXT_PUBLIC_PYRO_GUEST_PASSWORD;
+    // Call stripeTrialAuthenticator to check the trial status
+    try {
+      const trialInfo = await stripeTrialAuthenticator(email);
+      console.log(trialInfo);
 
-    // Using signInWithEmailAndPassword with predefined credentials
-    signInWithEmailAndPassword(auth, predefinedEmail, predefinedPassword)
-      .then(async (userCredential) => {
-        // User is signed in with predefined credentials
-        // Here you can add the logic that should happen after successful login
+      if (!trialInfo.trial) {
+        // If trial is false, show a SweetAlert and don't proceed further
+        let trialDurationMessage = trialInfo.trialEnd
+          ? `Your last trial ended on ${trialInfo.trialEnd}.`
+          : "You have not had a trial period.";
 
-        // Example: Redirecting to another page
-        router.push("/create_ad"); // Redirect to the desired page after login
-      })
-      .catch((error) => {
-        // Handle errors here
         Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: "There was an error during the login process: " + error.message,
+          icon: "info",
+          title: "Trial Expired",
+          text: trialDurationMessage,
         });
+        return;
+      }
+
+      // Proceed with the login process if the trial is true
+      const predefinedEmail = process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL;
+      const predefinedPassword = process.env.NEXT_PUBLIC_PYRO_GUEST_PASSWORD;
+
+      signInWithEmailAndPassword(auth, predefinedEmail, predefinedPassword)
+        .then(async (userCredential) => {
+          // Logic after successful login
+          router.push("/create_ad");
+        })
+        .catch((error) => {
+          // Handle login errors
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text:
+              "There was an error during the login process: " + error.message,
+          });
+        });
+    } catch (error) {
+      // Handle errors from stripeTrialAuthenticator
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          "An error occurred while verifying trial status: " + error.message,
       });
+    }
   };
 
   const handleForgotPassword = () => {
@@ -108,7 +132,7 @@ const TrialLoginPage = () => {
 
             <h2 className="text-center mb-4">Pyro Trial Login</h2>
             <p className="text-center mb-5">
-              Please enter the email you used to sign up for the Pyro trial
+              Please enter your email address for access to the PYRO 7-day trial
             </p>
             <style jsx global>{`
               input:-webkit-autofill,
@@ -177,7 +201,13 @@ const TrialLoginPage = () => {
 
             <div className="my-3">
               <p className="text-center">
-                Don&apos;t have an account?{" "}
+                Already a subscriber?{" "}
+                <a href="/login" style={{ color: "#fff", fontWeight: "bold" }}>
+                  Login
+                </a>
+              </p>
+              <p className="text-center">
+                Want to become a subscriber?{" "}
                 <a href="/signup" style={{ color: "#fff", fontWeight: "bold" }}>
                   Sign Up
                 </a>
