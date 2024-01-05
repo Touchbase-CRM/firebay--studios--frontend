@@ -283,7 +283,7 @@ function CreateAd() {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: '{"text":"hello Kaveen 2"}',
+      body: JSON.stringify({ text: originalScriptString }),
     };
 
     fetch(
