@@ -53,6 +53,7 @@ function CreateAd() {
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
+  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -91,6 +92,15 @@ function CreateAd() {
 
     fetchVoiceOptions();
   }, []);
+
+  useEffect(() => {
+    // This will be called when generatedVoiceUrl changes, performing cleanup of the old URL
+    return () => {
+      if (generatedVoiceUrl) {
+        URL.revokeObjectURL(generatedVoiceUrl);
+      }
+    };
+  }, [generatedVoiceUrl]);
 
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
@@ -267,7 +277,31 @@ function CreateAd() {
     }
   };
   const handleGenerateVoice = async () => {
-    console.log("Generating voice...");
+    const options = {
+      method: "POST",
+      headers: {
+        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: '{"text":"hello Kaveen 2"}',
+    };
+
+    fetch(
+      "https://api.elevenlabs.io/v1/text-to-speech/6wLJ4Wm2OxvAvetEUBCS",
+      options
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.blob(); // Get a blob when the content is audio/mp3
+        }
+        throw new Error("Network response was not ok.");
+      })
+      .then((blob) => {
+        // Create a URL from the blob
+        const audioUrl = URL.createObjectURL(blob);
+        setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
+      })
+      .catch((err) => console.error(err));
   };
 
   const dropdownItems = [
@@ -480,7 +514,9 @@ function CreateAd() {
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
-              audioSrc={baseVoicePreviewsUrl + voicePreviewFilename}
+              audioSrc={
+                generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
+              }
               audioTitle={voiceName}
             />
           </div>
