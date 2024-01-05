@@ -192,6 +192,9 @@ function CreateAd() {
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
       setShouldPlayAudio(true);
+
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(""); // This line is added to reset the URL
     } else {
       // Handle the case when no metadata is found
       console.log(
@@ -208,10 +211,15 @@ function CreateAd() {
       voiceName: voiceName,
     });
 
-    if (voiceAudioPlayerRef.current) {
-      voiceAudioPlayerRef.current.src = voiceId;
-      voiceAudioPlayerRef.current.load();
-      voiceAudioPlayerRef.current.play();
+    // Assuming you want to play the new voice preview immediately
+    if (metadata.newVoicePreviewFilename) {
+      const previewUrl =
+        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      if (voiceAudioPlayerRef.current) {
+        voiceAudioPlayerRef.current.src = previewUrl;
+        voiceAudioPlayerRef.current.load();
+        voiceAudioPlayerRef.current.play();
+      }
     }
   };
 
@@ -286,10 +294,7 @@ function CreateAd() {
       body: JSON.stringify({ text: originalScriptString }),
     };
 
-    fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/6wLJ4Wm2OxvAvetEUBCS",
-      options
-    )
+    fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, options)
       .then((response) => {
         if (response.ok) {
           return response.blob(); // Get a blob when the content is audio/mp3
