@@ -266,6 +266,9 @@ function CreateAd() {
       console.error("Error opening portal: ", error);
     }
   };
+  const handleGenerateVoice = async () => {
+    console.log("Generating voice...");
+  };
 
   const dropdownItems = [
     {
@@ -442,6 +445,7 @@ function CreateAd() {
                   </span>
                 ))}
               </div>
+
               <div
                 style={{
                   position: "absolute",
@@ -461,6 +465,17 @@ function CreateAd() {
                 </Button>
               </div>
             </Card.Body>
+            {/* Position the Generate Voice button at the bottom right of the card */}
+            <Button
+              onClick={handleGenerateVoice}
+              style={{
+                position: "absolute", // Position the button absolutely
+                bottom: "10px", // 10px from the bottom
+                right: "10px", // 10px from the right
+              }}
+            >
+              Generate Voice
+            </Button>
           </Card>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
