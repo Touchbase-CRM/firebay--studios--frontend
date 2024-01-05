@@ -33,11 +33,11 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
-    script,
-    setScript,
-    newScript,
-    setNewScript,
-    transformedWords,
+    ogScriptWordsArray, //holds the original script words as an array of strings.
+    setOgScriptWordsArray,
+    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+    setOriginalScriptString,
+    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
     setTransformedWords,
     voiceId,
     setVoiceId,
@@ -104,7 +104,8 @@ function CreateAd() {
 
   const transformWord = (action) => {
     let currentWord =
-      transformedWords[selectedWordIndex] || script[selectedWordIndex];
+      transformedWords[selectedWordIndex] ||
+      ogScriptWordsArray[selectedWordIndex];
 
     switch (action) {
       case "upper":
@@ -133,17 +134,17 @@ function CreateAd() {
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setNewScript(updatedScript);
+    setOriginalScriptString(updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
     newWords.forEach((word, index) => {
-      if (script[index] === word && transformedWords[index]) {
+      if (ogScriptWordsArray[index] === word && transformedWords[index]) {
         newTransformedWords[index] = transformedWords[index];
       }
     });
 
-    setScript(newWords);
+    setOgScriptWordsArray(newWords);
     setTransformedWords(newTransformedWords);
   };
 
@@ -207,7 +208,7 @@ function CreateAd() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (newScript.length > charLimit) {
+    if (originalScriptString.length > charLimit) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -215,7 +216,7 @@ function CreateAd() {
       });
       return;
     }
-    if (newScript.length < 1) {
+    if (originalScriptString.length < 1) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -394,7 +395,7 @@ function CreateAd() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={newScript}
+                  value={originalScriptString}
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
@@ -403,7 +404,7 @@ function CreateAd() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {newScript.length}/{charLimit}
+                  {originalScriptString.length}/{charLimit}
                 </div>
               </Form.Group>
 
@@ -419,7 +420,7 @@ function CreateAd() {
                   marginTop: "10px",
                 }}
               >
-                {script.map((word, index) => (
+                {ogScriptWordsArray.map((word, index) => (
                   <span
                     key={index}
                     onClick={(e) => handleLeftClick(e, index)}

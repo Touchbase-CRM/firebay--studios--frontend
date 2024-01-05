@@ -44,7 +44,7 @@ function AddMusic() {
     setBackgroundMusicFilename,
     musicVol,
     setMusicVol,
-    script,
+    ogScriptWordsArray,
     transformedWords,
     voiceId,
     adLength,
@@ -174,7 +174,7 @@ function AddMusic() {
     setPreviewFileName(previewFilename);
   };
   const getFinalScript = () => {
-    return script
+    return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };

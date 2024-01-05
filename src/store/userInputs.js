@@ -4,9 +4,9 @@ import { create } from "zustand";
 // Default values
 const defaultState = {
   // create ad page defaults
-  script: "".split(" "),
-  newScript: "",
-  transformedWords: {},
+  ogScriptWordsArray: "".split(" "), //holds the original script words as an array of strings.
+  originalScriptString: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+  transformedWords: {}, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word. Words without transforms are not included.
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",
@@ -24,8 +24,9 @@ const useUserInputsStore = create((set) => ({
   ...defaultState,
 
   // Setters
-  setScript: (script) => set({ script }),
-  setNewScript: (newScript) => set({ newScript }),
+  setOgScriptWordsArray: (ogScriptWordsArray) => set({ ogScriptWordsArray }),
+  setOriginalScriptString: (originalScriptString) =>
+    set({ originalScriptString }),
   setTransformedWords: (transformedWords) => set({ transformedWords }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
