@@ -33,11 +33,11 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
-    script,
+    script, //holds the original script words as an array of strings.
     setScript,
-    newScript,
+    newScript, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
     setNewScript,
-    transformedWords,
+    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
     setTransformedWords,
     voiceId,
     setVoiceId,

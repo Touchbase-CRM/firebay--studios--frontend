@@ -4,9 +4,9 @@ import { create } from "zustand";
 // Default values
 const defaultState = {
   // create ad page defaults
-  script: "".split(" "),
-  newScript: "",
-  transformedWords: {},
+  script: "".split(" "), //holds the original script words as an array of strings.
+  newScript: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+  transformedWords: {}, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",
