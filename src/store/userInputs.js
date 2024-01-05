@@ -5,7 +5,7 @@ import { create } from "zustand";
 const defaultState = {
   // create ad page defaults
   script: "".split(" "), //holds the original script words as an array of strings.
-  newScript: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+  originalScriptString: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
   transformedWords: {}, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
@@ -25,7 +25,8 @@ const useUserInputsStore = create((set) => ({
 
   // Setters
   setScript: (script) => set({ script }),
-  setNewScript: (newScript) => set({ newScript }),
+  setOriginalScriptString: (originalScriptString) =>
+    set({ originalScriptString }),
   setTransformedWords: (transformedWords) => set({ transformedWords }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
