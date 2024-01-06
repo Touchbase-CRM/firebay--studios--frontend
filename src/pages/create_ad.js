@@ -284,6 +284,13 @@ function CreateAd() {
       console.error("Error opening portal: ", error);
     }
   };
+
+  const getFinalScript = () => {
+    return ogScriptWordsArray
+      .map((word, index) => transformedWords[index] || word)
+      .join(" ");
+  };
+
   const handleGenerateVoice = async () => {
     const options = {
       method: "POST",
@@ -291,7 +298,7 @@ function CreateAd() {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: originalScriptString }),
+      body: JSON.stringify({ text: getFinalScript() }),
     };
 
     fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, options)
