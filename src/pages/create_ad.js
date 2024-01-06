@@ -484,38 +484,39 @@ function CreateAd() {
                   </span>
                 ))}
               </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: "10px",
-                  fontSize: "small",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                }}
-              >
-                <Button
-                  className="mt-3"
-                  style={{ marginRight: "10px", marginTop: "20px" }}
-                  onClick={handleSubmit}
-                >
-                  Next
-                </Button>
-              </div>
             </Card.Body>
             {/* Position the Generate Voice button at the bottom right of the card */}
             <Button
               onClick={handleGenerateVoice}
               style={{
-                position: "absolute", // Position the button absolutely
+                position: "absolute", // Keep the button positioned absolutely
                 bottom: "10px", // 10px from the bottom
-                right: "10px", // 10px from the right
+                left: "50%", // Position the button at 50% of the parent element's width
+                transform: "translateX(-50%)", // This will center the button
+                width: "60%",
               }}
             >
               Generate Voice
             </Button>
           </Card>
+          <div
+            style={{
+              // position: "absolute",
+              // bottom: "10px",
+              // left: "10px",
+              fontSize: "small",
+              fontWeight: "bold",
+              fontStyle: "italic",
+            }}
+          >
+            <Button
+              className="mt-3"
+              style={{ marginRight: "10px", marginTop: "20px" }}
+              onClick={handleSubmit}
+            >
+              Next
+            </Button>
+          </div>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
