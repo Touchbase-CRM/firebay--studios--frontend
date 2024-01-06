@@ -37,7 +37,7 @@ function CreateAd() {
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
     setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
+    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
     setTransformedWords,
     voiceId,
     setVoiceId,
@@ -249,6 +249,14 @@ function CreateAd() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!historyItemId) {
+      showAlert(
+        "info",
+        "Action Required",
+        "Please generate the voice audio before proceeding further."
+      );
+      return;
+    }
 
     const isValid = validateScript(
       originalScriptString,
