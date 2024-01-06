@@ -54,6 +54,7 @@ function CreateAd() {
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
+  const [historyItemId, setHistoryItemId] = useState(null);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -301,19 +302,34 @@ function CreateAd() {
       body: JSON.stringify({ text: getFinalScript() }),
     };
 
-    fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, options)
-      .then((response) => {
-        if (response.ok) {
-          return response.blob(); // Get a blob when the content is audio/mp3
-        }
+    try {
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        options
+      );
+      if (!response.ok) {
         throw new Error("Network response was not ok.");
-      })
-      .then((blob) => {
-        // Create a URL from the blob
+      }
+
+      // Extract history_item_id from headers
+      const historyItemId = response.headers.get("history-item-id");
+      if (historyItemId) {
+        setHistoryItemId(historyItemId); // Update state with history_item_id
+        console.log("History Item ID:", historyItemId); // Log the history item ID
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("audio/")) {
+        // Handle audio response
+        const blob = await response.blob();
         const audioUrl = URL.createObjectURL(blob);
         setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
-      })
-      .catch((err) => console.error(err));
+      } else {
+        throw new Error("Unexpected content type received.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const dropdownItems = [
