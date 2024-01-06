@@ -17,6 +17,8 @@ const defaultState = {
   previewFileName: "preview_Electro Sport_Rock.mp3",
   backgroundMusicFilename: "Electro Sport_Rock.mp3",
   musicVol: 0.1,
+  generatedVoiceUrl: "",
+  historyItemId: null,
 };
 
 const useUserInputsStore = create((set) => ({
@@ -39,6 +41,8 @@ const useUserInputsStore = create((set) => ({
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
   setBackgroundMusicFilename: (backgroundMusicFilename) =>
     set({ backgroundMusicFilename }),
+  setGeneratedVoiceUrl: (generatedVoiceUrl) => set({ generatedVoiceUrl }),
+  setHistoryItemId: (historyItemId) => set({ historyItemId }),
 
   // Reset function
   reset: () => set({ ...defaultState }),

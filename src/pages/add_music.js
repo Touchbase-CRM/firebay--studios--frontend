@@ -49,6 +49,7 @@ function AddMusic() {
     voiceId,
     adLength,
     reset,
+    historyItemId,
   } = useUserInputsStore();
 
   const goBack = () => {

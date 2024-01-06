@@ -47,14 +47,16 @@ function CreateAd() {
     setVoicePreviewFilename,
     adLength,
     setAdLength,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
+    historyItemId,
+    setHistoryItemId,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
-  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
-  const [historyItemId, setHistoryItemId] = useState(null);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -315,7 +317,6 @@ function CreateAd() {
       const historyItemId = response.headers.get("history-item-id");
       if (historyItemId) {
         setHistoryItemId(historyItemId); // Update state with history_item_id
-        console.log("History Item ID:", historyItemId); // Log the history item ID
       }
 
       const contentType = response.headers.get("content-type");
