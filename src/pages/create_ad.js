@@ -258,6 +258,10 @@ function CreateAd() {
     );
 
     if (!isValid) return;
+
+    if (!historyItemId) {
+      handleGenerateVoice();
+    }
   };
 
   const handleLogout = () => {
