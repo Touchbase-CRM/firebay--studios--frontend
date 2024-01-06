@@ -108,6 +108,27 @@ function CreateAd() {
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
+  const validateScript = (script, charLimit, onSuccess, onFailure) => {
+    if (script.length > charLimit) {
+      onFailure("error", "Oops...", "You have too many characters!");
+      return false; // Indicate failure
+    }
+    if (script.length < 1) {
+      onFailure("error", "Oops...", "You cannot have an empty script!");
+      return false; // Indicate failure
+    }
+    onSuccess();
+    return true; // Indicate success
+  };
+
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+    });
+  };
+
   const handleLeftClick = (event, index) => {
     event.preventDefault();
     setShowMenu(!showMenu);
@@ -229,24 +250,14 @@ function CreateAd() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (originalScriptString.length > charLimit) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "You have too many characters!",
-      });
-      return;
-    }
-    if (originalScriptString.length < 1) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "You cannot have an empty script!",
-      });
-      return;
-    }
+    const isValid = validateScript(
+      originalScriptString,
+      charLimit,
+      () => setFormSubmitted(true),
+      showAlert
+    );
 
-    setFormSubmitted(true);
+    if (!isValid) return;
   };
 
   const handleLogout = () => {
@@ -295,6 +306,14 @@ function CreateAd() {
   };
 
   const handleGenerateVoice = async () => {
+    const isValid = validateScript(
+      originalScriptString,
+      charLimit,
+      () => {},
+      showAlert
+    );
+
+    if (!isValid) return;
     const options = {
       method: "POST",
       headers: {
