@@ -56,7 +56,6 @@ function CreateAd() {
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
-  const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -206,7 +205,6 @@ function CreateAd() {
       setVoiceId(metadata.newVoiceId);
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
-      setShouldPlayAudio(true);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
