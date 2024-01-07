@@ -566,7 +566,7 @@ function CreateAd() {
                     size="sm"
                     role="status"
                     aria-hidden="true"
-                  />
+                  />{" "}
                   Generating...
                 </span>
               ) : (
