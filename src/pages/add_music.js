@@ -34,8 +34,6 @@ function AddMusic() {
 
   // Zustand store hooks
   const {
-    noMusic,
-    setNoMusic,
     chosenMusic,
     setChosenMusic,
     previewFileName,
@@ -43,11 +41,10 @@ function AddMusic() {
     backgroundMusicFilename,
     setBackgroundMusicFilename,
     setMusicVol,
-    ogScriptWordsArray,
-    transformedWords,
     adLength,
     reset,
     historyItemId,
+    generatedVoiceUrl,
   } = useUserInputsStore();
 
   const goBack = () => {
@@ -171,6 +168,13 @@ function AddMusic() {
       await fetchBackgroundMusicMetaData(selectedMusic);
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
+  };
+  const handleSkipMusic = () => {
+    // Redirect to the download page with the generatedVoiceUrl
+    router.push({
+      pathname: "/download",
+      query: { audioUrl: generatedVoiceUrl },
+    });
   };
 
   const handleSubmit = (e) => {
@@ -350,24 +354,12 @@ function AddMusic() {
               Add Background Music
             </h2>
             <Form onSubmit={handleSubmit}>
-              <Form.Group controlId="noMusic">
-                <Form.Check
-                  type="checkbox"
-                  label="No Music"
-                  checked={noMusic}
-                  onChange={() => setNoMusic(!noMusic)}
-                />
-              </Form.Group>
-
-              <br></br>
-
               <Form.Group controlId="chosenMusic">
                 <Form.Label>Choose Music</Form.Label>
                 <Form.Select
                   aria-label="Music selection"
                   value={chosenMusic}
                   onChange={handleMusicChange}
-                  disabled={noMusic}
                   style={{ color: "black" }}
                 >
                   {musicChoices.map((musicOption, index) => (
@@ -402,6 +394,13 @@ function AddMusic() {
 
               <Button type="submit" className="mt-3">
                 Submit
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSkipMusic}
+                style={{ position: "absolute", bottom: "20px", right: "20px" }} // Adjust position as needed
+              >
+                Skip Music
               </Button>
             </Form>
           </Card>
