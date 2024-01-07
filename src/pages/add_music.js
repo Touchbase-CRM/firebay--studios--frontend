@@ -200,8 +200,8 @@ function AddMusic() {
 
     // Endpoint URL
     // prettier-ignore
-    // const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
-    const url = "http://localhost:8000/generate-mix"; // For local testing
+    const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
+    // const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
@@ -396,7 +396,7 @@ function AddMusic() {
                 Submit
               </Button>
               <Button
-                variant="primary"
+                variant="danger"
                 onClick={handleSkipMusic}
                 style={{ position: "absolute", bottom: "20px", right: "20px" }} // Adjust position as needed
               >
