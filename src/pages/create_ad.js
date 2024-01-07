@@ -475,7 +475,7 @@ function CreateAd() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "600px",
+              height: "800px",
               marginBottom: "10px",
             }}
           >
