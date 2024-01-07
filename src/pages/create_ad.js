@@ -96,15 +96,6 @@ function CreateAd() {
     fetchVoiceOptions();
   }, []);
 
-  useEffect(() => {
-    // This will be called when generatedVoiceUrl changes, performing cleanup of the old URL
-    return () => {
-      if (generatedVoiceUrl) {
-        URL.revokeObjectURL(generatedVoiceUrl);
-      }
-    };
-  }, [generatedVoiceUrl]);
-
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
@@ -326,6 +317,11 @@ function CreateAd() {
     );
 
     if (!isValid) return;
+
+    if (generatedVoiceUrl) {
+      URL.revokeObjectURL(generatedVoiceUrl);
+    }
+
     const options = {
       method: "POST",
       headers: {
