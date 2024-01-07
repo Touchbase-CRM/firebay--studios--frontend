@@ -37,7 +37,7 @@ function CreateAd() {
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
     setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word.
+    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
     setTransformedWords,
     voiceId,
     setVoiceId,
@@ -47,12 +47,15 @@ function CreateAd() {
     setVoicePreviewFilename,
     adLength,
     setAdLength,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
+    historyItemId,
+    setHistoryItemId,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
-  const [shouldPlayAudio, setShouldPlayAudio] = useState(false);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -94,6 +97,27 @@ function CreateAd() {
 
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
+  const validateScript = (script, charLimit, onSuccess, onFailure) => {
+    if (script.length > charLimit) {
+      onFailure("error", "Oops...", "You have too many characters!");
+      return false; // Indicate failure
+    }
+    if (script.length < 1) {
+      onFailure("error", "Oops...", "You cannot have an empty script!");
+      return false; // Indicate failure
+    }
+    onSuccess();
+    return true; // Indicate success
+  };
+
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+    });
+  };
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
@@ -181,7 +205,9 @@ function CreateAd() {
       setVoiceId(metadata.newVoiceId);
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
-      setShouldPlayAudio(true);
+
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(""); // This line is added to reset the URL
     } else {
       // Handle the case when no metadata is found
       console.log(
@@ -198,34 +224,41 @@ function CreateAd() {
       voiceName: voiceName,
     });
 
-    if (voiceAudioPlayerRef.current) {
-      voiceAudioPlayerRef.current.src = voiceId;
-      voiceAudioPlayerRef.current.load();
-      voiceAudioPlayerRef.current.play();
+    // Assuming you want to play the new voice preview immediately
+    if (metadata.newVoicePreviewFilename) {
+      const previewUrl =
+        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      if (voiceAudioPlayerRef.current) {
+        voiceAudioPlayerRef.current.src = previewUrl;
+        voiceAudioPlayerRef.current.load();
+        voiceAudioPlayerRef.current.play();
+      }
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (originalScriptString.length > charLimit) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "You have too many characters!",
-      });
-      return;
-    }
-    if (originalScriptString.length < 1) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "You cannot have an empty script!",
-      });
+    if (!historyItemId) {
+      showAlert(
+        "info",
+        "Action Required",
+        "Please generate the voice audio before proceeding further."
+      );
       return;
     }
 
-    setFormSubmitted(true);
+    const isValid = validateScript(
+      originalScriptString,
+      charLimit,
+      () => setFormSubmitted(true),
+      showAlert
+    );
+
+    if (!isValid) return;
+
+    if (!historyItemId) {
+      handleGenerateVoice();
+    }
   };
 
   const handleLogout = () => {
@@ -264,6 +297,64 @@ function CreateAd() {
       window.open(portalUrl, "_blank");
     } catch (error) {
       console.error("Error opening portal: ", error);
+    }
+  };
+
+  const getFinalScript = () => {
+    return ogScriptWordsArray
+      .map((word, index) => transformedWords[index] || word)
+      .join(" ");
+  };
+
+  const handleGenerateVoice = async () => {
+    const isValid = validateScript(
+      originalScriptString,
+      charLimit,
+      () => {},
+      showAlert
+    );
+
+    if (!isValid) return;
+
+    if (generatedVoiceUrl) {
+      URL.revokeObjectURL(generatedVoiceUrl);
+    }
+
+    const options = {
+      method: "POST",
+      headers: {
+        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: getFinalScript() }),
+    };
+
+    try {
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        options
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      // Extract history_item_id from headers
+      const historyItemId = response.headers.get("history-item-id");
+      if (historyItemId) {
+        setHistoryItemId(historyItemId); // Update state with history_item_id
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("audio/")) {
+        // Handle audio response
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
+      } else {
+        throw new Error("Unexpected content type received.");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -382,7 +473,7 @@ function CreateAd() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "600px",
+              height: "800px",
               marginBottom: "10px",
             }}
           >
@@ -442,30 +533,45 @@ function CreateAd() {
                   </span>
                 ))}
               </div>
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: "10px",
-                  fontSize: "small",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                }}
-              >
-                <Button
-                  className="mt-3"
-                  style={{ marginRight: "10px", marginTop: "20px" }}
-                  onClick={handleSubmit}
-                >
-                  Next
-                </Button>
-              </div>
             </Card.Body>
+            {/* Position the Generate Voice button at the bottom right of the card */}
+            <Button
+              onClick={handleGenerateVoice}
+              style={{
+                position: "absolute", // Keep the button positioned absolutely
+                bottom: "10px", // 10px from the bottom
+                left: "50%", // Position the button at 50% of the parent element's width
+                transform: "translateX(-50%)", // This will center the button
+                width: "60%",
+              }}
+            >
+              Generate Voice
+            </Button>
           </Card>
+          <div
+            style={{
+              // position: "absolute",
+              // bottom: "10px",
+              // left: "10px",
+              fontSize: "small",
+              fontWeight: "bold",
+              fontStyle: "italic",
+            }}
+          >
+            <Button
+              className="mt-3"
+              style={{ marginRight: "10px", marginTop: "20px" }}
+              onClick={handleSubmit}
+            >
+              Next
+            </Button>
+          </div>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
-              audioSrc={baseVoicePreviewsUrl + voicePreviewFilename}
+              audioSrc={
+                generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
+              }
               audioTitle={voiceName}
             />
           </div>

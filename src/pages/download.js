@@ -22,11 +22,11 @@ const db = getFirestore(app);
 const DownloadPage = () => {
   const posthog = usePostHog();
   const router = useRouter();
-  const { audioUrl } = router.query;
+  const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
   const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset } = useUserInputsStore();
+  const { reset, generatedVoiceUrl } = useUserInputsStore();
 
   useEffect(() => {
     if (user?.uid) {
@@ -85,6 +85,9 @@ const DownloadPage = () => {
   const handleNewAd = () => {
     reset();
     router.push("/create_ad");
+    if (generatedVoiceUrl) {
+      URL.revokeObjectURL(generatedVoiceUrl);
+    }
     URL.revokeObjectURL(audioUrl);
   };
 

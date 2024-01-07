@@ -34,21 +34,17 @@ function AddMusic() {
 
   // Zustand store hooks
   const {
-    noMusic,
-    setNoMusic,
     chosenMusic,
     setChosenMusic,
     previewFileName,
     setPreviewFileName,
     backgroundMusicFilename,
     setBackgroundMusicFilename,
-    musicVol,
     setMusicVol,
-    ogScriptWordsArray,
-    transformedWords,
-    voiceId,
     adLength,
     reset,
+    historyItemId,
+    generatedVoiceUrl,
   } = useUserInputsStore();
 
   const goBack = () => {
@@ -173,10 +169,12 @@ function AddMusic() {
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
   };
-  const getFinalScript = () => {
-    return ogScriptWordsArray
-      .map((word, index) => transformedWords[index] || word)
-      .join(" ");
+  const handleSkipMusic = () => {
+    // Redirect to the download page with the generatedVoiceUrl
+    router.push({
+      pathname: "/download",
+      query: { audioUrl: generatedVoiceUrl },
+    });
   };
 
   const handleSubmit = (e) => {
@@ -195,18 +193,15 @@ function AddMusic() {
 
     const payload = {
       user_id: userId,
-      no_music: noMusic,
       music_choice: backgroundMusicFilename,
-      script: getFinalScript(),
-      voice: voiceId,
       ad_length: adLength,
-      music_vol: musicVol, // technical debt
+      history_item_id: historyItemId,
     };
 
     // Endpoint URL
     // prettier-ignore
-    const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
+    // const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
+    const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
@@ -359,24 +354,12 @@ function AddMusic() {
               Add Background Music
             </h2>
             <Form onSubmit={handleSubmit}>
-              <Form.Group controlId="noMusic">
-                <Form.Check
-                  type="checkbox"
-                  label="No Music"
-                  checked={noMusic}
-                  onChange={() => setNoMusic(!noMusic)}
-                />
-              </Form.Group>
-
-              <br></br>
-
               <Form.Group controlId="chosenMusic">
                 <Form.Label>Choose Music</Form.Label>
                 <Form.Select
                   aria-label="Music selection"
                   value={chosenMusic}
                   onChange={handleMusicChange}
-                  disabled={noMusic}
                   style={{ color: "black" }}
                 >
                   {musicChoices.map((musicOption, index) => (
@@ -411,6 +394,13 @@ function AddMusic() {
 
               <Button type="submit" className="mt-3">
                 Submit
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSkipMusic}
+                style={{ position: "absolute", bottom: "20px", right: "20px" }} // Adjust position as needed
+              >
+                Skip Music
               </Button>
             </Form>
           </Card>

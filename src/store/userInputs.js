@@ -12,11 +12,12 @@ const defaultState = {
   voicePreviewFilename: "male/charley.mp3",
   adLength: "30",
   // add music page defaults
-  noMusic: false,
   chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
   backgroundMusicFilename: "Electro Sport_Rock.mp3",
-  musicVol: 0.1,
+  // musicVol: 0.1,
+  generatedVoiceUrl: "",
+  historyItemId: null,
 };
 
 const useUserInputsStore = create((set) => ({
@@ -33,12 +34,13 @@ const useUserInputsStore = create((set) => ({
   setVoicePreviewFilename: (filename) =>
     set(() => ({ voicePreviewFilename: filename })),
   setAdLength: (adLength) => set({ adLength }),
-  setNoMusic: (noMusic) => set({ noMusic }),
   setChosenMusic: (chosenMusic) => set({ chosenMusic }),
-  setMusicVol: (musicVol) => set({ musicVol }),
+  // setMusicVol: (musicVol) => set({ musicVol }),
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
   setBackgroundMusicFilename: (backgroundMusicFilename) =>
     set({ backgroundMusicFilename }),
+  setGeneratedVoiceUrl: (generatedVoiceUrl) => set({ generatedVoiceUrl }),
+  setHistoryItemId: (historyItemId) => set({ historyItemId }),
 
   // Reset function
   reset: () => set({ ...defaultState }),
