@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Button,
+  Spinner,
+} from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
@@ -56,6 +65,7 @@ function CreateAd() {
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
+  const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -315,6 +325,7 @@ function CreateAd() {
     );
 
     if (!isValid) return;
+    setIsGeneratingVoice(true);
 
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
@@ -356,6 +367,7 @@ function CreateAd() {
     } catch (err) {
       console.error(err);
     }
+    setIsGeneratingVoice(false);
   };
 
   const dropdownItems = [
@@ -537,15 +549,29 @@ function CreateAd() {
             {/* Position the Generate Voice button at the bottom right of the card */}
             <Button
               onClick={handleGenerateVoice}
+              disabled={isGeneratingVoice} // Disable button when audio is being generated
               style={{
-                position: "absolute", // Keep the button positioned absolutely
-                bottom: "10px", // 10px from the bottom
-                left: "50%", // Position the button at 50% of the parent element's width
-                transform: "translateX(-50%)", // This will center the button
+                position: "absolute",
+                bottom: "10px",
+                left: "50%",
+                transform: "translateX(-50%)",
                 width: "60%",
               }}
             >
-              Generate Voice
+              {isGeneratingVoice ? (
+                <span>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  Generating...
+                </span>
+              ) : (
+                "Generate Voice"
+              )}
             </Button>
           </Card>
           <div
