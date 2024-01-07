@@ -42,13 +42,12 @@ function AddMusic() {
     setPreviewFileName,
     backgroundMusicFilename,
     setBackgroundMusicFilename,
-    musicVol,
     setMusicVol,
     ogScriptWordsArray,
     transformedWords,
-    voiceId,
     adLength,
     reset,
+    historyItemId,
   } = useUserInputsStore();
 
   const goBack = () => {
@@ -173,11 +172,6 @@ function AddMusic() {
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
   };
-  const getFinalScript = () => {
-    return ogScriptWordsArray
-      .map((word, index) => transformedWords[index] || word)
-      .join(" ");
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -195,18 +189,15 @@ function AddMusic() {
 
     const payload = {
       user_id: userId,
-      no_music: noMusic,
       music_choice: backgroundMusicFilename,
-      script: getFinalScript(),
-      voice: voiceId,
       ad_length: adLength,
-      music_vol: musicVol, // technical debt
+      history_item_id: historyItemId,
     };
 
     // Endpoint URL
     // prettier-ignore
-    const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
+    // const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
+    const url = "http://localhost:8000/generate-mix"; // For local testing
 
     // Send POST request to the API
     axios
