@@ -644,10 +644,10 @@ function CreateAd() {
               </h6>
               <button
                 className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel1")}
+                onClick={() => transformWord("emphasizeLevel3")}
                 style={{ marginBottom: "8px", fontSize: "12px" }}
               >
-                Low Emphasis
+                High Emphasis
               </button>
               <button
                 className="btn btn-light"
@@ -658,10 +658,10 @@ function CreateAd() {
               </button>
               <button
                 className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel3")}
+                onClick={() => transformWord("emphasizeLevel1")}
                 style={{ marginBottom: "8px", fontSize: "12px" }}
               >
-                High Emphasis
+                Low Emphasis
               </button>
 
               <button
