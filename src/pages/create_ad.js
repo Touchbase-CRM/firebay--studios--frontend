@@ -155,6 +155,12 @@ function CreateAd() {
           transformedWords[selectedWordIndex] = `'${currentWord}'`;
         }
         break;
+      case "emphasizeLevel3":
+        // Uppercase the word
+        let upperCasedWord = currentWord.toUpperCase();
+        // Wrap with emphasis
+        transformedWords[selectedWordIndex] = `'${upperCasedWord}'`;
+        break;
       case "reset":
         delete transformedWords[selectedWordIndex];
         break;
@@ -638,10 +644,10 @@ function CreateAd() {
               </button>
               <button
                 className="btn btn-light"
-                onClick={() => transformWord("lower")}
+                onClick={() => transformWord("emphasizeLevel3")}
                 style={{ marginBottom: "8px", fontSize: "12px" }}
               >
-                Lower Case
+                Emphasis Level 3
               </button>
               <button
                 className="btn btn-light"
