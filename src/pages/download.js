@@ -24,29 +24,29 @@ const DownloadPage = () => {
   const router = useRouter();
   const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
-  const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
+  // const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
   const { reset, generatedVoiceUrl } = useUserInputsStore();
 
-  useEffect(() => {
-    if (user?.uid) {
-      const docRef = doc(db, "uid_to_org", user.uid);
+  // useEffect(() => {
+  //   if (user?.uid) {
+  //     const docRef = doc(db, "uid_to_org", user.uid);
 
-      getDoc(docRef)
-        .then((docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setCredits({
-              creditLeft: data.credit_left,
-              creditAllowance: data.credit_allowance,
-            });
-          }
-        })
-        .catch((error) => {
-          console.log("Error getting document:", error);
-        });
-    }
-  }, [user?.uid]);
+  //     getDoc(docRef)
+  //       .then((docSnap) => {
+  //         if (docSnap.exists()) {
+  //           const data = docSnap.data();
+  //           setCredits({
+  //             creditLeft: data.credit_left,
+  //             creditAllowance: data.credit_allowance,
+  //           });
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.log("Error getting document:", error);
+  //       });
+  //   }
+  // }, [user?.uid]);
 
   const handleDownload = () => {
     setIsDownloading(true); // Set downloading state to true
@@ -57,29 +57,29 @@ const DownloadPage = () => {
     });
 
     // Decrement credit_left in the database
-    const docRef = doc(db, "uid_to_org", user.uid);
-    runTransaction(db, (transaction) => {
-      return transaction.get(docRef).then((docSnap) => {
-        if (!docSnap.exists()) {
-          throw "Document does not exist!";
-        }
+    // const docRef = doc(db, "uid_to_org", user.uid);
+    // runTransaction(db, (transaction) => {
+    //   return transaction.get(docRef).then((docSnap) => {
+    //     if (!docSnap.exists()) {
+    //       throw "Document does not exist!";
+    //     }
 
-        let newCreditLeft = (docSnap.data().credit_left || 0) - 1;
-        transaction.update(docRef, { credit_left: newCreditLeft });
-        return newCreditLeft; // This value is passed to the .then() handler
-      });
-    })
-      .then((newCreditLeft) => {
-        setCredits({
-          ...credits,
-          creditLeft: newCreditLeft,
-        });
-        setIsDownloading(false); // Set downloading state to false after download
-      })
-      .catch((error) => {
-        console.error("Transaction failed: ", error);
-        setIsDownloading(false); // Set downloading state to false if transaction fails
-      });
+    //     let newCreditLeft = (docSnap.data().credit_left || 0) - 1;
+    //     transaction.update(docRef, { credit_left: newCreditLeft });
+    //     return newCreditLeft; // This value is passed to the .then() handler
+    //   });
+    // })
+    //   .then((newCreditLeft) => {
+    //     setCredits({
+    //       ...credits,
+    //       creditLeft: newCreditLeft,
+    //     });
+    //     setIsDownloading(false); // Set downloading state to false after download
+    //   })
+    //   .catch((error) => {
+    //     console.error("Transaction failed: ", error);
+    //     setIsDownloading(false); // Set downloading state to false if transaction fails
+    //   });
   };
 
   const handleNewAd = () => {
@@ -288,18 +288,18 @@ const DownloadPage = () => {
               padding: "12px 16px",
             }}
           >
-            <small style={{ float: "right", fontSize: "16px" }}>
-              Credits left: {credits.creditLeft}/{credits.creditAllowance}
-            </small>
+            {/* <small style={{ float: "right", fontSize: "16px" }}> */}
+            {/* Credits left: {credits.creditLeft}/{credits.creditAllowance} */}
+            {/* </small> */}
           </Card.Footer>
         </Card>
       </div>
 
-      {credits.creditLeft > 0 && (
-        <div>
-          <SimpleAudioPlayer audioTitle="" audioSrc={audioUrl} />
-        </div>
-      )}
+      {/* {credits.creditLeft > 0 && ( */}
+      <div>
+        <SimpleAudioPlayer audioTitle="" audioSrc={audioUrl} />
+      </div>
+      {/* )} */}
     </div>
   );
 };
