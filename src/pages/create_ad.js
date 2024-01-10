@@ -141,28 +141,35 @@ function CreateAd() {
       transformedWords[selectedWordIndex] ||
       ogScriptWordsArray[selectedWordIndex];
 
+    // Function to remove all existing emphasis (quotes and uppercase)
+    const removeExistingEmphasis = (word) => {
+      if (word.startsWith("'") && word.endsWith("'")) {
+        // Remove only the outer quotes
+        return word.slice(1, -1);
+      }
+      return word; // Return the word as is if it doesn't have outer quotes
+    };
+
     switch (action) {
-      case "upper":
-        transformedWords[selectedWordIndex] = currentWord.toUpperCase();
+      case "emphasizeLevel1":
+        transformedWords[selectedWordIndex] =
+          removeExistingEmphasis(currentWord).toUpperCase();
         break;
-      case "lower":
-        transformedWords[selectedWordIndex] = currentWord.toLowerCase();
-        break;
-      case "emphasize":
-        if (currentWord.startsWith("'") && currentWord.endsWith("'")) {
-          transformedWords[selectedWordIndex] = currentWord.slice(1, -1);
-        } else {
-          transformedWords[selectedWordIndex] = `'${currentWord}'`;
-        }
+      case "emphasizeLevel2":
+        // Use the original form of the word for Level 2
+        transformedWords[
+          selectedWordIndex
+        ] = `'${ogScriptWordsArray[selectedWordIndex]}'`;
         break;
       case "emphasizeLevel3":
-        // Uppercase the word
-        let upperCasedWord = currentWord.toUpperCase();
-        // Wrap with emphasis
-        transformedWords[selectedWordIndex] = `'${upperCasedWord}'`;
+        // Uppercase the original form and add quotes
+        transformedWords[selectedWordIndex] = `'${ogScriptWordsArray[
+          selectedWordIndex
+        ].toUpperCase()}'`;
         break;
-      case "reset":
-        delete transformedWords[selectedWordIndex];
+      case "removeEmphasis":
+        transformedWords[selectedWordIndex] =
+          ogScriptWordsArray[selectedWordIndex]; // Reset to original word
         break;
       default:
         break;
@@ -637,32 +644,32 @@ function CreateAd() {
               </h6>
               <button
                 className="btn btn-light"
-                onClick={() => transformWord("upper")}
+                onClick={() => transformWord("emphasizeLevel1")}
                 style={{ marginBottom: "8px", fontSize: "12px" }}
               >
-                Upper Case
+                Low Emphasis
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasizeLevel2")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Medium Emphasis
               </button>
               <button
                 className="btn btn-light"
                 onClick={() => transformWord("emphasizeLevel3")}
                 style={{ marginBottom: "8px", fontSize: "12px" }}
               >
-                Emphasis Level 3
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasize")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Emphasize
+                High Emphasis
               </button>
 
               <button
                 className="btn btn-light"
                 style={{ marginBottom: "8px", fontSize: "12px" }}
-                onClick={() => transformWord("reset")}
+                onClick={() => transformWord("removeEmphasis")}
               >
-                Reset Word
+                Remove Emphasis
               </button>
 
               <button
@@ -670,7 +677,7 @@ function CreateAd() {
                 onClick={() => setShowMenu(false)}
                 style={{ fontSize: "12px" }}
               >
-                Close
+                Close Menu
               </button>
             </div>
           )}
