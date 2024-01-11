@@ -18,6 +18,7 @@ const defaultState = {
   // musicVol: 0.1,
   generatedVoiceUrl: "",
   historyItemId: null,
+  modelId: "eleven_multilingual_v2",
 };
 
 const useUserInputsStore = create((set) => ({
@@ -41,6 +42,7 @@ const useUserInputsStore = create((set) => ({
     set({ backgroundMusicFilename }),
   setGeneratedVoiceUrl: (generatedVoiceUrl) => set({ generatedVoiceUrl }),
   setHistoryItemId: (historyItemId) => set({ historyItemId }),
+  setModelId: (modelId) => set({ modelId }),
 
   // Reset function
   reset: () => set({ ...defaultState }),

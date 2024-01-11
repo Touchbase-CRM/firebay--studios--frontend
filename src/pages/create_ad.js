@@ -60,6 +60,8 @@ function CreateAd() {
     setGeneratedVoiceUrl,
     historyItemId,
     setHistoryItemId,
+    modelId,
+    setModelId,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
@@ -209,6 +211,7 @@ function CreateAd() {
         return {
           newVoiceId: docData.elevenlabs_id,
           newVoicePreviewFilename: docData.voice_preview_filename,
+          newVoiceModelId: docData.model_id,
         };
       } else {
         console.log("No matching documents found for voice:", voiceName);
@@ -224,10 +227,16 @@ function CreateAd() {
     const selectedVoiceName = e.target.value;
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
 
-    if (metadata && metadata.newVoiceId && metadata.newVoicePreviewFilename) {
+    if (
+      metadata &&
+      metadata.newVoiceId &&
+      metadata.newVoicePreviewFilename &&
+      metadata.newVoiceModelId
+    ) {
       setVoiceId(metadata.newVoiceId);
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
+      setModelId(metadata.newVoiceModelId);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
@@ -350,7 +359,7 @@ function CreateAd() {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: getFinalScript() }),
+      body: JSON.stringify({ text: getFinalScript(), model_id: modelId }),
     };
 
     try {
