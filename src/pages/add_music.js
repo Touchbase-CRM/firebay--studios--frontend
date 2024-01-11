@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Button,
+  Spinner as BootstrapSpinner,
+} from "react-bootstrap";
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
@@ -354,8 +363,21 @@ function AddMusic() {
               Add Background Music
             </h2>
             <Form onSubmit={handleSubmit}>
-              <Form.Group controlId="chosenMusic">
-                <Form.Label>Choose Music</Form.Label>
+              {musicChoices.length === 0 ? (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Form.Select
+                    aria-label="Music selection"
+                    disabled
+                    style={{ color: "black" }}
+                  >
+                    <option>Loading music choices...</option>
+                  </Form.Select>
+                  <BootstrapSpinner
+                    animation="border"
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+              ) : (
                 <Form.Select
                   aria-label="Music selection"
                   value={chosenMusic}
@@ -368,7 +390,7 @@ function AddMusic() {
                     </option>
                   ))}
                 </Form.Select>
-              </Form.Group>
+              )}
 
               {/* <div style={{ marginTop: "20px" }}>
                 <label htmlFor="volumeControl" className="form-label">
@@ -398,12 +420,17 @@ function AddMusic() {
               <Button
                 variant="danger"
                 onClick={handleSkipMusic}
-                style={{ position: "absolute", bottom: "20px", right: "20px" }} // Adjust position as needed
+                style={{
+                  position: "absolute",
+                  bottom: "20px",
+                  right: "20px",
+                }} // Adjust position as needed
               >
                 Skip Music
               </Button>
             </Form>
           </Card>
+
           <div>
             <SimpleAudioPlayer
               audioTitle={chosenMusic}

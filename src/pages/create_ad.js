@@ -480,20 +480,36 @@ function CreateAd() {
 
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
-                <Form.Select
-                  aria-label="Voice select"
-                  value={voiceName} // This should be the voice name, not the ID
-                  onChange={handleVoiceChange}
-                  style={{ color: "black" }}
-                >
-                  {voiceOptions.map((voice, index) => (
-                    <option key={index} value={voice}>
-                      {" "}
-                      {/* Use unique index or better yet, a unique ID */}
-                      {voice}
-                    </option>
-                  ))}
-                </Form.Select>
+                {voiceOptions.length === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Voice select"
+                      disabled
+                      style={{ color: "black" }}
+                    >
+                      <option>Loading voice choices...</option>
+                    </Form.Select>
+                    <Spinner
+                      animation="border"
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </div>
+                ) : (
+                  <Form.Select
+                    aria-label="Voice select"
+                    value={voiceName} // This should be the voice name, not the ID
+                    onChange={handleVoiceChange}
+                    style={{ color: "black" }}
+                  >
+                    {voiceOptions.map((voice, index) => (
+                      <option key={index} value={voice}>
+                        {" "}
+                        {/* Use unique index or better yet, a unique ID */}
+                        {voice}
+                      </option>
+                    ))}
+                  </Form.Select>
+                )}
               </Form.Group>
             </Form>
           </Card>
