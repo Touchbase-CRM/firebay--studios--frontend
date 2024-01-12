@@ -48,7 +48,8 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     setIsLoading(true); // Start loading
-    setStatusMessage("Step 1 of 2: Creating your Pyro account...");
+    // setStatusMessage("Step 1 of 2: Creating your Pyro account...");
+    setStatusMessage("Creating your Pyro account...");
 
     if (password !== confirmPassword) {
       Swal.fire({
@@ -100,25 +101,29 @@ const SignupPage = () => {
 
       await batch.commit();
 
-      setStatusMessage("Step 1 of 2: Your Pyro account has been created.");
+      // setStatusMessage("Step 1 of 2: Your Pyro account has been created.");
+      setStatusMessage("Your Pyro account has been created.");
+
       // Wait a moment before changing the message
-      setTimeout(
-        () =>
-          setStatusMessage(
-            "Step 2 of 2: Redirecting you to the payment page, sit tight..."
-          ),
-        2000
-      );
+      // setTimeout(
+      //   () =>
+      //     setStatusMessage(
+      //       "Step 2 of 2: Redirecting you to the payment page, sit tight..."
+      //     ),
+      //   2000
+      // );
 
-      // Define your Stripe priceId here (or fetch it as needed)
-      const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
-      // const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp"; // test priceId
+      // // Define your Stripe priceId here (or fetch it as needed)
+      // const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
+      // // const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp"; // test priceId
 
-      // Call the getCheckoutUrl function to get the Stripe checkout URL
-      const checkoutUrl = await getCheckoutUrl(app, priceId);
+      // // Call the getCheckoutUrl function to get the Stripe checkout URL
+      // const checkoutUrl = await getCheckoutUrl(app, priceId);
 
-      // Redirect the user to the Stripe checkout page in the same window
-      window.location.href = checkoutUrl;
+      // // Redirect the user to the Stripe checkout page in the same window
+      // window.location.href = checkoutUrl;
+
+      router.push("/create_ad"); // remove this once the pricing is determined.
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
