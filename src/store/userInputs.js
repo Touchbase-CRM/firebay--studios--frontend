@@ -15,7 +15,7 @@ const defaultState = {
   chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
   backgroundMusicFilename: "Electro Sport_Rock.mp3",
-  // musicVol: 0.1,
+  musicVol: 0.1,
   generatedVoiceUrl: "",
   historyItemId: null,
   modelId: "eleven_multilingual_v2",
@@ -36,7 +36,7 @@ const useUserInputsStore = create((set) => ({
     set(() => ({ voicePreviewFilename: filename })),
   setAdLength: (adLength) => set({ adLength }),
   setChosenMusic: (chosenMusic) => set({ chosenMusic }),
-  // setMusicVol: (musicVol) => set({ musicVol }),
+  setMusicVol: (musicVol) => set({ musicVol }),
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
   setBackgroundMusicFilename: (backgroundMusicFilename) =>
     set({ backgroundMusicFilename }),

@@ -49,6 +49,7 @@ function AddMusic() {
     setPreviewFileName,
     backgroundMusicFilename,
     setBackgroundMusicFilename,
+    musicVol,
     setMusicVol,
     adLength,
     reset,
@@ -392,27 +393,28 @@ function AddMusic() {
                 </Form.Select>
               )}
 
-              {/* <div style={{ marginTop: "20px" }}>
-                <label htmlFor="volumeControl" className="form-label">
-                  Music Volume Control
-                  <i
-                    style={{ marginLeft: "5px", color: "white" }}
-                    className="bi bi-info-circle"
-                    title="Note: The volume selected here will not affect the preview volume."
-                  ></i>
-                </label>
-                <input
-                  type="range"
-                  className="form-range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  id="volumeControl"
-                  defaultValue={musicVol}
-                  onChange={handleVolumeChange}
-                  disabled={noMusic}
-                />
-              </div> */}
+              {
+                <div style={{ marginTop: "20px" }}>
+                  <label htmlFor="volumeControl" className="form-label">
+                    Music Volume Control
+                    <i
+                      style={{ marginLeft: "5px", color: "white" }}
+                      className="bi bi-info-circle"
+                      title="Note: The volume selected here will not affect the preview volume."
+                    ></i>
+                  </label>
+                  <input
+                    type="range"
+                    className="form-range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    id="volumeControl"
+                    defaultValue={musicVol}
+                    onChange={handleVolumeChange}
+                  />
+                </div>
+              }
 
               <Button type="submit" className="mt-3">
                 Submit
