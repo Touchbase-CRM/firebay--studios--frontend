@@ -36,6 +36,9 @@ function AddMusic() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+  const [isVolumeLoading, setIsVolumeLoading] = useState(false);
+  const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
+  // ... [existing useEffect and functions]
   const router = useRouter();
 
   const posthog = usePostHog();
@@ -128,9 +131,34 @@ function AddMusic() {
     });
   };
 
-  const handleVolumeChange = (event) => {
+  const handleVolumeChange = async (event) => {
     const newVolume = event.target.value;
     setMusicVol(newVolume);
+    setIsVolumeLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/music_preview_volume_change",
+        {
+          music_vol: newVolume,
+          music_choice: previewFileName,
+          user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
+        },
+        {
+          responseType: "arraybuffer",
+        }
+      );
+
+      if (response.data) {
+        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setVolAdjustedMusicPreview(audioUrl);
+      }
+    } catch (error) {
+      console.error("Error fetching updated music file:", error);
+    } finally {
+      setIsVolumeLoading(false);
+    }
   };
 
   const fetchBackgroundMusicMetaData = async (musicChoice) => {
@@ -412,6 +440,7 @@ function AddMusic() {
                     id="volumeControl"
                     defaultValue={musicVol}
                     onChange={handleVolumeChange}
+                    disabled={isVolumeLoading}
                   />
                 </div>
               }
@@ -436,7 +465,10 @@ function AddMusic() {
           <div>
             <SimpleAudioPlayer
               audioTitle={chosenMusic}
-              audioSrc={baseMusicPreviewsUrl + previewFileName}
+              audioSrc={
+                volAdjustedMusicPreview ||
+                baseMusicPreviewsUrl + previewFileName
+              }
             />
           </div>
         </Col>
