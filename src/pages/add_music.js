@@ -32,18 +32,6 @@ import app from "../firebase";
 const db = getFirestore(app);
 
 function AddMusic() {
-  const baseMusicPreviewsUrl =
-    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
-  const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
-  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
-  const [isVolumeLoading, setIsVolumeLoading] = useState(false);
-  const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
-
-  const router = useRouter();
-
-  const posthog = usePostHog();
-  const auth = getAuth();
-
   // Zustand store hooks
   const {
     chosenMusic,
@@ -59,6 +47,22 @@ function AddMusic() {
     historyItemId,
     generatedVoiceUrl,
   } = useUserInputsStore();
+
+  const baseMusicPreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
+  const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
+  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+  const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
+
+  const router = useRouter();
+
+  const posthog = usePostHog();
+  const auth = getAuth();
+
+  // prettier-ignore
+  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
   );
@@ -141,11 +145,10 @@ function AddMusic() {
   const handleVolumeChange = async (event) => {
     const newVolume = event.target.value;
     setMusicVol(newVolume);
-    setIsVolumeLoading(true);
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/music_preview_volume_change",
+        `${musicGenWebServiceUrl}/music_preview_volume_change`,
         {
           music_vol: newVolume,
           music_choice: previewFileName,
@@ -163,8 +166,6 @@ function AddMusic() {
       }
     } catch (error) {
       console.error("Error fetching updated music file:", error);
-    } finally {
-      setIsVolumeLoading(false);
     }
   };
 
@@ -245,9 +246,8 @@ function AddMusic() {
 
     // Endpoint URL
     // prettier-ignore
-    const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
-
+    const url =`${musicGenWebServiceUrl}/generate-mix`;
+    console.log(url);
     // Send POST request to the API
     axios
       .post(url, payload, {
@@ -477,7 +477,7 @@ function AddMusic() {
                   position: "absolute",
                   bottom: "20px",
                   right: "20px",
-                }} // Adjust position as needed
+                }}
               >
                 Skip Music
               </Button>
@@ -500,4 +500,3 @@ function AddMusic() {
 }
 
 export default withAuth(AddMusic);
-//another line
