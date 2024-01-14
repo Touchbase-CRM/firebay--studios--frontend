@@ -439,7 +439,8 @@ function AddMusic() {
                     step="0.01"
                     id="volumeControl"
                     defaultValue={musicVol}
-                    onChange={handleVolumeChange}
+                    onMouseUp={handleVolumeChange} // triggered when the mouse button is released
+                    onTouchEnd={handleVolumeChange} // triggered when the touch is ended
                     disabled={isVolumeLoading}
                   />
                 </div>
