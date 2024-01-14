@@ -38,7 +38,7 @@ function AddMusic() {
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [isVolumeLoading, setIsVolumeLoading] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
-  // ... [existing useEffect and functions]
+
   const router = useRouter();
 
   const posthog = usePostHog();
@@ -59,6 +59,9 @@ function AddMusic() {
     historyItemId,
     generatedVoiceUrl,
   } = useUserInputsStore();
+  const [volumePercentage, setVolumePercentage] = useState(
+    Math.round(musicVol * 100)
+  );
 
   const goBack = () => {
     router.back();
@@ -129,6 +132,10 @@ function AddMusic() {
       confirmButtonText: "OK",
       allowOutsideClick: false,
     });
+  };
+
+  const handleMouseMove = (event) => {
+    setVolumePercentage(Math.round(event.target.value * 100));
   };
 
   const handleVolumeChange = async (event) => {
@@ -431,18 +438,32 @@ function AddMusic() {
                       title="Note: The volume selected here will not affect the preview volume."
                     ></i>
                   </label>
-                  <input
-                    type="range"
-                    className="form-range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    id="volumeControl"
-                    defaultValue={musicVol}
-                    onMouseUp={handleVolumeChange} // triggered when the mouse button is released
-                    onTouchEnd={handleVolumeChange} // triggered when the touch is ended
-                    disabled={isVolumeLoading}
-                  />
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="range"
+                      className="form-range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      id="volumeControl"
+                      defaultValue={musicVol}
+                      onMouseMove={handleMouseMove} // Update the displayed percentage on mouse move
+                      onMouseUp={handleVolumeChange} // Update the state and perform other actions when mouse is released
+                      onTouchEnd={handleVolumeChange} // Similarly for touch devices
+                    />
+                    <div
+                      style={{
+                        backgroundColor: "black",
+                        color: "white",
+                        padding: "2px 5px",
+                        marginLeft: "10px",
+                        borderRadius: "10px",
+                        fontSize: "0.9em",
+                      }}
+                    >
+                      {volumePercentage}%
+                    </div>
+                  </div>
                 </div>
               }
 
