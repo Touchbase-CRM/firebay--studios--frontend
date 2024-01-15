@@ -26,8 +26,7 @@ const DownloadPage = () => {
   const { user } = useAuth();
   // const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset, generatedVoiceUrl } = useUserInputsStore();
-
+  const { reset, generatedVoiceUrl, musicVol } = useUserInputsStore();
   // useEffect(() => {
   //   if (user?.uid) {
   //     const docRef = doc(db, "uid_to_org", user.uid);

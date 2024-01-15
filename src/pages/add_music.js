@@ -60,6 +60,7 @@ function AddMusic() {
   const posthog = usePostHog();
   const auth = getAuth();
   const defaultVolume = 0.1; // 10%
+  const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
   const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
@@ -77,10 +78,14 @@ function AddMusic() {
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
-    // Reset volume when selectedMusic changes
-    setMusicVol(defaultVolume);
-    setVolumePercentage(Math.round(defaultVolume * 100));
-    setVolAdjustedMusicPreview(null);
+    if (previousChosenMusic.current !== chosenMusic) {
+      // Reset volume only if the music choice has actually changed
+      setMusicVol(defaultVolume);
+      setVolumePercentage(Math.round(defaultVolume * 100));
+      setVolAdjustedMusicPreview(null);
+
+      previousChosenMusic.current = chosenMusic; // Update the ref to the current music choice
+    }
   }, [chosenMusic]);
 
   useEffect(() => {
