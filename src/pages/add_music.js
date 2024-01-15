@@ -53,11 +53,13 @@ function AddMusic() {
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
+  const [tempVolume, setTempVolume] = useState(musicVol);
 
   const router = useRouter();
 
   const posthog = usePostHog();
   const auth = getAuth();
+  const defaultVolume = 0.1; // 10%
 
   // prettier-ignore
   const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
@@ -73,6 +75,13 @@ function AddMusic() {
 
   // Cancel token source for the Axios request
   const cancelTokenSourceRef = useRef(null);
+
+  useEffect(() => {
+    // Reset volume when selectedMusic changes
+    setMusicVol(defaultVolume);
+    setVolumePercentage(Math.round(defaultVolume * 100));
+    setVolAdjustedMusicPreview(null);
+  }, [chosenMusic]);
 
   useEffect(() => {
     const fetchMusicChoices = async () => {
@@ -142,9 +151,9 @@ function AddMusic() {
     setVolumePercentage(Math.round(event.target.value * 100));
   };
 
-  const handleVolumeChange = async (event) => {
-    const newVolume = event.target.value;
+  const handleVolumeChange = async (newVolume) => {
     setMusicVol(newVolume);
+    setVolumePercentage(Math.round(newVolume * 100));
 
     try {
       const response = await axios.post(
@@ -225,7 +234,6 @@ function AddMusic() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(backgroundMusicFilename);
     setPendingAdvertisement(true); // Set pending before API call starts
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
@@ -447,9 +455,9 @@ function AddMusic() {
                       max="1"
                       step="0.01"
                       id="volumeControl"
-                      defaultValue={musicVol}
-                      onMouseMove={handleMouseMove} // Update the displayed percentage on mouse move
-                      onMouseUp={handleVolumeChange} // Update the state and perform other actions when mouse is released
+                      value={musicVol}
+                      onChange={(e) => setTempVolume(e.target.value)} // Update temporary volume
+                      onMouseUp={() => handleVolumeChange(tempVolume)} // Apply changes on mouse up
                       onTouchEnd={handleVolumeChange} // Similarly for touch devices
                     />
                     <div
