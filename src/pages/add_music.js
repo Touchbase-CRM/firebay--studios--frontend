@@ -242,6 +242,7 @@ function AddMusic() {
       music_choice: backgroundMusicFilename,
       ad_length: adLength,
       history_item_id: historyItemId,
+      music_vol: musicVol,
     };
 
     // Endpoint URL
