@@ -32,15 +32,6 @@ import app from "../firebase";
 const db = getFirestore(app);
 
 function AddMusic() {
-  const baseMusicPreviewsUrl =
-    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
-  const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
-  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
-  const router = useRouter();
-
-  const posthog = usePostHog();
-  const auth = getAuth();
-
   // Zustand store hooks
   const {
     chosenMusic,
@@ -49,12 +40,32 @@ function AddMusic() {
     setPreviewFileName,
     backgroundMusicFilename,
     setBackgroundMusicFilename,
+    musicVol,
     setMusicVol,
     adLength,
     reset,
     historyItemId,
     generatedVoiceUrl,
   } = useUserInputsStore();
+
+  const baseMusicPreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
+  const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
+  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+  const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
+
+  const router = useRouter();
+
+  const posthog = usePostHog();
+  const auth = getAuth();
+
+  // prettier-ignore
+  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+
+  const [volumePercentage, setVolumePercentage] = useState(
+    Math.round(musicVol * 100)
+  );
 
   const goBack = () => {
     router.back();
@@ -127,9 +138,35 @@ function AddMusic() {
     });
   };
 
-  const handleVolumeChange = (event) => {
+  const handleMouseMove = (event) => {
+    setVolumePercentage(Math.round(event.target.value * 100));
+  };
+
+  const handleVolumeChange = async (event) => {
     const newVolume = event.target.value;
     setMusicVol(newVolume);
+
+    try {
+      const response = await axios.post(
+        `${musicGenWebServiceUrl}/music_preview_volume_change`,
+        {
+          music_vol: newVolume,
+          music_choice: previewFileName,
+          user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
+        },
+        {
+          responseType: "arraybuffer",
+        }
+      );
+
+      if (response.data) {
+        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setVolAdjustedMusicPreview(audioUrl);
+      }
+    } catch (error) {
+      console.error("Error fetching updated music file:", error);
+    }
   };
 
   const fetchBackgroundMusicMetaData = async (musicChoice) => {
@@ -209,9 +246,8 @@ function AddMusic() {
 
     // Endpoint URL
     // prettier-ignore
-    const url ="https://vgz580uujk.execute-api.us-east-2.amazonaws.com/generate-mix"; // For production
-    // const url = "http://localhost:8000/generate-mix"; // For local testing
-
+    const url =`${musicGenWebServiceUrl}/generate-mix`;
+    console.log(url);
     // Send POST request to the API
     axios
       .post(url, payload, {
@@ -392,27 +428,44 @@ function AddMusic() {
                 </Form.Select>
               )}
 
-              {/* <div style={{ marginTop: "20px" }}>
-                <label htmlFor="volumeControl" className="form-label">
-                  Music Volume Control
-                  <i
-                    style={{ marginLeft: "5px", color: "white" }}
-                    className="bi bi-info-circle"
-                    title="Note: The volume selected here will not affect the preview volume."
-                  ></i>
-                </label>
-                <input
-                  type="range"
-                  className="form-range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  id="volumeControl"
-                  defaultValue={musicVol}
-                  onChange={handleVolumeChange}
-                  disabled={noMusic}
-                />
-              </div> */}
+              {
+                <div style={{ marginTop: "20px" }}>
+                  <label htmlFor="volumeControl" className="form-label">
+                    Music Volume Control
+                    <i
+                      style={{ marginLeft: "5px", color: "white" }}
+                      className="bi bi-info-circle"
+                      title="Note: The volume selected here will not affect the preview volume."
+                    ></i>
+                  </label>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="range"
+                      className="form-range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      id="volumeControl"
+                      defaultValue={musicVol}
+                      onMouseMove={handleMouseMove} // Update the displayed percentage on mouse move
+                      onMouseUp={handleVolumeChange} // Update the state and perform other actions when mouse is released
+                      onTouchEnd={handleVolumeChange} // Similarly for touch devices
+                    />
+                    <div
+                      style={{
+                        backgroundColor: "black",
+                        color: "white",
+                        padding: "2px 5px",
+                        marginLeft: "10px",
+                        borderRadius: "10px",
+                        fontSize: "0.9em",
+                      }}
+                    >
+                      {volumePercentage}%
+                    </div>
+                  </div>
+                </div>
+              }
 
               <Button type="submit" className="mt-3">
                 Submit
@@ -424,7 +477,7 @@ function AddMusic() {
                   position: "absolute",
                   bottom: "20px",
                   right: "20px",
-                }} // Adjust position as needed
+                }}
               >
                 Skip Music
               </Button>
@@ -434,7 +487,10 @@ function AddMusic() {
           <div>
             <SimpleAudioPlayer
               audioTitle={chosenMusic}
-              audioSrc={baseMusicPreviewsUrl + previewFileName}
+              audioSrc={
+                volAdjustedMusicPreview ||
+                baseMusicPreviewsUrl + previewFileName
+              }
             />
           </div>
         </Col>
@@ -444,4 +500,3 @@ function AddMusic() {
 }
 
 export default withAuth(AddMusic);
-//another line
