@@ -49,7 +49,7 @@ function AddMusic() {
   } = useUserInputsStore();
 
   const baseMusicPreviewsUrl =
-    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews/";
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews--low--vol/";
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
