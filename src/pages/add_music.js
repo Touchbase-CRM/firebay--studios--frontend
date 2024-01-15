@@ -446,11 +446,6 @@ function AddMusic() {
                 <div style={{ marginTop: "20px" }}>
                   <label htmlFor="volumeControl" className="form-label">
                     Music Volume Control
-                    <i
-                      style={{ marginLeft: "5px", color: "white" }}
-                      className="bi bi-info-circle"
-                      title="Note: The volume selected here will not affect the preview volume."
-                    ></i>
                   </label>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <input
