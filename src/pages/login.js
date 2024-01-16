@@ -53,7 +53,7 @@ const LoginPage = () => {
           // }
 
           // If the user has an active subscription and verified email, redirect to the create_ad page
-          router.push("/create_ad");
+          router.push("/home");
         } catch (error) {
           Swal.fire({
             icon: "error",
