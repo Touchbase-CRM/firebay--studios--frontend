@@ -249,12 +249,12 @@ function CreateAd() {
     }
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    posthog.capture("create-ad-voice-change-drop-down-expanded", {
-      date: new Date().toISOString(),
-      userId: userId,
-      voiceId: voiceId,
-      voiceName: voiceName,
-    });
+    // posthog.capture("create-ad-voice-change-drop-down-expanded", {
+    //   date: new Date().toISOString(),
+    //   userId: userId,
+    //   voiceId: voiceId,
+    //   voiceName: voiceName,
+    // });
 
     // Assuming you want to play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
