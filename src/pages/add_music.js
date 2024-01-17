@@ -152,10 +152,6 @@ function AddMusic() {
     });
   };
 
-  const handleMouseMove = (event) => {
-    setVolumePercentage(Math.round(event.target.value * 100));
-  };
-
   const handleVolumeChange = async (newVolume) => {
     setMusicVol(newVolume);
     setVolumePercentage(Math.round(newVolume * 100));
@@ -230,6 +226,11 @@ function AddMusic() {
     setPreviewFileName(previewFilename);
   };
   const handleSkipMusic = () => {
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+    posthog.capture("add-music-skip-music-button-clicked", {
+      date: new Date().toISOString(), // Capture the current date and time in ISO format
+      userId: userId, // Capture the Firebase user ID
+    });
     // Redirect to the download page with the generatedVoiceUrl
     router.push({
       pathname: "/download",
@@ -261,7 +262,6 @@ function AddMusic() {
     // Endpoint URL
     // prettier-ignore
     const url =`${musicGenWebServiceUrl}/generate-mix`;
-    console.log(url);
     // Send POST request to the API
     axios
       .post(url, payload, {
