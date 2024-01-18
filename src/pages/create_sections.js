@@ -1,45 +1,25 @@
 import React, { useState, useEffect } from "react";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Navbar,
-  Nav,
-  Button,
-  Spinner,
-} from "react-bootstrap";
+import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
-
-import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
 function CreateSections() {
-  const posthog = usePostHog();
   const auth = getAuth();
 
   const router = useRouter();
 
   // Zustand store hooks
-  const {
-    adLength,
-    setAdLength,
-    originalScriptString,
-    setOriginalScriptString,
-    originalScriptForSectionSplit,
-    setOriginalScriptForSectionSplit,
-    sectionsQueue,
-    enqueueSection,
-    dequeueSection,
-  } = useUserInputsStore();
+  const { adLength, setAdLength, sectionsQueue, enqueueSection } =
+    useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
+  const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
+    useState("");
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -194,7 +174,7 @@ function CreateSections() {
               {/* Message to display when script is empty */}
               {originalScriptForSectionSplit === "" && (
                 <div className="alert alert-info" role="alert">
-                  <strong>Quick guide to Pyro Sections</strong>
+                  <strong>Quick Guide to Pyro Sections</strong>
                   <br />
                   In Pyro Advanced Ad Generation mode, we split your script into
                   "sections". A section is the smallest unit of voice over that

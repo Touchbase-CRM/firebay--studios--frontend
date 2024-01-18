@@ -8,7 +8,6 @@ const defaultState = {
   ogScriptWordsArray: "".split(" "), //holds the original script words as an array of strings.
   originalScriptString: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
   transformedWords: {}, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word. Words without transforms are not included.
-  originalScriptForSectionSplit: "",
   sectionsQueue: new Queue(),
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
@@ -33,8 +32,6 @@ const useUserInputsStore = create((set) => ({
   setOriginalScriptString: (originalScriptString) =>
     set({ originalScriptString }),
   setTransformedWords: (transformedWords) => set({ transformedWords }),
-  setOriginalScriptForSectionSplit: (originalScriptForSectionSplit) =>
-    set({ originalScriptForSectionSplit }),
   setVoiceId: (voiceId) => set({ voiceId }),
   setVoiceName: (voiceName) => set({ voiceName }),
   setVoicePreviewFilename: (filename) =>
