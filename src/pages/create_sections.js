@@ -217,19 +217,32 @@ function CreateSections() {
           >
             <Card.Body>
               <Card.Title>Script Editor</Card.Title>
+              <Form.Group controlId="adLength">
+                <Form.Label>Choose Ad Length</Form.Label>
+                <Form.Select
+                  aria-label="Ad length select"
+                  value={adLength}
+                  onChange={(e) => setAdLength(e.target.value)}
+                  style={{ color: "black", marginBottom: "20px" }}
+                >
+                  <option value="30">30 seconds</option>
+                  <option value="60">60 seconds</option>
+                </Form.Select>
+              </Form.Group>
               {/* Message to display when script is empty */}
               {originalScriptString === "" && (
                 <div className="alert alert-info" role="alert">
                   <strong>Quick guide to Pyro Sections</strong>
                   <br />
-                  In Pyro, we split your script into "sections". A section is
-                  the smallest unit of voice over that has the same voice
-                  properties such as voice actor, intonation, emotions, etc.
-                  Note that a section can be either a sentence or a fragment in
-                  Pyro, so anywhere you have included period symbol with one or
-                  more proceeding white spaces, we will treat it as a new
-                  section. Moreover, if you don't have trailing spaces after a
-                  period symbol, we will not treat it as a new section.
+                  In Pyro Advanced Ad Generation mode, we split your script into
+                  "sections". A section is the smallest unit of voice over that
+                  has the same voice properties such as voice actor, intonation,
+                  emotions, etc. Note that a section can be either a sentence or
+                  a fragment in Pyro, so anywhere you have included period
+                  symbol with one or more proceeding white spaces, we will treat
+                  it as a new section. Moreover, if you don't have trailing
+                  spaces after a period symbol, we will not treat it as a new
+                  section.
                 </div>
               )}
 
@@ -271,9 +284,8 @@ function CreateSections() {
                       ))}
                     </ol>
                   ) : (
-                    <p style={{ color: "lightgray" }}>
-                      Write your script in the text area above and separate
-                      sections with a period followed by a space.
+                    <p style={{ color: "lightblue", fontStyle: "italic" }}>
+                      No sections found
                     </p>
                   )}
                 </div>
