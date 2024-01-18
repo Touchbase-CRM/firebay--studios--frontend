@@ -108,17 +108,8 @@ function CreateSections() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    const newWords = updatedScript.split(" ");
-    const newTransformedWords = {};
-
-    newWords.forEach((word, index) => {
-      if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-        newTransformedWords[index] = transformedWords[index];
-      }
-    });
-
-    setOgScriptWordsArray(newWords);
-    setTransformedWords(newTransformedWords);
+    const extractedSections = updatedScript.split(/\. +/).filter(Boolean);
+    setSections(extractedSections);
   };
 
   const handleSubmit = (e) => {
@@ -244,24 +235,6 @@ function CreateSections() {
                 </div>
               </Form.Group>
 
-              <div>
-                {" "}
-                <Form.Label>Sections from your script</Form.Label>
-                {ogScriptWordsArray.length > 0 ? (
-                  <ul>
-                    {ogScriptWordsArray.map((sentence, index) => (
-                      <li key={index} style={{ color: "orange" }}>
-                        {sentence}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{ color: "lightgray" }}>
-                    Write your script in the text area above and separate
-                    sections with a period followed by a space.
-                  </p>
-                )}
-              </div>
               <div
                 style={{
                   backgroundColor: "#282c34",
@@ -270,39 +243,38 @@ function CreateSections() {
                   marginTop: "10px",
                 }}
               >
-                {ogScriptWordsArray.map((word, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      marginRight: "5px",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      textDecorationColor: "transparent",
-                      color: "orange",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "orange")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.style.textDecorationColor = "transparent")
-                    }
-                  >
-                    {transformedWords[index] || word}
-                  </span>
-                ))}
+                <div>
+                  {" "}
+                  <Form.Label>Sections from your script</Form.Label>
+                  {sections.length > 0 ? (
+                    <ul>
+                      {sections.map((sentence, index) => (
+                        <li key={index} style={{ color: "orange" }}>
+                          {sentence}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p style={{ color: "lightgray" }}>
+                      Write your script in the text area above and separate
+                      sections with a period followed by a space.
+                    </p>
+                  )}
+                </div>
               </div>
+              <br></br>
+              {/* Display the number of sections found */}
+              {sections.length > 0 && (
+                <div className="alert alert-success" role="alert">
+                  We have found {sections.length} section
+                  {sections.length !== 1 ? "s" : ""} in your script. You will be
+                  prompted to produce the voice for these one by one in the next
+                  few steps.
+                </div>
+              )}
             </Card.Body>
           </Card>
-          <br></br>
-          {/* Display the number of sections found */}
-          {sections.length > 0 && (
-            <div className="alert alert-success" role="alert">
-              We have found {sections.length} section
-              {sections.length !== 1 ? "s" : ""} in your script. You will be
-              prompted to produce the voice for these one by one in the next few
-              steps.
-            </div>
-          )}
+
           <div
             style={{
               // position: "absolute",
