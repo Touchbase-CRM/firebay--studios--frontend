@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Row,
   Col,
@@ -17,59 +17,26 @@ import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
 
-import { getPortalUrl } from "../stripe_proxy_sdk";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
-
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  collection,
-  where,
-} from "firebase/firestore";
 
 function CreateSections() {
   const posthog = usePostHog();
   const auth = getAuth();
 
   const router = useRouter();
-  const voiceAudioPlayerRef = useRef(null);
 
   // Zustand store hooks
   const {
-    ogScriptWordsArray, //holds the original script words as an array of strings.
-    setOgScriptWordsArray,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
-    setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
-    setTransformedWords,
-    voiceId,
-    setVoiceId,
-    voiceName,
-    setVoiceName,
-    voicePreviewFilename,
-    setVoicePreviewFilename,
     adLength,
     setAdLength,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
-    historyItemId,
-    setHistoryItemId,
-    modelId,
-    setModelId,
+    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+    setOriginalScriptString,
+    originalScriptForSectionSplit,
+    setOriginalScriptForSectionSplit,
   } = useUserInputsStore();
 
-  // const [showExamples, setShowExamples] = useState(false);
-  const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
-  const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -107,7 +74,7 @@ function CreateSections() {
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setOriginalScriptString(updatedScript);
+    setOriginalScriptForSectionSplit(updatedScript);
     const extractedSections = updatedScript
       .split(/(?<!\.{2})\.(?!\.)\s+/)
       .filter(Boolean);
@@ -116,17 +83,14 @@ function CreateSections() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!historyItemId) {
-      showAlert(
-        "info",
-        "Action Required",
-        "Please generate the voice audio before proceeding further."
-      );
-      return;
-    }
+    showAlert(
+      "info",
+      "Action Required",
+      "Please generate the voice audio before proceeding further."
+    );
 
     const isValid = validateScript(
-      originalScriptString,
+      originalScriptForSectionSplit,
       charLimit,
       () => setFormSubmitted(true),
       showAlert
@@ -145,12 +109,6 @@ function CreateSections() {
       .catch((error) => {
         console.error("Logout Error:", error);
       });
-  };
-
-  const getFinalScript = () => {
-    return ogScriptWordsArray
-      .map((word, index) => transformedWords[index] || word)
-      .join(" ");
   };
 
   const wordCountStyle = {
@@ -230,7 +188,7 @@ function CreateSections() {
                 </Form.Select>
               </Form.Group>
               {/* Message to display when script is empty */}
-              {originalScriptString === "" && (
+              {originalScriptForSectionSplit === "" && (
                 <div className="alert alert-info" role="alert">
                   <strong>Quick guide to Pyro Sections</strong>
                   <br />
@@ -252,7 +210,7 @@ function CreateSections() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={originalScriptString}
+                  value={originalScriptForSectionSplit}
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
@@ -261,7 +219,7 @@ function CreateSections() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {originalScriptString.length}/{charLimit}
+                  {originalScriptForSectionSplit.length}/{charLimit}
                 </div>
               </Form.Group>
 
