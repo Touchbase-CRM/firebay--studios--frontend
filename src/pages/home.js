@@ -153,7 +153,7 @@ function Home() {
               </Link>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/create_ad_advanced" passHref>
+              <Link href="/create_sections" passHref>
                 <button
                   className="btn btn-outline-light btn-lg"
                   style={{ width: "100%" }}
