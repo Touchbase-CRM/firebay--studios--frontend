@@ -30,17 +30,19 @@ function CreateSections() {
   const {
     adLength,
     setAdLength,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+    originalScriptString,
     setOriginalScriptString,
     originalScriptForSectionSplit,
     setOriginalScriptForSectionSplit,
+    sectionsQueue,
+    enqueueSection,
+    dequeueSection,
   } = useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-  const [sections, setSections] = useState([]);
 
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -78,16 +80,18 @@ function CreateSections() {
     const extractedSections = updatedScript
       .split(/(?<!\.{2})\.(?!\.)\s+/)
       .filter(Boolean);
-    setSections(extractedSections);
+
+    // Clear the current queue before adding new sections
+    useUserInputsStore.getState().resetSectionsQueue();
+
+    // Enqueue each extracted section
+    extractedSections.forEach((section) => {
+      enqueueSection(section);
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    showAlert(
-      "info",
-      "Action Required",
-      "Please generate the voice audio before proceeding further."
-    );
 
     const isValid = validateScript(
       originalScriptForSectionSplit,
@@ -233,9 +237,9 @@ function CreateSections() {
               >
                 <div>
                   <Form.Label>Sections from your script</Form.Label>
-                  {sections.length > 0 ? (
+                  {sectionsQueue.size() > 0 ? (
                     <ol>
-                      {sections.map((sentence, index) => (
+                      {sectionsQueue.items.map((sentence, index) => (
                         <li key={index} style={{ color: "orange" }}>
                           {sentence}
                         </li>
@@ -251,12 +255,12 @@ function CreateSections() {
 
               <br></br>
               {/* Display the number of sections found */}
-              {sections.length > 0 && (
+              {sectionsQueue.size() > 0 && (
                 <div className="alert alert-success" role="alert">
-                  We have found {sections.length} section
-                  {sections.length !== 1 ? "s" : ""} in your script. You will be
-                  prompted to produce the voice for these one by one in the next
-                  few steps.
+                  We have found {sectionsQueue.size()} section
+                  {sectionsQueue.size() !== 1 ? "s" : ""} in your script. You
+                  will be prompted to produce the voice for these one by one in
+                  the next few steps.
                 </div>
               )}
             </Card.Body>

@@ -1,5 +1,6 @@
 // store/userInputs.js
 import { create } from "zustand";
+import { Queue } from "../dataStructures/queue";
 
 // Default values
 const defaultState = {
@@ -8,6 +9,7 @@ const defaultState = {
   originalScriptString: "", //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
   transformedWords: {}, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word. Words without transforms are not included.
   originalScriptForSectionSplit: "",
+  sectionsQueue: new Queue(),
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",
@@ -46,6 +48,24 @@ const useUserInputsStore = create((set) => ({
   setGeneratedVoiceUrl: (generatedVoiceUrl) => set({ generatedVoiceUrl }),
   setHistoryItemId: (historyItemId) => set({ historyItemId }),
   setModelId: (modelId) => set({ modelId }),
+
+  // Queue manipulation methods
+  enqueueSection: (section) =>
+    set((state) => {
+      const newQueue = new Queue();
+      newQueue.items = [...state.sectionsQueue.items, section];
+      return { sectionsQueue: newQueue };
+    }),
+
+  dequeueSection: () =>
+    set((state) => {
+      const newQueue = new Queue();
+      newQueue.items = [...state.sectionsQueue.items];
+      const dequeuedSection = newQueue.dequeue();
+      return { sectionsQueue: newQueue, dequeuedSection };
+    }),
+
+  resetSectionsQueue: () => set({ sectionsQueue: new Queue() }),
 
   // Reset function
   reset: () => set({ ...defaultState }),
