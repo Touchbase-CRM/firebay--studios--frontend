@@ -108,7 +108,9 @@ function CreateSections() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    const extractedSections = updatedScript.split(/\. +/).filter(Boolean);
+    const extractedSections = updatedScript
+      .split(/(?<!\.{2})\.(?!\.)\s+/)
+      .filter(Boolean);
     setSections(extractedSections);
   };
 
@@ -215,6 +217,21 @@ function CreateSections() {
           >
             <Card.Body>
               <Card.Title>Script Editor</Card.Title>
+              {/* Message to display when script is empty */}
+              {originalScriptString === "" && (
+                <div className="alert alert-info" role="alert">
+                  <strong>Quick guide to Pyro Sections</strong>
+                  <br />
+                  In Pyro, we split your script into "sections". A section is
+                  the smallest unit of voice over that has the same voice
+                  properties such as voice actor, intonation, emotions, etc.
+                  Note that a section can be either a sentence or a fragment in
+                  Pyro, so anywhere you have included period symbol with one or
+                  more proceeding white spaces, we will treat it as a new
+                  section. Moreover, if you don't have trailing spaces after a
+                  period symbol, we will not treat it as a new section.
+                </div>
+              )}
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Script</Form.Label>
@@ -244,16 +261,15 @@ function CreateSections() {
                 }}
               >
                 <div>
-                  {" "}
                   <Form.Label>Sections from your script</Form.Label>
                   {sections.length > 0 ? (
-                    <ul>
+                    <ol>
                       {sections.map((sentence, index) => (
                         <li key={index} style={{ color: "orange" }}>
                           {sentence}
                         </li>
                       ))}
-                    </ul>
+                    </ol>
                   ) : (
                     <p style={{ color: "lightgray" }}>
                       Write your script in the text area above and separate
@@ -262,6 +278,7 @@ function CreateSections() {
                   )}
                 </div>
               </div>
+
               <br></br>
               {/* Display the number of sections found */}
               {sections.length > 0 && (
