@@ -83,6 +83,11 @@ function CreateSections() {
     );
 
     if (!isValid) return;
+
+    if (sectionsQueue.size() !== 0) {
+      sectionQueueWrapperForDequeue(store); // dequeue the first section
+      router.push("/process_section");
+    }
   };
 
   const handleLogout = () => {
