@@ -1,6 +1,7 @@
 // store/userInputs.js
 import { create } from "zustand";
 import { Queue } from "../dataStructures/queue";
+import { produce } from "immer";
 
 // Default values
 const defaultState = {
@@ -48,19 +49,18 @@ const useUserInputsStore = create((set) => ({
 
   // Queue manipulation methods
   enqueueSection: (section) =>
-    set((state) => {
-      const newQueue = new Queue();
-      newQueue.items = [...state.sectionsQueue.items, section];
-      return { sectionsQueue: newQueue };
-    }),
+    set(
+      produce((state) => {
+        state.sectionsQueue.items.push(section);
+      })
+    ),
 
   dequeueSection: () =>
-    set((state) => {
-      const newQueue = new Queue();
-      newQueue.items = [...state.sectionsQueue.items];
-      const dequeuedSection = newQueue.dequeue();
-      return { sectionsQueue: newQueue, dequeuedSection };
-    }),
+    set(
+      produce((state) => {
+        state.lastDequeuedItem = state.sectionsQueue.items.shift();
+      })
+    ),
 
   resetSectionsQueue: () => set({ sectionsQueue: new Queue() }),
 

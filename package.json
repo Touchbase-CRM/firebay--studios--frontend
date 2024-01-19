@@ -19,6 +19,7 @@
     "dotenv": "^16.3.1",
     "elevenlabs-node": "^1.2.0",
     "firebase": "^10.7.0",
+    "immer": "^10.0.3",
     "js-cookie": "^3.0.5",
     "next": "13.5.4",
     "posthog-js": "^1.93.3",

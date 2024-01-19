@@ -29,7 +29,7 @@ function CreateSections() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/add_music");
+      router.push("/process_section");
     }
   }, [isFormSubmitted, router]);
 
