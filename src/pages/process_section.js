@@ -15,7 +15,7 @@ import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import CustomDropdown from "../components/CustomDropdown";
 import useUserInputsStore from "../store/userInputs";
 import { Queue } from "../dataStructures/queue";
-
+import { sectionQueueWrapperForDequeue } from "../store/zustand_wrappers/sections_queue";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
@@ -66,6 +66,7 @@ function ProcessSection() {
     modelId,
     setModelId,
   } = useUserInputsStore();
+  const store = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -89,33 +90,35 @@ function ProcessSection() {
       router.push("/stitch_sections");
     }
   }, [isFormSubmitted, router]);
-  useEffect(() => {
-    console.log("Queue size:", sectionsQueue.size());
-    // Check if the queue is empty
-    if (sectionsQueue.size() === 0) {
-      router.push("/stitch_sections");
-    } else {
-      console.log("Queue not empty, continue processing");
-      // Dequeue the first element using the dequeueSection method
-      dequeueSection();
-      const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
-      console.log("Last Dequeued Item:");
-      console.log(lastDequeuedItem);
-      setOriginalScriptString(lastDequeuedItem || "");
+  // useEffect(() => {
+  //   if (originalScriptString === "") {
+  //     console.log("Queue size:", sectionsQueue.size());
+  //     // Check if the queue is empty
+  //     if (sectionsQueue.size() === 0) {
+  //       router.push("/stitch_sections");
+  //     } else {
+  //       console.log("Queue not empty, continue processing");
+  //       // Dequeue the first element using the dequeueSection method
+  //       dequeueSection();
+  //       const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
+  //       console.log("Last Dequeued Item:");
+  //       console.log(lastDequeuedItem);
+  //       setOriginalScriptString(lastDequeuedItem || "");
 
-      const newWords = lastDequeuedItem.split(" ");
-      const newTransformedWords = {};
+  //       const newWords = lastDequeuedItem.split(" ");
+  //       const newTransformedWords = {};
 
-      newWords.forEach((word, index) => {
-        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-          newTransformedWords[index] = transformedWords[index];
-        }
-      });
+  //       newWords.forEach((word, index) => {
+  //         if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+  //           newTransformedWords[index] = transformedWords[index];
+  //         }
+  //       });
 
-      setOgScriptWordsArray(newWords);
-      setTransformedWords(newTransformedWords);
-    }
-  }, []);
+  //       setOgScriptWordsArray(newWords);
+  //       setTransformedWords(newTransformedWords);
+  //     }
+  //   }
+  // }, []);
 
   useEffect(() => {
     const fetchVoiceOptions = async () => {
@@ -302,27 +305,56 @@ function ProcessSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!historyItemId) {
-      showAlert(
-        "info",
-        "Action Required",
-        "Please generate the voice audio before proceeding further."
-      );
-      return;
-    }
+    // if (!historyItemId) {
+    //   showAlert(
+    //     "info",
+    //     "Action Required",
+    //     "Please generate the voice audio before proceeding further."
+    //   );
+    //   return;
+    // }
 
-    const isValid = validateScript(
-      originalScriptString,
-      charLimit,
-      () => setFormSubmitted(true),
-      showAlert
+    // const isValid = validateScript(
+    //   originalScriptString,
+    //   charLimit,
+    //   () => setFormSubmitted(true),
+    //   showAlert
+    // );
+
+    // if (!isValid) return;
+
+    // if (!historyItemId) {
+    //   handleGenerateVoice();
+    // }
+    sectionQueueWrapperForDequeue(store, "stitch_sections", (path) =>
+      router.push(path)
     );
 
-    if (!isValid) return;
+    // console.log("Queue size:", sectionsQueue.size());
+    // // Check if the queue is empty
+    // if (sectionsQueue.size() === 0) {
+    //   router.push("/stitch_sections");
+    // } else {
+    //   console.log("Queue not empty, continue processing");
+    //   // Dequeue the first element using the dequeueSection method
+    //   dequeueSection();
+    //   const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
+    //   console.log("Last Dequeued Item:");
+    //   console.log(lastDequeuedItem);
+    //   setOriginalScriptString(lastDequeuedItem || "");
 
-    if (!historyItemId) {
-      handleGenerateVoice();
-    }
+    //   const newWords = lastDequeuedItem.split(" ");
+    //   const newTransformedWords = {};
+
+    //   newWords.forEach((word, index) => {
+    //     if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+    //       newTransformedWords[index] = transformedWords[index];
+    //     }
+    //   });
+
+    //   setOgScriptWordsArray(newWords);
+    //   setTransformedWords(newTransformedWords);
+    // }
   };
 
   const handleLogout = () => {
