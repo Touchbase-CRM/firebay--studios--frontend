@@ -1,10 +1,6 @@
 import useUserInputsStore from "../userInputs";
 
-export const sectionQueueWrapperForDequeue = (
-  zustandStore,
-  navigationTarget,
-  navigate
-) => {
+export const sectionQueueWrapperForDequeue = (zustandStore) => {
   const {
     sectionsQueue,
     dequeueSection,
@@ -15,11 +11,7 @@ export const sectionQueueWrapperForDequeue = (
     setTransformedWords,
   } = zustandStore;
 
-  console.log("Queue size:", sectionsQueue.size());
-  if (sectionsQueue.size() === 0) {
-    // Navigate to the specified target if the queue is empty
-    navigate(navigationTarget);
-  } else {
+  if (sectionsQueue.size() !== 0) {
     console.log("Queue not empty, continue processing");
     dequeueSection(); // Remove the first item from the queue
     const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;

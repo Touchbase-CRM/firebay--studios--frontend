@@ -90,35 +90,6 @@ function ProcessSection() {
       router.push("/stitch_sections");
     }
   }, [isFormSubmitted, router]);
-  // useEffect(() => {
-  //   if (originalScriptString === "") {
-  //     console.log("Queue size:", sectionsQueue.size());
-  //     // Check if the queue is empty
-  //     if (sectionsQueue.size() === 0) {
-  //       router.push("/stitch_sections");
-  //     } else {
-  //       console.log("Queue not empty, continue processing");
-  //       // Dequeue the first element using the dequeueSection method
-  //       dequeueSection();
-  //       const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
-  //       console.log("Last Dequeued Item:");
-  //       console.log(lastDequeuedItem);
-  //       setOriginalScriptString(lastDequeuedItem || "");
-
-  //       const newWords = lastDequeuedItem.split(" ");
-  //       const newTransformedWords = {};
-
-  //       newWords.forEach((word, index) => {
-  //         if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-  //           newTransformedWords[index] = transformedWords[index];
-  //         }
-  //       });
-
-  //       setOgScriptWordsArray(newWords);
-  //       setTransformedWords(newTransformedWords);
-  //     }
-  //   }
-  // }, []);
 
   useEffect(() => {
     const fetchVoiceOptions = async () => {
@@ -326,35 +297,11 @@ function ProcessSection() {
     // if (!historyItemId) {
     //   handleGenerateVoice();
     // }
-    sectionQueueWrapperForDequeue(store, "stitch_sections", (path) =>
-      router.push(path)
-    );
-
-    // console.log("Queue size:", sectionsQueue.size());
-    // // Check if the queue is empty
-    // if (sectionsQueue.size() === 0) {
-    //   router.push("/stitch_sections");
-    // } else {
-    //   console.log("Queue not empty, continue processing");
-    //   // Dequeue the first element using the dequeueSection method
-    //   dequeueSection();
-    //   const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
-    //   console.log("Last Dequeued Item:");
-    //   console.log(lastDequeuedItem);
-    //   setOriginalScriptString(lastDequeuedItem || "");
-
-    //   const newWords = lastDequeuedItem.split(" ");
-    //   const newTransformedWords = {};
-
-    //   newWords.forEach((word, index) => {
-    //     if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-    //       newTransformedWords[index] = transformedWords[index];
-    //     }
-    //   });
-
-    //   setOgScriptWordsArray(newWords);
-    //   setTransformedWords(newTransformedWords);
-    // }
+    if (sectionsQueue.size() === 0) {
+      router.push("/stitch_sections");
+    } else {
+      sectionQueueWrapperForDequeue(store);
+    }
   };
 
   const handleLogout = () => {

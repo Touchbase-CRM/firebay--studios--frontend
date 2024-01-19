@@ -3,6 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
+import { sectionQueueWrapperForDequeue } from "../store/zustand_wrappers/sections_queue";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -16,6 +17,7 @@ function CreateSections() {
   // Zustand store hooks
   const { adLength, setAdLength, sectionsQueue, enqueueSection } =
     useUserInputsStore();
+  const store = useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
