@@ -529,7 +529,7 @@ function ProcessSection() {
               <Card.Title>Section Editor</Card.Title>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Edit Section</Form.Label>
+                <Form.Label>Edit section</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
