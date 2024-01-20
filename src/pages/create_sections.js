@@ -252,6 +252,7 @@ function CreateSections() {
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
                               color: "#ffffff",
+                              width: "5%", // Allocate less width for 'Section ID'
                             }}
                           >
                             Section ID
@@ -261,6 +262,7 @@ function CreateSections() {
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
                               color: "#ffffff",
+                              // Do not set width here to allow this column to take the remaining space
                             }}
                           >
                             Section content
@@ -270,11 +272,11 @@ function CreateSections() {
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
                               color: "#ffffff",
+                              width: "15%", // Allocate less width for 'Allocated character count for the section'
                             }}
                           >
                             Allocated character count for the section
-                          </th>{" "}
-                          {/* or Character Count */}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -284,6 +286,7 @@ function CreateSections() {
                               style={{
                                 padding: "8px",
                                 borderBottom: "1px solid #dee2e6",
+                                textAlign: "center", // Center align for better aesthetics
                               }}
                             >
                               {section.getIndex()}
@@ -292,19 +295,16 @@ function CreateSections() {
                               style={{
                                 padding: "8px",
                                 borderBottom: "1px solid #dee2e6",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                maxWidth: "400px",
+                                // Removed maxWidth to allow this cell to take up remaining space
                               }}
                             >
                               {section.getOriginalContent()}
-                            </td>{" "}
-                            {/* Add ellipsis for overflow */}
+                            </td>
                             <td
                               style={{
                                 padding: "8px",
                                 borderBottom: "1px solid #dee2e6",
+                                textAlign: "center", // Center align for better aesthetics
                               }}
                             >
                               {section.getOriginalCharCount()}
@@ -328,7 +328,9 @@ function CreateSections() {
                   We have found {sectionsQueue.size()} section
                   {sectionsQueue.size() !== 1 ? "s" : ""} in your script. You
                   will be prompted to produce the voice for these one by one in
-                  the next few steps.
+                  the next few steps. To comply with the ad length you desired,
+                  you will be limited to the character count mentioned for each
+                  section above.
                 </div>
               )}
             </Card.Body>
