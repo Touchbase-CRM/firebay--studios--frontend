@@ -16,6 +16,7 @@ const defaultState = {
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",
   adLength: "30",
+  adSecondsConsumed: 0,
   // add music page defaults
   chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
@@ -41,6 +42,7 @@ const useUserInputsStore = create((set) => ({
   setVoicePreviewFilename: (filename) =>
     set(() => ({ voicePreviewFilename: filename })),
   setAdLength: (adLength) => set({ adLength }),
+  setAdSecondsConsumed: (adSecondsConsumed) => set({ adSecondsConsumed }),
   setChosenMusic: (chosenMusic) => set({ chosenMusic }),
   setMusicVol: (musicVol) => set({ musicVol }),
   setPreviewFileName: (previewFileName) => set({ previewFileName }),
@@ -50,6 +52,23 @@ const useUserInputsStore = create((set) => ({
   setHistoryItemId: (historyItemId) => set({ historyItemId }),
   setModelId: (modelId) => set({ modelId }),
   setCurrentSectionObj: (index) => set({ currentSectionObj: index }),
+  setSectionObjDuration: (newDuration) => {
+    set(
+      produce((state) => {
+        const currentObj = state.currentSectionObj;
+        // Update the duration
+        currentObj.setSectionDurationSeconds(newDuration);
+
+        // Create a new Section with updated values
+        state.currentSectionObj = new Section(
+          currentObj.getIndex(),
+          currentObj.getOriginalContent(),
+          currentObj.getHistoryItemId(),
+          newDuration // Use the updated duration
+        );
+      })
+    );
+  },
 
   // Queue Data Structure methods
   enqueueSection: (section) =>
@@ -96,7 +115,6 @@ const useUserInputsStore = create((set) => ({
     });
   },
 
-  // Setter to update content of a specific Section object
   updateSectionContent: (index, newContent) => {
     set((state) => {
       const sectionIndex = state.sectionsArray.findIndex(
@@ -118,6 +136,28 @@ const useUserInputsStore = create((set) => ({
       return { sectionsArray: newSectionsArray };
     });
   },
+
+  setSectionDurationSeconds: (newSectionDurationSeconds, index) =>
+    set((state) => {
+      const sectionIndex = state.sectionsArray.findIndex(
+        (section) => section.getIndex() === index
+      );
+      if (sectionIndex === -1) return;
+
+      // Create a new instance of Section with the updated duration
+      const currentSection = state.sectionsArray[sectionIndex];
+      const updatedSection = new Section(
+        currentSection.getIndex(),
+        currentSection.getContent(),
+        currentSection.getHistoryItemId(),
+        newSectionDurationSeconds
+      );
+
+      const newSectionsArray = [...state.sectionsArray];
+      newSectionsArray[sectionIndex] = updatedSection;
+
+      return { sectionsArray: newSectionsArray };
+    }),
 
   // Reset function
   reset: () => set({ ...defaultState }),

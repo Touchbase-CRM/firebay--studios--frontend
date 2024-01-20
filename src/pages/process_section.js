@@ -8,6 +8,7 @@ import {
   Nav,
   Button,
   Spinner,
+  ProgressBar,
 } from "react-bootstrap";
 import { useRouter } from "next/router";
 
@@ -59,6 +60,8 @@ function ProcessSection() {
     setVoicePreviewFilename,
     adLength,
     setAdLength,
+    adSecondsConsumed,
+    setAdSecondsConsumed,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     historyItemId,
@@ -68,6 +71,8 @@ function ProcessSection() {
     setSectionHistoryItemId,
     updateSectionContent,
     currentSectionObj,
+    sectionsArray,
+    setSectionObjDuration, // RENAME to add the Seconds to the end.
   } = useUserInputsStore();
   const store = useUserInputsStore();
 
@@ -85,7 +90,11 @@ function ProcessSection() {
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
-
+  console.log(adSecondsConsumed);
+  console.log(
+    "section duration",
+    currentSectionObj.getSectionDurationSeconds()
+  );
   useEffect(() => {
     if (isFormSubmitted && sectionsQueue.size() === 0) {
       // Check if the queue is empty
@@ -364,6 +373,8 @@ function ProcessSection() {
     if (!isValid) return;
     setIsGeneratingVoice(true);
 
+    let audioUrl = ""; // Declare audioUrl here
+
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
@@ -396,14 +407,25 @@ function ProcessSection() {
       if (contentType && contentType.includes("audio/")) {
         // Handle audio response
         const blob = await response.blob();
-        const audioUrl = URL.createObjectURL(blob);
+        audioUrl = URL.createObjectURL(blob); // Set audioUrl here
         setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
       } else {
         throw new Error("Unexpected content type received.");
       }
     } catch (err) {
       console.error(err);
+      setIsGeneratingVoice(false);
+      return; // Return early in case of an error
     }
+
+    // Create a new audio element to load the audio and get its duration
+    const audio = new Audio(audioUrl);
+    audio.addEventListener("loadedmetadata", () => {
+      const newDuration = audio.duration;
+      setSectionObjDuration(newDuration);
+      // The Zustand store's `adSecondsConsumed` is not updated here
+    });
+
     setIsGeneratingVoice(false);
   };
 
@@ -467,6 +489,41 @@ function ProcessSection() {
           </div>
         </Navbar.Collapse>
       </Navbar>
+
+      <Row>
+        <Col md={10} className="mx-auto">
+          <Card
+            className="p-4 bg-dark text-white"
+            style={{
+              marginTop: "10px",
+              marginBottom: "10px",
+            }}
+          >
+            <Card.Title>
+              Section {currentSectionObj.getIndex()} of {sectionsArray.length}
+            </Card.Title>
+            <Form>
+              <Form.Group controlId="voice">
+                <Form.Label>Voice Over Progress</Form.Label>
+                <ProgressBar
+                  now={
+                    ((adSecondsConsumed +
+                      currentSectionObj.getSectionDurationSeconds()) /
+                      adLength) *
+                    100
+                  }
+                  label={`${Math.round(
+                    ((adSecondsConsumed +
+                      currentSectionObj.getSectionDurationSeconds()) /
+                      adLength) *
+                      100
+                  )}%`}
+                />
+              </Form.Group>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
 
       <Row>
         <Col md={10} className="mx-auto">
