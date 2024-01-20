@@ -65,6 +65,9 @@ function ProcessSection() {
     setHistoryItemId,
     modelId,
     setModelId,
+    setSectionHistoryItemId,
+    updateSectionContent,
+    currentSectionObj,
   } = useUserInputsStore();
   const store = useUserInputsStore();
 
@@ -80,8 +83,8 @@ function ProcessSection() {
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
-  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
-  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  var charLimit = currentSectionObj.getOriginalWordCount(); // Calculate character limit based on the ad length
+  // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   useEffect(() => {
     if (isFormSubmitted && sectionsQueue.size() === 0) {
@@ -190,6 +193,7 @@ function ProcessSection() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
+    updateSectionContent(currentSectionObj.getIndex(), updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 

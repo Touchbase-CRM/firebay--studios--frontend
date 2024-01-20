@@ -23,6 +23,8 @@ function CreateSections() {
     enqueueSection,
     sectionsArray,
     addSection,
+    currentSectionObj,
+    setCurrentSectionObj,
   } = useUserInputsStore();
   const store = useUserInputsStore();
 

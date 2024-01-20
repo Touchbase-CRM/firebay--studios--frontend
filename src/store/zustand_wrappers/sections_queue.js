@@ -9,14 +9,17 @@ export const sectionQueueWrapperForDequeue = (zustandStore) => {
     setOgScriptWordsArray,
     transformedWords,
     setTransformedWords,
+    setCurrentSectionObj,
   } = zustandStore;
 
   if (sectionsQueue.size() !== 0) {
     console.log("Queue not empty, continue processing");
     dequeueSection(); // Remove the first item from the queue
-    const lastDequeuedItem = useUserInputsStore
-      .getState()
-      .lastDequeuedItem.getCurrentContent();
+    const lastDequeuedItemObject = useUserInputsStore.getState();
+    setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
+
+    const lastDequeuedItem =
+      lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
     // Update the original script string to the last dequeued item
     setOriginalScriptString(lastDequeuedItem || "");

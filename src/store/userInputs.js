@@ -1,6 +1,7 @@
 // store/userInputs.js
 import { create } from "zustand";
 import { Queue } from "../dataStructures/queue";
+import { Section } from "../dataStructures/section";
 import { produce } from "immer";
 
 // Default values
@@ -23,6 +24,7 @@ const defaultState = {
   generatedVoiceUrl: "",
   historyItemId: null,
   modelId: "eleven_multilingual_v2",
+  currentSectionObj: new Section(0, ""),
 };
 
 const useUserInputsStore = create((set) => ({
@@ -47,6 +49,7 @@ const useUserInputsStore = create((set) => ({
   setGeneratedVoiceUrl: (generatedVoiceUrl) => set({ generatedVoiceUrl }),
   setHistoryItemId: (historyItemId) => set({ historyItemId }),
   setModelId: (modelId) => set({ modelId }),
+  setCurrentSectionObj: (index) => set({ currentSectionObj: index }),
 
   // Queue Data Structure methods
   enqueueSection: (section) =>
@@ -76,7 +79,6 @@ const useUserInputsStore = create((set) => ({
     }));
   },
 
-  // Section Class (Data Structure) Methods
   setSectionHistoryItemId: (index, newHistoryItemId) => {
     set((state) => {
       const sectionIndex = state.sectionsArray.findIndex(
