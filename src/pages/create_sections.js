@@ -3,6 +3,7 @@ import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
+import { Section } from "../dataStructures/section";
 import { sectionQueueWrapperForDequeue } from "../store/zustand_wrappers/sections_queue";
 
 import withAuth from "../hocs/withAuth";
@@ -66,8 +67,9 @@ function CreateSections() {
     // Clear the current queue before adding new sections
     useUserInputsStore.getState().resetSectionsQueue();
 
-    // Enqueue each extracted section
-    extractedSections.forEach((section) => {
+    // Enqueue each extracted section as a Section object
+    extractedSections.forEach((sectionContent, index) => {
+      const section = new Section(index + 1, sectionContent); // +1 if you want to start indexing from 1
       enqueueSection(section);
     });
   };
@@ -226,9 +228,9 @@ function CreateSections() {
                   <Form.Label>Sections from your script</Form.Label>
                   {sectionsQueue.size() > 0 ? (
                     <ol>
-                      {sectionsQueue.items.map((sentence, index) => (
+                      {sectionsQueue.items.map((section, index) => (
                         <li key={index} style={{ color: "orange" }}>
-                          {sentence}
+                          {section.getCurrentContent()}
                         </li>
                       ))}
                     </ol>

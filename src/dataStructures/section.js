@@ -1,4 +1,4 @@
-class Section {
+export class Section {
   constructor(index, originalContent, historyItemId = null) {
     this.index = index;
     this.originalContent = originalContent;
@@ -15,6 +15,10 @@ class Section {
   updateContent(newContent) {
     this.currentContent = newContent;
     this.currentWordCount = this.#calculateWordCount(newContent);
+  }
+  // Getter for current content
+  getCurrentContent() {
+    return this.currentContent;
   }
 
   // Getter for original content (immutable)

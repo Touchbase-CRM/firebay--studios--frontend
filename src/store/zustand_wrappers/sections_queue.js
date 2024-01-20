@@ -14,7 +14,9 @@ export const sectionQueueWrapperForDequeue = (zustandStore) => {
   if (sectionsQueue.size() !== 0) {
     console.log("Queue not empty, continue processing");
     dequeueSection(); // Remove the first item from the queue
-    const lastDequeuedItem = useUserInputsStore.getState().lastDequeuedItem;
+    const lastDequeuedItem = useUserInputsStore
+      .getState()
+      .lastDequeuedItem.getCurrentContent();
 
     // Update the original script string to the last dequeued item
     setOriginalScriptString(lastDequeuedItem || "");
