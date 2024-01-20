@@ -36,6 +36,11 @@ export class Section {
     return this.currentWordCount;
   }
 
+  // Getter for index
+  getIndex() {
+    return this.index;
+  }
+
   // Getter for history item ID
   getHistoryItemId() {
     return this.historyItemId;

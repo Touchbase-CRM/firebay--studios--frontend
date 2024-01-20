@@ -16,8 +16,14 @@ function CreateSections() {
   const router = useRouter();
 
   // Zustand store hooks
-  const { adLength, setAdLength, sectionsQueue, enqueueSection } =
-    useUserInputsStore();
+  const {
+    adLength,
+    setAdLength,
+    sectionsQueue,
+    enqueueSection,
+    sectionsArray,
+    addSection,
+  } = useUserInputsStore();
   const store = useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -70,6 +76,7 @@ function CreateSections() {
     // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(index + 1, sectionContent); // +1 if you want to start indexing from 1
+      addSection(section);
       enqueueSection(section);
     });
   };
