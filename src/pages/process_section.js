@@ -83,7 +83,7 @@ function ProcessSection() {
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
-  var charLimit = currentSectionObj.getOriginalWordCount(); // Calculate character limit based on the ad length
+  var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   useEffect(() => {

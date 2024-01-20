@@ -104,8 +104,13 @@ const useUserInputsStore = create((set) => ({
       );
       if (sectionIndex === -1) return;
 
-      const updatedSection = { ...state.sectionsArray[sectionIndex] };
-      updatedSection.updateContent(newContent);
+      // Create a new instance of Section with the updated content
+      const currentSection = state.sectionsArray[sectionIndex];
+      const updatedSection = new Section(
+        currentSection.getIndex(),
+        newContent,
+        currentSection.getHistoryItemId()
+      );
 
       const newSectionsArray = [...state.sectionsArray];
       newSectionsArray[sectionIndex] = updatedSection;
@@ -113,6 +118,7 @@ const useUserInputsStore = create((set) => ({
       return { sectionsArray: newSectionsArray };
     });
   },
+
   // Reset function
   reset: () => set({ ...defaultState }),
 }));

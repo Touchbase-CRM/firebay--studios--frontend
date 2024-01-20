@@ -4,18 +4,20 @@ export class Section {
     this.originalContent = originalContent;
     this.currentContent = originalContent;
     this.historyItemId = historyItemId;
-    this.originalWordCount = this.#calculateWordCount(originalContent);
-    this.currentWordCount = this.originalWordCount;
+    this.originalCharCount = this.#calculateCharCount(originalContent);
+    this.currentCharCount = this.originalCharCount;
   }
-  // private method
-  #calculateWordCount(content) {
-    return content.split(/\s+/).filter(Boolean).length;
+
+  // Private method to calculate character count
+  #calculateCharCount(content) {
+    return content.trim().length;
   }
 
   updateContent(newContent) {
     this.currentContent = newContent;
-    this.currentWordCount = this.#calculateWordCount(newContent);
+    this.currentCharCount = this.#calculateCharCount(newContent);
   }
+
   // Getter for current content
   getCurrentContent() {
     return this.currentContent;
@@ -26,14 +28,14 @@ export class Section {
     return this.originalContent;
   }
 
-  // Getter for original word count (immutable)
-  getOriginalWordCount() {
-    return this.originalWordCount;
+  // Getter for original character count (immutable)
+  getOriginalCharCount() {
+    return this.originalCharCount;
   }
 
-  // Getter for current word count
-  getCurrentWordCount() {
-    return this.currentWordCount;
+  // Getter for current character count
+  getCurrentCharCount() {
+    return this.currentCharCount;
   }
 
   // Getter for index
@@ -45,6 +47,7 @@ export class Section {
   getHistoryItemId() {
     return this.historyItemId;
   }
+
   // Setter for history item ID
   setHistoryItemId(newHistoryItemId) {
     this.historyItemId = newHistoryItemId;
