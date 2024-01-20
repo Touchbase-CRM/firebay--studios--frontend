@@ -231,18 +231,88 @@ function CreateSections() {
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
+                  maxHeight: "300px", // Set a max-height for scrollable area
+                  overflowY: "auto", // Add vertical scrollbar
                 }}
               >
                 <div>
                   <Form.Label>Sections from your script</Form.Label>
                   {sectionsQueue.size() > 0 ? (
-                    <ol>
-                      {sectionsQueue.items.map((section, index) => (
-                        <li key={index} style={{ color: "orange" }}>
-                          {section.getCurrentContent()}
-                        </li>
-                      ))}
-                    </ol>
+                    <table
+                      style={{
+                        width: "100%", // Full width of the container
+                        borderCollapse: "collapse",
+                        backgroundColor: "#343a40", // Different background color for the table
+                      }}
+                    >
+                      <thead>
+                        <tr>
+                          <th
+                            style={{
+                              borderBottom: "2px solid #dee2e6",
+                              padding: "8px",
+                              color: "#ffffff",
+                            }}
+                          >
+                            Section ID
+                          </th>
+                          <th
+                            style={{
+                              borderBottom: "2px solid #dee2e6",
+                              padding: "8px",
+                              color: "#ffffff",
+                            }}
+                          >
+                            Section content
+                          </th>
+                          <th
+                            style={{
+                              borderBottom: "2px solid #dee2e6",
+                              padding: "8px",
+                              color: "#ffffff",
+                            }}
+                          >
+                            Allocated character count for the section
+                          </th>{" "}
+                          {/* or Character Count */}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sectionsQueue.items.map((section, index) => (
+                          <tr key={index}>
+                            <td
+                              style={{
+                                padding: "8px",
+                                borderBottom: "1px solid #dee2e6",
+                              }}
+                            >
+                              {section.getIndex()}
+                            </td>
+                            <td
+                              style={{
+                                padding: "8px",
+                                borderBottom: "1px solid #dee2e6",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "400px",
+                              }}
+                            >
+                              {section.getOriginalContent()}
+                            </td>{" "}
+                            {/* Add ellipsis for overflow */}
+                            <td
+                              style={{
+                                padding: "8px",
+                                borderBottom: "1px solid #dee2e6",
+                              }}
+                            >
+                              {section.getOriginalCharCount()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <p style={{ color: "lightblue", fontStyle: "italic" }}>
                       No sections found
