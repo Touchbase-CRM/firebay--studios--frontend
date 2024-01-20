@@ -470,25 +470,12 @@ function ProcessSection() {
             className="p-4 bg-dark text-white"
             style={{
               marginTop: "10px",
-              height: "250px",
+              height: "150px",
               marginBottom: "10px",
             }}
           >
             <Card.Title>Voice Editor</Card.Title>
             <Form>
-              <Form.Group controlId="adLength">
-                <Form.Label>Choose Ad Length</Form.Label>
-                <Form.Select
-                  aria-label="Ad length select"
-                  value={adLength}
-                  onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: "black", marginBottom: "20px" }}
-                >
-                  <option value="30">30 seconds</option>
-                  <option value="60">60 seconds</option>
-                </Form.Select>
-              </Form.Group>
-
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
                 {voiceOptions.length === 0 ? (
@@ -534,15 +521,15 @@ function ProcessSection() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "800px",
+              height: "500px",
               marginBottom: "10px",
             }}
           >
             <Card.Body>
-              <Card.Title>Script Editor</Card.Title>
+              <Card.Title>Section Editor</Card.Title>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
+                <Form.Label>Edit Section</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -551,7 +538,7 @@ function ProcessSection() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "140px",
+                    height: "70px",
                     marginBottom: "20px",
                   }}
                 />
