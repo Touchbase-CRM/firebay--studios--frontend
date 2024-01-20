@@ -90,11 +90,6 @@ function ProcessSection() {
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
-  console.log(adSecondsConsumed);
-  console.log(
-    "section duration",
-    currentSectionObj.getSectionDurationSeconds()
-  );
   useEffect(() => {
     if (isFormSubmitted && sectionsQueue.size() === 0) {
       // Check if the queue is empty
@@ -313,6 +308,9 @@ function ProcessSection() {
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {
+      setAdSecondsConsumed(
+        adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
+      );
       sectionQueueWrapperForDequeue(store);
     }
   };
