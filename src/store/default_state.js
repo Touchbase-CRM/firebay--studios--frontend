@@ -4,7 +4,7 @@ import { Section } from "../dataStructures/section";
 
 export const defaultState = {
   // create ad page defaults
-  ogScriptWordsArray: [].split(" "), // An empty array for script words
+  ogScriptWordsArray: [], // An empty array for script words
   originalScriptString: "", // Original script as a string
   transformedWords: {}, // Object for transformed words
   sectionsQueue: new Queue(), // Queue for sections

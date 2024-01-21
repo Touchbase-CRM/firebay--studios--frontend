@@ -5,6 +5,11 @@ import { Section } from "../../dataStructures/section";
 export class SectionArrayMethods {
   constructor(set) {
     this.set = set;
+    // Bind all methods to the current instance
+    this.addSection = this.addSection.bind(this);
+    this.setSectionHistoryItemId = this.setSectionHistoryItemId.bind(this);
+    this.updateSectionContent = this.updateSectionContent.bind(this);
+    this.setSectionDurationSeconds = this.setSectionDurationSeconds.bind(this);
   }
 
   addSection(sectionObject) {

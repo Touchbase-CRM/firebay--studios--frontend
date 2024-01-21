@@ -3,6 +3,24 @@
 export class UserInputMethods {
   constructor(set) {
     this.set = set;
+
+    // Binding all methods to the class instance
+    this.setOgScriptWordsArray = this.setOgScriptWordsArray.bind(this);
+    this.setOriginalScriptString = this.setOriginalScriptString.bind(this);
+    this.setTransformedWords = this.setTransformedWords.bind(this);
+    this.setVoiceId = this.setVoiceId.bind(this);
+    this.setVoiceName = this.setVoiceName.bind(this);
+    this.setVoicePreviewFilename = this.setVoicePreviewFilename.bind(this);
+    this.setAdLength = this.setAdLength.bind(this);
+    this.setAdSecondsConsumed = this.setAdSecondsConsumed.bind(this);
+    this.setChosenMusic = this.setChosenMusic.bind(this);
+    this.setMusicVol = this.setMusicVol.bind(this);
+    this.setPreviewFileName = this.setPreviewFileName.bind(this);
+    this.setBackgroundMusicFilename =
+      this.setBackgroundMusicFilename.bind(this);
+    this.setGeneratedVoiceUrl = this.setGeneratedVoiceUrl.bind(this);
+    this.setHistoryItemId = this.setHistoryItemId.bind(this);
+    this.setModelId = this.setModelId.bind(this);
   }
 
   setOgScriptWordsArray(ogScriptWordsArray) {
