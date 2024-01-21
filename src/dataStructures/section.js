@@ -65,7 +65,7 @@ export class Section {
   }
 
   // Setter for section duration in seconds
-  setSectionDurationSeconds(newSectionDurationSeconds) {
+  setSectionDurationSecondsZustand(newSectionDurationSeconds) {
     this.sectionDurationSeconds = newSectionDurationSeconds;
   }
 }

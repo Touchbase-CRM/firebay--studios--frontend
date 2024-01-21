@@ -19,7 +19,7 @@ export class SectionMethods {
       produce((state) => {
         const currentObj = state.currentSectionObj;
         // Update the duration
-        currentObj.setSectionDurationSeconds(newDuration);
+        currentObj.setSectionDurationSecondsZustand(newDuration);
 
         // Create a new Section with updated values
         state.currentSectionObj = new Section(

@@ -6,19 +6,22 @@ export class SectionArrayMethods {
   constructor(set) {
     this.set = set;
     // Bind all methods to the current instance
-    this.addSection = this.addSection.bind(this);
-    this.setSectionHistoryItemId = this.setSectionHistoryItemId.bind(this);
-    this.updateSectionContent = this.updateSectionContent.bind(this);
-    this.setSectionDurationSeconds = this.setSectionDurationSeconds.bind(this);
+    this.addSectionZustand = this.addSectionZustand.bind(this);
+    this.setSectionHistoryItemIdZustand =
+      this.setSectionHistoryItemIdZustand.bind(this);
+    this.updateSectionContentZustand =
+      this.updateSectionContentZustand.bind(this);
+    this.setSectionDurationSecondsZustand =
+      this.setSectionDurationSecondsZustand.bind(this);
   }
 
-  addSection(sectionObject) {
+  addSectionZustand(sectionObject) {
     this.set((state) => ({
       sectionsArray: [...state.sectionsArray, sectionObject],
     }));
   }
 
-  setSectionHistoryItemId(index, newHistoryItemId) {
+  setSectionHistoryItemIdZustand(index, newHistoryItemId) {
     this.set((state) => {
       const sectionIndex = state.sectionsArray.findIndex(
         (section) => section.getIndex() === index
@@ -35,7 +38,7 @@ export class SectionArrayMethods {
     });
   }
 
-  updateSectionContent(index, newContent) {
+  updateSectionContentZustand(index, newContent) {
     this.set((state) => {
       const sectionIndex = state.sectionsArray.findIndex(
         (section) => section.getIndex() === index
@@ -56,7 +59,7 @@ export class SectionArrayMethods {
     });
   }
 
-  setSectionDurationSeconds(newSectionDurationSeconds, index) {
+  setSectionDurationSecondsZustand(newSectionDurationSeconds, index) {
     this.set((state) => {
       const sectionIndex = state.sectionsArray.findIndex(
         (section) => section.getIndex() === index

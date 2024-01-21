@@ -66,8 +66,8 @@ function ProcessSection() {
     setHistoryItemId,
     modelId,
     setModelId,
-    setSectionHistoryItemId,
-    updateSectionContent,
+    setSectionHistoryItemIdZustand,
+    updateSectionContentZustand,
     currentSectionObj,
     sectionsArray,
     setSectionObjDuration, // RENAME to add the Seconds to the end.
@@ -192,7 +192,7 @@ function ProcessSection() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    updateSectionContent(currentSectionObj.getIndex(), updatedScript);
+    updateSectionContentZustand(currentSectionObj.getIndex(), updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
