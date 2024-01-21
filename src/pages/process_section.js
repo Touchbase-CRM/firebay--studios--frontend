@@ -70,7 +70,7 @@ function ProcessSection() {
     updateSectionContentZustand,
     currentSectionObj,
     sectionsArray,
-    setSectionObjDurationZustand, // RENAME to add the Seconds to the end.
+    setSectionObjDurationZustand,
     setCurrentSectionObjZustand,
   } = useUserInputsStore();
 
