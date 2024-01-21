@@ -70,8 +70,8 @@ function ProcessSection() {
     updateSectionContentZustand,
     currentSectionObj,
     sectionsArray,
-    setSectionObjDuration, // RENAME to add the Seconds to the end.
-    setCurrentSectionObj,
+    setSectionObjDurationZustand, // RENAME to add the Seconds to the end.
+    setCurrentSectionObjZustand,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
@@ -304,7 +304,7 @@ function ProcessSection() {
         console.log("Queue not empty, continue processing");
         dequeueSectionZustand(); // Remove the first item from the queue
         const lastDequeuedItemObject = useUserInputsStore.getState();
-        setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
+        setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
 
         const lastDequeuedItem =
           lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
@@ -434,7 +434,7 @@ function ProcessSection() {
     const audio = new Audio(audioUrl);
     audio.addEventListener("loadedmetadata", () => {
       const newDuration = audio.duration;
-      setSectionObjDuration(newDuration);
+      setSectionObjDurationZustand(newDuration);
       // The Zustand store's `adSecondsConsumed` is not updated here
     });
 

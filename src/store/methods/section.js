@@ -6,20 +6,22 @@ export class SectionMethods {
   constructor(set) {
     this.set = set;
     // Bind all methods to the current instance
-    this.setCurrentSectionObj = this.setCurrentSectionObj.bind(this);
-    this.setSectionObjDuration = this.setSectionObjDuration.bind(this);
+    this.setCurrentSectionObjZustand =
+      this.setCurrentSectionObjZustand.bind(this);
+    this.setSectionObjDurationZustand =
+      this.setSectionObjDurationZustand.bind(this);
   }
 
-  setCurrentSectionObj(index) {
+  setCurrentSectionObjZustand(index) {
     this.set({ currentSectionObj: index });
   }
 
-  setSectionObjDuration(newDuration) {
+  setSectionObjDurationZustand(newDuration) {
     this.set(
       produce((state) => {
         const currentObj = state.currentSectionObj;
         // Update the duration
-        currentObj.setSectionDurationSecondsZustand(newDuration);
+        currentObj.setSectionDurationSeconds(newDuration);
 
         // Create a new Section with updated values
         state.currentSectionObj = new Section(

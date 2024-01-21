@@ -23,7 +23,7 @@ function CreateSections() {
     sectionsArray,
     addSectionZustand,
     currentSectionObj,
-    setCurrentSectionObj,
+    setCurrentSectionObjZustand,
     setOriginalScriptString,
     ogScriptWordsArray,
     setOgScriptWordsArray,
@@ -103,7 +103,7 @@ function CreateSections() {
       console.log("Queue not empty, continue processing");
       dequeueSectionZustand(); // Remove the first item from the queue
       const lastDequeuedItemObject = useUserInputsStore.getState();
-      setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
+      setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
 
       const lastDequeuedItem =
         lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
