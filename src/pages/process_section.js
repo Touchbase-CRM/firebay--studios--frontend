@@ -67,7 +67,7 @@ function ProcessSection() {
     modelId,
     setModelId,
     setSectionArrayHistoryItemIdZustand,
-    updateSectionContentZustand,
+    updateSectionArrayContentZustand,
     currentSectionObj,
     sectionsArray,
     setSectionObjDurationZustand,
@@ -192,7 +192,10 @@ function ProcessSection() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    updateSectionContentZustand(currentSectionObj.getIndex(), updatedScript);
+    updateSectionArrayContentZustand(
+      currentSectionObj.getIndex(),
+      updatedScript
+    );
     setSectionArrayHistoryItemIdZustand();
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
