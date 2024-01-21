@@ -21,7 +21,7 @@ function CreateSections() {
     enqueueSectionZustand,
     dequeueSectionZustand,
     sectionsArray,
-    addSectionZustand,
+    addToSectionArrayZustand,
     currentSectionObj,
     setCurrentSectionObjZustand,
     setOriginalScriptString,
@@ -81,7 +81,7 @@ function CreateSections() {
     // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(index + 1, sectionContent); // +1 if you want to start indexing from 1
-      addSectionZustand(section);
+      addToSectionArrayZustand(section);
       enqueueSectionZustand(section);
     });
   };
