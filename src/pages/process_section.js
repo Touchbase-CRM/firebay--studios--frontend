@@ -66,10 +66,12 @@ function ProcessSection() {
     setHistoryItemId,
     modelId,
     setModelId,
-    setSectionArrayHistoryItemIdZustand,
+    setSectionHistoryItemIdZustand, // for the current section
+    setSectionArrayHistoryItemIdZustand, // for the entire section array
     updateSectionArrayContentZustand,
     currentSectionObj,
     sectionsArray,
+    addToSectionArrayZustand,
     setSectionObjDurationZustand,
     setCurrentSectionObjZustand,
   } = useUserInputsStore();
@@ -196,7 +198,7 @@ function ProcessSection() {
       currentSectionObj.getIndex(),
       updatedScript
     );
-    setSectionArrayHistoryItemIdZustand();
+    setSectionArrayHistoryItemIdZustand(); // not used yet - TODO not used correctly either.
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -277,14 +279,14 @@ function ProcessSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // if (!historyItemId) {
-    //   showAlert(
-    //     "info",
-    //     "Action Required",
-    //     "Please generate the voice audio before proceeding further."
-    //   );
-    //   return;
-    // }
+    if (!historyItemId) {
+      showAlert(
+        "info",
+        "Action Required",
+        "Please generate the voice audio before proceeding further."
+      );
+      return;
+    }
 
     // const isValid = validateScript(
     //   originalScriptString,
@@ -298,6 +300,12 @@ function ProcessSection() {
     // if (!historyItemId) {
     //   handleGenerateVoice();
     // }
+    addToSectionArrayZustand(currentSectionObj);
+    setSectionArrayHistoryItemIdZustand(
+      currentSectionObj.getIndex(),
+      historyItemId
+    );
+    setSectionHistoryItemIdZustand(historyItemId);
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {

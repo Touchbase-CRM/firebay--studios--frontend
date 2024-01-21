@@ -16,26 +16,34 @@ export class SectionArrayMethods {
   }
 
   addToSectionArrayZustand(sectionObject) {
-    this.set((state) => ({
-      sectionsArray: [...state.sectionsArray, sectionObject],
-    }));
+    this.set((state) => {
+      const newState = [...state.sectionsArray, sectionObject];
+      return {
+        sectionsArray: newState,
+      };
+    });
   }
 
   setSectionArrayHistoryItemIdZustand(index, newHistoryItemId) {
-    this.set((state) => {
-      const sectionIndex = state.sectionsArray.findIndex(
-        (section) => section.getIndex() === index
-      );
-      if (sectionIndex === -1) return;
+    this.set(
+      produce((state) => {
+        const sectionIndex = state.sectionsArray.findIndex(
+          (section) => section.getIndex() === index
+        );
+        if (sectionIndex === -1) return;
 
-      const updatedSection = { ...state.sectionsArray[sectionIndex] };
-      updatedSection.setHistoryItemId(newHistoryItemId);
+        // Clone the section and update the history item ID
+        const updatedSection = new Section(
+          state.sectionsArray[sectionIndex].getIndex(),
+          state.sectionsArray[sectionIndex].getOriginalContent(),
+          newHistoryItemId,
+          state.sectionsArray[sectionIndex].getSectionDurationSeconds()
+        );
 
-      const newSectionsArray = [...state.sectionsArray];
-      newSectionsArray[sectionIndex] = updatedSection;
-
-      return { sectionsArray: newSectionsArray };
-    });
+        // Replace the section in the array with the updated one
+        state.sectionsArray[sectionIndex] = updatedSection;
+      })
+    );
   }
 
   updateSectionArrayContentZustand(index, newContent) {

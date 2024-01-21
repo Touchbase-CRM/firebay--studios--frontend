@@ -10,6 +10,8 @@ export class SectionMethods {
       this.setCurrentSectionObjZustand.bind(this);
     this.setSectionObjDurationZustand =
       this.setSectionObjDurationZustand.bind(this);
+    this.setSectionHistoryItemIdZustand =
+      this.setSectionHistoryItemIdZustand.bind(this);
   }
 
   setCurrentSectionObjZustand(index) {
@@ -29,6 +31,25 @@ export class SectionMethods {
           currentObj.getOriginalContent(),
           currentObj.getHistoryItemId(),
           newDuration // Use the updated duration
+        );
+      })
+    );
+  }
+
+  setSectionHistoryItemIdZustand(newHistoryItemId) {
+    this.set(
+      produce((state) => {
+        const currentObj = state.currentSectionObj;
+
+        // Update the history item ID
+        currentObj.setHistoryItemId(newHistoryItemId);
+
+        // Create a new Section with updated values
+        state.currentSectionObj = new Section(
+          currentObj.getIndex(),
+          currentObj.getOriginalContent(),
+          newHistoryItemId, // Use the updated history item ID
+          currentObj.getSectionDurationSeconds()
         );
       })
     );
