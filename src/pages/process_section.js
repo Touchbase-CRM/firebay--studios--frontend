@@ -15,8 +15,6 @@ import { useRouter } from "next/router";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import CustomDropdown from "../components/CustomDropdown";
 import useUserInputsStore from "../store/userInputs";
-import { Queue } from "../dataStructures/queue";
-import { sectionQueueWrapperForDequeue } from "../store/zustand_wrappers/sections_queue";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
@@ -75,7 +73,6 @@ function ProcessSection() {
     setSectionObjDuration, // RENAME to add the Seconds to the end.
     setCurrentSectionObj,
   } = useUserInputsStore();
-  const store = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -85,9 +82,6 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-
-  const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
-  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -264,12 +258,6 @@ function ProcessSection() {
     }
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    // posthog.capture("create-ad-voice-change-drop-down-expanded", {
-    //   date: new Date().toISOString(),
-    //   userId: userId,
-    //   voiceId: voiceId,
-    //   voiceName: voiceName,
-    // });
 
     // Assuming you want to play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {

@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
 import { Section } from "../dataStructures/section";
-import { sectionQueueWrapperForDequeue } from "../store/zustand_wrappers/sections_queue";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -12,7 +11,6 @@ import Swal from "sweetalert2";
 
 function CreateSections() {
   const auth = getAuth();
-
   const router = useRouter();
 
   // Zustand store hooks
@@ -32,7 +30,6 @@ function CreateSections() {
     transformedWords,
     setTransformedWords,
   } = useUserInputsStore();
-  const store = useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
