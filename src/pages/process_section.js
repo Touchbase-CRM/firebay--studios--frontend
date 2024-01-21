@@ -43,7 +43,7 @@ function ProcessSection() {
   // Zustand store hooks
   const {
     sectionsQueue,
-    dequeueSection,
+    dequeueSectionZustand,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
@@ -302,7 +302,7 @@ function ProcessSection() {
       );
       if (sectionsQueue.size() !== 0) {
         console.log("Queue not empty, continue processing");
-        dequeueSection(); // Remove the first item from the queue
+        dequeueSectionZustand(); // Remove the first item from the queue
         const lastDequeuedItemObject = useUserInputsStore.getState();
         setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
 

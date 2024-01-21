@@ -7,11 +7,11 @@ export class QueueMethods {
     this.set = set;
 
     // Binding all methods to the class instance
-    this.enqueueSection = this.enqueueSection.bind(this);
-    this.dequeueSection = this.dequeueSection.bind(this);
-    this.resetSectionsQueue = this.resetSectionsQueue.bind(this);
+    this.enqueueSectionZustand = this.enqueueSectionZustand.bind(this);
+    this.dequeueSectionZustand = this.dequeueSectionZustand.bind(this);
+    this.resetSectionsQueueZustand = this.resetSectionsQueueZustand.bind(this);
   }
-  enqueueSection(section) {
+  enqueueSectionZustand(section) {
     this.set(
       produce((state) => {
         state.sectionsQueue.items.push(section);
@@ -19,7 +19,7 @@ export class QueueMethods {
     );
   }
 
-  dequeueSection() {
+  dequeueSectionZustand() {
     this.set(
       produce((state) => {
         state.lastDequeuedItem = state.sectionsQueue.items.shift();
@@ -27,7 +27,7 @@ export class QueueMethods {
     );
   }
 
-  resetSectionsQueue() {
+  resetSectionsQueueZustand() {
     this.set({ sectionsQueue: new Queue() });
   }
 }

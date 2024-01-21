@@ -18,8 +18,8 @@ function CreateSections() {
     adLength,
     setAdLength,
     sectionsQueue,
-    enqueueSection,
-    dequeueSection,
+    enqueueSectionZustand,
+    dequeueSectionZustand,
     sectionsArray,
     addSection,
     currentSectionObj,
@@ -76,13 +76,13 @@ function CreateSections() {
       .filter(Boolean);
 
     // Clear the current queue before adding new sections
-    useUserInputsStore.getState().resetSectionsQueue();
+    useUserInputsStore.getState().resetSectionsQueueZustand();
 
     // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(index + 1, sectionContent); // +1 if you want to start indexing from 1
       addSection(section);
-      enqueueSection(section);
+      enqueueSectionZustand(section);
     });
   };
 
@@ -101,7 +101,7 @@ function CreateSections() {
     if (sectionsQueue.size() !== 0) {
       router.push("/process_section");
       console.log("Queue not empty, continue processing");
-      dequeueSection(); // Remove the first item from the queue
+      dequeueSectionZustand(); // Remove the first item from the queue
       const lastDequeuedItemObject = useUserInputsStore.getState();
       setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
 
