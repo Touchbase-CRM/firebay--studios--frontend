@@ -21,10 +21,16 @@ function CreateSections() {
     setAdLength,
     sectionsQueue,
     enqueueSection,
+    dequeueSection,
     sectionsArray,
     addSection,
     currentSectionObj,
     setCurrentSectionObj,
+    setOriginalScriptString,
+    ogScriptWordsArray,
+    setOgScriptWordsArray,
+    transformedWords,
+    setTransformedWords,
   } = useUserInputsStore();
   const store = useUserInputsStore();
 
@@ -97,7 +103,30 @@ function CreateSections() {
 
     if (sectionsQueue.size() !== 0) {
       router.push("/process_section");
-      sectionQueueWrapperForDequeue(store); // dequeue the first section
+      console.log("Queue not empty, continue processing");
+      dequeueSection(); // Remove the first item from the queue
+      const lastDequeuedItemObject = useUserInputsStore.getState();
+      setCurrentSectionObj(lastDequeuedItemObject.lastDequeuedItem);
+
+      const lastDequeuedItem =
+        lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
+
+      // Update the original script string to the last dequeued item
+      setOriginalScriptString(lastDequeuedItem || "");
+
+      // Split the dequeued item into words and update transformed words
+      const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
+      const newTransformedWords = {};
+
+      newWords.forEach((word, index) => {
+        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+          newTransformedWords[index] = transformedWords[index];
+        }
+      });
+
+      // Update the original script words array and transformed words
+      setOgScriptWordsArray(newWords);
+      setTransformedWords(newTransformedWords);
     }
   };
 
