@@ -65,18 +65,11 @@ function ProcessSection() {
     setHistoryItemId,
     modelId,
     setModelId,
-    setSectionHistoryItemIdZustand, // for the current section
-    // setSectionArrayHistoryItemIdZustand, // for the entire section array
-    // updateSectionArrayContentZustand,
-    setSectionCurrentContentZustand,
     currentSectionObj,
-    sectionsArray,
     addToSectionArrayZustand,
-    setSectionObjDurationZustand,
     setCurrentSectionObjZustand,
     updateMultiplePropertiesSimultaneouslyZustand,
   } = useUserInputsStore();
-  console.log(historyItemId);
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -285,27 +278,7 @@ function ProcessSection() {
       return;
     }
 
-    // const isValid = validateScript(
-    //   originalScriptString,
-    //   charLimit,
-    //   () => setFormSubmitted(true),
-    //   showAlert
-    // );
-
-    // if (!isValid) return;
-
-    // if (!historyItemId) {
-    //   handleGenerateVoice();
-    // }
-    // setSectionHistoryItemIdZustand(historyItemId);
-    // console.log("Before updating section content", currentSectionObj);
-    // setSectionCurrentContentZustand("Daddy is home!");
-    // console.log("After updating section content", currentSectionObj);
-    // addToSectionArrayZustand(currentSectionObj);
-
     addToSectionArrayZustand(currentSectionObj);
-
-    console.log("After updating section content", currentSectionObj);
 
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
@@ -313,32 +286,31 @@ function ProcessSection() {
       setAdSecondsConsumed(
         adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
       );
-      if (sectionsQueue.size() !== 0) {
-        console.log("Queue not empty, continue processing");
-        dequeueSectionZustand(); // Remove the first item from the queue
-        const lastDequeuedItemObject = useUserInputsStore.getState();
-        setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
 
-        const lastDequeuedItem =
-          lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
+      console.log("Queue not empty, continue processing");
+      dequeueSectionZustand(); // Remove the first item from the queue
+      const lastDequeuedItemObject = useUserInputsStore.getState();
+      setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
 
-        // Update the original script string to the last dequeued item
-        setOriginalScriptString(lastDequeuedItem || "");
+      const lastDequeuedItem =
+        lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
-        // Split the dequeued item into words and update transformed words
-        const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
-        const newTransformedWords = {};
+      // Update the original script string to the last dequeued item
+      setOriginalScriptString(lastDequeuedItem || "");
 
-        newWords.forEach((word, index) => {
-          if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-            newTransformedWords[index] = transformedWords[index];
-          }
-        });
+      // Split the dequeued item into words and update transformed words
+      const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
+      const newTransformedWords = {};
 
-        // Update the original script words array and transformed words
-        setOgScriptWordsArray(newWords);
-        setTransformedWords(newTransformedWords);
-      }
+      newWords.forEach((word, index) => {
+        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+          newTransformedWords[index] = transformedWords[index];
+        }
+      });
+
+      // Update the original script words array and transformed words
+      setOgScriptWordsArray(newWords);
+      setTransformedWords(newTransformedWords);
     }
   };
 

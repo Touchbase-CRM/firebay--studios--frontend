@@ -64,16 +64,8 @@ export class SectionMethods {
     this.set(
       produce((state) => {
         const currentObj = state.currentSectionObj;
-        console.log(
-          "Current content before update:",
-          currentObj.getCurrentContent()
-        );
         // Update the content
         currentObj.setCurrentContent(newContent);
-        console.log(
-          "Current content after update:",
-          currentObj.getCurrentContent()
-        );
         // Create a new Section with updated values
         state.currentSectionObj = new Section(
           currentObj.getIndex(),
