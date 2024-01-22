@@ -20,7 +20,7 @@ function CreateSections() {
     sectionsQueue,
     enqueueSectionZustand,
     dequeueSectionZustand,
-    sectionsArray,
+    // sectionsArray,
     currentSectionObj,
     setCurrentSectionObjZustand,
     setOriginalScriptString,
@@ -78,7 +78,13 @@ function CreateSections() {
     useUserInputsStore.getState().resetSectionsQueueZustand();
     // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
-      const section = new Section(index + 0, sectionContent); // +1 if you want to start indexing from 1
+      const section = new Section(
+        index + 0,
+        sectionContent,
+        sectionContent,
+        null,
+        0
+      ); // +1 if you want to start indexing from 1
       enqueueSectionZustand(section);
     });
   };

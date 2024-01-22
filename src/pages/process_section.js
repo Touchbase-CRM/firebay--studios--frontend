@@ -57,7 +57,6 @@ function ProcessSection() {
     voicePreviewFilename,
     setVoicePreviewFilename,
     adLength,
-    setAdLength,
     adSecondsConsumed,
     setAdSecondsConsumed,
     generatedVoiceUrl,
@@ -67,14 +66,17 @@ function ProcessSection() {
     modelId,
     setModelId,
     setSectionHistoryItemIdZustand, // for the current section
-    setSectionArrayHistoryItemIdZustand, // for the entire section array
-    updateSectionArrayContentZustand,
+    // setSectionArrayHistoryItemIdZustand, // for the entire section array
+    // updateSectionArrayContentZustand,
+    setSectionCurrentContentZustand,
     currentSectionObj,
     sectionsArray,
     addToSectionArrayZustand,
     setSectionObjDurationZustand,
     setCurrentSectionObjZustand,
+    updateMultiplePropertiesSimultaneouslyZustand,
   } = useUserInputsStore();
+  console.log(historyItemId);
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -194,10 +196,6 @@ function ProcessSection() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    // updateSectionArrayContentZustand(
-    //   currentSectionObj.getIndex(),
-    //   updatedScript
-    // );
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -299,12 +297,16 @@ function ProcessSection() {
     // if (!historyItemId) {
     //   handleGenerateVoice();
     // }
+    // setSectionHistoryItemIdZustand(historyItemId);
+    // console.log("Before updating section content", currentSectionObj);
+    // setSectionCurrentContentZustand("Daddy is home!");
+    // console.log("After updating section content", currentSectionObj);
+    // addToSectionArrayZustand(currentSectionObj);
+
     addToSectionArrayZustand(currentSectionObj);
-    setSectionArrayHistoryItemIdZustand(
-      currentSectionObj.getIndex(),
-      historyItemId
-    );
-    setSectionHistoryItemIdZustand(historyItemId);
+
+    console.log("After updating section content", currentSectionObj);
+
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {
@@ -401,14 +403,15 @@ function ProcessSection() {
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
-
+    const mostUptodateSection = getFinalScript();
+    // setSectionCurrentContentZustand(mostUptodateSection);
     const options = {
       method: "POST",
       headers: {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: getFinalScript(), model_id: modelId }),
+      body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
     };
 
     try {
@@ -445,7 +448,12 @@ function ProcessSection() {
     const audio = new Audio(audioUrl);
     audio.addEventListener("loadedmetadata", () => {
       const newDuration = audio.duration;
-      setSectionObjDurationZustand(newDuration);
+      // setSectionObjDurationZustand(newDuration);
+      updateMultiplePropertiesSimultaneouslyZustand(
+        mostUptodateSection,
+        historyItemId,
+        newDuration
+      );
       // The Zustand store's `adSecondsConsumed` is not updated here
     });
 
@@ -522,9 +530,10 @@ function ProcessSection() {
               marginBottom: "10px",
             }}
           >
-            <Card.Title>
-              Section {currentSectionObj.getIndex()} of {sectionsArray.length}
-            </Card.Title>
+            {/* <Card.Title>
+              Section {currentSectionObj.getIndex()} of{" "}
+              {sectionsQueue.size() + 1}
+            </Card.Title> */}
             <Form>
               <Form.Group controlId="voice">
                 <Form.Label>Voice Over Progress</Form.Label>

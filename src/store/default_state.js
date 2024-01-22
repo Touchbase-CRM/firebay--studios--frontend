@@ -22,7 +22,7 @@ export const defaultState = {
   generatedVoiceUrl: "",
   historyItemId: null,
   modelId: "eleven_multilingual_v2",
-  currentSectionObj: new Section(0, ""),
+  currentSectionObj: new Section(0, "", "", null, 0),
 };
 
 export default defaultState;

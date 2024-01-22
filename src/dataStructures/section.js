@@ -2,26 +2,22 @@ export class Section {
   constructor(
     index,
     originalContent,
+    currentContent,
     historyItemId = null,
     sectionDurationSeconds = 0
   ) {
     this.index = index;
     this.originalContent = originalContent;
-    this.currentContent = originalContent;
+    this.currentContent = currentContent;
     this.historyItemId = historyItemId;
     this.originalCharCount = this.#calculateCharCount(originalContent);
-    this.currentCharCount = this.originalCharCount;
+    this.currentCharCount = this.#calculateCharCount(currentContent);
     this.sectionDurationSeconds = sectionDurationSeconds;
   }
 
   // Private method to calculate character count
   #calculateCharCount(content) {
     return content.trim().length;
-  }
-
-  updateContent(newContent) {
-    this.currentContent = newContent;
-    this.currentCharCount = this.#calculateCharCount(newContent);
   }
 
   // Getter for current content
@@ -57,6 +53,9 @@ export class Section {
   // Setter for history item ID
   setHistoryItemId(newHistoryItemId) {
     this.historyItemId = newHistoryItemId;
+  }
+  setCurrentContent(newContent) {
+    this.currentContent = newContent;
   }
 
   // Getter for section duration in seconds

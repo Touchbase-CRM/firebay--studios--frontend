@@ -42,10 +42,16 @@ function StitchSections() {
     "history item ids: ",
     sectionsArray.map((section) => section.getHistoryItemId())
   );
+  // Function to log sectionsArray
+  const logSectionsArray = () => {
+    console.log("Latest sectionsArray: ", sectionsArray);
+    console.log(" currentSectionObj", currentSectionObj);
+  };
   return (
     <div>
       <h1>Under Construction</h1>
       <p>This page is currently under construction. Please check back later.</p>
+      <button onClick={logSectionsArray}>Log Sections Array</button>
     </div>
   );
 }

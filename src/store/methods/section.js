@@ -12,6 +12,10 @@ export class SectionMethods {
       this.setSectionObjDurationZustand.bind(this);
     this.setSectionHistoryItemIdZustand =
       this.setSectionHistoryItemIdZustand.bind(this);
+    this.setSectionCurrentContentZustand =
+      this.setSectionCurrentContentZustand.bind(this);
+    this.updateMultiplePropertiesSimultaneouslyZustand =
+      this.updateMultiplePropertiesSimultaneouslyZustand.bind(this);
   }
 
   setCurrentSectionObjZustand(index) {
@@ -29,6 +33,7 @@ export class SectionMethods {
         state.currentSectionObj = new Section(
           currentObj.getIndex(),
           currentObj.getOriginalContent(),
+          currentObj.getCurrentContent(),
           currentObj.getHistoryItemId(),
           newDuration // Use the updated duration
         );
@@ -48,8 +53,80 @@ export class SectionMethods {
         state.currentSectionObj = new Section(
           currentObj.getIndex(),
           currentObj.getOriginalContent(),
+          currentObj.getCurrentContent(),
           newHistoryItemId, // Use the updated history item ID
           currentObj.getSectionDurationSeconds()
+        );
+      })
+    );
+  }
+  setSectionCurrentContentZustand(newContent) {
+    this.set(
+      produce((state) => {
+        const currentObj = state.currentSectionObj;
+        console.log(
+          "Current content before update:",
+          currentObj.getCurrentContent()
+        );
+        // Update the content
+        currentObj.setCurrentContent(newContent);
+        console.log(
+          "Current content after update:",
+          currentObj.getCurrentContent()
+        );
+        // Create a new Section with updated values
+        state.currentSectionObj = new Section(
+          currentObj.getIndex(),
+          currentObj.getOriginalContent(),
+          newContent,
+          currentObj.getHistoryItemId(),
+          currentObj.getSectionDurationSeconds()
+        );
+      })
+    );
+  }
+  updateMultiplePropertiesSimultaneouslyZustand(
+    newContent,
+    newHistoryItemId,
+    newDuration
+    /**
+     * Updates multiple properties of an object simultaneously. Used for multi value change
+     * to avoid async issues.
+     *
+     * @param {any} newContent - the new content to set
+     * @param {any} newHistoryItemId - the new history item id to set
+     * @param {any} newDuration - the new duration to set
+     * @return {void}
+     */
+  ) {
+    this.set(
+      produce((state) => {
+        const currentObj = state.currentSectionObj;
+
+        // Apply updates only if values are provided
+        if (newContent !== undefined) {
+          currentObj.setCurrentContent(newContent);
+        }
+        if (newHistoryItemId !== undefined) {
+          currentObj.setHistoryItemId(newHistoryItemId);
+        }
+        if (newDuration !== undefined) {
+          currentObj.setSectionDurationSeconds(newDuration);
+        }
+
+        // Recreate the Section with potentially updated values
+        state.currentSectionObj = new Section(
+          currentObj.getIndex(),
+          currentObj.getOriginalContent(),
+          newContent !== undefined
+            ? newContent
+            : currentObj.getCurrentContent(),
+          newHistoryItemId !== undefined
+            ? newHistoryItemId
+            : currentObj.getHistoryItemId(),
+          newDuration !== undefined
+            ? newDuration
+            : currentObj.getSectionDurationSeconds()
         );
       })
     );

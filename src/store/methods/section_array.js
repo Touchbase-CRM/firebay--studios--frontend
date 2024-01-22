@@ -36,6 +36,7 @@ export class SectionArrayMethods {
         const updatedSection = new Section(
           state.sectionsArray[sectionIndex].getIndex(),
           state.sectionsArray[sectionIndex].getOriginalContent(),
+          state.sectionsArray[sectionIndex].getCurrentContent(),
           newHistoryItemId,
           state.sectionsArray[sectionIndex].getSectionDurationSeconds()
         );
@@ -56,6 +57,7 @@ export class SectionArrayMethods {
       const currentSection = state.sectionsArray[sectionIndex];
       const updatedSection = new Section(
         currentSection.getIndex(),
+        currentSection.getOriginalContent(),
         newContent,
         currentSection.getHistoryItemId()
       );
@@ -77,7 +79,8 @@ export class SectionArrayMethods {
       const currentSection = state.sectionsArray[sectionIndex];
       const updatedSection = new Section(
         currentSection.getIndex(),
-        currentSection.getContent(),
+        currentSection.getOriginalContent(),
+        currentSection.getCurrentContent(),
         currentSection.getHistoryItemId(),
         newSectionDurationSeconds
       );
