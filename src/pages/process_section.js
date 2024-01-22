@@ -194,11 +194,10 @@ function ProcessSection() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptString(updatedScript);
-    updateSectionArrayContentZustand(
-      currentSectionObj.getIndex(),
-      updatedScript
-    );
-    setSectionArrayHistoryItemIdZustand(); // not used yet - TODO not used correctly either.
+    // updateSectionArrayContentZustand(
+    //   currentSectionObj.getIndex(),
+    //   updatedScript
+    // );
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
