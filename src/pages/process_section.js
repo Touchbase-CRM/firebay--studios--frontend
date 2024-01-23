@@ -148,41 +148,39 @@ function ProcessSection() {
       transformedWords[selectedWordIndex] ||
       ogScriptWordsArray[selectedWordIndex];
 
-    // Function to remove all existing emphasis (quotes and uppercase)
     const removeExistingEmphasis = (word) => {
       if (word.startsWith("'") && word.endsWith("'")) {
-        // Remove only the outer quotes
         return word.slice(1, -1);
       }
-      return word; // Return the word as is if it doesn't have outer quotes
+      return word;
     };
+
+    let newTransformedWords = { ...transformedWords }; // Create a new copy of the transformedWords object
 
     switch (action) {
       case "emphasizeLevel1":
-        transformedWords[selectedWordIndex] =
+        newTransformedWords[selectedWordIndex] =
           removeExistingEmphasis(currentWord).toUpperCase();
         break;
       case "emphasizeLevel2":
-        // Use the original form of the word for Level 2
-        transformedWords[
+        newTransformedWords[
           selectedWordIndex
         ] = `'${ogScriptWordsArray[selectedWordIndex]}'`;
         break;
       case "emphasizeLevel3":
-        // Uppercase the original form and add quotes
-        transformedWords[selectedWordIndex] = `'${ogScriptWordsArray[
+        newTransformedWords[selectedWordIndex] = `'${ogScriptWordsArray[
           selectedWordIndex
         ].toUpperCase()}'`;
         break;
       case "removeEmphasis":
-        transformedWords[selectedWordIndex] =
-          ogScriptWordsArray[selectedWordIndex]; // Reset to original word
+        newTransformedWords[selectedWordIndex] =
+          ogScriptWordsArray[selectedWordIndex];
         break;
       default:
         break;
     }
 
-    setTransformedWords({ ...transformedWords });
+    setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
   };
 
