@@ -321,7 +321,7 @@ function CreateSections() {
                                 textAlign: "center", // Center align for better aesthetics
                               }}
                             >
-                              {section.getIndex()}
+                              {section.getIndex() + 1}
                             </td>
                             <td
                               style={{

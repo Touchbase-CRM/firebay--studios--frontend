@@ -83,6 +83,9 @@ function ProcessSection() {
   const [progressBarPercentage, setProgressBarPercentage] = useState(
     (adSecondsConsumed / adLength) * 100
   );
+  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+    adLength - adSecondsConsumed
+  );
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -439,6 +442,7 @@ function ProcessSection() {
       setProgressBarPercentage(
         Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
       );
+      setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
     });
     localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
     localCurrentSectionObj.setCurrentContent(mostUptodateSection);
@@ -522,12 +526,17 @@ function ProcessSection() {
             </Card.Title>
             <Form>
               <Form.Group controlId="voice">
-                <Form.Label>Voice Over Progress</Form.Label>
+                <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
                   now={progressBarPercentage}
                   label={`${progressBarPercentage}%`}
                 />
               </Form.Group>
+              {""}
+              <>
+                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
+                out of {adLength} seconds.
+              </>
             </Form>
           </Card>
         </Col>

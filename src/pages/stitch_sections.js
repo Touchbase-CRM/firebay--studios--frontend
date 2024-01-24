@@ -1,24 +1,17 @@
 import React, { useState } from "react";
 import useUserInputsStore from "../store/userInputs";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import { Button, Card, Row, Col } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { Play } from "react-bootstrap-icons"; // Ensure you have react-bootstrap-icons installed
 import Spinner from "../components/Spinner";
 
 function StitchSections() {
   const { sectionsArray } = useUserInputsStore();
-
   const [audioUrl, setAudioUrl] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
 
-  const handleSectionClick = (section) => {
-    setSelectedSection(section);
-  };
-
   const fetchAudio = (historyItemId) => {
-    console.log(historyItemId);
-    console.log(sectionsArray);
     const options = {
       method: "POST",
       headers: {
@@ -147,7 +140,7 @@ function StitchSections() {
 
           <tbody>
             {sectionsArray.map((section, index) => (
-              <tr key={index} onClick={() => handleSectionClick(section)}>
+              <tr key={index}>
                 <td style={thTdStyle}>{index + 1}</td>
                 <td style={thTdStyle}>{section.originalContent}</td>
                 <td style={thTdStyle}>{section.currentContent}</td>
@@ -161,6 +154,7 @@ function StitchSections() {
                     variant="link"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent event propagation
+                      setSelectedSection(section);
                       fetchAudio(section.historyItemId);
                     }}
                   >
