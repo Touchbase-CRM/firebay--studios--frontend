@@ -21,6 +21,10 @@ export class UserInputMethods {
     this.setGeneratedVoiceUrl = this.setGeneratedVoiceUrl.bind(this);
     this.setHistoryItemId = this.setHistoryItemId.bind(this);
     this.setModelId = this.setModelId.bind(this);
+    this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
+  }
+  setNumSectionsIdentified(numSectionsIdentified) {
+    this.set({ numSectionsIdentified });
   }
 
   setOgScriptWordsArray(ogScriptWordsArray) {

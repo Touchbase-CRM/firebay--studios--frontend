@@ -32,6 +32,7 @@ import {
   collection,
   where,
 } from "firebase/firestore";
+import _ from "lodash";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -61,21 +62,29 @@ function ProcessSection() {
     setAdSecondsConsumed,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
-    historyItemId,
-    setHistoryItemId,
+    // historyItemId,
+    // setHistoryItemId,
     modelId,
     setModelId,
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
     updateMultiplePropertiesSimultaneouslyZustand,
+    sectionsArray,
+    numSectionsIdentified,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
+  const [localCurrentSectionObj, setLocalCurrentSectionObj] =
+    useState(currentSectionObj);
 
+  useEffect(() => {
+    // Update local state when currentSectionObj changes
+    setLocalCurrentSectionObj(currentSectionObj);
+  }, [currentSectionObj]);
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
@@ -267,16 +276,18 @@ function ProcessSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!historyItemId) {
-      showAlert(
-        "info",
-        "Action Required",
-        "Please generate the voice audio before proceeding further."
-      );
-      return;
-    }
+    // if (!historyItemId) {
+    //   showAlert(
+    //     "info",
+    //     "Action Required",
+    //     "Please generate the voice audio before proceeding further."
+    //   );
+    //   return;
+    // }
 
-    addToSectionArrayZustand(currentSectionObj);
+    addToSectionArrayZustand(localCurrentSectionObj);
+    console.log("current obj is ", localCurrentSectionObj);
+    console.log("current arr is ", sectionsArray);
 
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
@@ -369,6 +380,7 @@ function ProcessSection() {
     setIsGeneratingVoice(true);
 
     let audioUrl = ""; // Declare audioUrl here
+    let localHistoryItemId;
 
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
@@ -394,10 +406,7 @@ function ProcessSection() {
       }
 
       // Extract history_item_id from headers
-      const historyItemId = response.headers.get("history-item-id");
-      if (historyItemId) {
-        setHistoryItemId(historyItemId); // Update state with history_item_id
-      }
+      localHistoryItemId = response.headers.get("history-item-id");
 
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("audio/")) {
@@ -418,14 +427,11 @@ function ProcessSection() {
     const audio = new Audio(audioUrl);
     audio.addEventListener("loadedmetadata", () => {
       const newDuration = audio.duration;
-      // setSectionObjDurationZustand(newDuration);
-      updateMultiplePropertiesSimultaneouslyZustand(
-        mostUptodateSection,
-        historyItemId,
-        newDuration
-      );
-      // The Zustand store's `adSecondsConsumed` is not updated here
+      localCurrentSectionObj.setSectionDurationSeconds(newDuration);
     });
+    localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
+    localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+    console.log("After gen localCurrentSectionObj:", localCurrentSectionObj);
 
     setIsGeneratingVoice(false);
   };
@@ -500,10 +506,10 @@ function ProcessSection() {
               marginBottom: "10px",
             }}
           >
-            {/* <Card.Title>
-              Section {currentSectionObj.getIndex()} of{" "}
-              {sectionsQueue.size() + 1}
-            </Card.Title> */}
+            <Card.Title>
+              Section {currentSectionObj.getIndex() + 1} of{" "}
+              {numSectionsIdentified}
+            </Card.Title>
             <Form>
               <Form.Group controlId="voice">
                 <Form.Label>Voice Over Progress</Form.Label>

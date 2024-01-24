@@ -22,6 +22,8 @@ function CreateSections() {
     dequeueSectionZustand,
     // sectionsArray,
     currentSectionObj,
+    numSectionsIdentified,
+    setNumSectionsIdentified,
     setCurrentSectionObjZustand,
     setOriginalScriptString,
     ogScriptWordsArray,
@@ -76,6 +78,7 @@ function CreateSections() {
 
     // Clear the current queue before adding new sections
     useUserInputsStore.getState().resetSectionsQueueZustand();
+    setNumSectionsIdentified(extractedSections.length);
     // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(

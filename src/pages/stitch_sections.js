@@ -1,57 +1,109 @@
-import React from "react";
+import React, { useState } from "react";
 import useUserInputsStore from "../store/userInputs";
-function StitchSections() {
-  // Zustand store hooks
-  const {
-    sectionsQueue,
-    dequeueSectionZustand,
-    ogScriptWordsArray, //holds the original script words as an array of strings.
-    setOgScriptWordsArray,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
-    setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
-    setTransformedWords,
-    voiceId,
-    setVoiceId,
-    voiceName,
-    setVoiceName,
-    voicePreviewFilename,
-    setVoicePreviewFilename,
-    adLength,
-    setAdLength,
-    adSecondsConsumed,
-    setAdSecondsConsumed,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
-    historyItemId,
-    setHistoryItemId,
-    modelId,
-    setModelId,
-    setSectionHistoryItemIdZustand, // for the current section
-    setSectionArrayHistoryItemIdZustand, // for the entire section array
-    updateSectionArrayContentZustand,
-    currentSectionObj,
-    sectionsArray,
-    addToSectionArrayZustand,
-    setSectionObjDurationZustand,
-    setCurrentSectionObjZustand,
-  } = useUserInputsStore();
+import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import { Button } from "react-bootstrap";
+import { Play } from "react-bootstrap-icons"; // Ensure you have react-bootstrap-icons installed
 
-  console.log("final array: ", sectionsArray);
-  console.log(
-    "history item ids: ",
-    sectionsArray.map((section) => section.getHistoryItemId())
-  );
-  // Function to log sectionsArray
-  const logSectionsArray = () => {
-    console.log("Latest sectionsArray: ", sectionsArray);
-    console.log(" currentSectionObj", currentSectionObj);
+function StitchSections() {
+  const { sectionsArray } = useUserInputsStore();
+
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioTitle, setAudioTitle] = useState("");
+
+  const fetchAudio = (historyItemId) => {
+    console.log(historyItemId);
+    console.log(sectionsArray);
+    const options = {
+      method: "POST",
+      headers: {
+        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ history_item_ids: [historyItemId] }),
+    };
+
+    fetch("https://api.elevenlabs.io/v1/history/download", options)
+      .then((response) => response.blob()) // Handle the response as a blob
+      .then((blob) => {
+        const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
+        setAudioUrl(audioUrl);
+        setAudioTitle(`Section ${historyItemId}`);
+      })
+      .catch((err) => console.error(err));
   };
+
+  const currentTotalDuration = sectionsArray.reduce(
+    (acc, section) => acc + section.sectionDurationSeconds,
+    0
+  );
+
+  const cardStyle = {
+    padding: "20px",
+    backgroundColor: "#282c34",
+    color: "white",
+    marginTop: "10px",
+    marginBottom: "10px",
+  };
+
+  const tableStyle = {
+    width: "100%",
+    backgroundColor: "#343a40",
+    borderCollapse: "collapse",
+  };
+
+  const thTdStyle = {
+    padding: "10px",
+    borderBottom: "1px solid gray",
+  };
+
   return (
-    <div>
-      <h1>Under Construction</h1>
-      <p>This page is currently under construction. Please check back later.</p>
-      <button onClick={logSectionsArray}>Log Sections Array</button>
+    <div
+      style={{
+        backgroundColor: "#343a40",
+        minHeight: "100vh",
+        padding: "20px",
+      }}
+    >
+      <div style={cardStyle}>
+        <h1 style={{ color: "white" }}>Sections Overview</h1>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={thTdStyle}>Index</th>
+              <th style={thTdStyle}>Original Content</th>
+              <th style={thTdStyle}>Current Content</th>
+              <th style={thTdStyle}>Duration (Seconds)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sectionsArray.map((section, index) => (
+              <tr key={index}>
+                <td style={thTdStyle}>{index}</td>
+                <td style={thTdStyle}>{section.originalContent}</td>
+                <td style={thTdStyle}>{section.currentContent}</td>
+                <td style={thTdStyle}>
+                  {section.sectionDurationSeconds.toFixed(2)}{" "}
+                  <Button
+                    variant="link"
+                    onClick={() => fetchAudio(section.historyItemId)}
+                  >
+                    <Play color="white" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ marginTop: "20px", textAlign: "center", color: "white" }}>
+          <p>Total Duration: {currentTotalDuration.toFixed(2)} seconds</p>
+        </div>
+      </div>
+      {/* Audio Player */}
+      {audioUrl && (
+        <div style={{ position: "relative", marginTop: "400px" }}>
+          <SimpleAudioPlayer audioSrc={audioUrl} audioTitle={audioTitle} />
+        </div>
+      )}
     </div>
   );
 }

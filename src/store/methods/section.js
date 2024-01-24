@@ -94,6 +94,12 @@ export class SectionMethods {
     this.set(
       produce((state) => {
         const currentObj = state.currentSectionObj;
+        console.log(
+          "I received a new value",
+          newContent,
+          newHistoryItemId,
+          newDuration
+        );
 
         // Apply updates only if values are provided
         if (newContent !== undefined) {

@@ -23,6 +23,7 @@ export const defaultState = {
   historyItemId: null,
   modelId: "eleven_multilingual_v2",
   currentSectionObj: new Section(0, "", "", null, 0),
+  numSectionsIdentified: 0,
 };
 
 export default defaultState;
