@@ -9,6 +9,11 @@ function StitchSections() {
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
+  const [selectedSection, setSelectedSection] = useState(null);
+
+  const handleSectionClick = (section) => {
+    setSelectedSection(section);
+  };
 
   const fetchAudio = (historyItemId) => {
     console.log(historyItemId);
@@ -27,7 +32,7 @@ function StitchSections() {
       .then((blob) => {
         const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
         setAudioUrl(audioUrl);
-        setAudioTitle(`Section ${historyItemId}`);
+        // setAudioTitle(`Section ${historyItemId}`);
       })
       .catch((err) => console.error(err));
   };
@@ -69,16 +74,16 @@ function StitchSections() {
         <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={thTdStyle}>Index</th>
-              <th style={thTdStyle}>Original Content</th>
-              <th style={thTdStyle}>Current Content</th>
+              <th style={thTdStyle}>Section ID</th>
+              <th style={thTdStyle}>Initial Section</th>
+              <th style={thTdStyle}>Changed Section</th>
               <th style={thTdStyle}>Duration (Seconds)</th>
             </tr>
           </thead>
           <tbody>
             {sectionsArray.map((section, index) => (
-              <tr key={index}>
-                <td style={thTdStyle}>{index}</td>
+              <tr key={index} onClick={() => handleSectionClick(section)}>
+                <td style={thTdStyle}>{index + 1}</td>
                 <td style={thTdStyle}>{section.originalContent}</td>
                 <td style={thTdStyle}>{section.currentContent}</td>
                 <td style={thTdStyle}>
@@ -101,7 +106,10 @@ function StitchSections() {
       {/* Audio Player */}
       {audioUrl && (
         <div style={{ position: "relative", marginTop: "400px" }}>
-          <SimpleAudioPlayer audioSrc={audioUrl} audioTitle={audioTitle} />
+          <SimpleAudioPlayer
+            audioSrc={audioUrl}
+            audioTitle={`Section ${selectedSection.getIndex() + 1} `}
+          />
         </div>
       )}
     </div>
