@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import useUserInputsStore from "../store/userInputs";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import { Button } from "react-bootstrap";
+import { Button, Card, Row, Col } from "react-bootstrap";
 import { Play } from "react-bootstrap-icons"; // Ensure you have react-bootstrap-icons installed
+import Spinner from "../components/Spinner";
 
 function StitchSections() {
   const { sectionsArray } = useUserInputsStore();
 
   const [audioUrl, setAudioUrl] = useState("");
-  const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
+  const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
@@ -42,6 +43,19 @@ function StitchSections() {
     0
   );
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setPendingAdvertisement(true);
+  };
+
+  const cancelLoading = () => {
+    setPendingAdvertisement(false);
+  };
+
+  const cancelAndRetryLoading = () => {
+    setPendingAdvertisement(false);
+  };
+
   const cardStyle = {
     padding: "20px",
     backgroundColor: "#282c34",
@@ -61,6 +75,55 @@ function StitchSections() {
     borderBottom: "1px solid gray",
   };
 
+  if (pendingAdvertisement) {
+    return (
+      <div
+        className="d-flex align-items-center justify-content-center flex-column"
+        style={{ height: "100vh" }}
+      >
+        <Spinner
+          animation="border"
+          variant="primary"
+          style={{ marginBottom: "200px" }}
+        />
+
+        <Card className="p-4 bg-dark text-white" style={{ marginTop: "300px" }}>
+          <p
+            className="ml-3 mb-0"
+            style={{
+              fontWeight: "bold",
+              fontSize: "24px",
+              color: "white",
+              textShadow: "1px 1px 1px #000",
+            }}
+          >
+            Just a second. We are stitching the sections together (This page is
+            under construction. Please come back later...)
+          </p>
+        </Card>
+        <div className="mt-3">
+          <Button
+            variant="danger"
+            onClick={cancelLoading}
+            style={{ marginRight: "20px", width: "200px" }} // Setting a fixed width
+            title="Stop the current operation and start from the beginning."
+          >
+            Cancel and Start Over
+          </Button>
+
+          <Button
+            variant="warning"
+            onClick={cancelAndRetryLoading}
+            style={{ width: "200px" }} // Setting the same fixed width
+            title="Stop the current order and retry with the same data."
+          >
+            Cancel and Resubmit
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -76,7 +139,7 @@ function StitchSections() {
             <tr>
               <th style={thTdStyle}>Section ID</th>
               <th style={thTdStyle}>Initial Section</th>
-              <th style={thTdStyle}>Changed Section</th>
+              <th style={thTdStyle}>Current Section</th>
               <th style={thTdStyle}>Duration (Seconds)</th>
             </tr>
           </thead>
@@ -103,6 +166,14 @@ function StitchSections() {
           <p>Total Duration: {currentTotalDuration.toFixed(2)} seconds</p>
         </div>
       </div>
+      <Button
+        variant="success"
+        onClick={handleSubmit}
+        style={{ marginRight: "20px", width: "200px" }} // Setting a fixed width
+        title="Finalize the voiceover"
+      >
+        Finalize the voiceover
+      </Button>
       {/* Audio Player */}
       {audioUrl && (
         <div style={{ position: "relative", marginTop: "400px" }}>
