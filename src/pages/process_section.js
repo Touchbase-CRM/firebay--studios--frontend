@@ -81,16 +81,23 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] =
     useState(currentSectionObj);
 
-  useEffect(() => {
-    // Update local state when currentSectionObj changes
-    setLocalCurrentSectionObj(currentSectionObj);
-  }, [currentSectionObj]);
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+
+  useEffect(() => {
+    // Update local state when currentSectionObj changes
+    setLocalCurrentSectionObj(currentSectionObj);
+  }, [currentSectionObj.getIndex()]);
+
+  // useEffect(() => {
+  //   // Update local state when currentSectionObj changes
+  //   setLocalCurrentSectionObj(currentSectionObj);
+  // }, [currentSectionObj]);
+
   useEffect(() => {
     if (isFormSubmitted && sectionsQueue.size() === 0) {
       // Check if the queue is empty
