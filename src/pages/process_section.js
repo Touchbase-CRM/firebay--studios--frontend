@@ -80,6 +80,9 @@ function ProcessSection() {
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] =
     useState(currentSectionObj);
+  const [progressBarPercentage, setProgressBarPercentage] = useState(
+    (adSecondsConsumed / adLength) * 100
+  );
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -283,18 +286,16 @@ function ProcessSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // if (!historyItemId) {
-    //   showAlert(
-    //     "info",
-    //     "Action Required",
-    //     "Please generate the voice audio before proceeding further."
-    //   );
-    //   return;
-    // }
+    if (!localCurrentSectionObj.getHistoryItemId()) {
+      showAlert(
+        "info",
+        "Action Required",
+        "Please generate the voice audio before proceeding further."
+      );
+      return;
+    }
 
     addToSectionArrayZustand(localCurrentSectionObj);
-    console.log("current obj is ", localCurrentSectionObj);
-    console.log("current arr is ", sectionsArray);
 
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
@@ -435,10 +436,12 @@ function ProcessSection() {
     audio.addEventListener("loadedmetadata", () => {
       const newDuration = audio.duration;
       localCurrentSectionObj.setSectionDurationSeconds(newDuration);
+      setProgressBarPercentage(
+        Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+      );
     });
     localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
     localCurrentSectionObj.setCurrentContent(mostUptodateSection);
-    console.log("After gen localCurrentSectionObj:", localCurrentSectionObj);
 
     setIsGeneratingVoice(false);
   };
@@ -514,25 +517,15 @@ function ProcessSection() {
             }}
           >
             <Card.Title>
-              Section {currentSectionObj.getIndex() + 1} of{" "}
+              Section {localCurrentSectionObj.getIndex() + 1} of{" "}
               {numSectionsIdentified}
             </Card.Title>
             <Form>
               <Form.Group controlId="voice">
                 <Form.Label>Voice Over Progress</Form.Label>
                 <ProgressBar
-                  now={
-                    ((adSecondsConsumed +
-                      currentSectionObj.getSectionDurationSeconds()) /
-                      adLength) *
-                    100
-                  }
-                  label={`${Math.round(
-                    ((adSecondsConsumed +
-                      currentSectionObj.getSectionDurationSeconds()) /
-                      adLength) *
-                      100
-                  )}%`}
+                  now={progressBarPercentage}
+                  label={`${progressBarPercentage}%`}
                 />
               </Form.Group>
             </Form>
