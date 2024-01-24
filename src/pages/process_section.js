@@ -450,17 +450,6 @@ function ProcessSection() {
     setIsGeneratingVoice(false);
   };
 
-  const dropdownItems = [
-    {
-      text: "Manage Subscription",
-      handler: handleManageSubscription,
-    },
-    {
-      text: "Logout",
-      handler: handleLogout,
-    },
-  ];
-
   const wordCountStyle = {
     position: "absolute",
     bottom: "10px",
@@ -480,12 +469,7 @@ function ProcessSection() {
         flexDirection: "column",
       }}
     >
-      <Navbar
-        bg="dark"
-        variant="dark"
-        expand="lg"
-        style={{ marginBottom: "20px" }}
-      >
+      <Navbar bg="dark" variant="dark" expand="lg">
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
@@ -497,18 +481,17 @@ function ProcessSection() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-between"
-        >
-          <Nav className="mr-auto">
-            {/* Other nav links or content can go here */}
-          </Nav>
-          {/* This will ensure the CustomDropdown is aligned to the right */}
-          <div style={{ paddingRight: "25px" }}>
-            <CustomDropdown items={dropdownItems} />
-          </div>
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto"></Nav>
         </Navbar.Collapse>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleLogout}
+          style={{ marginRight: "10px" }}
+        >
+          Logout
+        </Button>
       </Navbar>
 
       <Row>
