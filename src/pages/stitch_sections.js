@@ -245,11 +245,12 @@ function StitchSections() {
       <Button
         variant="success"
         onClick={handleSubmit}
-        style={{ marginRight: "20px", width: "200px" }} // Setting a fixed width
+        style={{ marginLeft: "20px", width: "200px" }} // Added marginLeft here
         title="Finalize the voiceover"
       >
         Finalize the voiceover
       </Button>
+
       {/* Audio Player */}
       <SimpleAudioPlayer
         audioSrc={audioUrl}
