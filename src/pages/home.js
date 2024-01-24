@@ -106,8 +106,8 @@ function Home() {
       <div className={styles.container}>
         <Card
           style={{
-            width: "400px",
-            height: "256px",
+            width: "512px",
+            height: "512px",
             marginTop: "10px",
             marginBottom: "300px",
             position: "relative",
@@ -168,8 +168,17 @@ function Home() {
             style={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
+              textAlign: "left", // Center align the text
+              fontWeight: "bold", // Make the text bold
+              fontSize: "10px", // Increase the font size a bit
+              lineHeight: "1.5", // Adjust line height for better readability
+              backgroundColor: "#343a40", // Match with the header background for consistency
             }}
           >
+            <p>
+              Once you start creating an ad, please do not use the browser back
+              button or reload the page. It will log you out of your account.
+            </p>
             {/* Footer content */}
           </Card.Footer>
         </Card>
