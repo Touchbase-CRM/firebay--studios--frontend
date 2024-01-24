@@ -1,11 +1,24 @@
 import React, { useState } from "react";
 import useUserInputsStore from "../store/userInputs";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import { Button, Card } from "react-bootstrap";
+import { getAuth } from "firebase/auth";
+import withAuth from "../hocs/withAuth";
+
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Button,
+  Spinner as BootstrapSpinner,
+} from "react-bootstrap";
 import { Play } from "react-bootstrap-icons"; // Ensure you have react-bootstrap-icons installed
 import Spinner from "../components/Spinner";
 
 function StitchSections() {
+  const auth = getAuth();
   const { sectionsArray } = useUserInputsStore();
   const [audioUrl, setAudioUrl] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -47,6 +60,17 @@ function StitchSections() {
 
   const cancelAndRetryLoading = () => {
     setPendingAdvertisement(false);
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
   };
 
   const cardStyle = {
@@ -122,9 +146,34 @@ function StitchSections() {
       style={{
         backgroundColor: "#343a40",
         minHeight: "100vh",
-        padding: "20px",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Navbar.Brand style={{ marginLeft: "10px" }}>
+          <img
+            src="/fire.png"
+            alt="Firebay Studios"
+            width="50"
+            height="50"
+            className="d-inline-block align-top"
+          />
+        </Navbar.Brand>
+
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto"></Nav>
+        </Navbar.Collapse>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleLogout}
+          style={{ marginRight: "10px" }}
+        >
+          Logout
+        </Button>
+      </Navbar>
       <div style={cardStyle}>
         <h1 style={{ color: "white" }}>Sections Overview</h1>
         <table style={tableStyle}>
@@ -178,16 +227,14 @@ function StitchSections() {
         Finalize the voiceover
       </Button>
       {/* Audio Player */}
-      {audioUrl && (
-        <div style={{ position: "relative", marginTop: "400px" }}>
-          <SimpleAudioPlayer
-            audioSrc={audioUrl}
-            audioTitle={`Section ${selectedSection.getIndex() + 1} `}
-          />
-        </div>
-      )}
+      <SimpleAudioPlayer
+        audioSrc={audioUrl}
+        audioTitle={
+          audioUrl ? `Section ${selectedSection.getIndex() + 1}` : null
+        }
+      />
     </div>
   );
 }
 
-export default StitchSections;
+export default withAuth(StitchSections);
