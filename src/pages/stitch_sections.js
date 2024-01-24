@@ -141,8 +141,10 @@ function StitchSections() {
               <th style={thTdStyle}>Initial Section</th>
               <th style={thTdStyle}>Current Section</th>
               <th style={thTdStyle}>Duration (Seconds)</th>
+              <th style={thTdStyle}>Play</th> {/* New column for play button */}
             </tr>
           </thead>
+
           <tbody>
             {sectionsArray.map((section, index) => (
               <tr key={index} onClick={() => handleSectionClick(section)}>
@@ -150,10 +152,17 @@ function StitchSections() {
                 <td style={thTdStyle}>{section.originalContent}</td>
                 <td style={thTdStyle}>{section.currentContent}</td>
                 <td style={thTdStyle}>
-                  {section.sectionDurationSeconds.toFixed(2)}{" "}
+                  {section.sectionDurationSeconds.toFixed(2)}
+                </td>
+                <td style={thTdStyle}>
+                  {" "}
+                  {/* New cell for the play button */}
                   <Button
                     variant="link"
-                    onClick={() => fetchAudio(section.historyItemId)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent event propagation
+                      fetchAudio(section.historyItemId);
+                    }}
                   >
                     <Play color="white" />
                   </Button>
