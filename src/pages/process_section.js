@@ -72,6 +72,7 @@ function ProcessSection() {
     updateMultiplePropertiesSimultaneouslyZustand,
     sectionsArray,
     numSectionsIdentified,
+    reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
@@ -93,6 +94,26 @@ function ProcessSection() {
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+
+  useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
 
   useEffect(() => {
     // Update local state when currentSectionObj changes
@@ -335,6 +356,7 @@ function ProcessSection() {
   };
 
   const handleLogout = () => {
+    resetUserInputsStore();
     localStorage.removeItem("user");
     auth
       .signOut()

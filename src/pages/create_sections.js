@@ -30,6 +30,7 @@ function CreateSections() {
     setOgScriptWordsArray,
     transformedWords,
     setTransformedWords,
+    reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -154,6 +155,7 @@ function CreateSections() {
   };
 
   const handleLogout = () => {
+    resetUserInputsStore();
     localStorage.removeItem("user");
     auth
       .signOut()

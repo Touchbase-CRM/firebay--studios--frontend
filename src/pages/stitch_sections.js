@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useUserInputsStore from "../store/userInputs";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import { getAuth } from "firebase/auth";
 import withAuth from "../hocs/withAuth";
+import { useRouter } from "next/router";
 
 import {
   Row,
@@ -19,10 +20,32 @@ import Spinner from "../components/Spinner";
 
 function StitchSections() {
   const auth = getAuth();
-  const { sectionsArray } = useUserInputsStore();
+  const router = useRouter();
+
+  const { sectionsArray, reset: resetUserInputsStore } = useUserInputsStore();
   const [audioUrl, setAudioUrl] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+
+  useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
 
   const fetchAudio = (historyItemId) => {
     const options = {
@@ -62,6 +85,7 @@ function StitchSections() {
     setPendingAdvertisement(false);
   };
   const handleLogout = () => {
+    resetUserInputsStore();
     localStorage.removeItem("user");
     auth
       .signOut()
