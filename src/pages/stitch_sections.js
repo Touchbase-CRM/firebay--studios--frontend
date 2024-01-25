@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useUserInputsStore from "../store/userInputs";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import { getAuth } from "firebase/auth";
 import withAuth from "../hocs/withAuth";
 import { useRouter } from "next/router";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 import {
   Row,
@@ -26,6 +28,12 @@ function StitchSections() {
   const [audioUrl, setAudioUrl] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
+  const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
+  const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
+
+  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+  const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
     // prevent back button
@@ -62,6 +70,7 @@ function StitchSections() {
       .then((blob) => {
         const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
         setAudioUrl(audioUrl);
+        setNowPlayingUrl(audioUrl);
         // setAudioTitle(`Section ${historyItemId}`);
       })
       .catch((err) => console.error(err));
@@ -71,10 +80,57 @@ function StitchSections() {
     (acc, section) => acc + section.sectionDurationSeconds,
     0
   );
+  const handleNext = (e) => {
+    e.preventDefault();
+    router.push("/add_music");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setPendingAdvertisement(true);
+
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+    cancelTokenSourceRef.current = axios.CancelToken.source();
+
+    const historyItemIds = sectionsArray.map((section) =>
+      section.getHistoryItemId()
+    );
+    const payload = {
+      user_id: userId,
+      history_item_id_list: historyItemIds,
+    };
+    const url = `${musicGenWebServiceUrl}/stitch-sections`;
+    // Send POST request to the API
+    axios
+      .post(url, payload, {
+        responseType: "arraybuffer",
+        cancelToken: cancelTokenSourceRef.current.token, // Using the token from useRef
+      })
+      .then((response) => {
+        console.log("Audio data received");
+
+        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        setCombinedVoiceoverUrl(audioUrl);
+        setNowPlayingUrl(audioUrl);
+      })
+      .catch((error) => {
+        if (axios.isCancel(error)) {
+          console.log("Request was canceled:", error.message);
+        } else if (error.response) {
+          console.error(
+            `Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`
+          );
+        } else if (error.request) {
+          console.error(`No response received: ${error.request}`);
+        } else {
+          console.error(`Error: ${error.message}`);
+        }
+      })
+      .finally(() => {
+        setPendingAdvertisement(false); // Set pending to false when API call completes
+      });
   };
 
   const cancelLoading = () => {
@@ -198,64 +254,135 @@ function StitchSections() {
           Logout
         </Button>
       </Navbar>
-      <div style={cardStyle}>
-        <h1 style={{ color: "white" }}>Sections Overview</h1>
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={thTdStyle}>Section ID</th>
-              <th style={thTdStyle}>Initial Section</th>
-              <th style={thTdStyle}>Current Section</th>
-              <th style={thTdStyle}>Duration (Seconds)</th>
-              <th style={thTdStyle}>Play</th> {/* New column for play button */}
-            </tr>
-          </thead>
 
-          <tbody>
-            {sectionsArray.map((section, index) => (
-              <tr key={index}>
-                <td style={thTdStyle}>{index + 1}</td>
-                <td style={thTdStyle}>{section.originalContent}</td>
-                <td style={thTdStyle}>{section.currentContent}</td>
-                <td style={thTdStyle}>
-                  {section.sectionDurationSeconds.toFixed(2)}
-                </td>
-                <td style={thTdStyle}>
-                  {" "}
-                  {/* New cell for the play button */}
-                  <Button
-                    variant="link"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent event propagation
-                      setSelectedSection(section);
-                      fetchAudio(section.historyItemId);
-                    }}
-                  >
-                    <Play color="white" />
-                  </Button>
-                </td>
+      {/* Card Style Div */}
+      <div
+        style={{
+          margin: "20px",
+          padding: "20px",
+          backgroundColor: "#2c3034", // Card background color
+          borderRadius: "8px", // Rounded corners for the card
+          boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)", // Simple shadow effect
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <h1 style={{ color: "white" }}>Sections Overview</h1>
+        <div style={{ overflowX: "auto" }}>
+          <table style={tableStyle}>
+            {/* Table head */}
+            <thead>
+              <tr>
+                <th style={thTdStyle}>Section ID</th>
+                <th style={thTdStyle}>Initial Section</th>
+                <th style={thTdStyle}>Current Section</th>
+                <th style={thTdStyle}>Duration (Seconds)</th>
+                <th style={thTdStyle}>Play</th>{" "}
+                {/* New column for play button */}
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div style={{ marginTop: "20px", textAlign: "center", color: "white" }}>
-          <p>Total Duration: {currentTotalDuration.toFixed(2)} seconds</p>
+            </thead>
+            {/* Table body */}
+            <tbody>
+              {sectionsArray.map((section, index) => (
+                <tr key={index}>
+                  <td style={thTdStyle}>{index + 1}</td>
+                  <td style={thTdStyle}>{section.originalContent}</td>
+                  <td style={thTdStyle}>{section.currentContent}</td>
+                  <td style={thTdStyle}>
+                    {section.sectionDurationSeconds.toFixed(2)}
+                  </td>
+                  <td style={thTdStyle}>
+                    <Button
+                      variant="link"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedSection(section);
+                        fetchAudio(section.historyItemId);
+                      }}
+                      style={{ color: "white" }}
+                    >
+                      <Play color="white" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer Section */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#20262e",
+            borderRadius: "0 0 8px 8px",
+          }}
+        >
+          {/* Total Duration on the left */}
+          <div style={{ flex: 1, textAlign: "left" }}>
+            <span style={{ fontSize: "1.2em" }}>
+              Sum of section durations: {currentTotalDuration.toFixed(2)}{" "}
+              seconds
+            </span>
+          </div>
+
+          <div style={{ flex: 1, textAlign: "center" }}>
+            {combinedVoiceoverUrl !== null ? (
+              <Button
+                variant="link"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNowPlayingUrl(combinedVoiceoverUrl);
+                }}
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                  Play Final Cut:
+                </span>
+                <Play
+                  color="white"
+                  style={{ verticalAlign: "middle", fontSize: "2rem" }}
+                />
+              </Button>
+            ) : null}
+          </div>
+
+          {/* Invisible spacer on the right to balance the layout */}
+          <div style={{ flex: 1 }}></div>
         </div>
       </div>
-      <Button
-        variant="success"
-        onClick={handleSubmit}
-        style={{ marginLeft: "20px", width: "200px" }} // Added marginLeft here
-        title="Finalize the voiceover"
-      >
-        Finalize the voiceover
-      </Button>
+
+      {/* Conditional rendering for finalize or next button */}
+      {combinedVoiceoverUrl === null ? (
+        <Button
+          variant="success"
+          onClick={handleSubmit}
+          style={{ marginLeft: "20px", width: "200px", marginTop: "20px" }}
+          title="Finalize the voiceover"
+        >
+          Finalize the voiceover
+        </Button>
+      ) : (
+        <Button
+          variant="primary"
+          onClick={handleNext}
+          style={{ marginLeft: "20px", width: "200px", marginTop: "20px" }}
+          title="Next"
+        >
+          Next
+        </Button>
+      )}
 
       {/* Audio Player */}
       <SimpleAudioPlayer
-        audioSrc={audioUrl}
+        audioSrc={nowPlayingUrl}
         audioTitle={
-          audioUrl ? `Section ${selectedSection.getIndex() + 1}` : null
+          audioUrl && combinedVoiceoverUrl === null
+            ? `Section ${selectedSection.getIndex() + 1}`
+            : null
         }
       />
     </div>

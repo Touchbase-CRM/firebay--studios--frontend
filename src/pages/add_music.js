@@ -63,8 +63,8 @@ function AddMusic() {
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
-  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+  const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const audioStitchWebServiceUrl = "http://localhost:8000"; // For local testing
 
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
@@ -158,7 +158,7 @@ function AddMusic() {
 
     try {
       const response = await axios.post(
-        `${musicGenWebServiceUrl}/music_preview_volume_change`,
+        `${audioStitchWebServiceUrl}/music_preview_volume_change`,
         {
           music_vol: newVolume,
           music_choice: previewFileName,
@@ -261,7 +261,7 @@ function AddMusic() {
 
     // Endpoint URL
     // prettier-ignore
-    const url =`${musicGenWebServiceUrl}/generate-mix`;
+    const url =`${audioStitchWebServiceUrl}/generate-mix`;
     // Send POST request to the API
     axios
       .post(url, payload, {
