@@ -142,10 +142,40 @@ function StitchSections() {
 
   const cancelLoading = () => {
     setPendingAdvertisement(false);
+    if (cancelTokenSourceRef.current) {
+      cancelTokenSourceRef.current.cancel("Request canceled by the user.");
+    }
+    Swal.fire({
+      icon: "info",
+      title: "Submission Cancelled",
+      text: 'Your submission has been cancelled. Click "OK" to redirect to the Home page...',
+      showConfirmButton: true, // show the confirmation button
+      confirmButtonText: "OK",
+      allowOutsideClick: false,
+    }).then((result) => {
+      // If the modal was closed by the confirmation button, redirect.
+      if (result.isConfirmed) {
+        resetUserInputsStore();
+
+        router.push("/home");
+      }
+    });
   };
 
   const cancelAndRetryLoading = () => {
-    setPendingAdvertisement(false);
+    if (cancelTokenSourceRef.current) {
+      cancelTokenSourceRef.current.cancel(
+        "Request canceled by the user for retry."
+      );
+    }
+
+    Swal.fire({
+      icon: "info",
+      title: "Submission Cancelled",
+      text: "Your previous submission has been cancelled. You can retry submitting again if you wish.",
+      confirmButtonText: "OK",
+      allowOutsideClick: false,
+    });
   };
   const handleLogout = () => {
     resetUserInputsStore();
