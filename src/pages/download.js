@@ -26,7 +26,7 @@ const DownloadPage = () => {
   const { user } = useAuth();
   // const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset, generatedVoiceUrl, musicVol } = useUserInputsStore();
+  const { reset, generatedVoiceUrl, sectionsArray } = useUserInputsStore();
   // useEffect(() => {
   //   if (user?.uid) {
   //     const docRef = doc(db, "uid_to_org", user.uid);
@@ -83,7 +83,7 @@ const DownloadPage = () => {
 
   const handleNewAd = () => {
     reset();
-    router.push("/create_ad");
+    router.push("/home");
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
@@ -248,15 +248,17 @@ const DownloadPage = () => {
                   </Link>
                 </li>
                 <li style={{ marginBottom: "12px" }}>
-                  <Link href="/create_ad" passHref>
-                    <button
-                      className="btn btn-outline-light btn-lg"
-                      style={{ width: "100%" }}
-                      onClick={handleChangeScriptOrVoice}
-                    >
-                      Change Script or Voice
-                    </button>
-                  </Link>
+                  {sectionsArray.length === 0 && (
+                    <Link href="/create_ad" passHref>
+                      <button
+                        className="btn btn-outline-light btn-lg"
+                        style={{ width: "100%" }}
+                        onClick={handleChangeScriptOrVoice}
+                      >
+                        Change Script or Voice
+                      </button>
+                    </Link>
+                  )}
                 </li>
               </ul>
             </div>

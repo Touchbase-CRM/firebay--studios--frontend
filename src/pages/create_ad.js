@@ -288,9 +288,9 @@ function CreateAd() {
 
     if (!isValid) return;
 
-    if (!historyItemId) {
-      handleGenerateVoice();
-    }
+    // if (!historyItemId) {
+    //   handleGenerateVoice();
+    // }
   };
 
   const handleLogout = () => {

@@ -23,8 +23,11 @@ import Spinner from "../components/Spinner";
 function StitchSections() {
   const auth = getAuth();
   const router = useRouter();
-
-  const { sectionsArray, reset: resetUserInputsStore } = useUserInputsStore();
+  const {
+    sectionsArray,
+    reset: resetUserInputsStore,
+    setGeneratedVoiceUrl,
+  } = useUserInputsStore();
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -83,6 +86,7 @@ function StitchSections() {
   );
   const handleNext = (e) => {
     e.preventDefault();
+    setGeneratedVoiceUrl(combinedVoiceoverUrl);
     router.push("/add_music");
   };
 
