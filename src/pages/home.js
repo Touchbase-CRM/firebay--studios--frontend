@@ -1,4 +1,3 @@
-import React from "react";
 import { Navbar, Nav, Button, Card } from "react-bootstrap";
 import Link from "next/link";
 import styles from "../styles/DownloadPage.module.css";
@@ -10,10 +9,17 @@ import { getAuth } from "firebase/auth";
 import app from "../firebase";
 import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
+import useUserInputsStore from "../store/userInputs";
+import React, { useState, useEffect, useRef } from "react";
 
 function Home() {
   const auth = getAuth();
   const router = useRouter();
+  const { reset: resetUserInputsStore } = useUserInputsStore();
+
+  useEffect(() => {
+    resetUserInputsStore();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
