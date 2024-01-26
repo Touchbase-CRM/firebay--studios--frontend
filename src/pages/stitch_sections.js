@@ -26,10 +26,12 @@ function StitchSections() {
 
   const { sectionsArray, reset: resetUserInputsStore } = useUserInputsStore();
   const [audioUrl, setAudioUrl] = useState("");
+  const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
+  const [forceRenderKey, setForceRenderKey] = useState(0);
 
   // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
   const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
@@ -71,7 +73,6 @@ function StitchSections() {
         const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
         setAudioUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
-        // setAudioTitle(`Section ${historyItemId}`);
       })
       .catch((err) => console.error(err));
   };
@@ -114,6 +115,8 @@ function StitchSections() {
 
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
+        setAudioTitle("Final Cut");
+        setForceRenderKey(Math.random().toString());
       })
       .catch((error) => {
         if (axios.isCancel(error)) {
@@ -194,8 +197,7 @@ function StitchSections() {
               textShadow: "1px 1px 1px #000",
             }}
           >
-            Just a second. We are stitching the sections together (This page is
-            under construction. Please come back later...)
+            Just a second. We are stitching the sections together...
           </p>
         </Card>
         <div className="mt-3">
@@ -297,6 +299,7 @@ function StitchSections() {
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedSection(section);
+                        setAudioTitle(`Section ${section.getIndex() + 1}`);
                         fetchAudio(section.historyItemId);
                       }}
                       style={{ color: "white" }}
@@ -324,7 +327,7 @@ function StitchSections() {
           {/* Total Duration on the left */}
           <div style={{ flex: 1, textAlign: "left" }}>
             <span style={{ fontSize: "1.2em" }}>
-              Sum of section durations: {currentTotalDuration.toFixed(2)}{" "}
+              Total of the section durations: {currentTotalDuration.toFixed(2)}{" "}
               seconds
             </span>
           </div>
@@ -335,12 +338,14 @@ function StitchSections() {
                 variant="link"
                 onClick={(e) => {
                   e.stopPropagation();
+                  setForceRenderKey(Math.random().toString());
                   setNowPlayingUrl(combinedVoiceoverUrl);
+                  setAudioTitle("Final Cut");
                 }}
                 style={{ color: "white", textDecoration: "none" }}
               >
                 <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Play Final Cut:
+                  Replay Final Cut:
                 </span>
                 <Play
                   color="white"
@@ -379,11 +384,9 @@ function StitchSections() {
       {/* Audio Player */}
       <SimpleAudioPlayer
         audioSrc={nowPlayingUrl}
-        audioTitle={
-          audioUrl && combinedVoiceoverUrl === null
-            ? `Section ${selectedSection.getIndex() + 1}`
-            : null
-        }
+        audioTitle={audioTitle}
+        forceRender={forceRenderKey}
+        autoplay={true}
       />
     </div>
   );
