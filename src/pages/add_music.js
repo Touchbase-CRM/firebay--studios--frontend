@@ -48,7 +48,6 @@ function AddMusic() {
     generatedVoiceUrl,
     sectionsArray,
   } = useUserInputsStore();
-  console.log(useUserInputsStore());
 
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews--low--vol/";
@@ -282,7 +281,6 @@ function AddMusic() {
     // Endpoint URL
     // prettier-ignore
     const url =`${audioStitchWebServiceUrl}/generate-mix`;
-    console.log("payload: ", payload);
     // Send POST request to the API
     axios
       .post(url, payload, {
