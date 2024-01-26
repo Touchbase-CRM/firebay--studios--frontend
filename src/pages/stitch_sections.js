@@ -36,8 +36,9 @@ function StitchSections() {
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
 
-  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+  const musicGenWebServiceUrl =
+    "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
