@@ -46,7 +46,9 @@ function AddMusic() {
     reset,
     historyItemId,
     generatedVoiceUrl,
+    sectionsArray,
   } = useUserInputsStore();
+  console.log(useUserInputsStore());
 
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews--low--vol/";
@@ -63,8 +65,8 @@ function AddMusic() {
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
-  const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const audioStitchWebServiceUrl = "http://localhost:8000"; // For local testing
+  // const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioStitchWebServiceUrl = "http://localhost:8000"; // For local testing
 
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
@@ -251,17 +253,36 @@ function AddMusic() {
       userId: userId, // Capture the Firebase user ID
     });
 
-    const payload = {
-      user_id: userId,
-      music_choice: backgroundMusicFilename,
-      ad_length: adLength,
-      history_item_id: historyItemId,
-      music_vol: musicVol,
-    };
+    let payload;
+
+    if (sectionsArray.length !== 0) {
+      const historyItemIdList = sectionsArray.map((section) =>
+        section.getHistoryItemId()
+      );
+
+      payload = {
+        user_id: userId,
+        music_choice: backgroundMusicFilename,
+        ad_length: adLength,
+        music_vol: musicVol,
+        history_item_id: null,
+        history_item_id_list: historyItemIdList,
+      };
+    } else {
+      payload = {
+        user_id: userId,
+        music_choice: backgroundMusicFilename,
+        ad_length: adLength,
+        music_vol: musicVol,
+        history_item_id: historyItemId,
+        history_item_id_list: null,
+      };
+    }
 
     // Endpoint URL
     // prettier-ignore
     const url =`${audioStitchWebServiceUrl}/generate-mix`;
+    console.log("payload: ", payload);
     // Send POST request to the API
     axios
       .post(url, payload, {
