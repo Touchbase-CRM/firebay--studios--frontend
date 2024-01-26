@@ -8,6 +8,7 @@ import { Section } from "../dataStructures/section";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
+import Alert from "react-bootstrap/Alert";
 
 function CreateSections() {
   const auth = getAuth();
@@ -242,19 +243,35 @@ function CreateSections() {
               </Form.Group>
               {/* Message to display when script is empty */}
               {originalScriptForSectionSplit === "" && (
-                <div className="alert alert-info" role="alert">
-                  <strong>Quick Guide to Pyro Sections</strong>
-                  <br />
-                  In Pyro Advanced Ad Generation mode, we split your script into
-                  "sections". A section is the smallest unit of voice over that
-                  has the same voice properties such as voice actor, intonation,
-                  emotions, etc. Note that a section can be either a sentence or
-                  a fragment in Pyro, so anywhere you have included period
-                  symbol with one or more proceeding white spaces, we will treat
-                  it as a new section. Moreover, if you don't have trailing
-                  spaces after a period symbol, we will not treat it as a new
-                  section.
-                </div>
+                <Alert variant="info">
+                  <Alert.Heading>
+                    Simple Guide to Sections in Pyro Advanced Ad Generation Mode
+                  </Alert.Heading>
+                  <p>
+                    When making an ad with Pyro Advanced Ad Generation Mode,
+                    think of your script as being made up of small parts called
+                    “sections.” Each section is like a chunk of your ad where
+                    the speaking style doesn’t change - it’s the same voice,
+                    tone, and emotion throughout.
+                  </p>
+                  <hr />
+                  <p>
+                    <strong>How to Make a Section:</strong> End a part of your
+                    script with a dot (like at the end of a sentence) and then
+                    add a space. This tells Pyro you’re starting a new section
+                    with a new speaking style. If you don’t put a space after
+                    the dot, Pyro understands that you’re still in the same
+                    section, keeping the same speaking style.
+                  </p>
+                  <p>
+                    <strong>NOTE:</strong> These suggestions should be made to
+                    your script before uploading onto the Pyro platform.
+                  </p>
+                  <p className="mb-0">
+                    <strong>Key Tip:</strong> Dot plus space equals a new
+                    section. No space means the same section continues.
+                  </p>
+                </Alert>
               )}
 
               <Form.Group controlId="script" style={{ position: "relative" }}>

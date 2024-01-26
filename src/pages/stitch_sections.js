@@ -305,7 +305,13 @@ function StitchSections() {
         }}
       >
         <h1 style={{ color: "white" }}>Sections Overview</h1>
-        <div style={{ overflowX: "auto" }}>
+        <div
+          style={{
+            overflowY: "auto", // Enables vertical scrolling
+            maxHeight: "600px", // Adjust this value as needed
+            overflowX: "auto",
+          }}
+        >
           <table style={tableStyle}>
             {/* Table head */}
             <thead>
