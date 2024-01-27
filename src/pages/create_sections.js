@@ -257,19 +257,19 @@ function CreateSections() {
                   <hr />
                   <p>
                     <strong>How to Make a Section:</strong> End a part of your
-                    script with a dot (like at the end of a sentence) and then
-                    add a space. This tells Pyro you’re starting a new section
-                    with a new speaking style. If you don’t put a space after
-                    the dot, Pyro understands that you’re still in the same
-                    section, keeping the same speaking style.
+                    script with a dot (like the period at the end of a sentence)
+                    and then add a space. This tells Pyro you’re starting a new
+                    section with a new speaking style. If you don’t put a space
+                    after the dot (period), Pyro understands that you’re still
+                    in the same section, keeping the same speaking style.
                   </p>
                   <p>
                     <strong>NOTE:</strong> These suggestions should be made to
                     your script before uploading onto the Pyro platform.
                   </p>
                   <p className="mb-0">
-                    <strong>Key Tip:</strong> Dot plus space equals a new
-                    section. No space means the same section continues.
+                    <strong>Key Tip:</strong> Dot (period) plus space equals a
+                    new section. No space means the same section continues.
                   </p>
                 </Alert>
               )}
