@@ -8,13 +8,13 @@ import {
   Nav,
   Button,
   Spinner,
+  ProgressBar,
 } from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import CustomDropdown from "../components/CustomDropdown";
 import useUserInputsStore from "../store/userInputs";
-
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
@@ -32,8 +32,9 @@ import {
   collection,
   where,
 } from "firebase/firestore";
+import _ from "lodash";
 
-function CreateAd() {
+function ProcessSection() {
   const posthog = usePostHog();
   const auth = getAuth();
 
@@ -42,6 +43,8 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
+    sectionsQueue,
+    dequeueSectionZustand,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
@@ -55,33 +58,78 @@ function CreateAd() {
     voicePreviewFilename,
     setVoicePreviewFilename,
     adLength,
-    setAdLength,
+    adSecondsConsumed,
+    setAdSecondsConsumed,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
-    historyItemId,
-    setHistoryItemId,
+    // historyItemId,
+    // setHistoryItemId,
     modelId,
     setModelId,
+    currentSectionObj,
+    addToSectionArrayZustand,
+    setCurrentSectionObjZustand,
+    updateMultiplePropertiesSimultaneouslyZustand,
+    sectionsArray,
+    numSectionsIdentified,
+    reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
+  const [localCurrentSectionObj, setLocalCurrentSectionObj] =
+    useState(currentSectionObj);
+  const [progressBarPercentage, setProgressBarPercentage] = useState(
+    (adSecondsConsumed / adLength) * 100
+  );
+  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+    adLength - adSecondsConsumed
+  );
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
-  const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
-  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-
-  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
-  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
+  // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   useEffect(() => {
-    if (isFormSubmitted) {
-      router.push("/add_music");
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
+
+  useEffect(() => {
+    // Update local state when currentSectionObj changes
+    setLocalCurrentSectionObj(currentSectionObj);
+  }, [currentSectionObj.getIndex()]);
+
+  // useEffect(() => {
+  //   // Update local state when currentSectionObj changes
+  //   setLocalCurrentSectionObj(currentSectionObj);
+  // }, [currentSectionObj]);
+
+  useEffect(() => {
+    if (isFormSubmitted && sectionsQueue.size() === 0) {
+      // Check if the queue is empty
+
+      router.push("/stitch_sections");
     }
   }, [isFormSubmitted, router]);
 
@@ -143,41 +191,39 @@ function CreateAd() {
       transformedWords[selectedWordIndex] ||
       ogScriptWordsArray[selectedWordIndex];
 
-    // Function to remove all existing emphasis (quotes and uppercase)
     const removeExistingEmphasis = (word) => {
       if (word.startsWith("'") && word.endsWith("'")) {
-        // Remove only the outer quotes
         return word.slice(1, -1);
       }
-      return word; // Return the word as is if it doesn't have outer quotes
+      return word;
     };
+
+    let newTransformedWords = { ...transformedWords }; // Create a new copy of the transformedWords object
 
     switch (action) {
       case "emphasizeLevel1":
-        transformedWords[selectedWordIndex] =
+        newTransformedWords[selectedWordIndex] =
           removeExistingEmphasis(currentWord).toUpperCase();
         break;
       case "emphasizeLevel2":
-        // Use the original form of the word for Level 2
-        transformedWords[
+        newTransformedWords[
           selectedWordIndex
         ] = `'${ogScriptWordsArray[selectedWordIndex]}'`;
         break;
       case "emphasizeLevel3":
-        // Uppercase the original form and add quotes
-        transformedWords[selectedWordIndex] = `'${ogScriptWordsArray[
+        newTransformedWords[selectedWordIndex] = `'${ogScriptWordsArray[
           selectedWordIndex
         ].toUpperCase()}'`;
         break;
       case "removeEmphasis":
-        transformedWords[selectedWordIndex] =
-          ogScriptWordsArray[selectedWordIndex]; // Reset to original word
+        newTransformedWords[selectedWordIndex] =
+          ogScriptWordsArray[selectedWordIndex];
         break;
       default:
         break;
     }
 
-    setTransformedWords({ ...transformedWords });
+    setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
   };
 
@@ -249,12 +295,6 @@ function CreateAd() {
     }
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    // posthog.capture("create-ad-voice-change-drop-down-expanded", {
-    //   date: new Date().toISOString(),
-    //   userId: userId,
-    //   voiceId: voiceId,
-    //   voiceName: voiceName,
-    // });
 
     // Assuming you want to play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
@@ -270,7 +310,7 @@ function CreateAd() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!historyItemId) {
+    if (!localCurrentSectionObj.getHistoryItemId()) {
       showAlert(
         "info",
         "Action Required",
@@ -279,21 +319,44 @@ function CreateAd() {
       return;
     }
 
-    const isValid = validateScript(
-      originalScriptString,
-      charLimit,
-      () => setFormSubmitted(true),
-      showAlert
-    );
+    addToSectionArrayZustand(localCurrentSectionObj);
 
-    if (!isValid) return;
+    if (sectionsQueue.size() === 0) {
+      router.push("/stitch_sections");
+    } else {
+      setAdSecondsConsumed(
+        adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
+      );
 
-    // if (!historyItemId) {
-    //   handleGenerateVoice();
-    // }
+      console.log("Queue not empty, continue processing");
+      dequeueSectionZustand(); // Remove the first item from the queue
+      const lastDequeuedItemObject = useUserInputsStore.getState();
+      setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
+
+      const lastDequeuedItem =
+        lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
+
+      // Update the original script string to the last dequeued item
+      setOriginalScriptString(lastDequeuedItem || "");
+
+      // Split the dequeued item into words and update transformed words
+      const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
+      const newTransformedWords = {};
+
+      newWords.forEach((word, index) => {
+        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+          newTransformedWords[index] = transformedWords[index];
+        }
+      });
+
+      // Update the original script words array and transformed words
+      setOgScriptWordsArray(newWords);
+      setTransformedWords(newTransformedWords);
+    }
   };
 
   const handleLogout = () => {
+    resetUserInputsStore();
     localStorage.removeItem("user");
     auth
       .signOut()
@@ -349,17 +412,21 @@ function CreateAd() {
     if (!isValid) return;
     setIsGeneratingVoice(true);
 
+    let audioUrl = ""; // Declare audioUrl here
+    let localHistoryItemId;
+
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
-
+    const mostUptodateSection = getFinalScript();
+    // setSectionCurrentContentZustand(mostUptodateSection);
     const options = {
       method: "POST",
       headers: {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: getFinalScript(), model_id: modelId }),
+      body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
     };
 
     try {
@@ -372,36 +439,38 @@ function CreateAd() {
       }
 
       // Extract history_item_id from headers
-      const historyItemId = response.headers.get("history-item-id");
-      if (historyItemId) {
-        setHistoryItemId(historyItemId); // Update state with history_item_id
-      }
+      localHistoryItemId = response.headers.get("history-item-id");
 
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("audio/")) {
         // Handle audio response
         const blob = await response.blob();
-        const audioUrl = URL.createObjectURL(blob);
+        audioUrl = URL.createObjectURL(blob); // Set audioUrl here
         setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
       } else {
         throw new Error("Unexpected content type received.");
       }
     } catch (err) {
       console.error(err);
+      setIsGeneratingVoice(false);
+      return; // Return early in case of an error
     }
+
+    // Create a new audio element to load the audio and get its duration
+    const audio = new Audio(audioUrl);
+    audio.addEventListener("loadedmetadata", () => {
+      const newDuration = audio.duration;
+      localCurrentSectionObj.setSectionDurationSeconds(newDuration);
+      setProgressBarPercentage(
+        Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+      );
+      setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
+    });
+    localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
+    localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+
     setIsGeneratingVoice(false);
   };
-
-  const dropdownItems = [
-    {
-      text: "Manage Subscription",
-      handler: handleManageSubscription,
-    },
-    {
-      text: "Logout",
-      handler: handleLogout,
-    },
-  ];
 
   const wordCountStyle = {
     position: "absolute",
@@ -422,12 +491,7 @@ function CreateAd() {
         flexDirection: "column",
       }}
     >
-      <Navbar
-        bg="dark"
-        variant="dark"
-        expand="lg"
-        style={{ marginBottom: "20px" }}
-      >
+      <Navbar bg="dark" variant="dark" expand="lg">
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
@@ -439,18 +503,17 @@ function CreateAd() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-between"
-        >
-          <Nav className="mr-auto">
-            {/* Other nav links or content can go here */}
-          </Nav>
-          {/* This will ensure the CustomDropdown is aligned to the right */}
-          <div style={{ paddingRight: "25px" }}>
-            <CustomDropdown items={dropdownItems} />
-          </div>
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto"></Nav>
         </Navbar.Collapse>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleLogout}
+          style={{ marginRight: "10px" }}
+        >
+          Logout
+        </Button>
       </Navbar>
 
       <Row>
@@ -459,25 +522,43 @@ function CreateAd() {
             className="p-4 bg-dark text-white"
             style={{
               marginTop: "10px",
-              height: "250px",
+              marginBottom: "10px",
+            }}
+          >
+            <Card.Title>
+              Section {localCurrentSectionObj.getIndex() + 1} of{" "}
+              {numSectionsIdentified}
+            </Card.Title>
+            <Form>
+              <Form.Group controlId="voice">
+                <Form.Label>Voiceover Progress</Form.Label>
+                <ProgressBar
+                  now={progressBarPercentage}
+                  label={`${progressBarPercentage}%`}
+                />
+              </Form.Group>
+              {""}
+              <>
+                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
+                out of {adLength} seconds.
+              </>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col md={10} className="mx-auto">
+          <Card
+            className="p-4 bg-dark text-white"
+            style={{
+              marginTop: "10px",
+              height: "150px",
               marginBottom: "10px",
             }}
           >
             <Card.Title>Voice Editor</Card.Title>
             <Form>
-              <Form.Group controlId="adLength">
-                <Form.Label>Choose Ad Length</Form.Label>
-                <Form.Select
-                  aria-label="Ad length select"
-                  value={adLength}
-                  onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: "black", marginBottom: "20px" }}
-                >
-                  <option value="30">30 seconds</option>
-                  <option value="60">60 seconds</option>
-                </Form.Select>
-              </Form.Group>
-
               <Form.Group controlId="voice">
                 <Form.Label>Voice</Form.Label>
                 {voiceOptions.length === 0 ? (
@@ -523,15 +604,15 @@ function CreateAd() {
               backgroundColor: "black",
               color: "white",
               marginTop: "10px",
-              height: "800px",
+              height: "500px",
               marginBottom: "10px",
             }}
           >
             <Card.Body>
-              <Card.Title>Script Editor</Card.Title>
+              <Card.Title>Section Editor</Card.Title>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
+                <Form.Label>Edit section</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -540,7 +621,7 @@ function CreateAd() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "140px",
+                    height: "70px",
                     marginBottom: "20px",
                   }}
                 />
@@ -711,4 +792,4 @@ function CreateAd() {
     </div>
   );
 }
-export default withAuth(CreateAd);
+export default withAuth(ProcessSection);
