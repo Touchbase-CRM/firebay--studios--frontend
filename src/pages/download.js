@@ -5,7 +5,6 @@ import Link from "next/link";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import styles from "../styles/DownloadPage.module.css";
 import { Card, Navbar, Nav, Button } from "react-bootstrap";
 
 import { getFirestore, doc, getDoc, runTransaction } from "firebase/firestore";
