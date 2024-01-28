@@ -131,7 +131,7 @@ function Home() {
             display: "flex",
             flexDirection: "column",
             backgroundColor: "transparent", // Retained as transparent
-            border: "1px solid #343a40", // Retained as is
+            border: "1px solid #eb631c", // Retained as is
             color: "black", // Retained as black
           }}
         >
@@ -188,7 +188,7 @@ function Home() {
                     fontSize: "16px",
                     cursor: "pointer",
                     backgroundColor: "#eb631c", // Custom color for the button
-                    border: "none",
+                    border: "#eb631c",
                     color: "white", // White text color for buttons
                     textDecoration: "none",
                     display: "inline-block",
@@ -206,13 +206,24 @@ function Home() {
             style={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
-              backgroundColor: "#e4e4e4", // Changed to light gray
-              color: "black", // Changed to black
+              backgroundColor: "#e4e4e4",
+              color: "black",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+              background: "linear-gradient(to right, #e4e4e4, #f9f9f9)", // Gradient background
+              borderRadius: "0 0 10px 10px", // Rounded corners at the bottom
+              fontSize: "10px", // Enhanced typography
+              lineHeight: "1.6", // Improved line spacing for readability
+              textAlign: "center", // Center align text
             }}
           >
             <p>
-              Once you start creating an ad, please do not use the browser back
-              button or reload the page. It will log you out of your account.
+              <i
+                className="bi bi-exclamation-triangle-fill"
+                style={{ marginRight: "8px", color: "#eb631c" }}
+              ></i>{" "}
+              {/* Example icon */}* Once you start creating an ad, please do not
+              use the browser back button or reload the page. You will lose all
+              your progress and it will log you out of your account.
             </p>
           </Card.Footer>
         </Card>
