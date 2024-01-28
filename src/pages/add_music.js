@@ -333,7 +333,7 @@ function AddMusic() {
     return (
       <div
         className="d-flex align-items-center justify-content-center flex-column"
-        style={{ height: "100vh" }}
+        style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
       >
         <Spinner
           animation="border"
@@ -341,13 +341,21 @@ function AddMusic() {
           style={{ marginBottom: "200px" }}
         />
 
-        <Card className="p-4 bg-dark text-white" style={{ marginTop: "300px" }}>
+        <Card
+          className="p-4"
+          style={{
+            marginTop: "300px",
+            borderRadius: "1rem",
+            borderColor: "#eb631c",
+            color: "black",
+          }}
+        >
           <p
             className="ml-3 mb-0"
             style={{
               fontWeight: "bold",
               fontSize: "24px",
-              color: "white",
+              color: "black",
               textShadow: "1px 1px 1px #000",
             }}
           >
@@ -365,9 +373,13 @@ function AddMusic() {
           </Button>
 
           <Button
-            variant="warning"
+            // variant="warning"
             onClick={cancelAndRetryLoading}
-            style={{ width: "200px" }} // Setting the same fixed width
+            style={{
+              width: "200px",
+              backgroundColor: "#FDA942",
+              borderColor: "#FDA942",
+            }} // Setting the same fixed width
             title="Stop the current order and retry with the same data."
           >
             Cancel and Resubmit
@@ -424,20 +436,6 @@ function AddMusic() {
               position: "relative",
             }}
           >
-            {/* <Button
-              // variant="light"
-              onClick={goBack}
-              style={{
-                marginRight: "10px",
-                width: "40px",
-                height: "50px",
-                marginBottom: "20px",
-                borderColor: "#eb631c",
-                backgroundColor: "#eb631c",
-              }}
-            >
-              <span style={{ color: "white", fontSize: "24px" }}>&larr;</span>
-            </Button> */}
             <div
               style={{
                 position: "absolute", // Absolutely position the BackButton
