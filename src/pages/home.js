@@ -72,17 +72,17 @@ function Home() {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
       <Navbar
-        bg="dark"
-        variant="dark"
+        // bg="dark"
+        // variant="dark"
         expand="lg"
-        style={{ marginBottom: "20px" }}
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }}
       >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
@@ -108,12 +108,21 @@ function Home() {
           </div>
         </Navbar.Collapse>
       </Navbar>
-
-      <div className={styles.container}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          backgroundColor: "#FFFFFF",
+          padding: "20px",
+        }}
+      >
         <Card
           style={{
-            width: "512px",
-            height: "512px",
+            width: "400px",
+            height: "570px",
             marginTop: "10px",
             marginBottom: "300px",
             position: "relative",
@@ -121,24 +130,22 @@ function Home() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
+            backgroundColor: "transparent", // Retained as transparent
+            border: "1px solid #343a40", // Retained as is
+            color: "black", // Retained as black
           }}
         >
           <Card.Header
             style={{
-              backgroundColor: "#343a40",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
               padding: "16px",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              backgroundColor: "#e4e4e4", // Changed to light gray
+              color: "black", // Changed to black
             }}
           >
-            <h1
-              className={styles.title}
-              style={{ margin: 0, fontSize: "24px" }}
-            >
-              Starter
-            </h1>
+            <h1 style={{ margin: 0, fontSize: "24px" }}>Starter</h1>
           </Card.Header>
           <Card.Body
-            className="bg-dark text-white"
             style={{
               paddingTop: "20px",
               paddingBottom: "20px",
@@ -146,13 +153,27 @@ function Home() {
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
+              backgroundColor: "#FFFFFF", // Retained as white
+              color: "black", // Retained as black
             }}
           >
             <div style={{ marginBottom: "20px" }}>
               <Link href="/create_ad" passHref>
                 <button
-                  className="btn btn-outline-light btn-lg"
-                  style={{ width: "100%" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                    cursor: "pointer",
+                    backgroundColor: "#eb631c", // Custom color for the button
+                    border: "none",
+                    color: "white", // White text color for buttons
+                    textDecoration: "none",
+                    display: "inline-block",
+                    margin: "4px 2px",
+                    transitionDuration: "0.4s",
+                    borderRadius: "12px",
+                  }}
                 >
                   Quick Ad Generation
                 </button>
@@ -161,8 +182,20 @@ function Home() {
             <div style={{ marginBottom: "20px" }}>
               <Link href="/create_sections" passHref>
                 <button
-                  className="btn btn-outline-light btn-lg"
-                  style={{ width: "100%" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                    cursor: "pointer",
+                    backgroundColor: "#eb631c", // Custom color for the button
+                    border: "none",
+                    color: "white", // White text color for buttons
+                    textDecoration: "none",
+                    display: "inline-block",
+                    margin: "4px 2px",
+                    transitionDuration: "0.4s",
+                    borderRadius: "12px",
+                  }}
                 >
                   Advanced Ad Generation
                 </button>
@@ -170,22 +203,17 @@ function Home() {
             </div>
           </Card.Body>
           <Card.Footer
-            className="bg-dark text-white"
             style={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
-              textAlign: "left", // Center align the text
-              fontWeight: "bold", // Make the text bold
-              fontSize: "10px", // Increase the font size a bit
-              lineHeight: "1.5", // Adjust line height for better readability
-              backgroundColor: "#343a40", // Match with the header background for consistency
+              backgroundColor: "#e4e4e4", // Changed to light gray
+              color: "black", // Changed to black
             }}
           >
             <p>
               Once you start creating an ad, please do not use the browser back
               button or reload the page. It will log you out of your account.
             </p>
-            {/* Footer content */}
           </Card.Footer>
         </Card>
       </div>
