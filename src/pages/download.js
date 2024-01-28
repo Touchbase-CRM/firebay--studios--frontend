@@ -135,10 +135,8 @@ const DownloadPage = () => {
       }}
     >
       <Navbar
-        bg="dark"
-        variant="dark"
         expand="lg"
-        style={{ marginBottom: "5px" }}
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
       >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
@@ -151,7 +149,7 @@ const DownloadPage = () => {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
           variant="danger"
@@ -162,6 +160,7 @@ const DownloadPage = () => {
           Logout
         </Button>
       </Navbar>
+
       <div
         style={{
           display: "flex",
