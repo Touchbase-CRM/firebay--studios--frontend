@@ -162,7 +162,17 @@ const DownloadPage = () => {
           Logout
         </Button>
       </Navbar>
-      <div className={styles.container}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          backgroundColor: "#343a40",
+          padding: "20px",
+        }}
+      >
         <Card
           style={{
             width: "400px",
@@ -184,8 +194,12 @@ const DownloadPage = () => {
             }}
           >
             <h1
-              className={styles.title}
-              style={{ margin: 0, fontSize: "24px" }}
+              style={{
+                fontSize: "24px",
+                marginBottom: "20px",
+                color: "white",
+                margin: 0,
+              }}
             >
               Download Manager
             </h1>
@@ -216,10 +230,21 @@ const DownloadPage = () => {
                 href={audioUrl}
                 download={filename}
                 onClick={handleDownloadClick}
-                className={`btn btn-outline-light btn-lg ${
-                  isDownloading ? "disabled" : ""
-                }`}
-                style={{ width: "100%", textAlign: "center" }}
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  backgroundColor: "#4CAF50" /* Green */,
+                  border: "none",
+                  color: "white",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  margin: "4px 2px",
+                  transitionDuration: "0.4s",
+                  borderRadius: "12px",
+                }}
               >
                 <i className="bi bi-download"></i> Download
               </a>
@@ -239,8 +264,20 @@ const DownloadPage = () => {
                 <li style={{ marginBottom: "12px" }}>
                   <Link href="/add_music" passHref>
                     <button
-                      className="btn btn-outline-light btn-lg"
-                      style={{ width: "100%" }}
+                      style={{
+                        width: "100%",
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        backgroundColor: "#4CAF50" /* Green */,
+                        border: "none",
+                        color: "white",
+                        textDecoration: "none",
+                        display: "inline-block",
+                        margin: "4px 2px",
+                        transitionDuration: "0.4s",
+                        borderRadius: "12px",
+                      }}
                       onClick={handleChangeMusic}
                     >
                       Change Music
@@ -251,8 +288,20 @@ const DownloadPage = () => {
                   {sectionsArray.length === 0 && (
                     <Link href="/create_ad" passHref>
                       <button
-                        className="btn btn-outline-light btn-lg"
-                        style={{ width: "100%" }}
+                        style={{
+                          width: "100%",
+                          padding: "10px 20px",
+                          fontSize: "16px",
+                          cursor: "pointer",
+                          backgroundColor: "#4CAF50" /* Green */,
+                          border: "none",
+                          color: "white",
+                          textDecoration: "none",
+                          display: "inline-block",
+                          margin: "4px 2px",
+                          transitionDuration: "0.4s",
+                          borderRadius: "12px",
+                        }}
                         onClick={handleChangeScriptOrVoice}
                       >
                         Change Script or Voice
@@ -274,9 +323,21 @@ const DownloadPage = () => {
                 Start from scratch?
               </h5>
               <button
-                className="btn btn-outline-light btn-lg"
+                style={{
+                  width: "100%",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  backgroundColor: "#4CAF50" /* Green */,
+                  border: "none",
+                  color: "white",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  margin: "4px 2px",
+                  transitionDuration: "0.4s",
+                  borderRadius: "12px",
+                }}
                 onClick={handleNewAd}
-                style={{ width: "100%" }}
               >
                 Create a new ad
               </button>
@@ -305,4 +366,5 @@ const DownloadPage = () => {
   );
 };
 
-export default withAuth(DownloadPage);
+// export default withAuth(DownloadPage);
+export default DownloadPage;
