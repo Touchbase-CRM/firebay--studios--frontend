@@ -128,7 +128,7 @@ const DownloadPage = () => {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -169,7 +169,7 @@ const DownloadPage = () => {
           alignItems: "center",
           justifyContent: "center",
           minHeight: "100vh",
-          backgroundColor: "#343a40",
+          backgroundColor: "#FFFFFF",
           padding: "20px",
         }}
       >
@@ -184,28 +184,20 @@ const DownloadPage = () => {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
+            backgroundColor: "transparent", // Set background to transparent for the entire card
+            border: "1px solid #343a40", // Add border for the entire card
+            color: "black", // Text color for the entire card
           }}
         >
           <Card.Header
             style={{
-              backgroundColor: "#343a40",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
               padding: "16px",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}
           >
-            <h1
-              style={{
-                fontSize: "24px",
-                marginBottom: "20px",
-                color: "white",
-                margin: 0,
-              }}
-            >
-              Download Manager
-            </h1>
+            <h1 style={{ fontSize: "24px", margin: 0 }}>Download Manager</h1>
           </Card.Header>
           <Card.Body
-            className="bg-dark text-white"
             style={{
               paddingTop: "20px",
               paddingBottom: "20px",
@@ -236,9 +228,9 @@ const DownloadPage = () => {
                   padding: "10px 20px",
                   fontSize: "16px",
                   cursor: "pointer",
-                  backgroundColor: "#4CAF50" /* Green */,
+                  backgroundColor: "#eb631c", // Custom color
                   border: "none",
-                  color: "white",
+                  color: "white", // White text color for buttons
                   textDecoration: "none",
                   display: "inline-block",
                   margin: "4px 2px",
@@ -269,9 +261,9 @@ const DownloadPage = () => {
                         padding: "10px 20px",
                         fontSize: "16px",
                         cursor: "pointer",
-                        backgroundColor: "#4CAF50" /* Green */,
+                        backgroundColor: "#eb631c", // Custom color
                         border: "none",
-                        color: "white",
+                        color: "white", // White text color for buttons
                         textDecoration: "none",
                         display: "inline-block",
                         margin: "4px 2px",
@@ -293,9 +285,9 @@ const DownloadPage = () => {
                           padding: "10px 20px",
                           fontSize: "16px",
                           cursor: "pointer",
-                          backgroundColor: "#4CAF50" /* Green */,
+                          backgroundColor: "#eb631c", // Custom color
                           border: "none",
-                          color: "white",
+                          color: "white", // White text color for buttons
                           textDecoration: "none",
                           display: "inline-block",
                           margin: "4px 2px",
@@ -328,9 +320,9 @@ const DownloadPage = () => {
                   padding: "10px 20px",
                   fontSize: "16px",
                   cursor: "pointer",
-                  backgroundColor: "#4CAF50" /* Green */,
+                  backgroundColor: "#eb631c", // Custom color
                   border: "none",
-                  color: "white",
+                  color: "white", // White text color for buttons
                   textDecoration: "none",
                   display: "inline-block",
                   margin: "4px 2px",
@@ -344,15 +336,12 @@ const DownloadPage = () => {
             </div>
           </Card.Body>
           <Card.Footer
-            className="bg-dark text-white"
             style={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
             }}
           >
-            {/* <small style={{ float: "right", fontSize: "16px" }}> */}
-            {/* Credits left: {credits.creditLeft}/{credits.creditAllowance} */}
-            {/* </small> */}
+            {/* Footer Content */}
           </Card.Footer>
         </Card>
       </div>
