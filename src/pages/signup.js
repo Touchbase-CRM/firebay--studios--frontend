@@ -151,7 +151,7 @@ const SignupPage = () => {
     <Container
       fluid
       className="vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#343a40" }}
+      style={{ backgroundColor: "#FFFFFF" }}
     >
       {isLoading && (
         <div
@@ -182,9 +182,11 @@ const SignupPage = () => {
             <Card
               className="my-5 mx-1 p-4"
               style={{
-                backgroundColor: "#1a1a1a",
+                // backgroundColor: "#1a1a1a",
+                borderColor: "#eb631c",
+
                 borderRadius: "1rem",
-                color: "white",
+                color: "black",
                 position: "relative", // Add this for positioning the step indicator
               }}
             >
@@ -218,8 +220,8 @@ const SignupPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
+                    borderColor: "#e4e4e4",
+                    backgroundColor: "#e4e4e4",
                     color: "white",
                   }}
                 />
@@ -245,8 +247,8 @@ const SignupPage = () => {
                     minLength={6}
                     required
                     style={{
-                      borderColor: "#ced4da",
-                      backgroundColor: "#495057",
+                      borderColor: "#e4e4e4",
+                      backgroundColor: "#e4e4e4",
                       color: "white",
                     }}
                   />
@@ -262,8 +264,8 @@ const SignupPage = () => {
                     minLength={6}
                     required
                     style={{
-                      borderColor: "#ced4da",
-                      backgroundColor: "#495057",
+                      borderColor: "#e4e4e4",
+                      backgroundColor: "#e4e4e4",
                       color: "white",
                     }}
                   />
@@ -300,6 +302,7 @@ const SignupPage = () => {
 
                 <Button
                   className="w-100"
+                  style={{ backgroundColor: "#EB631C" }}
                   variant="outline-light"
                   type="submit"
                   size="lg"
@@ -320,7 +323,7 @@ const SignupPage = () => {
                   On Trial?{" "}
                   <a
                     href="/trial_login"
-                    style={{ color: "#fff", fontWeight: "bold" }}
+                    style={{ color: "black", fontWeight: "bold" }}
                   >
                     Trial Login
                   </a>
@@ -329,7 +332,7 @@ const SignupPage = () => {
                   Already a subscriber?{" "}
                   <a
                     href="/login"
-                    style={{ color: "#fff", fontWeight: "bold" }}
+                    style={{ color: "black", fontWeight: "bold" }}
                   >
                     Login
                   </a>
