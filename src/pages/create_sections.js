@@ -185,22 +185,24 @@ function CreateSections() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        backgroundColor: "#FFFFFF",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        expand="lg"
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
           />
         </Navbar.Brand>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
           variant="danger"
@@ -218,12 +220,13 @@ function CreateSections() {
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4 "
             style={{
-              backgroundColor: "black",
-              color: "white",
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
-              height: "800px",
+              height: "900px",
               marginBottom: "10px",
             }}
           >
@@ -295,7 +298,7 @@ function CreateSections() {
 
               <div
                 style={{
-                  backgroundColor: "#282c34",
+                  backgroundColor: "#eb631c",
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
@@ -310,7 +313,7 @@ function CreateSections() {
                       style={{
                         width: "100%", // Full width of the container
                         borderCollapse: "collapse",
-                        backgroundColor: "#343a40", // Different background color for the table
+                        backgroundColor: "#e4e4e4",
                       }}
                     >
                       <thead>
@@ -319,7 +322,7 @@ function CreateSections() {
                             style={{
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
-                              color: "#ffffff",
+                              color: "black",
                               width: "5%", // Allocate less width for 'Section ID'
                             }}
                           >
@@ -329,7 +332,8 @@ function CreateSections() {
                             style={{
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
-                              color: "#ffffff",
+                              color: "black",
+
                               // Do not set width here to allow this column to take the remaining space
                             }}
                           >
@@ -339,7 +343,8 @@ function CreateSections() {
                             style={{
                               borderBottom: "2px solid #dee2e6",
                               padding: "8px",
-                              color: "#ffffff",
+                              color: "black",
+
                               width: "15%", // Allocate less width for 'Allocated character count for the section'
                             }}
                           >
@@ -416,7 +421,12 @@ function CreateSections() {
           >
             <Button
               className="mt-3"
-              style={{ marginRight: "10px", marginTop: "20px" }}
+              style={{
+                marginRight: "10px",
+                marginTop: "20px",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
+              }}
               onClick={handleSubmit}
             >
               Next
