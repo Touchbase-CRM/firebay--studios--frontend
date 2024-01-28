@@ -1,6 +1,5 @@
 import { Navbar, Nav, Button, Card } from "react-bootstrap";
 import Link from "next/link";
-import styles from "../styles/DownloadPage.module.css";
 import CustomDropdown from "../components/CustomDropdown";
 import Swal from "sweetalert2";
 
