@@ -141,7 +141,6 @@ const DownloadPage = () => {
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
