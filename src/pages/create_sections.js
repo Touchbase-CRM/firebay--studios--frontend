@@ -312,21 +312,21 @@ function CreateSections() {
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
-                  maxHeight: "300px", // Set a max-height for scrollable area
+                  maxHeight: "400px", // Set a max-height for scrollable area
                   overflowY: "auto", // Add vertical scrollbar
                 }}
               >
                 <div>
-                  <Form.Label style={{ color: "white" }}>
+                  <Form.Label style={{ color: "black" }}>
                     Sections From Your Script
                   </Form.Label>
                   {sectionsQueue.size() > 0 ? (
-                    <Table bordered hover style={{}}>
+                    <Table bordered hover style={{ borderColor: "#eb631c" }}>
                       <thead style={{ backgroundColor: "#eb631c" }}>
                         <tr>
                           <th
                             style={{
-                              borderBottom: "2px solid #dee2e6",
+                              borderColor: "#eb631c",
                               padding: "8px",
                               color: "black",
                               width: "5%", // Allocate less width for 'Section ID'
@@ -336,7 +336,7 @@ function CreateSections() {
                           </th>
                           <th
                             style={{
-                              borderBottom: "2px solid #dee2e6",
+                              borderColor: "#eb631c",
                               padding: "8px",
                               color: "black",
 
@@ -347,7 +347,7 @@ function CreateSections() {
                           </th>
                           <th
                             style={{
-                              borderBottom: "2px solid #dee2e6",
+                              borderColor: "#eb631c",
                               padding: "8px",
                               color: "black",
 
@@ -360,11 +360,11 @@ function CreateSections() {
                       </thead>
                       <tbody>
                         {sectionsQueue.items.map((section, index) => (
-                          <tr key={index}>
+                          <tr key={index} style={{ borderColor: "#eb631c" }}>
                             <td
                               style={{
+                                borderColor: "#eb631c",
                                 padding: "8px",
-                                borderBottom: "1px solid #dee2e6",
                                 textAlign: "center", // Center align for better aesthetics
                               }}
                             >
@@ -372,8 +372,8 @@ function CreateSections() {
                             </td>
                             <td
                               style={{
+                                borderColor: "#eb631c",
                                 padding: "8px",
-                                borderBottom: "1px solid #dee2e6",
                                 // Removed maxWidth to allow this cell to take up remaining space
                               }}
                             >
@@ -381,8 +381,8 @@ function CreateSections() {
                             </td>
                             <td
                               style={{
+                                borderColor: "#eb631c",
                                 padding: "8px",
-                                borderBottom: "1px solid #dee2e6",
                                 textAlign: "center", // Center align for better aesthetics
                               }}
                             >
@@ -393,7 +393,7 @@ function CreateSections() {
                       </tbody>
                     </Table>
                   ) : (
-                    <p style={{ color: "lightblue", fontStyle: "italic" }}>
+                    <p style={{ color: "gray", fontStyle: "italic" }}>
                       No sections found
                     </p>
                   )}
