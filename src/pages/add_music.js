@@ -15,6 +15,7 @@ import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import BackButton from "@/components/BackButton";
 import useUserInputsStore from "../store/userInputs";
 import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
@@ -379,7 +380,7 @@ function AddMusic() {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -413,22 +414,48 @@ function AddMusic() {
       <Row>
         <Col md={6} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
-            style={{ marginTop: "70px", marginBottom: "140px" }}
+            className="p-4"
+            style={{
+              marginTop: "70px",
+              marginBottom: "140px",
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
+              position: "relative",
+            }}
           >
-            <Button
-              variant="light"
+            {/* <Button
+              // variant="light"
               onClick={goBack}
               style={{
                 marginRight: "10px",
                 width: "40px",
                 height: "50px",
                 marginBottom: "20px",
+                borderColor: "#eb631c",
+                backgroundColor: "#eb631c",
               }}
             >
-              <span style={{ color: "black", fontSize: "24px" }}>&larr;</span>
-            </Button>
-            <h2 className="mb-4" style={{ marginBottom: "20px" }}>
+              <span style={{ color: "white", fontSize: "24px" }}>&larr;</span>
+            </Button> */}
+            <div
+              style={{
+                position: "absolute", // Absolutely position the BackButton
+                top: "10px", // Adjust as needed
+                left: "10px", // Adjust as needed
+              }}
+            >
+              <BackButton
+                width="30px"
+                height="30px"
+                backgroundColor="#eb631c"
+                onClick={goBack} // Pass the onClick method directly
+              />
+            </div>
+            <h2
+              className="mb-4"
+              style={{ marginBottom: "20px", marginTop: "30px" }}
+            >
               Add Background Music
             </h2>
             <Form onSubmit={handleSubmit}>
@@ -466,7 +493,13 @@ function AddMusic() {
                   <label htmlFor="volumeControl" className="form-label">
                     Music Volume Control
                   </label>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "#eb631c",
+                    }}
+                  >
                     <input
                       type="range"
                       className="form-range"
@@ -495,16 +528,22 @@ function AddMusic() {
                 </div>
               }
 
-              <Button type="submit" className="mt-3">
+              <Button
+                type="submit"
+                className="mt-3"
+                style={{ backgroundColor: "#eb631c", borderColor: "#eb631c" }}
+              >
                 Submit
               </Button>
               <Button
-                variant="danger"
+                // variant="danger"
                 onClick={handleSkipMusic}
                 style={{
                   position: "absolute",
                   bottom: "20px",
                   right: "20px",
+                  backgroundColor: "#FDA942",
+                  borderColor: "#FDA942",
                 }}
               >
                 Skip Music
