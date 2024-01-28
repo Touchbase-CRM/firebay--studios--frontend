@@ -398,20 +398,21 @@ function AddMusic() {
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        expand="lg"
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
           />
         </Navbar.Brand>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
           variant="danger"
