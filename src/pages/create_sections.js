@@ -9,6 +9,7 @@ import {
   Button,
   Table,
 } from "react-bootstrap";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
@@ -214,11 +215,22 @@ function CreateSections() {
           <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
-          variant="danger"
+          variant="light"
           size="sm"
           onClick={handleLogout}
-          style={{ marginRight: "10px" }}
+          style={{
+            marginRight: "10px",
+            padding: "5px 10px",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
+          <i
+            className="bi bi-box-arrow-right"
+            style={{ marginRight: "5px" }}
+          ></i>
           Logout
         </Button>
       </Navbar>
