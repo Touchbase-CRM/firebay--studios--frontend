@@ -307,7 +307,9 @@ function CreateSections() {
                 }}
               >
                 <div>
-                  <Form.Label>Sections from your script</Form.Label>
+                  <Form.Label style={{ color: "white" }}>
+                    Sections From Your Script
+                  </Form.Label>
                   {sectionsQueue.size() > 0 ? (
                     <table
                       style={{
