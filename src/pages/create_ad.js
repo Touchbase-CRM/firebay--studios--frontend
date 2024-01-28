@@ -416,48 +416,45 @@ function CreateAd() {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
       <Navbar
-        bg="dark"
-        variant="dark"
         expand="lg"
-        style={{ marginBottom: "20px" }}
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
       >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
           />
         </Navbar.Brand>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-between"
-        >
-          <Nav className="mr-auto">
-            {/* Other nav links or content can go here */}
-          </Nav>
-          {/* This will ensure the CustomDropdown is aligned to the right */}
-          <div style={{ paddingRight: "25px" }}>
-            <CustomDropdown items={dropdownItems} />
-          </div>
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleLogout}
+          style={{ marginRight: "10px" }}
+        >
+          Logout
+        </Button>
       </Navbar>
-
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4 "
             style={{
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
               height: "250px",
               marginBottom: "10px",
@@ -518,10 +515,12 @@ function CreateAd() {
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4"
             style={{
-              backgroundColor: "black",
-              color: "white",
+              // backgroundColor: "black",
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
               height: "800px",
               marginBottom: "10px",
@@ -555,7 +554,7 @@ function CreateAd() {
               </div>
               <div
                 style={{
-                  backgroundColor: "#282c34",
+                  backgroundColor: "#e4e4e4",
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
@@ -570,10 +569,10 @@ function CreateAd() {
                       cursor: "pointer",
                       textDecoration: "underline",
                       textDecorationColor: "transparent",
-                      color: "orange",
+                      color: "#eb631c",
                     }}
                     onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "orange")
+                      (e.target.style.textDecorationColor = "#eb631c")
                     }
                     onMouseLeave={(e) =>
                       (e.target.style.textDecorationColor = "transparent")
@@ -594,6 +593,8 @@ function CreateAd() {
                 left: "50%",
                 transform: "translateX(-50%)",
                 width: "60%",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
               }}
             >
               {isGeneratingVoice ? (
@@ -624,7 +625,12 @@ function CreateAd() {
           >
             <Button
               className="mt-3"
-              style={{ marginRight: "10px", marginTop: "20px" }}
+              style={{
+                marginRight: "10px",
+                marginTop: "20px",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
+              }}
               onClick={handleSubmit}
             >
               Next
@@ -647,7 +653,7 @@ function CreateAd() {
                 top: menuPosition.y,
                 left: menuPosition.x,
                 zIndex: 1000,
-                backgroundColor: "#f8f9fa",
+                backgroundColor: "#eb631c",
                 boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
                 border: "1px solid #e0e0e0",
                 borderRadius: "8px",
