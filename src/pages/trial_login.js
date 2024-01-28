@@ -77,16 +77,17 @@ const TrialLoginPage = () => {
     <Container
       fluid
       className="vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#343a40" }}
+      style={{ backgroundColor: "#FFFFFF" }} // Assuming this is the background color you want
     >
       <Row className="w-100">
         <Col md={6} className="mx-auto">
           <Card
             className="my-5 mx-1 p-4"
             style={{
-              backgroundColor: "#1a1a1a",
+              borderColor: "#eb631c", // Assuming this is the border color from SignupPage
               borderRadius: "1rem",
-              color: "white",
+              color: "black", // Text color as per SignupPage
+              position: "relative", // For positioning any absolutely positioned elements
             }}
           >
             <Image
@@ -101,15 +102,7 @@ const TrialLoginPage = () => {
             <p className="text-center mb-5">
               Please enter your email address for access to the PYRO 7-day trial
             </p>
-            <style jsx global>{`
-              input:-webkit-autofill,
-              input:-webkit-autofill:focus,
-              input:-webkit-autofill:hover {
-                -webkit-box-shadow: 0 0 0 1000px #495057 inset;
-                box-shadow: 0 0 0 1000px #495057 inset;
-                -webkit-text-fill-color: white !important;
-              }
-            `}</style>
+
             <Form>
               <Form.Group controlId="email" className="mb-3">
                 <Form.Label>Email address</Form.Label>
@@ -120,16 +113,17 @@ const TrialLoginPage = () => {
                   onChange={handleEmailChange}
                   required
                   style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
-                    color: "white",
+                    borderColor: "#e4e4e4", // Matching the SignupPage placeholder color
+                    backgroundColor: "#e4e4e4", // Matching the SignupPage background color for input
+                    color: "white", // Matching the SignupPage text color for input
                   }}
                 />
               </Form.Group>
-              <br></br>
+              <br />
 
               <Button
                 className="w-100"
+                style={{ backgroundColor: "#EB631C" }} // Matching the SignupPage button color
                 variant="outline-light"
                 type="submit"
                 size="lg"
@@ -142,18 +136,21 @@ const TrialLoginPage = () => {
             <div className="my-3">
               <p className="text-center">
                 Already a subscriber?{" "}
-                <a href="/login" style={{ color: "#fff", fontWeight: "bold" }}>
+                <a href="/login" style={{ color: "black", fontWeight: "bold" }}>
                   Login
                 </a>
               </p>
               <p className="text-center">
                 Want to become a subscriber?{" "}
-                <a href="/signup" style={{ color: "#fff", fontWeight: "bold" }}>
+                <a
+                  href="/signup"
+                  style={{ color: "black", fontWeight: "bold" }}
+                >
                   Sign Up
                 </a>
               </p>
             </div>
-            {/* Add the secondary branding at the bottom right corner */}
+
             <div
               style={{
                 position: "absolute",
@@ -162,6 +159,7 @@ const TrialLoginPage = () => {
                 fontSize: "small",
                 fontWeight: "bold",
                 fontStyle: "italic",
+                color: "black", // Text color as per SignupPage
               }}
             >
               By Firebay Studios
