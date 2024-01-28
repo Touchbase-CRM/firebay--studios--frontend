@@ -226,15 +226,6 @@ const SignupPage = () => {
                   }}
                 />
               </Form.Group>
-              <style jsx global>{`
-                input:-webkit-autofill,
-                input:-webkit-autofill:focus,
-                input:-webkit-autofill:hover {
-                  -webkit-box-shadow: 0 0 0 1000px #495057 inset;
-                  box-shadow: 0 0 0 1000px #495057 inset;
-                  -webkit-text-fill-color: white !important;
-                }
-              `}</style>
 
               <Form>
                 <Form.Group controlId="password" className="mb-3">

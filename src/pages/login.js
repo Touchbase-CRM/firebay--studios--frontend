@@ -133,15 +133,20 @@ const LoginPage = () => {
             <p className="text-center mb-5" style={{ color: "black" }}>
               Please enter your login with your email and password!
             </p>
+
+            {/* @TDebt: The below werid block overrides the autofill color of the input fields. Can't figure out the proper way to do it.  */}
             <style jsx global>{`
               input:-webkit-autofill,
               input:-webkit-autofill:focus,
               input:-webkit-autofill:hover {
-                -webkit-box-shadow: 0 0 0 1000px #495057 inset;
-                box-shadow: 0 0 0 1000px #495057 inset;
-                -webkit-text-fill-color: white !important;
+                -webkit-box-shadow: 0 0 0 1000px #e4e4e4 inset;
+                box-shadow: 0 0 0 1000px #e4e4e4 inset;
+                -webkit-text-fill-color: #555555 !important;
+                color: #555555 !important;
+                font-size: 16px; /* Adjust font size as needed */
               }
             `}</style>
+
             <Form style={{ color: "black" }}>
               <Form.Group controlId="email" className="mb-3">
                 <Form.Label>Email address</Form.Label>
