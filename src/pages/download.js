@@ -354,5 +354,4 @@ const DownloadPage = () => {
   );
 };
 
-// export default withAuth(DownloadPage);
-export default DownloadPage;
+export default withAuth(DownloadPage);
