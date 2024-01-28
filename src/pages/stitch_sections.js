@@ -15,6 +15,7 @@ import {
   Navbar,
   Nav,
   Button,
+  Table,
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
 import { Play } from "react-bootstrap-icons"; // Ensure you have react-bootstrap-icons installed
@@ -261,26 +262,27 @@ function StitchSections() {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        expand="lg"
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
           />
         </Navbar.Brand>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
           variant="danger"
@@ -292,122 +294,98 @@ function StitchSections() {
         </Button>
       </Navbar>
 
-      {/* Card Style Div */}
-      <div
-        style={{
-          margin: "20px",
-          padding: "20px",
-          backgroundColor: "#2c3034", // Card background color
-          borderRadius: "8px", // Rounded corners for the card
-          boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)", // Simple shadow effect
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <h1 style={{ color: "white" }}>Sections Overview</h1>
-        <div
-          style={{
-            overflowY: "auto", // Enables vertical scrolling
-            maxHeight: "600px", // Adjust this value as needed
-            overflowX: "auto",
-          }}
-        >
-          <table style={tableStyle}>
-            {/* Table head */}
-            <thead>
-              <tr>
-                <th style={thTdStyle}>Section ID</th>
-                <th style={thTdStyle}>Initial Section</th>
-                <th style={thTdStyle}>Current Section</th>
-                <th style={thTdStyle}>Duration (Seconds)</th>
-                <th style={thTdStyle}>Play</th>{" "}
-                {/* New column for play button */}
-              </tr>
-            </thead>
-            {/* Table body */}
-            <tbody>
-              {sectionsArray.map((section, index) => (
-                <tr key={index}>
-                  <td style={thTdStyle}>{index + 1}</td>
-                  <td style={thTdStyle}>{section.originalContent}</td>
-                  <td style={thTdStyle}>{section.currentContent}</td>
-                  <td style={thTdStyle}>
-                    {section.sectionDurationSeconds.toFixed(2)}
-                  </td>
-                  <td style={thTdStyle}>
-                    <Button
-                      variant="link"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedSection(section);
-                        setAudioTitle(`Section ${section.getIndex() + 1}`);
-                        fetchAudio(section.historyItemId);
-                      }}
-                      style={{ color: "white" }}
-                    >
-                      <Play color="white" />
-                    </Button>
-                  </td>
+      <Card style={{ margin: "20px", backgroundColor: "#2c3034" }}>
+        <Card.Body>
+          <Card.Title style={{ color: "white" }}>Sections Overview</Card.Title>
+          <div
+            style={{
+              overflowY: "auto",
+              maxHeight: "600px",
+              overflowX: "hidden",
+            }}
+          >
+            <Table bordered hover variant="dark">
+              <thead>
+                <tr>
+                  <th>Section ID</th>
+                  <th>Initial Section</th>
+                  <th>Current Section</th>
+                  <th>Duration (Seconds)</th>
+                  <th>Play</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer Section */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#20262e",
-            borderRadius: "0 0 8px 8px",
-          }}
-        >
-          {/* Total Duration on the left */}
-          <div style={{ flex: 1, textAlign: "left" }}>
-            <span style={{ fontSize: "1.2em" }}>
+              </thead>
+              <tbody>
+                {sectionsArray.map((section, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{section.originalContent}</td>
+                    <td>{section.currentContent}</td>
+                    <td>{section.sectionDurationSeconds.toFixed(2)}</td>
+                    <td>
+                      <Button
+                        variant="link"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSection(section);
+                          setAudioTitle(`Section ${section.getIndex() + 1}`);
+                          fetchAudio(section.historyItemId);
+                        }}
+                        style={{ color: "white" }}
+                      >
+                        <Play color="white" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "20px",
+              padding: "10px 20px",
+              backgroundColor: "#20262e",
+            }}
+          >
+            <span style={{ color: "white" }}>
               Total of the section durations: {currentTotalDuration.toFixed(2)}{" "}
               seconds
             </span>
+            <div style={{ flex: 1, textAlign: "center" }}>
+              {combinedVoiceoverUrl !== null ? (
+                <Button
+                  variant="link"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setForceRenderKey(Math.random().toString());
+                    setNowPlayingUrl(combinedVoiceoverUrl);
+                    setAudioTitle("Final Cut");
+                  }}
+                  style={{ color: "white", textDecoration: "none" }}
+                >
+                  <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                    Replay Final Cut:
+                  </span>
+                  <Play
+                    color="white"
+                    style={{ verticalAlign: "middle", fontSize: "2rem" }}
+                  />
+                </Button>
+              ) : null}
+            </div>
+            {/* Other footer contents */}
           </div>
+        </Card.Body>
+      </Card>
 
-          <div style={{ flex: 1, textAlign: "center" }}>
-            {combinedVoiceoverUrl !== null ? (
-              <Button
-                variant="link"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setForceRenderKey(Math.random().toString());
-                  setNowPlayingUrl(combinedVoiceoverUrl);
-                  setAudioTitle("Final Cut");
-                }}
-                style={{ color: "white", textDecoration: "none" }}
-              >
-                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Replay Final Cut:
-                </span>
-                <Play
-                  color="white"
-                  style={{ verticalAlign: "middle", fontSize: "2rem" }}
-                />
-              </Button>
-            ) : null}
-          </div>
-
-          {/* Invisible spacer on the right to balance the layout */}
-          <div style={{ flex: 1 }}></div>
-        </div>
-      </div>
-
-      {/* Conditional rendering for finalize or next button */}
       {combinedVoiceoverUrl === null ? (
         <Button
           variant="success"
           onClick={handleSubmit}
-          style={{ marginLeft: "20px", width: "200px", marginTop: "20px" }}
-          title="Finalize the voiceover"
+          style={{ margin: "20px", width: "200px" }}
         >
           Finalize the voiceover
         </Button>
@@ -415,14 +393,12 @@ function StitchSections() {
         <Button
           variant="primary"
           onClick={handleNext}
-          style={{ marginLeft: "20px", width: "200px", marginTop: "20px" }}
-          title="Next"
+          style={{ margin: "20px", width: "200px" }}
         >
           Next
         </Button>
       )}
 
-      {/* Audio Player */}
       <SimpleAudioPlayer
         audioSrc={nowPlayingUrl}
         audioTitle={audioTitle}
@@ -433,4 +409,5 @@ function StitchSections() {
   );
 }
 
-export default withAuth(StitchSections);
+// export default withAuth(StitchSections);
+export default StitchSections;
