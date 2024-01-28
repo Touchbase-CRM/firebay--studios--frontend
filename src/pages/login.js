@@ -106,15 +106,16 @@ const LoginPage = () => {
     <Container
       fluid
       className="vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#343a40" }}
+      style={{ backgroundColor: "#FFFFFF" }}
     >
       <Row className="w-100">
         <Col md={6} className="mx-auto">
           <Card
             className="my-5 mx-1 p-4"
             style={{
-              backgroundColor: "#1a1a1a",
+              // backgroundColor: "#1a1a1a",
               borderRadius: "1rem",
+              borderColor: "#eb631c",
               color: "white",
             }}
           >
@@ -126,8 +127,10 @@ const LoginPage = () => {
               className="d-block mx-auto mb-3"
             />
 
-            <h2 className="text-center mb-4">Pyro Login</h2>
-            <p className="text-center mb-5">
+            <h2 className="text-center mb-4" style={{ color: "black" }}>
+              Pyro Login
+            </h2>
+            <p className="text-center mb-5" style={{ color: "black" }}>
               Please enter your login with your email and password!
             </p>
             <style jsx global>{`
@@ -139,7 +142,7 @@ const LoginPage = () => {
                 -webkit-text-fill-color: white !important;
               }
             `}</style>
-            <Form>
+            <Form style={{ color: "black" }}>
               <Form.Group controlId="email" className="mb-3">
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
@@ -149,8 +152,8 @@ const LoginPage = () => {
                   onChange={handleEmailChange}
                   required
                   style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
+                    borderColor: "#e4e4e4",
+                    backgroundColor: "#e4e4e4",
                     color: "white",
                   }}
                 />
@@ -166,8 +169,8 @@ const LoginPage = () => {
                   minLength={6}
                   required
                   style={{
-                    borderColor: "#ced4da",
-                    backgroundColor: "#495057",
+                    borderColor: "#e4e4e4",
+                    backgroundColor: "#e4e4e4",
                     color: "white",
                   }}
                 />
@@ -190,24 +193,28 @@ const LoginPage = () => {
                 type="submit"
                 size="lg"
                 onClick={handleSignIn}
+                style={{ backgroundColor: "#EB631C" }}
               >
                 Login
               </Button>
             </Form>
 
             <div className="my-3">
-              <p className="text-center">
+              <p className="text-center" style={{ color: "black" }}>
                 On Trial?{" "}
                 <a
                   href="/trial_login"
-                  style={{ color: "#fff", fontWeight: "bold" }}
+                  style={{ color: "black", fontWeight: "bold" }}
                 >
                   Trial Login
                 </a>
               </p>
-              <p className="text-center">
+              <p className="text-center" style={{ color: "black" }}>
                 Want to become a subscriber?{" "}
-                <a href="/signup" style={{ color: "#fff", fontWeight: "bold" }}>
+                <a
+                  href="/signup"
+                  style={{ color: "black", fontWeight: "bold" }}
+                >
                   Sign Up
                 </a>
               </p>
@@ -221,6 +228,7 @@ const LoginPage = () => {
                 fontSize: "small",
                 fontWeight: "bold",
                 fontStyle: "italic",
+                color: "black",
               }}
             >
               By Firebay Studios
