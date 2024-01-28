@@ -300,7 +300,7 @@ function StitchSections() {
           <div
             style={{
               overflowY: "auto",
-              maxHeight: "600px",
+              maxHeight: "800px",
               overflowX: "hidden",
             }}
           >
@@ -309,7 +309,6 @@ function StitchSections() {
                 <tr>
                   <th
                     style={{
-                      backgroundColor: "#e4e4e4",
                       borderColor: "#eb631c",
                     }}
                   >
@@ -317,7 +316,6 @@ function StitchSections() {
                   </th>
                   <th
                     style={{
-                      backgroundColor: "#e4e4e4",
                       borderColor: "#eb631c",
                     }}
                   >
@@ -325,7 +323,6 @@ function StitchSections() {
                   </th>
                   <th
                     style={{
-                      backgroundColor: "#e4e4e4",
                       borderColor: "#eb631c",
                     }}
                   >
@@ -333,7 +330,6 @@ function StitchSections() {
                   </th>
                   <th
                     style={{
-                      backgroundColor: "#e4e4e4",
                       borderColor: "#eb631c",
                     }}
                   >
@@ -341,7 +337,6 @@ function StitchSections() {
                   </th>
                   <th
                     style={{
-                      backgroundColor: "#e4e4e4",
                       borderColor: "#eb631c",
                     }}
                   >
@@ -466,5 +461,4 @@ function StitchSections() {
   );
 }
 
-// export default withAuth(StitchSections);
-export default StitchSections;
+export default withAuth(StitchSections);
