@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Form, Navbar, Nav, Button } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Button,
+  Table,
+} from "react-bootstrap";
 import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
@@ -298,7 +307,8 @@ function CreateSections() {
 
               <div
                 style={{
-                  backgroundColor: "#eb631c",
+                  borderColor: "#eb631c",
+                  color: "black",
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
@@ -311,14 +321,8 @@ function CreateSections() {
                     Sections From Your Script
                   </Form.Label>
                   {sectionsQueue.size() > 0 ? (
-                    <table
-                      style={{
-                        width: "100%", // Full width of the container
-                        borderCollapse: "collapse",
-                        backgroundColor: "#e4e4e4",
-                      }}
-                    >
-                      <thead>
+                    <Table bordered hover style={{}}>
+                      <thead style={{ backgroundColor: "#eb631c" }}>
                         <tr>
                           <th
                             style={{
@@ -387,7 +391,7 @@ function CreateSections() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                   ) : (
                     <p style={{ color: "lightblue", fontStyle: "italic" }}>
                       No sections found

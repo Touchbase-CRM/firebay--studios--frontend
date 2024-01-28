@@ -192,30 +192,11 @@ function StitchSections() {
       });
   };
 
-  const cardStyle = {
-    padding: "20px",
-    backgroundColor: "#282c34",
-    color: "white",
-    marginTop: "10px",
-    marginBottom: "10px",
-  };
-
-  const tableStyle = {
-    width: "100%",
-    backgroundColor: "#343a40",
-    borderCollapse: "collapse",
-  };
-
-  const thTdStyle = {
-    padding: "10px",
-    borderBottom: "1px solid gray",
-  };
-
   if (pendingAdvertisement) {
     return (
       <div
         className="d-flex align-items-center justify-content-center flex-column"
-        style={{ height: "100vh" }}
+        style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
       >
         <Spinner
           animation="border"
@@ -223,17 +204,25 @@ function StitchSections() {
           style={{ marginBottom: "200px" }}
         />
 
-        <Card className="p-4 bg-dark text-white" style={{ marginTop: "300px" }}>
+        <Card
+          className="p-4"
+          style={{
+            marginTop: "300px",
+            borderRadius: "1rem",
+            borderColor: "#eb631c",
+            color: "black",
+          }}
+        >
           <p
             className="ml-3 mb-0"
             style={{
               fontWeight: "bold",
               fontSize: "24px",
-              color: "white",
+              color: "black",
               textShadow: "1px 1px 1px #000",
             }}
           >
-            Just a second. We are stitching the sections together...
+            Just a second. We are cooking up your final voice cut!
           </p>
         </Card>
         <div className="mt-3">
@@ -247,9 +236,13 @@ function StitchSections() {
           </Button>
 
           <Button
-            variant="warning"
+            // variant="warning"
             onClick={cancelAndRetryLoading}
-            style={{ width: "200px" }} // Setting the same fixed width
+            style={{
+              width: "200px",
+              backgroundColor: "#FDA942",
+              borderColor: "#FDA942",
+            }} // Setting the same fixed width
             title="Stop the current order and retry with the same data."
           >
             Cancel and Resubmit
