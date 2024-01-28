@@ -485,26 +485,27 @@ function ProcessSection() {
   return (
     <div
       style={{
-        backgroundColor: "#343a40",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar
+        expand="lg"
+        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
+      >
         <Navbar.Brand style={{ marginLeft: "10px" }}>
           <img
             src="/fire.png"
-            alt="Firebay Studios"
             width="50"
             height="50"
             className="d-inline-block align-top"
           />
         </Navbar.Brand>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto"></Nav>
+          <Nav className="mr-auto">{/* Nav items here */}</Nav>
         </Navbar.Collapse>
         <Button
           variant="danger"
@@ -519,8 +520,11 @@ function ProcessSection() {
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4"
             style={{
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
               marginBottom: "10px",
             }}
@@ -550,8 +554,11 @@ function ProcessSection() {
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4"
             style={{
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
               height: "150px",
               marginBottom: "10px",
@@ -599,10 +606,11 @@ function ProcessSection() {
       <Row>
         <Col md={10} className="mx-auto">
           <Card
-            className="p-4 bg-dark text-white"
+            className="p-4"
             style={{
-              backgroundColor: "black",
-              color: "white",
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginTop: "10px",
               height: "500px",
               marginBottom: "10px",
@@ -636,7 +644,7 @@ function ProcessSection() {
               </div>
               <div
                 style={{
-                  backgroundColor: "#282c34",
+                  backgroundColor: "#e4e4e4",
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
@@ -651,10 +659,10 @@ function ProcessSection() {
                       cursor: "pointer",
                       textDecoration: "underline",
                       textDecorationColor: "transparent",
-                      color: "orange",
+                      color: "#eb631c",
                     }}
                     onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "orange")
+                      (e.target.style.textDecorationColor = "#eb631c")
                     }
                     onMouseLeave={(e) =>
                       (e.target.style.textDecorationColor = "transparent")
@@ -675,6 +683,8 @@ function ProcessSection() {
                 left: "50%",
                 transform: "translateX(-50%)",
                 width: "60%",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
               }}
             >
               {isGeneratingVoice ? (
@@ -705,7 +715,12 @@ function ProcessSection() {
           >
             <Button
               className="mt-3"
-              style={{ marginRight: "10px", marginTop: "20px" }}
+              style={{
+                marginRight: "10px",
+                marginTop: "20px",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
+              }}
               onClick={handleSubmit}
             >
               Next
@@ -728,7 +743,7 @@ function ProcessSection() {
                 top: menuPosition.y,
                 left: menuPosition.x,
                 zIndex: 1000,
-                backgroundColor: "#f8f9fa",
+                backgroundColor: "#eb631c",
                 boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
                 border: "1px solid #e0e0e0",
                 borderRadius: "8px",
