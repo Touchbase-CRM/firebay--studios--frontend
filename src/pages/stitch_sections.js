@@ -294,7 +294,14 @@ function StitchSections() {
         </Button>
       </Navbar>
 
-      <Card style={{ margin: "20px", backgroundColor: "#2c3034" }}>
+      <Card
+        style={{
+          margin: "20px",
+          borderRadius: "1rem",
+          borderColor: "#eb631c",
+          color: "black",
+        }}
+      >
         <Card.Body>
           <Card.Title style={{ color: "white" }}>Sections Overview</Card.Title>
           <div
@@ -304,24 +311,65 @@ function StitchSections() {
               overflowX: "hidden",
             }}
           >
-            <Table bordered hover variant="dark">
-              <thead>
+            <Table bordered hover style={{ borderColor: "#eb631c" }}>
+              <thead style={{ backgroundColor: "#eb631c" }}>
                 <tr>
-                  <th>Section ID</th>
-                  <th>Initial Section</th>
-                  <th>Current Section</th>
-                  <th>Duration (Seconds)</th>
-                  <th>Play</th>
+                  <th
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                      borderColor: "#eb631c",
+                    }}
+                  >
+                    Section ID
+                  </th>
+                  <th
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                      borderColor: "#eb631c",
+                    }}
+                  >
+                    Initial Section
+                  </th>
+                  <th
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                      borderColor: "#eb631c",
+                    }}
+                  >
+                    Current Section
+                  </th>
+                  <th
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                      borderColor: "#eb631c",
+                    }}
+                  >
+                    Duration (Seconds)
+                  </th>
+                  <th
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                      borderColor: "#eb631c",
+                    }}
+                  >
+                    Play
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {sectionsArray.map((section, index) => (
                   <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{section.originalContent}</td>
-                    <td>{section.currentContent}</td>
-                    <td>{section.sectionDurationSeconds.toFixed(2)}</td>
-                    <td>
+                    <td style={{ border: "1px solid #eb631c" }}>{index + 1}</td>
+                    <td style={{ border: "1px solid #eb631c" }}>
+                      {section.originalContent}
+                    </td>
+                    <td style={{ border: "1px solid #eb631c" }}>
+                      {section.currentContent}
+                    </td>
+                    <td style={{ border: "1px solid #eb631c" }}>
+                      {section.sectionDurationSeconds.toFixed(2)}
+                    </td>
+                    <td style={{ border: "1px solid #eb631c" }}>
                       <Button
                         variant="link"
                         onClick={(e) => {
@@ -330,9 +378,9 @@ function StitchSections() {
                           setAudioTitle(`Section ${section.getIndex() + 1}`);
                           fetchAudio(section.historyItemId);
                         }}
-                        style={{ color: "white" }}
+                        style={{ color: "black" }}
                       >
-                        <Play color="white" />
+                        <Play color="black" />
                       </Button>
                     </td>
                   </tr>
@@ -347,10 +395,11 @@ function StitchSections() {
               justifyContent: "space-between",
               marginTop: "20px",
               padding: "10px 20px",
-              backgroundColor: "#20262e",
+              backgroundColor: "#e4e4e4",
+              borderRadius: "10px",
             }}
           >
-            <span style={{ color: "white" }}>
+            <span style={{ color: "black" }}>
               Total of the section durations: {currentTotalDuration.toFixed(2)}{" "}
               seconds
             </span>
@@ -366,45 +415,60 @@ function StitchSections() {
                   }}
                   style={{ color: "white", textDecoration: "none" }}
                 >
-                  <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                  <span
+                    style={{
+                      verticalAlign: "middle",
+                      marginLeft: "8px",
+                      color: "black",
+                    }}
+                  >
                     Replay Final Cut:
                   </span>
                   <Play
-                    color="white"
+                    color="black"
                     style={{ verticalAlign: "middle", fontSize: "2rem" }}
                   />
                 </Button>
               ) : null}
             </div>
-            {/* Other footer contents */}
           </div>
         </Card.Body>
       </Card>
 
       {combinedVoiceoverUrl === null ? (
         <Button
-          variant="success"
           onClick={handleSubmit}
-          style={{ margin: "20px", width: "200px" }}
+          style={{
+            margin: "20px",
+            width: "200px",
+            backgroundColor: "#eb631c",
+            borderColor: "#eb631c",
+          }}
         >
           Finalize the voiceover
         </Button>
       ) : (
         <Button
-          variant="primary"
           onClick={handleNext}
-          style={{ margin: "20px", width: "200px" }}
+          style={{
+            margin: "20px",
+            width: "200px",
+            backgroundColor: "#eb631c",
+            borderColor: "#eb631c",
+          }}
         >
           Next
         </Button>
       )}
 
-      <SimpleAudioPlayer
-        audioSrc={nowPlayingUrl}
-        audioTitle={audioTitle}
-        forceRender={forceRenderKey}
-        autoplay={true}
-      />
+      {nowPlayingUrl && (
+        <SimpleAudioPlayer
+          audioSrc={nowPlayingUrl}
+          audioTitle={audioTitle}
+          forceRender={forceRenderKey}
+          autoplay={true}
+        />
+      )}
     </div>
   );
 }
