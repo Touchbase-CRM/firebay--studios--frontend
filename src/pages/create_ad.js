@@ -655,6 +655,7 @@ function CreateAd() {
                 generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
               }
               audioTitle={voiceName}
+              allowDownload={generatedVoiceUrl !== ""}
             />
           </div>
 

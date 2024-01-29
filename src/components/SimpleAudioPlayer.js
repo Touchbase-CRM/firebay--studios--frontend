@@ -8,6 +8,7 @@ export default function SimpleAudioPlayer({
   audioSrc,
   forceRender = 0,
   autoplay = false, // Optional autoplay prop, default is false
+  allowDownload = false, // Optional prop to allow downloading
 }) {
   return (
     <div className="fixed-bottom bg-light border-top">
@@ -15,9 +16,33 @@ export default function SimpleAudioPlayer({
         <AudioPlayer
           key={forceRender}
           src={audioSrc || undefined}
-          autoPlay={autoplay} // Use the autoplay prop here
+          autoPlay={autoplay}
           header={
-            <span style={{ color: "black" }}>Now playing: {audioTitle}</span>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                color: "black",
+              }}
+            >
+              <span>Now playing: {audioTitle}</span>
+              {allowDownload && (
+                <a
+                  href={audioSrc}
+                  download
+                  className="btn btn-link"
+                  title="Download"
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: "1.5em",
+                    color: "#EB631C",
+                  }} // Adjust the value as needed
+                >
+                  <i className="bi bi-download"></i>
+                </a>
+              )}
+            </div>
           }
           showJumpControls={false}
           customAdditionalControls={[]}
