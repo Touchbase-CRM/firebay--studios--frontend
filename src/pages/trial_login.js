@@ -115,7 +115,7 @@ const TrialLoginPage = () => {
                   style={{
                     borderColor: "#e4e4e4", // Matching the SignupPage placeholder color
                     backgroundColor: "#e4e4e4", // Matching the SignupPage background color for input
-                    color: "white", // Matching the SignupPage text color for input
+                    color: "black", // Matching the SignupPage text color for input
                   }}
                 />
               </Form.Group>

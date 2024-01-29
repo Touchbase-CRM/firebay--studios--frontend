@@ -60,7 +60,7 @@ const LoginPage = () => {
             title:
               '<span style="font-size: 14px;">Subscription Required</span>',
             html:
-              '<span style="font-size: 12px;">Contact kjayamanna@firebaystudios.com for more information.<br>' +
+              '<span style="font-size: 12px;">Contact gcahill@firebaystudios.com for more information.<br>' +
               error.message +
               "</span>",
           });
@@ -159,7 +159,7 @@ const LoginPage = () => {
                   style={{
                     borderColor: "#e4e4e4",
                     backgroundColor: "#e4e4e4",
-                    color: "white",
+                    color: "black",
                   }}
                 />
               </Form.Group>
@@ -176,7 +176,7 @@ const LoginPage = () => {
                   style={{
                     borderColor: "#e4e4e4",
                     backgroundColor: "#e4e4e4",
-                    color: "white",
+                    color: "black",
                   }}
                 />
               </Form.Group>

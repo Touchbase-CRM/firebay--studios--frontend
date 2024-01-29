@@ -47,8 +47,30 @@ const SignupPage = () => {
 
   const handleSignUp = async (event) => {
     event.preventDefault();
+
+    // SweetAlert confirmation dialog before starting the signup process
+    const paymentConfirmation = await Swal.fire({
+      title: "Payment Confirmation",
+      text: "The credentials you set up here won't be effective until you have made a payment. Please close this window and contact our head of sales at gcahill@firebaystudios.com if you have not gone through the payment process already.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, I have made the payment",
+      cancelButtonText: "No, I have not made the payment yet",
+    });
+
+    if (!paymentConfirmation.isConfirmed) {
+      Swal.fire(
+        "Signup Aborted",
+        "Please complete the payment process to create an account.",
+        "info"
+      );
+      return; // Abort the signup process
+    }
+
+    // Proceed with the signup process
     setIsLoading(true); // Start loading
-    // setStatusMessage("Step 1 of 2: Creating your Pyro account...");
     setStatusMessage("Creating your Pyro account...");
 
     if (password !== confirmPassword) {
@@ -62,68 +84,26 @@ const SignupPage = () => {
     }
 
     try {
-      // const userEmailDomain = email.split("@")[1];
-      // const orgMetaRef = doc(db, "organizations_meta_data", userEmailDomain);
-      // const orgMetaSnap = await getDoc(orgMetaRef);
-
-      // if (!orgMetaSnap.exists()) {
-      //   Swal.fire({
-      //     icon: "error",
-      //     title: "Organization Not Found",
-      //     text: "Your email domain does not match any registered organization.",
-      //   });
-      //   setIsLoading(false); // Stop loading
-      //   return;
-      // }
-
-      // const orgData = orgMetaSnap.data();
-      // setOrganization(orgData.org_name);
-
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
-      // setVerificationUser(user);
 
-      // await sendEmailVerification(user);
-
-      // Map the users uid to their organization
       const batch = writeBatch(db);
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
-        // org_name: orgData.org_name,
         work_email: email,
         credit_allowance: 1000,
         credit_left: 1000,
       });
 
       await batch.commit();
-
-      // setStatusMessage("Step 1 of 2: Your Pyro account has been created.");
       setStatusMessage("Your Pyro account has been created.");
 
-      // Wait a moment before changing the message
-      // setTimeout(
-      //   () =>
-      //     setStatusMessage(
-      //       "Step 2 of 2: Redirecting you to the payment page, sit tight..."
-      //     ),
-      //   2000
-      // );
-
-      // // Define your Stripe priceId here (or fetch it as needed)
-      // const priceId = "price_1OKTm4FMbNrj7ePDSxvrmLQE";
-      // // const priceId = "price_1OIYJOFMbNrj7ePDcK5Zk1vp"; // test priceId
-
-      // // Call the getCheckoutUrl function to get the Stripe checkout URL
-      // const checkoutUrl = await getCheckoutUrl(app, priceId);
-
-      // // Redirect the user to the Stripe checkout page in the same window
-      // window.location.href = checkoutUrl;
-
-      router.push("/create_ad"); // remove this once the pricing is determined.
+      // Redirect to another page or perform further actions here
+      router.push("/login"); // Example redirection after successful signup
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
@@ -173,7 +153,7 @@ const SignupPage = () => {
           >
             <Spinner />
           </div>
-          <p style={{ marginTop: "20px", color: "white" }}>{statusMessage}</p>
+          <p style={{ marginTop: "20px", color: "black" }}>{statusMessage}</p>
         </div>
       )}
       {!isLoading && (
@@ -222,7 +202,7 @@ const SignupPage = () => {
                   style={{
                     borderColor: "#e4e4e4",
                     backgroundColor: "#e4e4e4",
-                    color: "white",
+                    color: "black",
                   }}
                 />
               </Form.Group>
@@ -240,7 +220,7 @@ const SignupPage = () => {
                     style={{
                       borderColor: "#e4e4e4",
                       backgroundColor: "#e4e4e4",
-                      color: "white",
+                      color: "black",
                     }}
                   />
                 </Form.Group>
@@ -257,7 +237,7 @@ const SignupPage = () => {
                     style={{
                       borderColor: "#e4e4e4",
                       backgroundColor: "#e4e4e4",
-                      color: "white",
+                      color: "black",
                     }}
                   />
                 </Form.Group>
