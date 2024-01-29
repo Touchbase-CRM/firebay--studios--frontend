@@ -86,6 +86,26 @@ function CreateAd() {
   }, [isFormSubmitted, router]);
 
   useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
+
+  useEffect(() => {
     const fetchVoiceOptions = async () => {
       const voicesDocRef = doc(
         getFirestore(app),

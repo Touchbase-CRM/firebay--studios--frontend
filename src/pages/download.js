@@ -23,28 +23,28 @@ const DownloadPage = () => {
   const router = useRouter();
   const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
-  // const [credits, setCredits] = useState({ creditLeft: 0, creditAllowance: 0 });
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
   const { reset, generatedVoiceUrl, sectionsArray } = useUserInputsStore();
-  // useEffect(() => {
-  //   if (user?.uid) {
-  //     const docRef = doc(db, "uid_to_org", user.uid);
 
-  //     getDoc(docRef)
-  //       .then((docSnap) => {
-  //         if (docSnap.exists()) {
-  //           const data = docSnap.data();
-  //           setCredits({
-  //             creditLeft: data.credit_left,
-  //             creditAllowance: data.credit_allowance,
-  //           });
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.log("Error getting document:", error);
-  //       });
-  //   }
-  // }, [user?.uid]);
+  useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
 
   const handleDownload = () => {
     setIsDownloading(true); // Set downloading state to true
@@ -53,31 +53,6 @@ const DownloadPage = () => {
       userId: user.uid,
       // Additional properties can be added here if needed
     });
-
-    // Decrement credit_left in the database
-    // const docRef = doc(db, "uid_to_org", user.uid);
-    // runTransaction(db, (transaction) => {
-    //   return transaction.get(docRef).then((docSnap) => {
-    //     if (!docSnap.exists()) {
-    //       throw "Document does not exist!";
-    //     }
-
-    //     let newCreditLeft = (docSnap.data().credit_left || 0) - 1;
-    //     transaction.update(docRef, { credit_left: newCreditLeft });
-    //     return newCreditLeft; // This value is passed to the .then() handler
-    //   });
-    // })
-    //   .then((newCreditLeft) => {
-    //     setCredits({
-    //       ...credits,
-    //       creditLeft: newCreditLeft,
-    //     });
-    //     setIsDownloading(false); // Set downloading state to false after download
-    //   })
-    //   .catch((error) => {
-    //     console.error("Transaction failed: ", error);
-    //     setIsDownloading(false); // Set downloading state to false if transaction fails
-    //   });
   };
 
   const handleNewAd = () => {
