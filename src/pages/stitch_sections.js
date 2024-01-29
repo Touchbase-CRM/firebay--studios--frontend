@@ -467,6 +467,7 @@ function StitchSections() {
           audioTitle={audioTitle}
           forceRender={forceRenderKey}
           autoplay={true}
+          allowDownload={true}
         />
       )}
     </div>

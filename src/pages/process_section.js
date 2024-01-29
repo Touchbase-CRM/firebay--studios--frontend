@@ -744,6 +744,7 @@ function ProcessSection() {
                 generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
               }
               audioTitle={voiceName}
+              allowDownload={generatedVoiceUrl !== ""}
             />
           </div>
 
