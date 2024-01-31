@@ -118,7 +118,7 @@ function StitchSections() {
     if (totalDurationWithPauses > adLength) {
       Swal.fire({
         title: "Exceeded Ad Length",
-        text: `Added pause will exceed your over all ad length, so it is reverted to 0 seconds.`,
+        text: `Added pause will exceed your overall ad length, so it is reverted to 0 seconds.`,
         icon: "warning",
         confirmButtonText: "Ok",
       });
