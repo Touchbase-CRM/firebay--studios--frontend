@@ -409,7 +409,15 @@ function StitchSections() {
                   >
                     Duration (Seconds)
                   </th>
-                  <th style={{ borderColor: "#eb631c" }}>
+                  <th
+                    style={{
+                      borderColor: "#eb631c",
+                      maxWidth: "220px", // Adjust this value as needed
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     Length of the Pause at the End of the Section (Seconds)
                   </th>
                   <th
@@ -434,7 +442,15 @@ function StitchSections() {
                     <td style={{ border: "1px solid #eb631c" }}>
                       {section.sectionDurationSeconds.toFixed(2)}
                     </td>
-                    <td style={{ border: "1px solid #eb631c" }}>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        maxWidth: "220px", // Keep consistent with the header
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       <input
                         type="number"
                         value={section.getEndOfSectionPauseDurationSeconds()}
@@ -444,7 +460,12 @@ function StitchSections() {
                         min="0"
                         max="10"
                         step="0.1"
-                        style={{ width: "100%" }}
+                        style={{
+                          width: "10%",
+                          backgroundColor: "#e4e4e4",
+                          borderColor: "#e4e4e4",
+                          color: "black",
+                        }}
                       />
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
