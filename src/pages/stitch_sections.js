@@ -468,16 +468,15 @@ function StitchSections() {
           </div>
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
               marginTop: "20px",
               padding: "10px 20px",
               backgroundColor: "#e4e4e4",
               borderRadius: "10px",
             }}
           >
-            <span style={{ color: "black" }}>
+            <div style={{ color: "black", marginBottom: "10px" }}>
+              {" "}
+              {/* Add some margin to separate the lines */}
               Total duration without pauses:{" "}
               {localSectionArray
                 .reduce(
@@ -486,8 +485,8 @@ function StitchSections() {
                 )
                 .toFixed(2)}{" "}
               seconds
-            </span>
-            <span style={{ color: "black" }}>
+            </div>
+            <div style={{ color: "black" }}>
               Total duration with pauses:{" "}
               {localSectionArray
                 .reduce(
@@ -499,7 +498,7 @@ function StitchSections() {
                 )
                 .toFixed(2)}{" "}
               seconds
-            </span>
+            </div>
             <div style={{ flex: 1, textAlign: "center" }}>
               {combinedVoiceoverUrl !== null ? (
                 <Button
@@ -521,6 +520,7 @@ function StitchSections() {
                   >
                     Replay Final Cut:
                   </span>
+                  {/* Assuming Play is an icon component */}
                   <Play
                     color="black"
                     style={{ verticalAlign: "middle", fontSize: "2rem" }}
@@ -571,4 +571,5 @@ function StitchSections() {
   );
 }
 
-export default withAuth(StitchSections);
+// export default withAuth(StitchSections);
+export default StitchSections;
