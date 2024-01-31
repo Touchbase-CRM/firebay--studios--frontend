@@ -98,15 +98,14 @@ function StitchSections() {
     let newArray = [...localSectionArray];
     let sectionToUpdate = newArray[index];
 
-    // Ensure that the new duration is a valid number. If not, set it to 0.
+    // Ensure that the new duration is a valid number. If not, temporarily set it to 0.
     const validDuration =
       isNaN(parseFloat(newDuration)) || newDuration === ""
         ? 0
         : parseFloat(newDuration);
     sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
-    setLocalSectionArray(newArray);
 
-    // Recalculate the total duration with pauses, taking into account the new valid duration
+    // Calculate the total duration with the new pause duration
     const totalDurationWithPauses = newArray.reduce(
       (acc, section) =>
         acc +
@@ -117,16 +116,19 @@ function StitchSections() {
 
     // Check if the total duration with pauses exceeds the ad length
     if (totalDurationWithPauses > adLength) {
-      const overLength = totalDurationWithPauses - adLength;
       Swal.fire({
         title: "Exceeded Ad Length",
-        text: `You have exceeded the ad length by ${overLength.toFixed(
-          2
-        )} seconds.`,
+        text: `Added pause will exceed your over all ad length, so it is reverted to 0 seconds.`,
         icon: "warning",
         confirmButtonText: "Ok",
       });
+
+      // Revert the pause duration to 0 as it exceeds ad length
+      sectionToUpdate.setEndOfSectionPauseDurationSeconds(0);
     }
+
+    // Update the state to reflect the changes (or reversion to 0)
+    setLocalSectionArray(newArray);
   };
 
   const fetchAudio = (historyItemId) => {
