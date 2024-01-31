@@ -97,12 +97,16 @@ function StitchSections() {
   const updatePauseDuration = (index, newDuration) => {
     let newArray = [...localSectionArray];
     let sectionToUpdate = newArray[index];
-    sectionToUpdate.setEndOfSectionPauseDurationSeconds(
-      parseFloat(newDuration)
-    );
+
+    // Ensure that the new duration is a valid number. If not, set it to 0.
+    const validDuration =
+      isNaN(parseFloat(newDuration)) || newDuration === ""
+        ? 0
+        : parseFloat(newDuration);
+    sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
     setLocalSectionArray(newArray);
 
-    // Now, calculate the new total duration with pauses
+    // Recalculate the total duration with pauses, taking into account the new valid duration
     const totalDurationWithPauses = newArray.reduce(
       (acc, section) =>
         acc +
@@ -461,7 +465,7 @@ function StitchSections() {
                         max="10"
                         step="0.1"
                         style={{
-                          width: "10%",
+                          width: "15%",
                           backgroundColor: "#e4e4e4",
                           borderColor: "#e4e4e4",
                           color: "black",
