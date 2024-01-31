@@ -6,6 +6,7 @@ import withAuth from "../hocs/withAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
+import _ from "lodash";
 
 import {
   Row,
@@ -27,6 +28,7 @@ function StitchSections() {
   const router = useRouter();
   const {
     sectionsArray,
+    adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
   } = useUserInputsStore();
@@ -37,11 +39,20 @@ function StitchSections() {
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  const [localSectionArray, setLocalSectionArray] = useState([]);
 
   const musicGenWebServiceUrl =
     "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
   // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
   const cancelTokenSourceRef = useRef(null);
+
+  useEffect(() => {
+    calculateTotalDuration();
+  }, [localSectionArray]);
+
+  useEffect(() => {
+    setLocalSectionArray(_.cloneDeep(sectionsArray));
+  }, []);
 
   useEffect(() => {
     // prevent back button
@@ -62,6 +73,57 @@ function StitchSections() {
       window.onpopstate = null;
     };
   }, [router]);
+
+  const calculateTotalDuration = () => {
+    const totalDurationWithoutPauses = localSectionArray.reduce(
+      (acc, section) => acc + section.sectionDurationSeconds,
+      0
+    );
+
+    const totalDurationWithPauses = localSectionArray.reduce((acc, section) => {
+      return (
+        acc +
+        section.sectionDurationSeconds +
+        section.getEndOfSectionPauseDurationSeconds()
+      );
+    }, 0);
+
+    return {
+      totalDurationWithoutPauses,
+      totalDurationWithPauses,
+    };
+  };
+
+  const updatePauseDuration = (index, newDuration) => {
+    let newArray = [...localSectionArray];
+    let sectionToUpdate = newArray[index];
+    sectionToUpdate.setEndOfSectionPauseDurationSeconds(
+      parseFloat(newDuration)
+    );
+    setLocalSectionArray(newArray);
+
+    // Now, calculate the new total duration with pauses
+    const totalDurationWithPauses = newArray.reduce(
+      (acc, section) =>
+        acc +
+        section.sectionDurationSeconds +
+        section.getEndOfSectionPauseDurationSeconds(),
+      0
+    );
+
+    // Check if the total duration with pauses exceeds the ad length
+    if (totalDurationWithPauses > adLength) {
+      const overLength = totalDurationWithPauses - adLength;
+      Swal.fire({
+        title: "Exceeded Ad Length",
+        text: `You have exceeded the ad length by ${overLength.toFixed(
+          2
+        )} seconds.`,
+        icon: "warning",
+        confirmButtonText: "Ok",
+      });
+    }
+  };
 
   const fetchAudio = (historyItemId) => {
     const options = {
@@ -347,6 +409,9 @@ function StitchSections() {
                   >
                     Duration (Seconds)
                   </th>
+                  <th style={{ borderColor: "#eb631c" }}>
+                    Length of the Pause at the End of the Section (Seconds)
+                  </th>
                   <th
                     style={{
                       borderColor: "#eb631c",
@@ -357,7 +422,7 @@ function StitchSections() {
                 </tr>
               </thead>
               <tbody>
-                {sectionsArray.map((section, index) => (
+                {localSectionArray.map((section, index) => (
                   <tr key={index}>
                     <td style={{ border: "1px solid #eb631c" }}>{index + 1}</td>
                     <td style={{ border: "1px solid #eb631c" }}>
@@ -368,6 +433,19 @@ function StitchSections() {
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       {section.sectionDurationSeconds.toFixed(2)}
+                    </td>
+                    <td style={{ border: "1px solid #eb631c" }}>
+                      <input
+                        type="number"
+                        value={section.getEndOfSectionPauseDurationSeconds()}
+                        onChange={(e) =>
+                          updatePauseDuration(index, e.target.value)
+                        }
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        style={{ width: "100%" }}
+                      />
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
@@ -400,7 +478,26 @@ function StitchSections() {
             }}
           >
             <span style={{ color: "black" }}>
-              Total of the section durations: {currentTotalDuration.toFixed(2)}{" "}
+              Total duration without pauses:{" "}
+              {localSectionArray
+                .reduce(
+                  (acc, section) => acc + section.sectionDurationSeconds,
+                  0
+                )
+                .toFixed(2)}{" "}
+              seconds
+            </span>
+            <span style={{ color: "black" }}>
+              Total duration with pauses:{" "}
+              {localSectionArray
+                .reduce(
+                  (acc, section) =>
+                    acc +
+                    section.sectionDurationSeconds +
+                    section.getEndOfSectionPauseDurationSeconds(),
+                  0
+                )
+                .toFixed(2)}{" "}
               seconds
             </span>
             <div style={{ flex: 1, textAlign: "center" }}>
