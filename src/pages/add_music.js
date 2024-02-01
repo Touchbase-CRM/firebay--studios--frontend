@@ -68,7 +68,7 @@ function AddMusic() {
 
   // prettier-ignore
   const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const audioStitchWebServiceUrl = "http://localhost:8000"; // For local testing
+  // const audioStitchWebServiceUrl = "http://localhost:8000";
 
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
@@ -261,6 +261,9 @@ function AddMusic() {
       const historyItemIdList = sectionsArray.map((section) =>
         section.getHistoryItemId()
       );
+      const endOfSectionsPausesArray = sectionsArray.map((section) =>
+        section.getEndOfSectionPauseDurationSeconds()
+      );
 
       payload = {
         user_id: userId,
@@ -269,6 +272,7 @@ function AddMusic() {
         music_vol: musicVol,
         history_item_id: null,
         history_item_id_list: historyItemIdList,
+        end_of_section_pause_duration_list: endOfSectionsPausesArray,
       };
     } else {
       payload = {

@@ -40,7 +40,7 @@ function StitchSections() {
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
-  const [localSectionArray, setLocalSectionArray] = useState([]);
+  const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
   //prettier-ignore
   const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
@@ -49,10 +49,10 @@ function StitchSections() {
 
   useEffect(() => {
     calculateTotalDuration();
-  }, [localSectionArray]);
+  }, [localSectionsArray]);
 
   useEffect(() => {
-    setLocalSectionArray(_.cloneDeep(sectionsArray));
+    setLocalSectionsArray(_.cloneDeep(sectionsArray));
   }, []);
 
   useEffect(() => {
@@ -76,18 +76,21 @@ function StitchSections() {
   }, [router]);
 
   const calculateTotalDuration = () => {
-    const totalDurationWithoutPauses = localSectionArray.reduce(
+    const totalDurationWithoutPauses = localSectionsArray.reduce(
       (acc, section) => acc + section.sectionDurationSeconds,
       0
     );
 
-    const totalDurationWithPauses = localSectionArray.reduce((acc, section) => {
-      return (
-        acc +
-        section.sectionDurationSeconds +
-        section.getEndOfSectionPauseDurationSeconds()
-      );
-    }, 0);
+    const totalDurationWithPauses = localSectionsArray.reduce(
+      (acc, section) => {
+        return (
+          acc +
+          section.sectionDurationSeconds +
+          section.getEndOfSectionPauseDurationSeconds()
+        );
+      },
+      0
+    );
 
     return {
       totalDurationWithoutPauses,
@@ -96,7 +99,7 @@ function StitchSections() {
   };
 
   const updatePauseDuration = (index, newDuration) => {
-    let newArray = [...localSectionArray];
+    let newArray = [...localSectionsArray];
     let sectionToUpdate = newArray[index];
 
     // Ensure that the new duration is a valid number. If not, temporarily set it to 0.
@@ -129,7 +132,7 @@ function StitchSections() {
     }
 
     // Update the state to reflect the changes (or reversion to 0)
-    setLocalSectionArray(newArray);
+    setLocalSectionsArray(newArray);
   };
 
   const fetchAudio = (historyItemId) => {
@@ -172,7 +175,7 @@ function StitchSections() {
     const historyItemIds = sectionsArray.map((section) =>
       section.getHistoryItemId()
     );
-    const endOfSectionsPausesArray = localSectionArray.map((section) =>
+    const endOfSectionsPausesArray = localSectionsArray.map((section) =>
       section.getEndOfSectionPauseDurationSeconds()
     );
     const payload = {
@@ -214,7 +217,7 @@ function StitchSections() {
       .finally(() => {
         setPendingAdvertisement(false); // Set pending to false when API call completes
       });
-    setSectionsArray(localSectionArray);
+    setSectionsArray(localSectionsArray);
   };
 
   const cancelLoading = () => {
@@ -442,7 +445,7 @@ function StitchSections() {
                 </tr>
               </thead>
               <tbody>
-                {localSectionArray.map((section, index) => (
+                {localSectionsArray.map((section, index) => (
                   <tr key={index}>
                     <td style={{ border: "1px solid #eb631c" }}>{index + 1}</td>
                     <td style={{ border: "1px solid #eb631c" }}>
@@ -511,7 +514,7 @@ function StitchSections() {
               {" "}
               {/* Add some margin to separate the lines */}
               Total duration without pauses:{" "}
-              {localSectionArray
+              {localSectionsArray
                 .reduce(
                   (acc, section) => acc + section.sectionDurationSeconds,
                   0
@@ -521,7 +524,7 @@ function StitchSections() {
             </div>
             <div style={{ color: "black" }}>
               Total duration with pauses:{" "}
-              {localSectionArray
+              {localSectionsArray
                 .reduce(
                   (acc, section) =>
                     acc +
