@@ -43,8 +43,8 @@ function StitchSections() {
   const [localSectionArray, setLocalSectionArray] = useState([]);
 
   //prettier-ignore
-  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  const musicGenWebServiceUrl = "http://localhost:8000";
+  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
