@@ -466,22 +466,30 @@ function StitchSections() {
                         textOverflow: "ellipsis",
                       }}
                     >
-                      <input
-                        type="number"
-                        value={section.getEndOfSectionPauseDurationSeconds()}
-                        onChange={(e) =>
-                          updatePauseDuration(index, e.target.value)
-                        }
-                        min="0"
-                        max="10"
-                        step="0.1"
-                        style={{
-                          width: "15%",
-                          backgroundColor: "#e4e4e4",
-                          borderColor: "#e4e4e4",
-                          color: "black",
-                        }}
-                      />
+                      {combinedVoiceoverUrl === null ? (
+                        <input
+                          type="number"
+                          value={section.getEndOfSectionPauseDurationSeconds()}
+                          onChange={(e) =>
+                            updatePauseDuration(index, e.target.value)
+                          }
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          style={{
+                            width: "15%",
+                            backgroundColor: "#e4e4e4",
+                            borderColor: "#e4e4e4",
+                            color: "black",
+                          }}
+                        />
+                      ) : (
+                        // Displaying the pause duration value if combinedVoiceoverUrl is null
+                        <div>
+                          {section.getEndOfSectionPauseDurationSeconds()}{" "}
+                          seconds
+                        </div>
+                      )}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
