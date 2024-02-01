@@ -105,6 +105,7 @@ function ProcessSection() {
     const handleBackButton = async () => {
       handleLogout();
     };
+    currentSectionObj;
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     window.onpopstate = handleBackButton;

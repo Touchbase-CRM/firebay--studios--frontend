@@ -28,6 +28,7 @@ function StitchSections() {
   const router = useRouter();
   const {
     sectionsArray,
+    setSectionsArray,
     adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
@@ -213,6 +214,7 @@ function StitchSections() {
       .finally(() => {
         setPendingAdvertisement(false); // Set pending to false when API call completes
       });
+    setSectionsArray(localSectionArray);
   };
 
   const cancelLoading = () => {
