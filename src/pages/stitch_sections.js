@@ -41,9 +41,9 @@ function StitchSections() {
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionArray, setLocalSectionArray] = useState([]);
 
-  const musicGenWebServiceUrl =
-    "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+  //prettier-ignore
+  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
@@ -171,9 +171,13 @@ function StitchSections() {
     const historyItemIds = sectionsArray.map((section) =>
       section.getHistoryItemId()
     );
+    const endOfSectionsPausesArray = localSectionArray.map((section) =>
+      section.getEndOfSectionPauseDurationSeconds()
+    );
     const payload = {
       user_id: userId,
       history_item_id_list: historyItemIds,
+      end_of_section_pause_duration_list: endOfSectionsPausesArray,
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
     // Send POST request to the API
