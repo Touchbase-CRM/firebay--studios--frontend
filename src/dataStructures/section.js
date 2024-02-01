@@ -13,6 +13,17 @@ export class Section {
     this.originalCharCount = this.#calculateCharCount(originalContent);
     this.currentCharCount = this.#calculateCharCount(currentContent);
     this.sectionDurationSeconds = sectionDurationSeconds;
+    this.endOfSectionPauseDurationSeconds = 0.2;
+  }
+
+  // setter for end of section pause duration
+  setEndOfSectionPauseDurationSeconds(newEndOfSectionPauseDurationSeconds) {
+    this.endOfSectionPauseDurationSeconds = newEndOfSectionPauseDurationSeconds;
+  }
+
+  //getter for end of section pause duration
+  getEndOfSectionPauseDurationSeconds() {
+    return this.endOfSectionPauseDurationSeconds;
   }
 
   // Private method to calculate character count

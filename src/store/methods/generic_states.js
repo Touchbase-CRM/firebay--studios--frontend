@@ -22,7 +22,13 @@ export class UserInputMethods {
     this.setHistoryItemId = this.setHistoryItemId.bind(this);
     this.setModelId = this.setModelId.bind(this);
     this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
+    this.setSectionsArray = this.setSectionsArray.bind(this);
   }
+
+  setSectionsArray(sectionsArray) {
+    this.set({ sectionsArray });
+  }
+
   setNumSectionsIdentified(numSectionsIdentified) {
     this.set({ numSectionsIdentified });
   }

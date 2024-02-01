@@ -6,6 +6,7 @@ import withAuth from "../hocs/withAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
+import _ from "lodash";
 
 import {
   Row,
@@ -27,6 +28,8 @@ function StitchSections() {
   const router = useRouter();
   const {
     sectionsArray,
+    setSectionsArray,
+    adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
   } = useUserInputsStore();
@@ -37,11 +40,20 @@ function StitchSections() {
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
-  const musicGenWebServiceUrl =
-    "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000"; // For local testing
+  //prettier-ignore
+  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
+
+  useEffect(() => {
+    calculateTotalDuration();
+  }, [localSectionsArray]);
+
+  useEffect(() => {
+    setLocalSectionsArray(_.cloneDeep(sectionsArray));
+  }, []);
 
   useEffect(() => {
     // prevent back button
@@ -62,6 +74,66 @@ function StitchSections() {
       window.onpopstate = null;
     };
   }, [router]);
+
+  const calculateTotalDuration = () => {
+    const totalDurationWithoutPauses = localSectionsArray.reduce(
+      (acc, section) => acc + section.sectionDurationSeconds,
+      0
+    );
+
+    const totalDurationWithPauses = localSectionsArray.reduce(
+      (acc, section) => {
+        return (
+          acc +
+          section.sectionDurationSeconds +
+          section.getEndOfSectionPauseDurationSeconds()
+        );
+      },
+      0
+    );
+
+    return {
+      totalDurationWithoutPauses,
+      totalDurationWithPauses,
+    };
+  };
+
+  const updatePauseDuration = (index, newDuration) => {
+    let newArray = [...localSectionsArray];
+    let sectionToUpdate = newArray[index];
+
+    // Ensure that the new duration is a valid number. If not, temporarily set it to 0.
+    const validDuration =
+      isNaN(parseFloat(newDuration)) || newDuration === ""
+        ? 0
+        : parseFloat(newDuration);
+    sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
+
+    // Calculate the total duration with the new pause duration
+    const totalDurationWithPauses = newArray.reduce(
+      (acc, section) =>
+        acc +
+        section.sectionDurationSeconds +
+        section.getEndOfSectionPauseDurationSeconds(),
+      0
+    );
+
+    // Check if the total duration with pauses exceeds the ad length
+    if (totalDurationWithPauses > adLength) {
+      Swal.fire({
+        title: "Exceeded Ad Length",
+        text: `Added pause will exceed your overall ad length, so it is reverted to 0 seconds.`,
+        icon: "warning",
+        confirmButtonText: "Ok",
+      });
+
+      // Revert the pause duration to 0 as it exceeds ad length
+      sectionToUpdate.setEndOfSectionPauseDurationSeconds(0);
+    }
+
+    // Update the state to reflect the changes (or reversion to 0)
+    setLocalSectionsArray(newArray);
+  };
 
   const fetchAudio = (historyItemId) => {
     const options = {
@@ -103,9 +175,13 @@ function StitchSections() {
     const historyItemIds = sectionsArray.map((section) =>
       section.getHistoryItemId()
     );
+    const endOfSectionsPausesArray = localSectionsArray.map((section) =>
+      section.getEndOfSectionPauseDurationSeconds()
+    );
     const payload = {
       user_id: userId,
       history_item_id_list: historyItemIds,
+      end_of_section_pause_duration_list: endOfSectionsPausesArray,
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
     // Send POST request to the API
@@ -141,6 +217,7 @@ function StitchSections() {
       .finally(() => {
         setPendingAdvertisement(false); // Set pending to false when API call completes
       });
+    setSectionsArray(localSectionsArray);
   };
 
   const cancelLoading = () => {
@@ -350,6 +427,17 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      maxWidth: "220px", // Adjust this value as needed
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    Length of the Pause at the End of the Section (Seconds)
+                  </th>
+                  <th
+                    style={{
+                      borderColor: "#eb631c",
                     }}
                   >
                     Play
@@ -357,7 +445,7 @@ function StitchSections() {
                 </tr>
               </thead>
               <tbody>
-                {sectionsArray.map((section, index) => (
+                {localSectionsArray.map((section, index) => (
                   <tr key={index}>
                     <td style={{ border: "1px solid #eb631c" }}>{index + 1}</td>
                     <td style={{ border: "1px solid #eb631c" }}>
@@ -368,6 +456,40 @@ function StitchSections() {
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       {section.sectionDurationSeconds.toFixed(2)}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        maxWidth: "220px", // Keep consistent with the header
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {combinedVoiceoverUrl === null ? (
+                        <input
+                          type="number"
+                          value={section.getEndOfSectionPauseDurationSeconds()}
+                          onChange={(e) =>
+                            updatePauseDuration(index, e.target.value)
+                          }
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          style={{
+                            width: "15%",
+                            backgroundColor: "#e4e4e4",
+                            borderColor: "#e4e4e4",
+                            color: "black",
+                          }}
+                        />
+                      ) : (
+                        // Displaying the pause duration value if combinedVoiceoverUrl is null
+                        <div>
+                          {section.getEndOfSectionPauseDurationSeconds()}{" "}
+                          seconds
+                        </div>
+                      )}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
@@ -390,19 +512,37 @@ function StitchSections() {
           </div>
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
               marginTop: "20px",
               padding: "10px 20px",
               backgroundColor: "#e4e4e4",
               borderRadius: "10px",
             }}
           >
-            <span style={{ color: "black" }}>
-              Total of the section durations: {currentTotalDuration.toFixed(2)}{" "}
+            <div style={{ color: "black", marginBottom: "10px" }}>
+              {" "}
+              {/* Add some margin to separate the lines */}
+              Total duration without pauses:{" "}
+              {localSectionsArray
+                .reduce(
+                  (acc, section) => acc + section.sectionDurationSeconds,
+                  0
+                )
+                .toFixed(2)}{" "}
               seconds
-            </span>
+            </div>
+            <div style={{ color: "black" }}>
+              Total duration with pauses:{" "}
+              {localSectionsArray
+                .reduce(
+                  (acc, section) =>
+                    acc +
+                    section.sectionDurationSeconds +
+                    section.getEndOfSectionPauseDurationSeconds(),
+                  0
+                )
+                .toFixed(2)}{" "}
+              seconds
+            </div>
             <div style={{ flex: 1, textAlign: "center" }}>
               {combinedVoiceoverUrl !== null ? (
                 <Button
@@ -424,6 +564,7 @@ function StitchSections() {
                   >
                     Replay Final Cut:
                   </span>
+                  {/* Assuming Play is an icon component */}
                   <Play
                     color="black"
                     style={{ verticalAlign: "middle", fontSize: "2rem" }}
@@ -474,4 +615,5 @@ function StitchSections() {
   );
 }
 
-export default withAuth(StitchSections);
+// export default withAuth(StitchSections);
+export default StitchSections;
