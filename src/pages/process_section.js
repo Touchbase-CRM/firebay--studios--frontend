@@ -190,10 +190,10 @@ function ProcessSection() {
   // Initialize the S3 client within the function to use Next.js environment variables
   const getS3Client = () => {
     return new S3Client({
-      // region: process.env.AWS_REGION, // Access the AWS region from environment variables
+      region: "us-east-2",
       credentials: {
         accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
-        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET, // Access the AWS secret access key from environment variables
+        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
       },
     });
   };
@@ -486,6 +486,7 @@ function ProcessSection() {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
     const mostUptodateSection = getFinalScript();
+    let pyro_history_item_id;
 
     if (!dragonBreathEnhancement) {
       // setSectionCurrentContentZustand(mostUptodateSection);
@@ -528,22 +529,25 @@ function ProcessSection() {
       pyro_history_item_id = await preprocessVoiceover({
         script: mostUptodateSection,
         voice: voiceId,
-        user_id: auth.currentUser.uid,
-        dragons_breath_mode: dragonBreathEnhancement,
-        talk_speed: 1.0,
-        legal_disclaimer: false,
+        userId: auth.currentUser.uid,
+        dragonsBreathMode: dragonBreathEnhancement,
+        talkSpeed: 1.0,
+        legalDisclaimer: false,
       });
 
       if (pyro_history_item_id) {
         localHistoryItemId = pyro_history_item_id;
       }
+      let audioBlob = null;
 
-      audioUrl = await fetchAudioFromPyroBackendDistribution(
+      audioBlob = await fetchAudioFromPyroBackendDistribution(
         pyro_history_item_id
       );
+
+      audioUrl = URL.createObjectURL(audioBlob);
+      setGeneratedVoiceUrl(audioUrl);
     }
 
-    // Create a new audio element to load the audio and get its duration
     const audio = new Audio(audioUrl);
     audio.addEventListener("loadedmetadata", () => {
       const newDuration = audio.duration;
@@ -696,6 +700,18 @@ function ProcessSection() {
                     ))}
                   </Form.Select>
                 )}
+              </Form.Group>
+              <Form.Group controlId="dragonBreathToggle">
+                <Form.Label>Dragon Breath Enhancement</Form.Label>
+                <Button
+                  variant={dragonBreathEnhancement ? "success" : "secondary"}
+                  onClick={() =>
+                    setDragonBreathEnhancement(!dragonBreathEnhancement)
+                  }
+                  style={{ marginLeft: "10px" }}
+                >
+                  {dragonBreathEnhancement ? "Enabled" : "Disabled"}
+                </Button>
               </Form.Group>
             </Form>
           </Card>
