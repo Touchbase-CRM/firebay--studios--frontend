@@ -79,6 +79,8 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -185,10 +187,46 @@ function ProcessSection() {
     });
   };
 
+  // Initialize the S3 client within the function to use Next.js environment variables
+  const getS3Client = () => {
+    return new S3Client({
+      // region: process.env.AWS_REGION, // Access the AWS region from environment variables
+      credentials: {
+        accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
+        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET, // Access the AWS secret access key from environment variables
+      },
+    });
+  };
+
+  const fetchAudioFromPyroBackendDistribution = async (pyroHistoryItemId) => {
+    const bucketName = "workingdir--storage";
+    const objectName = `primary--distribution/${pyroHistoryItemId}`;
+
+    const s3Client = getS3Client();
+
+    // Create a new instance of the GetObjectCommand
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectName,
+    });
+
+    try {
+      // Send the command to S3
+      const { Body } = await s3Client.send(command);
+
+      // The response Body is a stream. Convert it to a Blob for the audio URL
+      const audioBlob = await new Response(Body).blob();
+
+      return audioBlob;
+    } catch (error) {
+      console.error("Error fetching audio from S3:", error);
+      throw new Error("Failed to fetch audio from S3");
+    }
+  };
+
   async function preprocessVoiceover({
     script,
     voice,
-    voiceGender = "male",
     userId,
     dragonsBreathMode = false,
     talkSpeed = 1.0,
@@ -423,33 +461,6 @@ function ProcessSection() {
         console.error("Logout Error:", error);
       });
   };
-  const handleManageSubscription = async () => {
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
-    if (userId === process.env.NEXT_PUBLIC_PYRO_GUEST_FIREBASE_UID) {
-      Swal.fire({
-        icon: "info",
-        title: "Oops...",
-        text: "Trial users are not authorized to manage subscriptions.",
-      });
-      return;
-    }
-    try {
-      // SweetAlert2 confirmation dialog
-      const result = Swal.fire({
-        title: "Redirecting to Subscription Management",
-        text: "You will be redirected to the subscription management page in a new tab.",
-        icon: "info",
-        confirmButtonColor: "#3085d6",
-        confirmButtonText: "Got it!",
-      });
-
-      const portalUrl = await getPortalUrl(app);
-      window.open(portalUrl, "_blank");
-    } catch (error) {
-      console.error("Error opening portal: ", error);
-    }
-  };
 
   const getFinalScript = () => {
     return ogScriptWordsArray
@@ -475,7 +486,8 @@ function ProcessSection() {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
     const mostUptodateSection = getFinalScript();
-    if (dragonBreathEnhancement) {
+
+    if (!dragonBreathEnhancement) {
       // setSectionCurrentContentZustand(mostUptodateSection);
       const options = {
         method: "POST",
@@ -513,15 +525,22 @@ function ProcessSection() {
         return; // Return early in case of an error
       }
     } else {
-      preprocessVoiceover({
+      pyro_history_item_id = await preprocessVoiceover({
         script: mostUptodateSection,
         voice: voiceId,
-        voice_gender: voiceGender,
         user_id: auth.currentUser.uid,
         dragons_breath_mode: dragonBreathEnhancement,
         talk_speed: 1.0,
         legal_disclaimer: false,
       });
+
+      if (pyro_history_item_id) {
+        localHistoryItemId = pyro_history_item_id;
+      }
+
+      audioUrl = await fetchAudioFromPyroBackendDistribution(
+        pyro_history_item_id
+      );
     }
 
     // Create a new audio element to load the audio and get its duration
