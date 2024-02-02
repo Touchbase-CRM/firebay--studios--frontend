@@ -40,6 +40,10 @@ function ProcessSection() {
 
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
+  // const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioProcessingWebServiceUrl = "http://localhost:8000";
+  const pyroBackendDistributionUrl =
+    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
 
   // Zustand store hooks
   const {
@@ -91,6 +95,7 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
+  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -179,6 +184,56 @@ function ProcessSection() {
       text: text,
     });
   };
+
+  async function preprocessVoiceover({
+    script,
+    voice,
+    voiceGender = "male",
+    userId,
+    dragonsBreathMode = false,
+    talkSpeed = 1.0,
+    legalDisclaimer = false,
+  }) {
+    //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
+    const voiceGender = voicePreviewFilename.split("/")[0];
+    try {
+      const response = await fetch(
+        audioProcessingWebServiceUrl + "/preprocess-voiceover",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            script,
+            voice,
+            voice_gender: voiceGender,
+            user_id: userId,
+            dragons_breath_mode: dragonsBreathMode,
+            talk_speed: talkSpeed,
+            legal_disclaimer: legalDisclaimer,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        // Handle HTTP errors
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data["pyro_history_item_id"]) {
+        return data["pyro_history_item_id"];
+      } else {
+        throw new Error("pyro_history_item_id not found in response");
+      }
+    } catch (error) {
+      console.error("Fetching error:", error);
+      // Return or throw a specific error object based on your error handling strategy
+      return { error: error.message };
+    }
+  }
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
@@ -420,41 +475,53 @@ function ProcessSection() {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
     const mostUptodateSection = getFinalScript();
-    // setSectionCurrentContentZustand(mostUptodateSection);
-    const options = {
-      method: "POST",
-      headers: {
-        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
-    };
+    if (dragonBreathEnhancement) {
+      // setSectionCurrentContentZustand(mostUptodateSection);
+      const options = {
+        method: "POST",
+        headers: {
+          "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
+      };
 
-    try {
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-        options
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
+      try {
+        const response = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+          options
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok.");
+        }
+
+        // Extract history_item_id from headers
+        localHistoryItemId = response.headers.get("history-item-id");
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("audio/")) {
+          // Handle audio response
+          const blob = await response.blob();
+          audioUrl = URL.createObjectURL(blob); // Set audioUrl here
+          setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
+        } else {
+          throw new Error("Unexpected content type received.");
+        }
+      } catch (err) {
+        console.error(err);
+        setIsGeneratingVoice(false);
+        return; // Return early in case of an error
       }
-
-      // Extract history_item_id from headers
-      localHistoryItemId = response.headers.get("history-item-id");
-
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("audio/")) {
-        // Handle audio response
-        const blob = await response.blob();
-        audioUrl = URL.createObjectURL(blob); // Set audioUrl here
-        setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
-      } else {
-        throw new Error("Unexpected content type received.");
-      }
-    } catch (err) {
-      console.error(err);
-      setIsGeneratingVoice(false);
-      return; // Return early in case of an error
+    } else {
+      preprocessVoiceover({
+        script: mostUptodateSection,
+        voice: voiceId,
+        voice_gender: voiceGender,
+        user_id: auth.currentUser.uid,
+        dragons_breath_mode: dragonBreathEnhancement,
+        talk_speed: 1.0,
+        legal_disclaimer: false,
+      });
     }
 
     // Create a new audio element to load the audio and get its duration
