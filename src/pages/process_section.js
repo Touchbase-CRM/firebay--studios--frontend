@@ -468,8 +468,69 @@ function ProcessSection() {
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };
+  async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+    try {
+      const options = {
+        method: "POST",
+        headers: {
+          "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: script, model_id: modelId }),
+      };
 
-  const handleGenerateVoice = async () => {
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        options
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      const localHistoryItemId = response.headers.get("history-item-id");
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      return { audioUrl, localHistoryItemId };
+    } catch (err) {
+      console.error(err);
+      throw err; // Propagate error to be handled in the calling function
+    }
+  }
+
+  async function generateVoiceWithCustomPreprocess(
+    script,
+    voiceId,
+    userId,
+    dragonsBreathMode,
+    talkSpeed,
+    legalDisclaimer
+  ) {
+    try {
+      const pyro_history_item_id = await preprocessVoiceover({
+        script,
+        voice: voiceId,
+        userId,
+        dragonsBreathMode: dragonsBreathMode,
+        talkSpeed: talkSpeed,
+        legalDisclaimer: legalDisclaimer,
+      });
+
+      if (!pyro_history_item_id) {
+        throw new Error("Failed to preprocess voiceover");
+      }
+
+      const audioBlob = await fetchAudioFromPyroBackendDistribution(
+        pyro_history_item_id
+      );
+      const audioUrl = URL.createObjectURL(audioBlob);
+      return { audioUrl, localHistoryItemId: pyro_history_item_id };
+    } catch (error) {
+      console.error("Error in generating voice with custom preprocess:", error);
+      throw error; // Propagate error to be handled in the calling function
+    }
+  }
+
+  async function handleGenerateVoice() {
     const isValid = validateScript(
       originalScriptString,
       charLimit,
@@ -480,89 +541,57 @@ function ProcessSection() {
     if (!isValid) return;
     setIsGeneratingVoice(true);
 
-    let audioUrl = ""; // Declare audioUrl here
+    let audioUrl = "";
     let localHistoryItemId;
 
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
+
     const mostUptodateSection = getFinalScript();
-    let pyro_history_item_id;
 
-    if (!dragonBreathEnhancement) {
-      // setSectionCurrentContentZustand(mostUptodateSection);
-      const options = {
-        method: "POST",
-        headers: {
-          "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
-      };
-
-      try {
-        const response = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-          options
+    try {
+      if (!dragonBreathEnhancement) {
+        const result = await generateVoiceWithElevenLabsAPI(
+          mostUptodateSection,
+          modelId,
+          voiceId
         );
-        if (!response.ok) {
-          throw new Error("Network response was not ok.");
-        }
-
-        // Extract history_item_id from headers
-        localHistoryItemId = response.headers.get("history-item-id");
-
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("audio/")) {
-          // Handle audio response
-          const blob = await response.blob();
-          audioUrl = URL.createObjectURL(blob); // Set audioUrl here
-          setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
-        } else {
-          throw new Error("Unexpected content type received.");
-        }
-      } catch (err) {
-        console.error(err);
-        setIsGeneratingVoice(false);
-        return; // Return early in case of an error
+        audioUrl = result.audioUrl;
+        localHistoryItemId = result.localHistoryItemId;
+      } else {
+        const result = await generateVoiceWithCustomPreprocess(
+          mostUptodateSection,
+          voiceId,
+          auth.currentUser.uid,
+          dragonBreathEnhancement,
+          1.0,
+          true
+        );
+        audioUrl = result.audioUrl;
+        localHistoryItemId = result.localHistoryItemId;
       }
-    } else {
-      pyro_history_item_id = await preprocessVoiceover({
-        script: mostUptodateSection,
-        voice: voiceId,
-        userId: auth.currentUser.uid,
-        dragonsBreathMode: dragonBreathEnhancement,
-        talkSpeed: 1.0,
-        legalDisclaimer: false,
+
+      setGeneratedVoiceUrl(audioUrl);
+
+      const audio = new Audio(audioUrl);
+      audio.addEventListener("loadedmetadata", () => {
+        const newDuration = audio.duration;
+        localCurrentSectionObj.setSectionDurationSeconds(newDuration);
+        setProgressBarPercentage(
+          Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+        );
+        setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
       });
 
-      if (pyro_history_item_id) {
-        localHistoryItemId = pyro_history_item_id;
-      }
-      let audioBlob = null;
-
-      audioBlob = await fetchAudioFromPyroBackendDistribution(
-        pyro_history_item_id
-      );
-
-      audioUrl = URL.createObjectURL(audioBlob);
-      setGeneratedVoiceUrl(audioUrl);
+      localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
+      localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+    } catch (error) {
+      console.error("Error generating voice:", error);
+    } finally {
+      setIsGeneratingVoice(false);
     }
-
-    const audio = new Audio(audioUrl);
-    audio.addEventListener("loadedmetadata", () => {
-      const newDuration = audio.duration;
-      localCurrentSectionObj.setSectionDurationSeconds(newDuration);
-      setProgressBarPercentage(
-        Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
-      );
-      setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
-    });
-    localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
-    localCurrentSectionObj.setCurrentContent(mostUptodateSection);
-
-    setIsGeneratingVoice(false);
-  };
+  }
 
   const wordCountStyle = {
     position: "absolute",
