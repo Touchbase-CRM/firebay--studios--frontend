@@ -9,6 +9,7 @@ import {
   Button,
   Spinner,
   ProgressBar,
+  Alert,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -662,7 +663,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "150px",
+              height: "200px",
               marginBottom: "10px",
             }}
           >
@@ -701,17 +702,52 @@ function ProcessSection() {
                   </Form.Select>
                 )}
               </Form.Group>
-              <Form.Group controlId="dragonBreathToggle">
-                <Form.Label>Dragon Breath Enhancement</Form.Label>
-                <Button
-                  variant={dragonBreathEnhancement ? "success" : "secondary"}
-                  onClick={() =>
-                    setDragonBreathEnhancement(!dragonBreathEnhancement)
-                  }
-                  style={{ marginLeft: "10px" }}
-                >
-                  {dragonBreathEnhancement ? "Enabled" : "Disabled"}
-                </Button>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Dragon's Breath Enhancement
+                </Form.Label>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="dragonBreathEnhancementSwitch"
+                    checked={dragonBreathEnhancement}
+                    onChange={() =>
+                      setDragonBreathEnhancement(!dragonBreathEnhancement)
+                    }
+                    style={{
+                      backgroundColor: dragonBreathEnhancement
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: dragonBreathEnhancement
+                        ? "#eb631c"
+                        : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "5px" }}
+              >
+                {!dragonBreathEnhancement && (
+                  <Alert
+                    style={{
+                      variant: "info",
+                      fontSize: "10px",
+                      padding: "5px 10px",
+                    }}
+                  >
+                    Pyro Tip: 10X the energy of the selected voice as if a sword
+                    forged by dragon's breath
+                  </Alert>
+                )}
               </Form.Group>
             </Form>
           </Card>
@@ -922,4 +958,5 @@ function ProcessSection() {
     </div>
   );
 }
-export default withAuth(ProcessSection);
+// export default withAuth(ProcessSection);
+export default ProcessSection;
