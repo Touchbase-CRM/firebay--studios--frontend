@@ -135,7 +135,7 @@ function StitchSections() {
     setLocalSectionsArray(newArray);
   };
 
-  const fetchAudio = (historyItemId) => {
+  const fetchAudioFromElevenLabs = (historyItemId) => {
     const options = {
       method: "POST",
       headers: {
@@ -268,6 +268,19 @@ function StitchSections() {
       .catch((error) => {
         console.error("Logout Error:", error);
       });
+  };
+
+  const handleSectionPreviewPlay = (section) => {
+    let historyItemId = "";
+    setSelectedSection(section);
+    setAudioTitle(`Section ${section.getIndex() + 1}`);
+    historyItemId = section.getHistoryItemId();
+    // if the first 4 characters of the historyItemId are "pyro", then the url is localhost.pyrobrowser.com
+    if (historyItemId.substring(0, 4) === "pyro") {
+      fetchAudioFromElevenLabs(historyItemId);
+    } else {
+      fetchAudioFromElevenLabs(historyItemId);
+    }
   };
 
   if (pendingAdvertisement) {
@@ -496,9 +509,7 @@ function StitchSections() {
                         variant="link"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedSection(section);
-                          setAudioTitle(`Section ${section.getIndex() + 1}`);
-                          fetchAudio(section.historyItemId);
+                          handleSectionPreviewPlay(section);
                         }}
                         style={{ color: "black" }}
                       >
