@@ -44,8 +44,8 @@ function StitchSections() {
   const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
   //prettier-ignore
-  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000";
+  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
   const pyroBackendDistributionUrl =
     "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
@@ -200,7 +200,7 @@ function StitchSections() {
     router.push("/add_music");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setPendingAdvertisement(true);
 
@@ -220,38 +220,37 @@ function StitchSections() {
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
     // Send POST request to the API
-    axios
-      .post(url, payload, {
-        responseType: "arraybuffer",
-        cancelToken: cancelTokenSourceRef.current.token, // Using the token from useRef
-      })
-      .then((response) => {
-        console.log("Audio data received");
+    try {
+      const response = await axios.post(url, payload, {
+        cancelToken: cancelTokenSourceRef.current.token,
+      });
+      if (response.data.pyro_history_item_id) {
+        const pyroHistoryItemId = response.data.pyro_history_item_id;
+        if (!pyroHistoryItemId) {
+          throw new Error("Failed to preprocess voiceover");
+        }
 
-        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioBlob = await fetchAudioFromPyroBackendDistribution(
+          pyroHistoryItemId
+        );
         const audioUrl = URL.createObjectURL(audioBlob);
-
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
         setAudioTitle("Final Cut");
         setForceRenderKey(Math.random().toString());
-      })
-      .catch((error) => {
-        if (axios.isCancel(error)) {
-          console.log("Request was canceled:", error.message);
-        } else if (error.response) {
-          console.error(
-            `Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`
-          );
-        } else if (error.request) {
-          console.error(`No response received: ${error.request}`);
-        } else {
-          console.error(`Error: ${error.message}`);
-        }
-      })
-      .finally(() => {
-        setPendingAdvertisement(false); // Set pending to false when API call completes
-      });
+      } else if (response.data.error) {
+        // Handle case where API returned an error
+        console.error(
+          "API returned an error:",
+          response.data.error,
+          response.data.details ? response.data.details : ""
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching pyro_history_item_id:", error);
+    } finally {
+      setPendingAdvertisement(false); // Set pending to false when API call completes
+    }
     setSectionsArray(localSectionsArray);
   };
 

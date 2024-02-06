@@ -506,7 +506,7 @@ function ProcessSection() {
     legalDisclaimer
   ) {
     try {
-      const pyro_history_item_id = await preprocessVoiceover({
+      const pyroHistoryItemId = await preprocessVoiceover({
         script,
         voice: voiceId,
         userId,
@@ -515,15 +515,15 @@ function ProcessSection() {
         legalDisclaimer: legalDisclaimer,
       });
 
-      if (!pyro_history_item_id) {
+      if (!pyroHistoryItemId) {
         throw new Error("Failed to preprocess voiceover");
       }
 
       const audioBlob = await fetchAudioFromPyroBackendDistribution(
-        pyro_history_item_id
+        pyroHistoryItemId
       );
       const audioUrl = URL.createObjectURL(audioBlob);
-      return { audioUrl, localHistoryItemId: pyro_history_item_id };
+      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
     } catch (error) {
       console.error("Error in generating voice with custom preprocess:", error);
       throw error; // Propagate error to be handled in the calling function
