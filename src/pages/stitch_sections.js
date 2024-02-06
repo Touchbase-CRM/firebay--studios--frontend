@@ -33,7 +33,9 @@ function StitchSections() {
     adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
+    setStitchedAudioPyroHistoryItemId,
   } = useUserInputsStore();
+
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -238,6 +240,7 @@ function StitchSections() {
         setNowPlayingUrl(audioUrl);
         setAudioTitle("Final Cut");
         setForceRenderKey(Math.random().toString());
+        setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
       } else if (response.data.error) {
         // Handle case where API returned an error
         console.error(

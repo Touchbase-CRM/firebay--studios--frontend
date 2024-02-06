@@ -23,6 +23,13 @@ export class UserInputMethods {
     this.setModelId = this.setModelId.bind(this);
     this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
     this.setSectionsArray = this.setSectionsArray.bind(this);
+    this.setStitchedAudioPyroHistoryItemId =
+      this.setStitchedAudioPyroHistoryItemId.bind(this);
+  }
+
+  //stitchedAudioPyroHistoryItemId: "" set a setter for this
+  setStitchedAudioPyroHistoryItemId(stitchedAudioPyroHistoryItemId) {
+    this.set({ stitchedAudioPyroHistoryItemId });
   }
 
   setSectionsArray(sectionsArray) {
