@@ -46,11 +46,9 @@ function StitchSections() {
   const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
   //prettier-ignore
-  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  const musicGenWebServiceUrl = "http://localhost:8000";
+  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
-  const pyroBackendDistributionUrl =
-    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
 
   useEffect(() => {
     calculateTotalDuration();

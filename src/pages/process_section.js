@@ -41,10 +41,9 @@ function ProcessSection() {
 
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
-  // const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  const audioProcessingWebServiceUrl = "http://localhost:8000";
-  const pyroBackendDistributionUrl =
-    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
+  // prettier-ignore
+  const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const audioProcessingWebServiceUrl = "http://localhost:8000";
 
   // Zustand store hooks
   const {
@@ -67,22 +66,17 @@ function ProcessSection() {
     setAdSecondsConsumed,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
-    // historyItemId,
-    // setHistoryItemId,
     modelId,
     setModelId,
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
-    updateMultiplePropertiesSimultaneouslyZustand,
-    sectionsArray,
     numSectionsIdentified,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 
-  // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
@@ -128,11 +122,6 @@ function ProcessSection() {
     // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj);
   }, [currentSectionObj.getIndex()]);
-
-  // useEffect(() => {
-  //   // Update local state when currentSectionObj changes
-  //   setLocalCurrentSectionObj(currentSectionObj);
-  // }, [currentSectionObj]);
 
   useEffect(() => {
     if (isFormSubmitted && sectionsQueue.size() === 0) {
@@ -987,5 +976,4 @@ function ProcessSection() {
     </div>
   );
 }
-// export default withAuth(ProcessSection);
-export default ProcessSection;
+export default withAuth(ProcessSection);
