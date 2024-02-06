@@ -24,6 +24,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
 
 function StitchSections() {
+  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
   const auth = getAuth();
   const router = useRouter();
   const {
@@ -46,6 +47,8 @@ function StitchSections() {
   const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
   // const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
+  const pyroBackendDistributionUrl =
+    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
 
   useEffect(() => {
     calculateTotalDuration();
@@ -155,10 +158,42 @@ function StitchSections() {
       .catch((err) => console.error(err));
   };
 
-  const currentTotalDuration = sectionsArray.reduce(
-    (acc, section) => acc + section.sectionDurationSeconds,
-    0
-  );
+  // Initialize the S3 client within the function to use Next.js environment variables
+  const getS3Client = () => {
+    return new S3Client({
+      region: "us-east-2",
+      credentials: {
+        accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
+        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
+      },
+    });
+  };
+
+  const fetchAudioFromPyroBackendDistribution = async (pyroHistoryItemId) => {
+    const bucketName = "workingdir--storage";
+    const objectName = `primary--distribution/${pyroHistoryItemId}`;
+
+    const s3Client = getS3Client();
+
+    // Create a new instance of the GetObjectCommand
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectName,
+    });
+
+    try {
+      // Send the command to S3
+      const { Body } = await s3Client.send(command);
+
+      // The response Body is a stream. Convert it to a Blob for the audio URL
+      const audioBlob = await new Response(Body).blob();
+
+      return audioBlob;
+    } catch (error) {
+      console.error("Error fetching audio from S3:", error);
+      throw new Error("Failed to fetch audio from S3");
+    }
+  };
   const handleNext = (e) => {
     e.preventDefault();
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
@@ -270,14 +305,19 @@ function StitchSections() {
       });
   };
 
-  const handleSectionPreviewPlay = (section) => {
+  const handleSectionPreviewPlay = async (section) => {
     let historyItemId = "";
     setSelectedSection(section);
     setAudioTitle(`Section ${section.getIndex() + 1}`);
     historyItemId = section.getHistoryItemId();
-    // if the first 4 characters of the historyItemId are "pyro", then the url is localhost.pyrobrowser.com
     if (historyItemId.substring(0, 4) === "pyro") {
-      fetchAudioFromElevenLabs(historyItemId);
+      const audioBlob = await fetchAudioFromPyroBackendDistribution(
+        historyItemId
+      );
+
+      const audioUrl = URL.createObjectURL(audioBlob); // Create a URL for the blob
+      setAudioUrl(audioUrl);
+      setNowPlayingUrl(audioUrl);
     } else {
       fetchAudioFromElevenLabs(historyItemId);
     }
