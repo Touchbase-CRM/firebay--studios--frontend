@@ -50,6 +50,7 @@ function AddMusic() {
     historyItemId,
     generatedVoiceUrl,
     sectionsArray,
+    stitchedAudioPyroHistoryItemId,
   } = useUserInputsStore();
 
   const baseMusicPreviewsUrl =
@@ -67,8 +68,8 @@ function AddMusic() {
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
-  const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const audioStitchWebServiceUrl = "http://localhost:8000";
+  // const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioStitchWebServiceUrl = "http://localhost:8000";
 
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
@@ -257,22 +258,13 @@ function AddMusic() {
 
     let payload;
 
-    if (sectionsArray.length !== 0) {
-      const historyItemIdList = sectionsArray.map((section) =>
-        section.getHistoryItemId()
-      );
-      const endOfSectionsPausesArray = sectionsArray.map((section) =>
-        section.getEndOfSectionPauseDurationSeconds()
-      );
-
+    if (stitchedAudioPyroHistoryItemId !== "") {
       payload = {
         user_id: userId,
         music_choice: backgroundMusicFilename,
         ad_length: adLength,
         music_vol: musicVol,
-        history_item_id: null,
-        history_item_id_list: historyItemIdList,
-        end_of_section_pause_duration_list: endOfSectionsPausesArray,
+        pyro_history_item_id: stitchedAudioPyroHistoryItemId,
       };
     } else {
       payload = {
@@ -281,7 +273,6 @@ function AddMusic() {
         ad_length: adLength,
         music_vol: musicVol,
         history_item_id: historyItemId,
-        history_item_id_list: null,
       };
     }
 

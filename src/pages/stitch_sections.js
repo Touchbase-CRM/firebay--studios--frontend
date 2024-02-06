@@ -24,6 +24,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
 
 function StitchSections() {
+  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
   const auth = getAuth();
   const router = useRouter();
   const {
@@ -32,7 +33,9 @@ function StitchSections() {
     adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
+    setStitchedAudioPyroHistoryItemId,
   } = useUserInputsStore();
+
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -43,9 +46,11 @@ function StitchSections() {
   const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
   //prettier-ignore
-  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000";
+  // const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const musicGenWebServiceUrl = "http://localhost:8000";
   const cancelTokenSourceRef = useRef(null);
+  const pyroBackendDistributionUrl =
+    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
 
   useEffect(() => {
     calculateTotalDuration();
@@ -135,7 +140,7 @@ function StitchSections() {
     setLocalSectionsArray(newArray);
   };
 
-  const fetchAudio = (historyItemId) => {
+  const fetchAudioFromElevenLabs = (historyItemId) => {
     const options = {
       method: "POST",
       headers: {
@@ -155,17 +160,49 @@ function StitchSections() {
       .catch((err) => console.error(err));
   };
 
-  const currentTotalDuration = sectionsArray.reduce(
-    (acc, section) => acc + section.sectionDurationSeconds,
-    0
-  );
+  // Initialize the S3 client within the function to use Next.js environment variables
+  const getS3Client = () => {
+    return new S3Client({
+      region: "us-east-2",
+      credentials: {
+        accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
+        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
+      },
+    });
+  };
+
+  const fetchAudioFromPyroBackendDistribution = async (pyroHistoryItemId) => {
+    const bucketName = "workingdir--storage";
+    const objectName = `primary--distribution/${pyroHistoryItemId}`;
+
+    const s3Client = getS3Client();
+
+    // Create a new instance of the GetObjectCommand
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectName,
+    });
+
+    try {
+      // Send the command to S3
+      const { Body } = await s3Client.send(command);
+
+      // The response Body is a stream. Convert it to a Blob for the audio URL
+      const audioBlob = await new Response(Body).blob();
+
+      return audioBlob;
+    } catch (error) {
+      console.error("Error fetching audio from S3:", error);
+      throw new Error("Failed to fetch audio from S3");
+    }
+  };
   const handleNext = (e) => {
     e.preventDefault();
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
     router.push("/add_music");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setPendingAdvertisement(true);
 
@@ -185,38 +222,38 @@ function StitchSections() {
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
     // Send POST request to the API
-    axios
-      .post(url, payload, {
-        responseType: "arraybuffer",
-        cancelToken: cancelTokenSourceRef.current.token, // Using the token from useRef
-      })
-      .then((response) => {
-        console.log("Audio data received");
+    try {
+      const response = await axios.post(url, payload, {
+        cancelToken: cancelTokenSourceRef.current.token,
+      });
+      if (response.data.pyro_history_item_id) {
+        const pyroHistoryItemId = response.data.pyro_history_item_id;
+        if (!pyroHistoryItemId) {
+          throw new Error("Failed to preprocess voiceover");
+        }
 
-        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioBlob = await fetchAudioFromPyroBackendDistribution(
+          pyroHistoryItemId
+        );
         const audioUrl = URL.createObjectURL(audioBlob);
-
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
         setAudioTitle("Final Cut");
         setForceRenderKey(Math.random().toString());
-      })
-      .catch((error) => {
-        if (axios.isCancel(error)) {
-          console.log("Request was canceled:", error.message);
-        } else if (error.response) {
-          console.error(
-            `Failed to retrieve audio. Status code: ${error.response.status}, Message: ${error.response.data}`
-          );
-        } else if (error.request) {
-          console.error(`No response received: ${error.request}`);
-        } else {
-          console.error(`Error: ${error.message}`);
-        }
-      })
-      .finally(() => {
-        setPendingAdvertisement(false); // Set pending to false when API call completes
-      });
+        setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
+      } else if (response.data.error) {
+        // Handle case where API returned an error
+        console.error(
+          "API returned an error:",
+          response.data.error,
+          response.data.details ? response.data.details : ""
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching pyro_history_item_id:", error);
+    } finally {
+      setPendingAdvertisement(false); // Set pending to false when API call completes
+    }
     setSectionsArray(localSectionsArray);
   };
 
@@ -268,6 +305,24 @@ function StitchSections() {
       .catch((error) => {
         console.error("Logout Error:", error);
       });
+  };
+
+  const handleSectionPreviewPlay = async (section) => {
+    let historyItemId = "";
+    setSelectedSection(section);
+    setAudioTitle(`Section ${section.getIndex() + 1}`);
+    historyItemId = section.getHistoryItemId();
+    if (historyItemId.substring(0, 4) === "pyro") {
+      const audioBlob = await fetchAudioFromPyroBackendDistribution(
+        historyItemId
+      );
+
+      const audioUrl = URL.createObjectURL(audioBlob); // Create a URL for the blob
+      setAudioUrl(audioUrl);
+      setNowPlayingUrl(audioUrl);
+    } else {
+      fetchAudioFromElevenLabs(historyItemId);
+    }
   };
 
   if (pendingAdvertisement) {
@@ -496,9 +551,7 @@ function StitchSections() {
                         variant="link"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedSection(section);
-                          setAudioTitle(`Section ${section.getIndex() + 1}`);
-                          fetchAudio(section.historyItemId);
+                          handleSectionPreviewPlay(section);
                         }}
                         style={{ color: "black" }}
                       >
@@ -615,5 +668,4 @@ function StitchSections() {
   );
 }
 
-// export default withAuth(StitchSections);
-export default StitchSections;
+export default withAuth(StitchSections);

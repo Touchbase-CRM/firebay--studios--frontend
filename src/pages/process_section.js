@@ -9,6 +9,7 @@ import {
   Button,
   Spinner,
   ProgressBar,
+  Alert,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -40,6 +41,10 @@ function ProcessSection() {
 
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
+  // const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioProcessingWebServiceUrl = "http://localhost:8000";
+  const pyroBackendDistributionUrl =
+    "https://workingdir--storage.s3.us-east-2.amazonaws.com/primary--distribution/";
 
   // Zustand store hooks
   const {
@@ -75,6 +80,8 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -91,6 +98,7 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
+  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -179,6 +187,92 @@ function ProcessSection() {
       text: text,
     });
   };
+
+  // Initialize the S3 client within the function to use Next.js environment variables
+  const getS3Client = () => {
+    return new S3Client({
+      region: "us-east-2",
+      credentials: {
+        accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
+        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
+      },
+    });
+  };
+
+  const fetchAudioFromPyroBackendDistribution = async (pyroHistoryItemId) => {
+    const bucketName = "workingdir--storage";
+    const objectName = `primary--distribution/${pyroHistoryItemId}`;
+
+    const s3Client = getS3Client();
+
+    // Create a new instance of the GetObjectCommand
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectName,
+    });
+
+    try {
+      // Send the command to S3
+      const { Body } = await s3Client.send(command);
+
+      // The response Body is a stream. Convert it to a Blob for the audio URL
+      const audioBlob = await new Response(Body).blob();
+
+      return audioBlob;
+    } catch (error) {
+      console.error("Error fetching audio from S3:", error);
+      throw new Error("Failed to fetch audio from S3");
+    }
+  };
+
+  async function preprocessVoiceover({
+    script,
+    voice,
+    userId,
+    dragonsBreathMode = false,
+    talkSpeed = 1.0,
+    legalDisclaimer = false,
+  }) {
+    //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
+    const voiceGender = voicePreviewFilename.split("/")[0];
+    try {
+      const response = await fetch(
+        audioProcessingWebServiceUrl + "/preprocess-voiceover",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            script,
+            voice,
+            voice_gender: voiceGender,
+            user_id: userId,
+            dragons_breath_mode: dragonsBreathMode,
+            talk_speed: talkSpeed,
+            legal_disclaimer: legalDisclaimer,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        // Handle HTTP errors
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data["pyro_history_item_id"]) {
+        return data["pyro_history_item_id"];
+      } else {
+        throw new Error("pyro_history_item_id not found in response");
+      }
+    } catch (error) {
+      console.error("Fetching error:", error);
+      // Return or throw a specific error object based on your error handling strategy
+      return { error: error.message };
+    }
+  }
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
@@ -368,41 +462,75 @@ function ProcessSection() {
         console.error("Logout Error:", error);
       });
   };
-  const handleManageSubscription = async () => {
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
-    if (userId === process.env.NEXT_PUBLIC_PYRO_GUEST_FIREBASE_UID) {
-      Swal.fire({
-        icon: "info",
-        title: "Oops...",
-        text: "Trial users are not authorized to manage subscriptions.",
-      });
-      return;
-    }
-    try {
-      // SweetAlert2 confirmation dialog
-      const result = Swal.fire({
-        title: "Redirecting to Subscription Management",
-        text: "You will be redirected to the subscription management page in a new tab.",
-        icon: "info",
-        confirmButtonColor: "#3085d6",
-        confirmButtonText: "Got it!",
-      });
-
-      const portalUrl = await getPortalUrl(app);
-      window.open(portalUrl, "_blank");
-    } catch (error) {
-      console.error("Error opening portal: ", error);
-    }
-  };
 
   const getFinalScript = () => {
     return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };
+  async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+    try {
+      const options = {
+        method: "POST",
+        headers: {
+          "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: script, model_id: modelId }),
+      };
 
-  const handleGenerateVoice = async () => {
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        options
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      const localHistoryItemId = response.headers.get("history-item-id");
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      return { audioUrl, localHistoryItemId };
+    } catch (err) {
+      console.error(err);
+      throw err; // Propagate error to be handled in the calling function
+    }
+  }
+
+  async function generateVoiceWithCustomPreprocess(
+    script,
+    voiceId,
+    userId,
+    dragonsBreathMode,
+    talkSpeed,
+    legalDisclaimer
+  ) {
+    try {
+      const pyroHistoryItemId = await preprocessVoiceover({
+        script,
+        voice: voiceId,
+        userId,
+        dragonsBreathMode: dragonsBreathMode,
+        talkSpeed: talkSpeed,
+        legalDisclaimer: legalDisclaimer,
+      });
+
+      if (!pyroHistoryItemId) {
+        throw new Error("Failed to preprocess voiceover");
+      }
+
+      const audioBlob = await fetchAudioFromPyroBackendDistribution(
+        pyroHistoryItemId
+      );
+      const audioUrl = URL.createObjectURL(audioBlob);
+      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
+    } catch (error) {
+      console.error("Error in generating voice with custom preprocess:", error);
+      throw error; // Propagate error to be handled in the calling function
+    }
+  }
+
+  async function handleGenerateVoice() {
     const isValid = validateScript(
       originalScriptString,
       charLimit,
@@ -413,65 +541,57 @@ function ProcessSection() {
     if (!isValid) return;
     setIsGeneratingVoice(true);
 
-    let audioUrl = ""; // Declare audioUrl here
+    let audioUrl = "";
     let localHistoryItemId;
 
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
+
     const mostUptodateSection = getFinalScript();
-    // setSectionCurrentContentZustand(mostUptodateSection);
-    const options = {
-      method: "POST",
-      headers: {
-        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: mostUptodateSection, model_id: modelId }),
-    };
 
     try {
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-        options
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
-
-      // Extract history_item_id from headers
-      localHistoryItemId = response.headers.get("history-item-id");
-
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("audio/")) {
-        // Handle audio response
-        const blob = await response.blob();
-        audioUrl = URL.createObjectURL(blob); // Set audioUrl here
-        setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
+      if (!dragonBreathEnhancement) {
+        const result = await generateVoiceWithElevenLabsAPI(
+          mostUptodateSection,
+          modelId,
+          voiceId
+        );
+        audioUrl = result.audioUrl;
+        localHistoryItemId = result.localHistoryItemId;
       } else {
-        throw new Error("Unexpected content type received.");
+        const result = await generateVoiceWithCustomPreprocess(
+          mostUptodateSection,
+          voiceId,
+          auth.currentUser.uid,
+          dragonBreathEnhancement,
+          1.0,
+          true
+        );
+        audioUrl = result.audioUrl;
+        localHistoryItemId = result.localHistoryItemId;
       }
-    } catch (err) {
-      console.error(err);
+
+      setGeneratedVoiceUrl(audioUrl);
+
+      const audio = new Audio(audioUrl);
+      audio.addEventListener("loadedmetadata", () => {
+        const newDuration = audio.duration;
+        localCurrentSectionObj.setSectionDurationSeconds(newDuration);
+        setProgressBarPercentage(
+          Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+        );
+        setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
+      });
+
+      localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
+      localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+    } catch (error) {
+      console.error("Error generating voice:", error);
+    } finally {
       setIsGeneratingVoice(false);
-      return; // Return early in case of an error
     }
-
-    // Create a new audio element to load the audio and get its duration
-    const audio = new Audio(audioUrl);
-    audio.addEventListener("loadedmetadata", () => {
-      const newDuration = audio.duration;
-      localCurrentSectionObj.setSectionDurationSeconds(newDuration);
-      setProgressBarPercentage(
-        Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
-      );
-      setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
-    });
-    localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
-    localCurrentSectionObj.setCurrentContent(mostUptodateSection);
-
-    setIsGeneratingVoice(false);
-  };
+  }
 
   const wordCountStyle = {
     position: "absolute",
@@ -572,7 +692,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "150px",
+              height: "200px",
               marginBottom: "10px",
             }}
           >
@@ -609,6 +729,53 @@ function ProcessSection() {
                       </option>
                     ))}
                   </Form.Select>
+                )}
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Dragon's Breath Enhancement
+                </Form.Label>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="dragonBreathEnhancementSwitch"
+                    checked={dragonBreathEnhancement}
+                    onChange={() =>
+                      setDragonBreathEnhancement(!dragonBreathEnhancement)
+                    }
+                    style={{
+                      backgroundColor: dragonBreathEnhancement
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: dragonBreathEnhancement
+                        ? "#eb631c"
+                        : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "5px" }}
+              >
+                {!dragonBreathEnhancement && (
+                  <Alert
+                    style={{
+                      variant: "info",
+                      fontSize: "10px",
+                      padding: "5px 10px",
+                    }}
+                  >
+                    Pyro Tip: 10X the energy of the selected voice as if a sword
+                    forged by dragon's breath
+                  </Alert>
                 )}
               </Form.Group>
             </Form>
@@ -820,4 +987,5 @@ function ProcessSection() {
     </div>
   );
 }
-export default withAuth(ProcessSection);
+// export default withAuth(ProcessSection);
+export default ProcessSection;
