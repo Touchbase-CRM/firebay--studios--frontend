@@ -652,16 +652,17 @@ function StitchSections() {
           Next
         </Button>
       )}
-
-      {nowPlayingUrl && (
-        <SimpleAudioPlayer
-          audioSrc={nowPlayingUrl}
-          audioTitle={audioTitle}
-          forceRender={forceRenderKey}
-          autoplay={true}
-          allowDownload={true}
-        />
-      )}
+      <div style={{ position: "relative", marginTop: "400px" }}>
+        {nowPlayingUrl && (
+          <SimpleAudioPlayer
+            audioSrc={nowPlayingUrl}
+            audioTitle={audioTitle}
+            forceRender={forceRenderKey}
+            autoplay={true}
+            allowDownload={true}
+          />
+        )}
+      </div>
     </div>
   );
 }
