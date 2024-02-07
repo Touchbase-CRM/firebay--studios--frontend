@@ -217,6 +217,7 @@ function ProcessSection() {
   async function preprocessVoiceover({
     script,
     voice,
+    modelId,
     userId,
     dragonsBreathMode = false,
     talkSpeed = 1.0,
@@ -235,6 +236,7 @@ function ProcessSection() {
           body: JSON.stringify({
             script,
             voice,
+            model_id: modelId,
             voice_gender: voiceGender,
             user_id: userId,
             dragons_breath_mode: dragonsBreathMode,
@@ -489,6 +491,7 @@ function ProcessSection() {
   async function generateVoiceWithCustomPreprocess(
     script,
     voiceId,
+    modelId,
     userId,
     dragonsBreathMode,
     talkSpeed,
@@ -498,6 +501,7 @@ function ProcessSection() {
       const pyroHistoryItemId = await preprocessVoiceover({
         script,
         voice: voiceId,
+        modelId: modelId,
         userId,
         dragonsBreathMode: dragonsBreathMode,
         talkSpeed: talkSpeed,
@@ -552,6 +556,7 @@ function ProcessSection() {
         const result = await generateVoiceWithCustomPreprocess(
           mostUptodateSection,
           voiceId,
+          modelId,
           auth.currentUser.uid,
           dragonBreathEnhancement,
           1.0,
