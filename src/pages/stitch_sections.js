@@ -442,7 +442,7 @@ function StitchSections() {
           <div
             style={{
               overflowY: "auto",
-              maxHeight: "800px",
+              maxHeight: "600px",
               overflowX: "hidden",
             }}
           >
@@ -475,7 +475,7 @@ function StitchSections() {
                       borderColor: "#eb631c",
                     }}
                   >
-                    Duration (Seconds)
+                    Duration (Sec)
                   </th>
                   <th
                     style={{
@@ -486,7 +486,7 @@ function StitchSections() {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    Length of the Pause at the End of the Section (Seconds)
+                    Section End Pause (Sec)
                   </th>
                   <th
                     style={{
@@ -530,7 +530,7 @@ function StitchSections() {
                           max="10"
                           step="0.1"
                           style={{
-                            width: "15%",
+                            width: "30%",
                             backgroundColor: "#e4e4e4",
                             borderColor: "#e4e4e4",
                             color: "black",
