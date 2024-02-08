@@ -75,8 +75,6 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
-  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
@@ -188,31 +186,34 @@ function ProcessSection() {
     });
   };
 
-  const fetchAudioFromPyroBackendDistribution = async (pyroHistoryItemId) => {
+  async function fetchAudioFromPyroBackendDistribution(pyroHistoryItemId) {
     const bucketName = "workingdir--storage";
     const objectName = `primary--distribution/${pyroHistoryItemId}`;
 
-    const s3Client = getS3Client();
-
-    // Create a new instance of the GetObjectCommand
-    const command = new GetObjectCommand({
-      Bucket: bucketName,
-      Key: objectName,
-    });
-
     try {
-      // Send the command to S3
-      const { Body } = await s3Client.send(command);
+      // Make a POST request to your API route, sending the object name to get the signed URL
+      const response = await fetch("/api/fetchAudioFromS3", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bucketName, objectName }),
+      });
 
-      // The response Body is a stream. Convert it to a Blob for the audio URL
-      const audioBlob = await new Response(Body).blob();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      return audioBlob;
+      const data = await response.json();
+
+      // Use the signed URL directly for audio playback or download
+      // Here, return the URL for further use, such as setting it as the src for an audio element
+      return data.url;
     } catch (error) {
-      console.error("Error fetching audio from S3:", error);
-      throw new Error("Failed to fetch audio from S3");
+      console.error("Error fetching audio URL from API:", error);
+      throw new Error("Failed to fetch audio URL from API");
     }
-  };
+  }
 
   async function preprocessVoiceover({
     script,
@@ -380,8 +381,6 @@ function ProcessSection() {
       );
     }
 
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
     // Assuming you want to play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
       const previewUrl =
@@ -516,10 +515,9 @@ function ProcessSection() {
         throw new Error("Failed to preprocess voiceover");
       }
 
-      const audioBlob = await fetchAudioFromPyroBackendDistribution(
+      const audioUrl = await fetchAudioFromPyroBackendDistribution(
         pyroHistoryItemId
       );
-      const audioUrl = URL.createObjectURL(audioBlob);
       return { audioUrl, localHistoryItemId: pyroHistoryItemId };
     } catch (error) {
       console.error("Error in generating voice with custom preprocess:", error);
