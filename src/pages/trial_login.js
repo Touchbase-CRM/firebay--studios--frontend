@@ -40,7 +40,7 @@ const TrialLoginPage = () => {
         });
         return;
       }
-      posthog.capture("trial-login-user-clicked-login", {
+      posthog.identify("trial-login-user-clicked-login", {
         date: new Date().toISOString(),
         email: email,
       });
@@ -51,7 +51,7 @@ const TrialLoginPage = () => {
       signInWithEmailAndPassword(auth, predefinedEmail, predefinedPassword)
         .then(async (userCredential) => {
           // Logic after successful login
-          router.push("/create_ad");
+          router.push("/home");
         })
         .catch((error) => {
           // Handle login errors
