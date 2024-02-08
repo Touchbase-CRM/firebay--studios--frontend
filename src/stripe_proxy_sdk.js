@@ -114,7 +114,7 @@ export const getPortalUrl = async (app) => {
 };
 
 async function findCustomerIdByEmail(email) {
-  const response = await fetch("/api/find-customer-by-email", {
+  const response = await fetch("/api/Stripe/find-customer-by-email", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -146,13 +146,16 @@ export async function stripeTrialAuthenticator(email) {
     }
 
     // Make a POST request to the API endpoint to get subscriptions
-    const response = await fetch("/api/stripe_enlist_all_subscriptions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ customerId }),
-    });
+    const response = await fetch(
+      "/api/Stripe/stripe_enlist_all_subscriptions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ customerId }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

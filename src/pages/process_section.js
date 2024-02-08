@@ -192,7 +192,7 @@ function ProcessSection() {
 
     try {
       // Make a POST request to your API route, sending the object name to get the signed URL
-      const response = await fetch("/api/fetchAudioFromS3", {
+      const response = await fetch("/api/S3/fetchAudioFromS3", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
