@@ -232,10 +232,6 @@ function AddMusic() {
   };
   const handleSkipMusic = () => {
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    posthog.capture("add-music-skip-music-button-clicked", {
-      date: new Date().toISOString(), // Capture the current date and time in ISO format
-      userId: userId, // Capture the Firebase user ID
-    });
     // Redirect to the download page with the generatedVoiceUrl
     router.push({
       pathname: "/download",
@@ -252,8 +248,13 @@ function AddMusic() {
 
     // Track the button click event with PostHog with only the required properties
     posthog.capture("add-music-submit-button-clicked", {
-      date: new Date().toISOString(), // Capture the current date and time in ISO format
       userId: userId, // Capture the Firebase user ID
+      music_choice: backgroundMusicFilename,
+      //if following is null then it will be undefined
+      pyro_history_item_id: stitchedAudioPyroHistoryItemId
+        ? stitchedAudioPyroHistoryItemId
+        : undefined,
+      history_item_id: historyItemId ? historyItemId : undefined,
     });
 
     let payload;

@@ -372,6 +372,7 @@ function CreateAd() {
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
+    let finalScript = getFinalScript();
 
     const options = {
       method: "POST",
@@ -379,7 +380,7 @@ function CreateAd() {
         "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: getFinalScript(), model_id: modelId }),
+      body: JSON.stringify({ text: finalScript, model_id: modelId }),
     };
 
     try {
@@ -403,6 +404,11 @@ function CreateAd() {
         const blob = await response.blob();
         const audioUrl = URL.createObjectURL(blob);
         setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
+        posthog.capture("create-ad-voice-generated", {
+          userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+          voiceId: voiceId,
+          finalScript: finalScript,
+        });
       } else {
         throw new Error("Unexpected content type received.");
       }
