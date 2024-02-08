@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
+import { usePostHog } from "posthog-js/react";
 
 import {
   Row,
@@ -27,6 +28,8 @@ function StitchSections() {
   const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
   const auth = getAuth();
   const router = useRouter();
+  const posthog = usePostHog();
+
   const {
     sectionsArray,
     setSectionsArray,
@@ -196,6 +199,14 @@ function StitchSections() {
   };
   const handleNext = (e) => {
     e.preventDefault();
+    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+
+    posthog.capture("stitch-sections-next-button-clicked", {
+      userId: userId, // Capture the Firebase user ID
+      script: sectionsArray
+        .map((section) => section.getCurrentContent())
+        .join(" "),
+    });
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
     router.push("/add_music");
   };

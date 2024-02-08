@@ -250,11 +250,9 @@ function AddMusic() {
     posthog.capture("add-music-submit-button-clicked", {
       userId: userId, // Capture the Firebase user ID
       music_choice: backgroundMusicFilename,
-      //if following is null then it will be undefined
-      pyro_history_item_id: stitchedAudioPyroHistoryItemId
-        ? stitchedAudioPyroHistoryItemId
-        : undefined,
-      history_item_id: historyItemId ? historyItemId : undefined,
+      history_item_id: historyItemId
+        ? historyItemId
+        : stitchedAudioPyroHistoryItemId,
     });
 
     let payload;

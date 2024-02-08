@@ -404,6 +404,10 @@ function ProcessSection() {
       );
       return;
     }
+    posthog.capture("process-section-next-button-clicked", {
+      dragonsBreathMode: dragonBreathEnhancement,
+      voiceId: voiceId,
+    });
 
     addToSectionArrayZustand(localCurrentSectionObj);
 
