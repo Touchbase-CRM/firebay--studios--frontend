@@ -14,8 +14,8 @@ export default async function handler(req, res) {
   const s3Client = new S3Client({
     region: "us-east-2",
     credentials: {
-      accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
-      secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
+      accessKeyId: process.env.MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
+      secretAccessKey: process.env.MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
     },
   });
 

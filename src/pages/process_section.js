@@ -175,17 +175,6 @@ function ProcessSection() {
     });
   };
 
-  // Initialize the S3 client within the function to use Next.js environment variables
-  const getS3Client = () => {
-    return new S3Client({
-      region: "us-east-2",
-      credentials: {
-        accessKeyId: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_ACCESS_KEY, // Access the AWS access key ID from environment variables
-        secretAccessKey: process.env.NEXT_PUBLIC_MIN_PYRO_USER_AWS_SECRET_KEY, // Access the AWS secret access key from environment variables
-      },
-    });
-  };
-
   async function fetchAudioFromPyroBackendDistribution(pyroHistoryItemId) {
     const bucketName = "workingdir--storage";
     const objectName = `primary--distribution/${pyroHistoryItemId}`;
