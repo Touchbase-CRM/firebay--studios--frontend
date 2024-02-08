@@ -41,7 +41,9 @@ const TrialLoginPage = () => {
         return;
       }
       posthog.identify("trial-login-user-clicked-login", {
-        date: new Date().toISOString(),
+        email: email,
+      });
+      posthog.capture("trial-login-user-clicked-login", {
         email: email,
       });
 

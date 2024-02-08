@@ -199,14 +199,6 @@ function StitchSections() {
   };
   const handleNext = (e) => {
     e.preventDefault();
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
-    posthog.capture("stitch-sections-next-button-clicked", {
-      userId: userId, // Capture the Firebase user ID
-      script: sectionsArray
-        .map((section) => section.getCurrentContent())
-        .join(". "),
-    });
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
     router.push("/add_music");
   };
@@ -216,6 +208,13 @@ function StitchSections() {
     setPendingAdvertisement(true);
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+
+    posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
+      userId: userId, // Capture the Firebase user ID
+      script: sectionsArray
+        .map((section) => section.getCurrentContent())
+        .join(". "),
+    });
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     const historyItemIds = sectionsArray.map((section) =>
