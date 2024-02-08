@@ -10,10 +10,6 @@ import {
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
-const stripe = require("stripe")(
-  process.env.NEXT_PUBLIC_STRIPE_RESTRICTED_SECRET_KEY
-);
-
 export const getCheckoutUrl = async (app, priceId) => {
   const auth = getAuth(app);
   const userId = auth.currentUser?.uid;
@@ -118,17 +114,23 @@ export const getPortalUrl = async (app) => {
 };
 
 async function findCustomerIdByEmail(email) {
-  try {
-    const customers = await stripe.customers.list({ email: email, limit: 1 });
-    if (customers.data.length > 0) {
-      return customers.data[0].id;
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error("Error in findCustomerIdByEmail:", error);
-    throw error;
+  const response = await fetch("/api/find-customer-by-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    // Handle the error
+    const errorData = await response.json();
+    console.error("Error fetching customer ID:", errorData.error);
+    return null;
   }
+
+  const data = await response.json();
+  return data.customerId; // This is the ID of the customer
 }
 
 export async function stripeTrialAuthenticator(email) {
@@ -143,11 +145,20 @@ export async function stripeTrialAuthenticator(email) {
       };
     }
 
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "all",
-      expand: ["data.default_payment_method"],
+    // Make a POST request to the API endpoint to get subscriptions
+    const response = await fetch("/api/stripe_enlist_all_subscriptions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ customerId }),
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const { data: subscriptions } = await response.json();
 
     let trialInfo = {
       trial: false,
@@ -156,7 +167,7 @@ export async function stripeTrialAuthenticator(email) {
       message: "",
     };
 
-    subscriptions.data.forEach((subscription) => {
+    subscriptions.forEach((subscription) => {
       if (subscription.trial_end) {
         const trialEndDate = new Date(subscription.trial_end * 1000);
         const trialStartDate = new Date(subscription.trial_start * 1000);
