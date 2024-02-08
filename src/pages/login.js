@@ -13,12 +13,14 @@ import Swal from "sweetalert2";
 import Image from "next/image";
 
 import { getSubscriptionStatus } from "../stripe_proxy_sdk";
+import { usePostHog } from "posthog-js/react";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = getAuth();
+  const posthog = usePostHog();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -51,6 +53,9 @@ const LoginPage = () => {
           //   });
           //   return;
           // }
+          posthog.identify("login-user-clicked-login", {
+            email: email,
+          });
 
           // If the user has an active subscription and verified email, redirect to the create_ad page
           router.push("/home");
