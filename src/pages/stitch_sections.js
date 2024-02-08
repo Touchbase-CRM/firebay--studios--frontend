@@ -205,7 +205,7 @@ function StitchSections() {
       userId: userId, // Capture the Firebase user ID
       script: sectionsArray
         .map((section) => section.getCurrentContent())
-        .join(" "),
+        .join(". "),
     });
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
     router.push("/add_music");
