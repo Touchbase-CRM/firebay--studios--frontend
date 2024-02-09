@@ -19,7 +19,6 @@ import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
 
-import { getPortalUrl } from "../stripe_proxy_sdk";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
@@ -268,14 +267,6 @@ function CreateAd() {
       );
     }
 
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-    // posthog.capture("create-ad-voice-change-drop-down-expanded", {
-    //   date: new Date().toISOString(),
-    //   userId: userId,
-    //   voiceId: voiceId,
-    //   voiceName: voiceName,
-    // });
-
     // Assuming you want to play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
       const previewUrl =
@@ -307,10 +298,6 @@ function CreateAd() {
     );
 
     if (!isValid) return;
-
-    // if (!historyItemId) {
-    //   handleGenerateVoice();
-    // }
   };
 
   const handleLogout = () => {
@@ -324,39 +311,44 @@ function CreateAd() {
         console.error("Logout Error:", error);
       });
   };
-  const handleManageSubscription = async () => {
-    const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
-    if (userId === process.env.NEXT_PUBLIC_PYRO_GUEST_FIREBASE_UID) {
-      Swal.fire({
-        icon: "info",
-        title: "Oops...",
-        text: "Trial users are not authorized to manage subscriptions.",
-      });
-      return;
-    }
-    try {
-      // SweetAlert2 confirmation dialog
-      const result = Swal.fire({
-        title: "Redirecting to Subscription Management",
-        text: "You will be redirected to the subscription management page in a new tab.",
-        icon: "info",
-        confirmButtonColor: "#3085d6",
-        confirmButtonText: "Got it!",
-      });
-
-      const portalUrl = await getPortalUrl(app);
-      window.open(portalUrl, "_blank");
-    } catch (error) {
-      console.error("Error opening portal: ", error);
-    }
-  };
 
   const getFinalScript = () => {
     return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };
+
+  async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+    try {
+      // Adjust the fetch URL to point to your Next.js API route
+      const response = await fetch(
+        "/api/Elevenlabs/generate_voice_with_voice_id",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ script, modelId, voiceId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      // The audio data is directly in the response body
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+
+      // Extract the 'history-item-id' from the response headers
+      const localHistoryItemId = response.headers.get("history-item-id");
+
+      return { audioUrl, localHistoryItemId };
+    } catch (err) {
+      console.error(err);
+      throw err; // Propagate error to be handled in the calling function
+    }
+  }
 
   const handleGenerateVoice = async () => {
     const isValid = validateScript(
@@ -374,60 +366,28 @@ function CreateAd() {
     }
     let finalScript = getFinalScript();
 
-    const options = {
-      method: "POST",
-      headers: {
-        "xi-api-key": process.env.ELEVEN_LABS_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: finalScript, model_id: modelId }),
-    };
-
     try {
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-        options
+      const result = await generateVoiceWithElevenLabsAPI(
+        finalScript,
+        modelId,
+        voiceId
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
+      const audioUrl = result.audioUrl;
+      const localHistoryItemId = result.localHistoryItemId;
 
-      // Extract history_item_id from headers
-      const historyItemId = response.headers.get("history-item-id");
-      if (historyItemId) {
-        setHistoryItemId(historyItemId); // Update state with history_item_id
-      }
+      setHistoryItemId(localHistoryItemId);
+      setGeneratedVoiceUrl(audioUrl);
 
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("audio/")) {
-        // Handle audio response
-        const blob = await response.blob();
-        const audioUrl = URL.createObjectURL(blob);
-        setGeneratedVoiceUrl(audioUrl); // Update state with the URL for the audio player
-        posthog.capture("create-ad-voice-generated", {
-          userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
-          voiceId: voiceId,
-          finalScript: finalScript,
-        });
-      } else {
-        throw new Error("Unexpected content type received.");
-      }
+      posthog.capture("create-ad-voice-generated", {
+        userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+        voiceId: voiceId,
+        finalScript: finalScript,
+      });
     } catch (err) {
       console.error(err);
     }
     setIsGeneratingVoice(false);
   };
-
-  const dropdownItems = [
-    {
-      text: "Manage Subscription",
-      handler: handleManageSubscription,
-    },
-    {
-      text: "Logout",
-      handler: handleLogout,
-    },
-  ];
 
   const wordCountStyle = {
     position: "absolute",
