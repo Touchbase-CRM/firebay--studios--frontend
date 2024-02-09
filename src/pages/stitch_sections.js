@@ -142,17 +142,19 @@ function StitchSections() {
   };
 
   const fetchAudioFromElevenLabs = (historyItemId) => {
-    const options = {
+    fetch("/api/Elevenlabs/generate_voice_with_history_item_id", {
       method: "POST",
       headers: {
-        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ history_item_ids: [historyItemId] }),
-    };
-
-    fetch("https://api.elevenlabs.io/v1/history/download", options)
-      .then((response) => response.blob()) // Handle the response as a blob
+      body: JSON.stringify({ historyItemId }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch audio");
+        }
+        return response.blob(); // Handle the response as a blob
+      })
       .then((blob) => {
         const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
         setAudioUrl(audioUrl);

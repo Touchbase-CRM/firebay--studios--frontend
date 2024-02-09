@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         method: "post",
         url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
         headers: {
-          "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY, // Keep sensitive data server-side
+          "xi-api-key": process.env.ELEVEN_LABS_API_KEY, // Keep sensitive data server-side
           "Content-Type": "application/json",
         },
         data: JSON.stringify({ text: script, model_id: modelId }),

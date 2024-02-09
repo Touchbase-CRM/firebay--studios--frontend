@@ -377,7 +377,7 @@ function CreateAd() {
     const options = {
       method: "POST",
       headers: {
-        "xi-api-key": process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY,
+        "xi-api-key": process.env.ELEVEN_LABS_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ text: finalScript, model_id: modelId }),
