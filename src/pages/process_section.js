@@ -302,6 +302,13 @@ function ProcessSection() {
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
   };
+  const handleSpeechRate = (event) => {
+    // Update your state or perform actions based on the event.target.value
+    const newSpeechRate = event.target.value;
+    currentSectionObj.setSpeechRate(newSpeechRate);
+    console.log(newSpeechRate);
+    console.log(currentSectionObj);
+  };
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
@@ -538,7 +545,11 @@ function ProcessSection() {
     const mostUptodateSection = getFinalScript();
 
     try {
-      if (!dragonBreathEnhancement) {
+      const preprocessRequired =
+        dragonBreathEnhancement ||
+        currentSectionObj.getSpeechRate() !== "Normal";
+
+      if (!preprocessRequired) {
         const result = await generateVoiceWithElevenLabsAPI(
           mostUptodateSection,
           modelId,
@@ -553,7 +564,7 @@ function ProcessSection() {
           modelId,
           auth.currentUser.uid,
           dragonBreathEnhancement,
-          1.0,
+          currentSectionObj.getSpeechRate(),
           true
         );
         audioUrl = result.audioUrl;
@@ -680,7 +691,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "200px",
+              height: "310px",
               marginBottom: "10px",
             }}
           >
@@ -765,6 +776,21 @@ function ProcessSection() {
                     forged by dragon's breath
                   </Alert>
                 )}
+              </Form.Group>
+              {/* Speech Rate Dropdown Menu */}
+              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
+                <Form.Label>Speech Rate</Form.Label>
+                <Form.Select
+                  aria-label="Speech rate select"
+                  defaultValue={currentSectionObj.getSpeechRate()}
+                  onChange={handleSpeechRate}
+                >
+                  <option value="Normal">Normal</option>
+                  <option value="1.25X">1.25x</option>
+                  <option value="1.5X">1.5x</option>
+                  <option value="1.75X">1.75x</option>
+                  <option value="2X">2x</option>
+                </Form.Select>
               </Form.Group>
             </Form>
           </Card>
