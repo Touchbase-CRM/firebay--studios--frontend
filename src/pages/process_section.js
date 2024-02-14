@@ -88,6 +88,13 @@ function ProcessSection() {
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength - adSecondsConsumed
   );
+  const speechRateOptions = [
+    { label: "Normal", value: "Normal" },
+    { label: "1.25x", value: "1.25X" },
+    { label: "1.5x", value: "1.5X" },
+    { label: "1.75x", value: "1.75X" },
+    { label: "2x", value: "2X" },
+  ];
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -307,7 +314,7 @@ function ProcessSection() {
   const handleSpeechRate = (event) => {
     // Update your state or perform actions based on the event.target.value
     const newSpeechRate = event.target.value;
-    currentSectionObj.setSpeechRate(newSpeechRate);
+    localCurrentSectionObj.setSpeechRate(newSpeechRate);
   };
 
   const handleScriptChange = (e) => {
@@ -494,6 +501,7 @@ function ProcessSection() {
   }
 
   async function handleGenerateVoice() {
+    console.log(currentSectionObj);
     const isValid = validateScript(
       originalScriptString,
       charLimit,
@@ -751,14 +759,14 @@ function ProcessSection() {
                 <Form.Label>Speech Rate</Form.Label>
                 <Form.Select
                   aria-label="Speech rate select"
-                  defaultValue={currentSectionObj.getSpeechRate()}
+                  value={localCurrentSectionObj.getSpeechRate()}
                   onChange={handleSpeechRate}
                 >
-                  <option value="Normal">Normal</option>
-                  <option value="1.25X">1.25x</option>
-                  <option value="1.5X">1.5x</option>
-                  <option value="1.75X">1.75x</option>
-                  <option value="2X">2x</option>
+                  {speechRateOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
             </Form>
