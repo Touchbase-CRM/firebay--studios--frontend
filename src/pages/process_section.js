@@ -212,7 +212,7 @@ function ProcessSection() {
     modelId,
     userId,
     dragonsBreathMode = false,
-    talkSpeed = 1.0,
+    talkSpeed = "Normal",
     legalDisclaimer = false,
   }) {
     //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
@@ -232,7 +232,7 @@ function ProcessSection() {
             voice_gender: voiceGender,
             user_id: userId,
             dragons_breath_mode: dragonsBreathMode,
-            talk_speed: talkSpeed,
+            speech_rate: talkSpeed,
             legal_disclaimer: legalDisclaimer,
           }),
         }
@@ -308,8 +308,6 @@ function ProcessSection() {
     // Update your state or perform actions based on the event.target.value
     const newSpeechRate = event.target.value;
     currentSectionObj.setSpeechRate(newSpeechRate);
-    console.log(newSpeechRate);
-    console.log(currentSectionObj);
   };
 
   const handleScriptChange = (e) => {
