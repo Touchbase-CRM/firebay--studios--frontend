@@ -48,9 +48,11 @@ function StitchSections() {
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState([]);
 
-  //prettier-ignore
-  const musicGenWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-  // const musicGenWebServiceUrl = "http://localhost:8000";
+  const musicGenWebServiceUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8000"
+      : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
