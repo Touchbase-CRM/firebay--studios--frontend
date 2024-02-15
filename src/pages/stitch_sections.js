@@ -33,6 +33,7 @@ function StitchSections() {
   const {
     sectionsArray,
     setSectionsArray,
+    tempSectionObjHolder,
     adLength,
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
@@ -61,6 +62,12 @@ function StitchSections() {
 
   useEffect(() => {
     setLocalSectionsArray(_.cloneDeep(sectionsArray));
+    const index = tempSectionObjHolder.getIndex();
+    if (index !== null) {
+      // Replace the existing section of the sectionsArray with the tempSectionObjHolder using index above
+      localSectionsArray[index] = tempSectionObjHolder;
+      setLocalSectionsArray(localSectionsArray);
+    }
   }, []);
 
   useEffect(() => {
@@ -327,6 +334,10 @@ function StitchSections() {
     }
   };
 
+  const handleEditSection = () => {
+    console.log("handleEditSection called");
+  };
+
   if (pendingAdvertisement) {
     return (
       <div
@@ -499,6 +510,7 @@ function StitchSections() {
                   >
                     Play
                   </th>
+                  <th style={{ borderColor: "#eb631c" }}>Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -558,6 +570,18 @@ function StitchSections() {
                         style={{ color: "black" }}
                       >
                         <Play color="black" />
+                      </Button>
+                    </td>
+                    <td style={{ border: "1px solid #eb631c" }}>
+                      <Button
+                        onClick={() => handleEditSection()}
+                        style={{
+                          backgroundColor: "#eb631c", // Orange color
+                          borderColor: "#eb631c", // Orange border
+                          color: "white", // White text color
+                        }}
+                      >
+                        Edit
                       </Button>
                     </td>
                   </tr>
