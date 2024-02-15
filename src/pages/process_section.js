@@ -50,6 +50,7 @@ function ProcessSection() {
   // Zustand store hooks
   const {
     sectionsQueue,
+    sectionsArray,
     dequeueSectionZustand,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
@@ -73,6 +74,7 @@ function ProcessSection() {
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
+    setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
@@ -410,8 +412,12 @@ function ProcessSection() {
       dragonsBreathMode: dragonBreathEnhancement,
       voiceId: voiceId,
     });
-
-    addToSectionArrayZustand(localCurrentSectionObj);
+    const index = localCurrentSectionObj.getIndex();
+    if (index >= 0 && index < sectionsArray.length) {
+      setTempSectionObjHolder(localCurrentSectionObj);
+    } else {
+      addToSectionArrayZustand(localCurrentSectionObj);
+    }
 
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
