@@ -553,7 +553,7 @@ function ProcessSection() {
           modelId,
           auth.currentUser.uid,
           dragonBreathEnhancement,
-          1.0,
+          "Normal",
           true
         );
         audioUrl = result.audioUrl;

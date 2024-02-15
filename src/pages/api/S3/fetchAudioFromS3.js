@@ -24,6 +24,7 @@ export default async function handler(req, res) {
     const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: objectName,
+      ResponseContentDisposition: 'attachment; filename="pyro_download.mp3"',
     });
 
     const signedUrl = await getSignedUrl(s3Client, command, {
