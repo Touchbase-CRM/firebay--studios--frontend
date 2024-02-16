@@ -10,7 +10,6 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
@@ -318,6 +317,38 @@ function CreateAd() {
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };
+
+  async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+    try {
+      // Adjust the fetch URL to point to your Next.js API route
+      const response = await fetch(
+        "/api/Elevenlabs/generate_voice_with_voice_id",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ script, modelId, voiceId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      // The audio data is directly in the response body
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+
+      // Extract the 'history-item-id' from the response headers
+      const localHistoryItemId = response.headers.get("history-item-id");
+
+      return { audioUrl, localHistoryItemId };
+    } catch (err) {
+      console.error(err);
+      throw err; // Propagate error to be handled in the calling function
+    }
+  }
 
   const handleGenerateVoice = async () => {
     const isValid = validateScript(

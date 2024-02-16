@@ -14,21 +14,6 @@ export class Section {
     this.currentCharCount = this.#calculateCharCount(currentContent);
     this.sectionDurationSeconds = sectionDurationSeconds;
     this.endOfSectionPauseDurationSeconds = 0.2;
-    this.speechRate = "Normal";
-  }
-  setSpeechRate(newSpeechRate) {
-    const allowedRates = ["Normal", "1.25X", "1.5X", "1.75X", "2X"];
-    if (allowedRates.includes(newSpeechRate)) {
-      this.speechRate = newSpeechRate;
-    } else {
-      console.log(
-        "Speech rate is not allowed. Please choose one of the following: Normal, 1.25X, 1.5X, 1.75X, 2X."
-      );
-    }
-  }
-
-  getSpeechRate() {
-    return this.speechRate;
   }
 
   // setter for end of section pause duration

@@ -13,7 +13,6 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import useUserInputsStore from "../store/userInputs";
@@ -43,9 +42,8 @@ function ProcessSection() {
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
   // prettier-ignore
-  const audioProcessingWebServiceUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const audioProcessingWebServiceUrl = "http://localhost:8000";
 
   // Zustand store hooks
   const {
@@ -88,13 +86,6 @@ function ProcessSection() {
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength - adSecondsConsumed
   );
-  const speechRateOptions = [
-    { label: "Normal", value: "Normal" },
-    { label: "1.25x", value: "1.25X" },
-    { label: "1.5x", value: "1.5X" },
-    { label: "1.75x", value: "1.75X" },
-    { label: "2x", value: "2X" },
-  ];
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -219,7 +210,7 @@ function ProcessSection() {
     modelId,
     userId,
     dragonsBreathMode = false,
-    talkSpeed = "Normal",
+    talkSpeed = 1.0,
     legalDisclaimer = false,
   }) {
     //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
@@ -239,7 +230,7 @@ function ProcessSection() {
             voice_gender: voiceGender,
             user_id: userId,
             dragons_breath_mode: dragonsBreathMode,
-            speech_rate: talkSpeed,
+            talk_speed: talkSpeed,
             legal_disclaimer: legalDisclaimer,
           }),
         }
@@ -310,11 +301,6 @@ function ProcessSection() {
 
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
-  };
-  const handleSpeechRate = (event) => {
-    // Update your state or perform actions based on the event.target.value
-    const newSpeechRate = event.target.value;
-    localCurrentSectionObj.setSpeechRate(newSpeechRate);
   };
 
   const handleScriptChange = (e) => {
@@ -465,6 +451,37 @@ function ProcessSection() {
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
   };
+  async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+    try {
+      // Adjust the fetch URL to point to your Next.js API route
+      const response = await fetch(
+        "/api/Elevenlabs/generate_voice_with_voice_id",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ script, modelId, voiceId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      // The audio data is directly in the response body
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+
+      // Extract the 'history-item-id' from the response headers
+      const localHistoryItemId = response.headers.get("history-item-id");
+
+      return { audioUrl, localHistoryItemId };
+    } catch (err) {
+      console.error(err);
+      throw err; // Propagate error to be handled in the calling function
+    }
+  }
 
   async function generateVoiceWithCustomPreprocess(
     script,
@@ -501,7 +518,6 @@ function ProcessSection() {
   }
 
   async function handleGenerateVoice() {
-    console.log(currentSectionObj);
     const isValid = validateScript(
       originalScriptString,
       charLimit,
@@ -522,11 +538,7 @@ function ProcessSection() {
     const mostUptodateSection = getFinalScript();
 
     try {
-      const preprocessRequired =
-        dragonBreathEnhancement ||
-        currentSectionObj.getSpeechRate() !== "Normal";
-
-      if (!preprocessRequired) {
+      if (!dragonBreathEnhancement) {
         const result = await generateVoiceWithElevenLabsAPI(
           mostUptodateSection,
           modelId,
@@ -541,7 +553,7 @@ function ProcessSection() {
           modelId,
           auth.currentUser.uid,
           dragonBreathEnhancement,
-          currentSectionObj.getSpeechRate(),
+          1.0,
           true
         );
         audioUrl = result.audioUrl;
@@ -668,7 +680,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "310px",
+              height: "200px",
               marginBottom: "10px",
             }}
           >
@@ -753,21 +765,6 @@ function ProcessSection() {
                     forged by dragon's breath
                   </Alert>
                 )}
-              </Form.Group>
-              {/* Speech Rate Dropdown Menu */}
-              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label>Speech Rate</Form.Label>
-                <Form.Select
-                  aria-label="Speech rate select"
-                  value={localCurrentSectionObj.getSpeechRate()}
-                  onChange={handleSpeechRate}
-                >
-                  {speechRateOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
               </Form.Group>
             </Form>
           </Card>

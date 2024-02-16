@@ -68,9 +68,8 @@ function AddMusic() {
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
-  const audioStitchWebServiceUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  const audioStitchWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // const audioStitchWebServiceUrl = "http://localhost:8000";
 
   const [volumePercentage, setVolumePercentage] = useState(
     Math.round(musicVol * 100)
