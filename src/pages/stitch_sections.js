@@ -38,6 +38,15 @@ function StitchSections() {
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
+    sectionsQueue,
+    setCurrentSectionObjZustand,
+    currentSectionObj,
+    enqueueSectionZustand,
+    ogScriptWordsArray,
+    setOgScriptWordsArray,
+    transformedWords,
+    setTransformedWords,
+    setOriginalScriptString,
   } = useUserInputsStore();
 
   const [audioUrl, setAudioUrl] = useState("");
@@ -334,8 +343,28 @@ function StitchSections() {
     }
   };
 
-  const handleEditSection = () => {
-    console.log("handleEditSection called");
+  const handleEditSection = (section) => {
+    console.log(section);
+    console.log("PRevious sectionObj", currentSectionObj);
+    setCurrentSectionObjZustand(section);
+    // Update the original script string to the last dequeued item
+    setOriginalScriptString(section.getOriginalContent());
+
+    // Split the dequeued item into words and update transformed words
+    const newWords = section.getCurrentContent().split(" ");
+    const newTransformedWords = {};
+
+    newWords.forEach((word, index) => {
+      if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+        newTransformedWords[index] = transformedWords[index];
+      }
+    });
+
+    // Update the original script words array and transformed words
+    setOgScriptWordsArray(newWords);
+    setTransformedWords(newTransformedWords);
+    console.log("Updated sectionObj", currentSectionObj);
+    router.push("/process_section");
   };
 
   if (pendingAdvertisement) {
@@ -574,7 +603,7 @@ function StitchSections() {
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
-                        onClick={() => handleEditSection()}
+                        onClick={() => handleEditSection(section)}
                         style={{
                           backgroundColor: "#eb631c", // Orange color
                           borderColor: "#eb631c", // Orange border
