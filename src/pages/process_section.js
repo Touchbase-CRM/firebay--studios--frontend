@@ -102,6 +102,9 @@ function ProcessSection() {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
   const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
+  const [speechRate, setSpeechRate] = useState(
+    localCurrentSectionObj.getSpeechRate()
+  );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -314,9 +317,9 @@ function ProcessSection() {
     setShowMenu(false);
   };
   const handleSpeechRate = (event) => {
-    // Update your state or perform actions based on the event.target.value
     const newSpeechRate = event.target.value;
-    localCurrentSectionObj.setSpeechRate(newSpeechRate);
+    setSpeechRate(newSpeechRate); // This will now trigger a re-render
+    localCurrentSectionObj.setSpeechRate(newSpeechRate); // Assuming you still need to keep this updated
   };
 
   const handleScriptChange = (e) => {
@@ -765,7 +768,7 @@ function ProcessSection() {
                 <Form.Label>Speech Rate</Form.Label>
                 <Form.Select
                   aria-label="Speech rate select"
-                  value={localCurrentSectionObj.getSpeechRate()}
+                  value={speechRate}
                   onChange={handleSpeechRate}
                 >
                   {speechRateOptions.map((option) => (
