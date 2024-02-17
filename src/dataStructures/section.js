@@ -125,6 +125,11 @@ export class Section {
     return this.currentCharCount;
   }
 
+  //setter for index
+  setIndex(newIndex) {
+    this.index = newIndex;
+  }
+
   // Getter for index
   getIndex() {
     return this.index;

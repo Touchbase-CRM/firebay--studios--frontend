@@ -71,12 +71,15 @@ function StitchSections() {
 
   useEffect(() => {
     // setLocalSectionsArray(_.cloneDeep(sectionsArray));
-    setLocalSectionsArray(sectionsArray);
     const index = tempSectionObjHolder.getIndex();
     if (index !== null) {
       // Replace the existing section of the sectionsArray with the tempSectionObjHolder using index above
       localSectionsArray[index] = tempSectionObjHolder;
       setLocalSectionsArray(localSectionsArray);
+      // Reset tempSectionObjHolder
+      tempSectionObjHolder.setIndex(null);
+    } else {
+      setLocalSectionsArray(sectionsArray);
     }
   }, []);
 
