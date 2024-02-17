@@ -53,8 +53,6 @@ function ProcessSection() {
     sectionsArray,
     dequeueSectionZustand,
     adLength,
-    adSecondsConsumed,
-    setAdSecondsConsumed,
 
     currentSectionObj,
     addToSectionArrayZustand,
@@ -69,12 +67,7 @@ function ProcessSection() {
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] =
     useState(currentSectionObj);
-  const [progressBarPercentage, setProgressBarPercentage] = useState(
-    (adSecondsConsumed / adLength) * 100
-  );
-  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
-    adLength - adSecondsConsumed
-  );
+
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -114,6 +107,20 @@ function ProcessSection() {
     localCurrentSectionObj.getGeneratedVoiceUrl()
   );
 
+  const adSecondsConsumed = sectionsArray
+    .slice(0, currentSectionObj.getIndex() + 1)
+    .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+
+  const [progressBarPercentage, setProgressBarPercentage] = useState(
+    ((adSecondsConsumed + localCurrentSectionObj.getSectionDurationSeconds()) /
+      adLength) *
+      100
+  );
+  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+    adLength -
+      (adSecondsConsumed + localCurrentSectionObj.getSectionDurationSeconds())
+  );
+
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
@@ -143,6 +150,7 @@ function ProcessSection() {
     setLocalCurrentSectionObj(currentSectionObj);
     setDragonBreathEnhancement(currentSectionObj.getDragonBreathEnhancement());
     setSpeechRate(currentSectionObj.getSpeechRate());
+    setVoiceId(currentSectionObj.getVoiceId());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -441,9 +449,9 @@ function ProcessSection() {
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {
-      setAdSecondsConsumed(
-        adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
-      );
+      // setAdSecondsConsumed(
+      //   adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
+      // );
 
       console.log("Queue not empty, continue processing");
       dequeueSectionZustand(); // Remove the first item from the queue
@@ -519,7 +527,6 @@ function ProcessSection() {
   }
 
   async function handleGenerateVoice() {
-    console.log(currentSectionObj);
     const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
 
     if (!isValid) return;
@@ -662,7 +669,7 @@ function ProcessSection() {
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
               {numSectionsIdentified}
             </Card.Title>
-            <Form>
+            <Form key={localCurrentSectionObj.getHistoryItemId()}>
               <Form.Group controlId="voice">
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
