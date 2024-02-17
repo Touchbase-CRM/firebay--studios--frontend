@@ -55,8 +55,7 @@ function ProcessSection() {
     adLength,
     adSecondsConsumed,
     setAdSecondsConsumed,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
+
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
@@ -111,6 +110,10 @@ function ProcessSection() {
     localCurrentSectionObj.getVoicePreviewFilename()
   );
 
+  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState(
+    localCurrentSectionObj.getGeneratedVoiceUrl()
+  );
+
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
@@ -139,6 +142,7 @@ function ProcessSection() {
     // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj);
     setDragonBreathEnhancement(currentSectionObj.getDragonBreathEnhancement());
+    setSpeechRate(currentSectionObj.getSpeechRate());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {

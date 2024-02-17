@@ -20,7 +20,17 @@ export class Section {
     this.voiceName = "Charley";
     this.voicePreviewFilename = "male/charley.mp3";
     this.dragonBreathEnhancement = false;
+    this.generatedVoiceUrl = "";
   }
+  // setter for generated voice url
+  setGeneratedVoiceUrl(newGeneratedVoiceUrl) {
+    this.generatedVoiceUrl = newGeneratedVoiceUrl;
+  }
+  // getter for generated voice url
+  getGeneratedVoiceUrl() {
+    return this.generatedVoiceUrl;
+  }
+
   // setter for voice preview filename
   setVoicePreviewFilename(newVoicePreviewFilename) {
     this.voicePreviewFilename = newVoicePreviewFilename;
