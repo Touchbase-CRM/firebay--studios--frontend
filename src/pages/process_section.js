@@ -87,7 +87,9 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
+  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(
+    localCurrentSectionObj.getDragonBreathEnhancement()
+  );
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
   );
@@ -136,6 +138,7 @@ function ProcessSection() {
   useEffect(() => {
     // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj);
+    setDragonBreathEnhancement(currentSectionObj.getDragonBreathEnhancement());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -575,6 +578,14 @@ function ProcessSection() {
     }
   }
 
+  const handleDragonBreathEnhancementChange = (e) => {
+    const newValue = e.target.checked;
+
+    setDragonBreathEnhancement(newValue);
+
+    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+  };
+
   const wordCountStyle = {
     position: "absolute",
     bottom: "10px",
@@ -728,13 +739,7 @@ function ProcessSection() {
                     role="switch"
                     id="dragonBreathEnhancementSwitch"
                     checked={dragonBreathEnhancement}
-                    onChange={(e) => {
-                      const newValue = e.target.checked;
-                      setDragonBreathEnhancement(newValue);
-                      localCurrentSectionObj.setDragonBreathEnhancement(
-                        newValue
-                      );
-                    }}
+                    onChange={handleDragonBreathEnhancementChange}
                     style={{
                       backgroundColor: dragonBreathEnhancement
                         ? "#eb631c"
