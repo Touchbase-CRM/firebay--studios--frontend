@@ -15,7 +15,17 @@ export class Section {
     this.sectionDurationSeconds = sectionDurationSeconds;
     this.endOfSectionPauseDurationSeconds = 0.2;
     this.speechRate = "Normal";
-    this.modelId = "eleven_monolingual_v1";
+    this.modelId = "eleven_multilingual_v2";
+    this.voiceId = "6wLJ4Wm2OxvAvetEUBCS";
+  }
+
+  // setter for voice id
+  setVoiceId(newVoiceId) {
+    this.voiceId = newVoiceId;
+  }
+  // getter for voice id
+  getVoiceId() {
+    return this.voiceId;
   }
   // setter for model id
   setModelId(newModelId) {

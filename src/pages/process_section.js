@@ -52,8 +52,7 @@ function ProcessSection() {
     sectionsQueue,
     sectionsArray,
     dequeueSectionZustand,
-    voiceId,
-    setVoiceId,
+
     voiceName,
     setVoiceName,
     voicePreviewFilename,
@@ -107,6 +106,7 @@ function ProcessSection() {
   );
   const [transformedWords, setTransformedWords] = useState({});
   const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
+  const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -381,6 +381,7 @@ function ProcessSection() {
       setVoiceName(selectedVoiceName);
       setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
+      localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
