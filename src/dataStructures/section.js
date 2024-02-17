@@ -17,6 +17,35 @@ export class Section {
     this.speechRate = "Normal";
     this.modelId = "eleven_multilingual_v2";
     this.voiceId = "6wLJ4Wm2OxvAvetEUBCS";
+    this.voiceName = "Charley";
+    this.voicePreviewFilename = "male/charley.mp3";
+    this.dragonBreathEnhancement = false;
+  }
+  // setter for voice preview filename
+  setVoicePreviewFilename(newVoicePreviewFilename) {
+    this.voicePreviewFilename = newVoicePreviewFilename;
+  }
+  // getter for voice preview filename
+  getVoicePreviewFilename() {
+    return this.voicePreviewFilename;
+  }
+
+  // setter for dragon breath enhancement
+  setDragonBreathEnhancement(newDragonBreathEnhancement) {
+    this.dragonBreathEnhancement = newDragonBreathEnhancement;
+  }
+  // getter for dragon breath enhancement
+  getDragonBreathEnhancement() {
+    return this.dragonBreathEnhancement;
+  }
+
+  // setter for voice name
+  setVoiceName(newVoiceName) {
+    this.voiceName = newVoiceName;
+  }
+  // getter for voice name
+  getVoiceName() {
+    return this.voiceName;
   }
 
   // setter for voice id

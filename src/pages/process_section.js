@@ -52,11 +52,6 @@ function ProcessSection() {
     sectionsQueue,
     sectionsArray,
     dequeueSectionZustand,
-
-    voiceName,
-    setVoiceName,
-    voicePreviewFilename,
-    setVoicePreviewFilename,
     adLength,
     adSecondsConsumed,
     setAdSecondsConsumed,
@@ -107,6 +102,12 @@ function ProcessSection() {
   const [transformedWords, setTransformedWords] = useState({});
   const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
   const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
+  const [voiceName, setVoiceName] = useState(
+    localCurrentSectionObj.getVoiceName()
+  );
+  const [voicePreviewFilename, setVoicePreviewFilename] = useState(
+    localCurrentSectionObj.getVoicePreviewFilename()
+  );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -382,6 +383,10 @@ function ProcessSection() {
       setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
+      localCurrentSectionObj.setVoiceName(selectedVoiceName);
+      localCurrentSectionObj.setVoicePreviewFilename(
+        metadata.newVoicePreviewFilename
+      );
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
@@ -694,7 +699,7 @@ function ProcessSection() {
                 ) : (
                   <Form.Select
                     aria-label="Voice select"
-                    value={voiceName} // This should be the voice name, not the ID
+                    value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
                     onChange={handleVoiceChange}
                     style={{ color: "black" }}
                   >
@@ -723,9 +728,13 @@ function ProcessSection() {
                     role="switch"
                     id="dragonBreathEnhancementSwitch"
                     checked={dragonBreathEnhancement}
-                    onChange={() =>
-                      setDragonBreathEnhancement(!dragonBreathEnhancement)
-                    }
+                    onChange={(e) => {
+                      const newValue = e.target.checked;
+                      setDragonBreathEnhancement(newValue);
+                      localCurrentSectionObj.setDragonBreathEnhancement(
+                        newValue
+                      );
+                    }}
                     style={{
                       backgroundColor: dragonBreathEnhancement
                         ? "#eb631c"
