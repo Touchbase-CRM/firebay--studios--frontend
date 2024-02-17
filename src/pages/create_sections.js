@@ -143,25 +143,25 @@ function CreateSections() {
       const lastDequeuedItemObject = useUserInputsStore.getState();
       setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
 
-      const lastDequeuedItem =
-        lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
+      // const lastDequeuedItem =
+      //   lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
       // Update the original script string to the last dequeued item
       // setOriginalScriptString(lastDequeuedItem || "");
 
       // Split the dequeued item into words and update transformed words
-      const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
-      const newTransformedWords = {};
+      // const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
+      // const newTransformedWords = {};
 
-      newWords.forEach((word, index) => {
-        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-          newTransformedWords[index] = transformedWords[index];
-        }
-      });
+      // newWords.forEach((word, index) => {
+      //   if (ogScriptWordsArray[index] === word && transformedWords[index]) {
+      //     newTransformedWords[index] = transformedWords[index];
+      //   }
+      // });
 
       // Update the original script words array and transformed words
-      setOgScriptWordsArray(newWords);
-      setTransformedWords(newTransformedWords);
+      // setOgScriptWordsArray(newWords);
+      // setTransformedWords(newTransformedWords);
     }
   };
 

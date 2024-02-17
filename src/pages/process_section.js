@@ -52,8 +52,8 @@ function ProcessSection() {
     sectionsQueue,
     sectionsArray,
     dequeueSectionZustand,
-    ogScriptWordsArray, //holds the original script words as an array of strings.
-    setOgScriptWordsArray,
+    // ogScriptWordsArray, //holds the original script words as an array of strings.
+    // setOgScriptWordsArray,
     transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
     setTransformedWords,
     voiceId,
@@ -105,6 +105,11 @@ function ProcessSection() {
   );
   const [typedText, setTypedText] = useState(
     localCurrentSectionObj.getOriginalContent()
+  );
+  const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
+    localCurrentSectionObj.getOriginalContent()
+      ? localCurrentSectionObj.getOriginalContent().split(" ")
+      : []
   );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
