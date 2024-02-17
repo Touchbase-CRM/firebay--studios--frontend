@@ -54,8 +54,6 @@ function ProcessSection() {
     dequeueSectionZustand,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
-    setOriginalScriptString,
     transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
     setTransformedWords,
     voiceId,
@@ -104,6 +102,9 @@ function ProcessSection() {
   const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
+  );
+  const [typedText, setTypedText] = useState(
+    localCurrentSectionObj.getOriginalContent()
   );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
@@ -324,7 +325,7 @@ function ProcessSection() {
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setOriginalScriptString(updatedScript);
+    setTypedText(updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -438,7 +439,7 @@ function ProcessSection() {
         lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
       // Update the original script string to the last dequeued item
-      setOriginalScriptString(lastDequeuedItem || "");
+      setTypedText(lastDequeuedItem || "");
 
       // Split the dequeued item into words and update transformed words
       const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
@@ -511,12 +512,7 @@ function ProcessSection() {
 
   async function handleGenerateVoice() {
     console.log(currentSectionObj);
-    const isValid = validateScript(
-      originalScriptString,
-      charLimit,
-      () => {},
-      showAlert
-    );
+    const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
 
     if (!isValid) return;
     setIsGeneratingVoice(true);
@@ -804,7 +800,7 @@ function ProcessSection() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={originalScriptString}
+                  value={typedText}
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
@@ -813,7 +809,7 @@ function ProcessSection() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {originalScriptString.length}/{charLimit}
+                  {typedText.length}/{charLimit}
                 </div>
               </Form.Group>
 

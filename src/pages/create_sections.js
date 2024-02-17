@@ -147,7 +147,7 @@ function CreateSections() {
         lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
       // Update the original script string to the last dequeued item
-      setOriginalScriptString(lastDequeuedItem || "");
+      // setOriginalScriptString(lastDequeuedItem || "");
 
       // Split the dequeued item into words and update transformed words
       const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
