@@ -53,7 +53,6 @@ function ProcessSection() {
     sectionsArray,
     dequeueSectionZustand,
     adLength,
-
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
@@ -107,18 +106,20 @@ function ProcessSection() {
     localCurrentSectionObj.getGeneratedVoiceUrl()
   );
 
-  const adSecondsConsumed = sectionsArray
+  const previousSectionsTotalDuration = sectionsArray
     .slice(0, currentSectionObj.getIndex() + 1)
     .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
 
   const [progressBarPercentage, setProgressBarPercentage] = useState(
-    ((adSecondsConsumed + localCurrentSectionObj.getSectionDurationSeconds()) /
+    ((previousSectionsTotalDuration +
+      localCurrentSectionObj.getSectionDurationSeconds()) /
       adLength) *
       100
   );
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
-      (adSecondsConsumed + localCurrentSectionObj.getSectionDurationSeconds())
+      (previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds())
   );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
@@ -449,10 +450,6 @@ function ProcessSection() {
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {
-      // setAdSecondsConsumed(
-      //   adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
-      // );
-
       console.log("Queue not empty, continue processing");
       dequeueSectionZustand(); // Remove the first item from the queue
       const lastDequeuedItemObject = useUserInputsStore.getState();
@@ -575,9 +572,13 @@ function ProcessSection() {
         const newDuration = audio.duration;
         localCurrentSectionObj.setSectionDurationSeconds(newDuration);
         setProgressBarPercentage(
-          Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+          Math.round(
+            ((previousSectionsTotalDuration + newDuration) / adLength) * 100
+          )
         );
-        setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
+        setSecondsYouHaveLeft(
+          adLength - previousSectionsTotalDuration - newDuration
+        );
       });
 
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
