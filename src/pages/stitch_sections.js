@@ -344,26 +344,7 @@ function StitchSections() {
   };
 
   const handleEditSection = (section) => {
-    console.log(section);
-    console.log("PRevious sectionObj", currentSectionObj);
     setCurrentSectionObjZustand(section);
-    // Update the original script string to the last dequeued item
-    setOriginalScriptString(section.getOriginalContent());
-
-    // Split the dequeued item into words and update transformed words
-    const newWords = section.getCurrentContent().split(" ");
-    const newTransformedWords = {};
-
-    newWords.forEach((word, index) => {
-      if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-        newTransformedWords[index] = transformedWords[index];
-      }
-    });
-
-    // Update the original script words array and transformed words
-    setOgScriptWordsArray(newWords);
-    setTransformedWords(newTransformedWords);
-    console.log("Updated sectionObj", currentSectionObj);
     router.push("/process_section");
   };
 

@@ -105,16 +105,17 @@ function ProcessSection() {
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState(
     localCurrentSectionObj.getGeneratedVoiceUrl()
   );
-
   const previousSectionsTotalDuration = sectionsArray
-    .slice(0, currentSectionObj.getIndex() + 1)
+    .slice(0, currentSectionObj.getIndex())
     .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
 
   const [progressBarPercentage, setProgressBarPercentage] = useState(
-    ((previousSectionsTotalDuration +
-      localCurrentSectionObj.getSectionDurationSeconds()) /
-      adLength) *
-      100
+    Math.round(
+      ((previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds()) /
+        adLength) *
+        100
+    )
   );
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
