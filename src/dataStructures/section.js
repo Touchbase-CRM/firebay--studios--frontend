@@ -15,7 +15,17 @@ export class Section {
     this.sectionDurationSeconds = sectionDurationSeconds;
     this.endOfSectionPauseDurationSeconds = 0.2;
     this.speechRate = "Normal";
+    this.modelId = "eleven_monolingual_v1";
   }
+  // setter for model id
+  setModelId(newModelId) {
+    this.modelId = newModelId;
+  }
+  // getter for model id
+  getModelId() {
+    return this.modelId;
+  }
+
   setSpeechRate(newSpeechRate) {
     const allowedRates = ["Normal", "1.25X", "1.5X", "1.75X", "2X"];
     if (allowedRates.includes(newSpeechRate)) {
