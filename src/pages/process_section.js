@@ -52,10 +52,6 @@ function ProcessSection() {
     sectionsQueue,
     sectionsArray,
     dequeueSectionZustand,
-    // ogScriptWordsArray, //holds the original script words as an array of strings.
-    // setOgScriptWordsArray,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
-    setTransformedWords,
     voiceId,
     setVoiceId,
     voiceName,
@@ -111,6 +107,7 @@ function ProcessSection() {
       ? localCurrentSectionObj.getOriginalContent().split(" ")
       : []
   );
+  const [transformedWords, setTransformedWords] = useState({});
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
@@ -448,17 +445,10 @@ function ProcessSection() {
 
       // Split the dequeued item into words and update transformed words
       const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
-      const newTransformedWords = {};
-
-      newWords.forEach((word, index) => {
-        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-          newTransformedWords[index] = transformedWords[index];
-        }
-      });
 
       // Update the original script words array and transformed words
       setOgScriptWordsArray(newWords);
-      setTransformedWords(newTransformedWords);
+      setTransformedWords({}); // Reset the transformed words
     }
   };
 
