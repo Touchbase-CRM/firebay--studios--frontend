@@ -567,6 +567,7 @@ function ProcessSection() {
       }
 
       setGeneratedVoiceUrl(audioUrl);
+      localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
 
       const audio = new Audio(audioUrl);
       audio.addEventListener("loadedmetadata", () => {
