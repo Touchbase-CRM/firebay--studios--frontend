@@ -24,6 +24,7 @@ export const defaultState = {
   stitchedAudioPyroHistoryItemId: "",
   modelId: "eleven_multilingual_v2",
   currentSectionObj: new Section(null, "", "", null, 0),
+  currentSectionObjIdx: null,
   tempSectionObjHolder: new Section(null, "", "", null, 0),
   numSectionsIdentified: 0,
   lastEditedSectionIdx: null,
