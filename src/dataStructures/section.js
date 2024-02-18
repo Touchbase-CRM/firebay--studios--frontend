@@ -15,7 +15,66 @@ export class Section {
     this.sectionDurationSeconds = sectionDurationSeconds;
     this.endOfSectionPauseDurationSeconds = 0.2;
     this.speechRate = "Normal";
+    this.modelId = "eleven_multilingual_v2";
+    this.voiceId = "6wLJ4Wm2OxvAvetEUBCS";
+    this.voiceName = "Charley";
+    this.voicePreviewFilename = "male/charley.mp3";
+    this.dragonBreathEnhancement = false;
+    this.generatedVoiceUrl = "";
   }
+  // setter for generated voice url
+  setGeneratedVoiceUrl(newGeneratedVoiceUrl) {
+    this.generatedVoiceUrl = newGeneratedVoiceUrl;
+  }
+  // getter for generated voice url
+  getGeneratedVoiceUrl() {
+    return this.generatedVoiceUrl;
+  }
+
+  // setter for voice preview filename
+  setVoicePreviewFilename(newVoicePreviewFilename) {
+    this.voicePreviewFilename = newVoicePreviewFilename;
+  }
+  // getter for voice preview filename
+  getVoicePreviewFilename() {
+    return this.voicePreviewFilename;
+  }
+
+  // setter for dragon breath enhancement
+  setDragonBreathEnhancement(newDragonBreathEnhancement) {
+    this.dragonBreathEnhancement = newDragonBreathEnhancement;
+  }
+  // getter for dragon breath enhancement
+  getDragonBreathEnhancement() {
+    return this.dragonBreathEnhancement;
+  }
+
+  // setter for voice name
+  setVoiceName(newVoiceName) {
+    this.voiceName = newVoiceName;
+  }
+  // getter for voice name
+  getVoiceName() {
+    return this.voiceName;
+  }
+
+  // setter for voice id
+  setVoiceId(newVoiceId) {
+    this.voiceId = newVoiceId;
+  }
+  // getter for voice id
+  getVoiceId() {
+    return this.voiceId;
+  }
+  // setter for model id
+  setModelId(newModelId) {
+    this.modelId = newModelId;
+  }
+  // getter for model id
+  getModelId() {
+    return this.modelId;
+  }
+
   setSpeechRate(newSpeechRate) {
     const allowedRates = ["Normal", "1.25X", "1.5X", "1.75X", "2X"];
     if (allowedRates.includes(newSpeechRate)) {
@@ -64,6 +123,11 @@ export class Section {
   // Getter for current character count
   getCurrentCharCount() {
     return this.currentCharCount;
+  }
+
+  //setter for index
+  setIndex(newIndex) {
+    this.index = newIndex;
   }
 
   // Getter for index

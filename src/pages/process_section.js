@@ -50,31 +50,18 @@ function ProcessSection() {
   // Zustand store hooks
   const {
     sectionsQueue,
+    sectionsArray,
     dequeueSectionZustand,
-    ogScriptWordsArray, //holds the original script words as an array of strings.
-    setOgScriptWordsArray,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
-    setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
-    setTransformedWords,
-    voiceId,
-    setVoiceId,
-    voiceName,
-    setVoiceName,
-    voicePreviewFilename,
-    setVoicePreviewFilename,
     adLength,
-    adSecondsConsumed,
-    setAdSecondsConsumed,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
-    modelId,
-    setModelId,
     currentSectionObj,
     addToSectionArrayZustand,
     setCurrentSectionObjZustand,
+    setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
+    lastEditedSectionIdx,
   } = useUserInputsStore();
 
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -82,12 +69,7 @@ function ProcessSection() {
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] =
     useState(currentSectionObj);
-  const [progressBarPercentage, setProgressBarPercentage] = useState(
-    (adSecondsConsumed / adLength) * 100
-  );
-  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
-    adLength - adSecondsConsumed
-  );
+
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -99,9 +81,46 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(false);
+  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(
+    localCurrentSectionObj.getDragonBreathEnhancement()
+  );
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
+  );
+  const [typedText, setTypedText] = useState(
+    localCurrentSectionObj.getOriginalContent()
+  );
+  const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
+    localCurrentSectionObj.getOriginalContent()
+      ? localCurrentSectionObj.getOriginalContent().split(" ")
+      : []
+  );
+  const [transformedWords, setTransformedWords] = useState({});
+  const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
+  const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
+  const [voiceName, setVoiceName] = useState(
+    localCurrentSectionObj.getVoiceName()
+  );
+  const [voicePreviewFilename, setVoicePreviewFilename] = useState(
+    localCurrentSectionObj.getVoicePreviewFilename()
+  );
+
+  const previousSectionsTotalDuration = sectionsArray
+    .slice(0, currentSectionObj.getIndex())
+    .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+
+  const [progressBarPercentage, setProgressBarPercentage] = useState(
+    Math.round(
+      ((previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds()) /
+        adLength) *
+        100
+    )
+  );
+  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+    adLength -
+      (previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds())
   );
 
   var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
@@ -131,6 +150,9 @@ function ProcessSection() {
   useEffect(() => {
     // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj);
+    setDragonBreathEnhancement(currentSectionObj.getDragonBreathEnhancement());
+    setSpeechRate(currentSectionObj.getSpeechRate());
+    setVoiceId(currentSectionObj.getVoiceId());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -322,7 +344,7 @@ function ProcessSection() {
 
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
-    setOriginalScriptString(updatedScript);
+    setTypedText(updatedScript);
     const newWords = updatedScript.split(" ");
     const newTransformedWords = {};
 
@@ -376,6 +398,12 @@ function ProcessSection() {
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
       setModelId(metadata.newVoiceModelId);
+      localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
+      localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
+      localCurrentSectionObj.setVoiceName(selectedVoiceName);
+      localCurrentSectionObj.setVoicePreviewFilename(
+        metadata.newVoicePreviewFilename
+      );
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
@@ -413,16 +441,16 @@ function ProcessSection() {
       dragonsBreathMode: dragonBreathEnhancement,
       voiceId: voiceId,
     });
-
-    addToSectionArrayZustand(localCurrentSectionObj);
+    const index = localCurrentSectionObj.getIndex();
+    if (index >= 0 && index < sectionsArray.length) {
+      setTempSectionObjHolder(localCurrentSectionObj);
+    } else {
+      addToSectionArrayZustand(localCurrentSectionObj);
+    }
 
     if (sectionsQueue.size() === 0) {
       router.push("/stitch_sections");
     } else {
-      setAdSecondsConsumed(
-        adSecondsConsumed + currentSectionObj.getSectionDurationSeconds()
-      );
-
       console.log("Queue not empty, continue processing");
       dequeueSectionZustand(); // Remove the first item from the queue
       const lastDequeuedItemObject = useUserInputsStore.getState();
@@ -432,21 +460,14 @@ function ProcessSection() {
         lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
 
       // Update the original script string to the last dequeued item
-      setOriginalScriptString(lastDequeuedItem || "");
+      setTypedText(lastDequeuedItem || "");
 
       // Split the dequeued item into words and update transformed words
       const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
-      const newTransformedWords = {};
-
-      newWords.forEach((word, index) => {
-        if (ogScriptWordsArray[index] === word && transformedWords[index]) {
-          newTransformedWords[index] = transformedWords[index];
-        }
-      });
 
       // Update the original script words array and transformed words
       setOgScriptWordsArray(newWords);
-      setTransformedWords(newTransformedWords);
+      setTransformedWords({}); // Reset the transformed words
     }
   };
 
@@ -504,13 +525,7 @@ function ProcessSection() {
   }
 
   async function handleGenerateVoice() {
-    console.log(currentSectionObj);
-    const isValid = validateScript(
-      originalScriptString,
-      charLimit,
-      () => {},
-      showAlert
-    );
+    const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
 
     if (!isValid) return;
     setIsGeneratingVoice(true);
@@ -558,9 +573,13 @@ function ProcessSection() {
         const newDuration = audio.duration;
         localCurrentSectionObj.setSectionDurationSeconds(newDuration);
         setProgressBarPercentage(
-          Math.round(((adSecondsConsumed + newDuration) / adLength) * 100)
+          Math.round(
+            ((previousSectionsTotalDuration + newDuration) / adLength) * 100
+          )
         );
-        setSecondsYouHaveLeft(adLength - adSecondsConsumed - newDuration);
+        setSecondsYouHaveLeft(
+          adLength - previousSectionsTotalDuration - newDuration
+        );
       });
 
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
@@ -571,6 +590,14 @@ function ProcessSection() {
       setIsGeneratingVoice(false);
     }
   }
+
+  const handleDragonBreathEnhancementChange = (e) => {
+    const newValue = e.target.checked;
+
+    setDragonBreathEnhancement(newValue);
+
+    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+  };
 
   const wordCountStyle = {
     position: "absolute",
@@ -644,7 +671,7 @@ function ProcessSection() {
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
               {numSectionsIdentified}
             </Card.Title>
-            <Form>
+            <Form key={localCurrentSectionObj.getHistoryItemId()}>
               <Form.Group controlId="voice">
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
@@ -696,7 +723,7 @@ function ProcessSection() {
                 ) : (
                   <Form.Select
                     aria-label="Voice select"
-                    value={voiceName} // This should be the voice name, not the ID
+                    value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
                     onChange={handleVoiceChange}
                     style={{ color: "black" }}
                   >
@@ -725,9 +752,7 @@ function ProcessSection() {
                     role="switch"
                     id="dragonBreathEnhancementSwitch"
                     checked={dragonBreathEnhancement}
-                    onChange={() =>
-                      setDragonBreathEnhancement(!dragonBreathEnhancement)
-                    }
+                    onChange={handleDragonBreathEnhancementChange}
                     style={{
                       backgroundColor: dragonBreathEnhancement
                         ? "#eb631c"
@@ -798,7 +823,7 @@ function ProcessSection() {
                   as="textarea"
                   rows={3}
                   placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={originalScriptString}
+                  value={typedText}
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
@@ -807,7 +832,7 @@ function ProcessSection() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {originalScriptString.length}/{charLimit}
+                  {typedText.length}/{charLimit}
                 </div>
               </Form.Group>
 
@@ -896,7 +921,9 @@ function ProcessSection() {
               }}
               onClick={handleSubmit}
             >
-              Next
+              {lastEditedSectionIdx !== localCurrentSectionObj.getIndex()
+                ? "Next"
+                : "Done"}
             </Button>
           </div>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

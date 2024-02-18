@@ -25,6 +25,18 @@ export class UserInputMethods {
     this.setSectionsArray = this.setSectionsArray.bind(this);
     this.setStitchedAudioPyroHistoryItemId =
       this.setStitchedAudioPyroHistoryItemId.bind(this);
+    this.setTempSectionObjHolder = this.setTempSectionObjHolder.bind(this);
+    this.setLastEditedSectionIdx = this.setLastEditedSectionIdx.bind(this);
+  }
+
+  // setter for lastEditedSectionIdx
+  setLastEditedSectionIdx(lastEditedSectionIdx) {
+    this.set({ lastEditedSectionIdx });
+  }
+
+  //setter for tempSectionObjHolder
+  setTempSectionObjHolder(tempSectionObjHolder) {
+    this.set({ tempSectionObjHolder });
   }
 
   //stitchedAudioPyroHistoryItemId: "" set a setter for this
