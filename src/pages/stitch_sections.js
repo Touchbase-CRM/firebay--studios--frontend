@@ -571,14 +571,17 @@ function StitchSections() {
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
-                        variant="link"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSectionPreviewPlay(section);
                         }}
-                        style={{ color: "black" }}
+                        style={{
+                          backgroundColor: "#eb631c", // Orange color
+                          borderColor: "#eb631c", // Orange border
+                          color: "white", // Adjust if needed to ensure the icon is visible
+                        }}
                       >
-                        <Play color="black" />
+                        <i className="bi bi-play-circle"></i>
                       </Button>
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
@@ -587,10 +590,10 @@ function StitchSections() {
                         style={{
                           backgroundColor: "#eb631c", // Orange color
                           borderColor: "#eb631c", // Orange border
-                          color: "white", // White text color
+                          color: "white", // Adjust if needed to ensure the icon is visible
                         }}
                       >
-                        Edit
+                        <i className="bi bi-pencil-square"></i>
                       </Button>
                     </td>
                   </tr>
@@ -634,29 +637,26 @@ function StitchSections() {
             <div style={{ flex: 1, textAlign: "center" }}>
               {combinedVoiceoverUrl !== null ? (
                 <Button
-                  variant="link"
                   onClick={(e) => {
                     e.stopPropagation();
                     setForceRenderKey(Math.random().toString());
                     setNowPlayingUrl(combinedVoiceoverUrl);
                     setAudioTitle("Final Cut");
                   }}
-                  style={{ color: "white", textDecoration: "none" }}
+                  style={{
+                    backgroundColor: "#eb631c", // Orange color
+                    borderColor: "#eb631c", // Orange border
+                    color: "white", // Ensuring text and icon are visible
+                    textDecoration: "none", // Removing any underline from the link variant
+                  }}
                 >
-                  <span
-                    style={{
-                      verticalAlign: "middle",
-                      marginLeft: "8px",
-                      color: "black",
-                    }}
-                  >
-                    Replay Final Cut:
+                  <i
+                    class="bi bi-arrow-clockwise"
+                    style={{ verticalAlign: "middle" }}
+                  ></i>
+                  <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                    Replay Final Cut
                   </span>
-                  {/* Assuming Play is an icon component */}
-                  <Play
-                    color="black"
-                    style={{ verticalAlign: "middle", fontSize: "2rem" }}
-                  />
                 </Button>
               ) : null}
             </div>
