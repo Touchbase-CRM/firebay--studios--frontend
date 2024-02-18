@@ -25,7 +25,6 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
 
 function StitchSections() {
-  const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
   const auth = getAuth();
   const router = useRouter();
   const posthog = usePostHog();
@@ -38,15 +37,9 @@ function StitchSections() {
     reset: resetUserInputsStore,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
-    sectionsQueue,
     setCurrentSectionObjZustand,
-    currentSectionObj,
-    enqueueSectionZustand,
-    ogScriptWordsArray,
-    setOgScriptWordsArray,
-    transformedWords,
-    setTransformedWords,
-    setOriginalScriptString,
+    lastEditedSectionIdx,
+    setLastEditedSectionIdx,
   } = useUserInputsStore();
 
   const [audioUrl, setAudioUrl] = useState("");
@@ -70,14 +63,10 @@ function StitchSections() {
   }, [localSectionsArray]);
 
   useEffect(() => {
-    // setLocalSectionsArray(_.cloneDeep(sectionsArray));
     const index = tempSectionObjHolder.getIndex();
-    if (index !== null) {
-      // Replace the existing section of the sectionsArray with the tempSectionObjHolder using index above
+    if (index !== lastEditedSectionIdx) {
       localSectionsArray[index] = tempSectionObjHolder;
       setLocalSectionsArray(localSectionsArray);
-      // Reset tempSectionObjHolder
-      tempSectionObjHolder.setIndex(null);
     } else {
       setLocalSectionsArray(sectionsArray);
     }
@@ -349,6 +338,7 @@ function StitchSections() {
 
   const handleEditSection = (section) => {
     setCurrentSectionObjZustand(section);
+    setLastEditedSectionIdx(section.getIndex());
     router.push("/process_section");
   };
 

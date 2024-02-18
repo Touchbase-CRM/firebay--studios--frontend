@@ -26,6 +26,7 @@ export const defaultState = {
   currentSectionObj: new Section(null, "", "", null, 0),
   tempSectionObjHolder: new Section(null, "", "", null, 0),
   numSectionsIdentified: 0,
+  lastEditedSectionIdx: null,
 };
 
 export default defaultState;
