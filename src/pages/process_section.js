@@ -74,6 +74,9 @@ function ProcessSection() {
   const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
+  console.log("process section current section", currentSectionObj);
+  console.log(" localCurrentSectionObj", localCurrentSectionObj);
+
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -92,7 +95,7 @@ function ProcessSection() {
     localCurrentSectionObj.getSpeechRate()
   );
   const [typedText, setTypedText] = useState(
-    localCurrentSectionObj.getOriginalContent()
+    localCurrentSectionObj.getCurrentContent()
   );
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
     localCurrentSectionObj.getOriginalContent()

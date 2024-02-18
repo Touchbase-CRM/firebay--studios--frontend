@@ -43,6 +43,8 @@ function StitchSections() {
     setLastEditedSectionIdx,
   } = useUserInputsStore();
 
+  console.log("sectionsArray", sectionsArray);
+
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -50,7 +52,7 @@ function StitchSections() {
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
-  const [localSectionsArray, setLocalSectionsArray] = useState([]);
+  const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
@@ -68,9 +70,11 @@ function StitchSections() {
     if (index !== lastEditedSectionIdx) {
       localSectionsArray[index] = tempSectionObjHolder;
       setLocalSectionsArray(localSectionsArray);
-    } else {
-      setLocalSectionsArray(sectionsArray);
+      setSectionsArray(localSectionsArray);
     }
+    // else {
+    //   setLocalSectionsArray(sectionsArray);
+    // }
   }, []);
 
   useEffect(() => {
@@ -338,6 +342,7 @@ function StitchSections() {
   };
 
   const handleEditSection = (section) => {
+    console.log("Editing section at stitch sections:", section);
     setCurrentSectionObjZustand(section);
     setLastEditedSectionIdx(section.getIndex());
     if (generatedVoiceUrl) {
