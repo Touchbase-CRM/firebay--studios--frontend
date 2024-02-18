@@ -61,6 +61,7 @@ function ProcessSection() {
     reset: resetUserInputsStore,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
+    lastEditedSectionIdx,
   } = useUserInputsStore();
 
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -920,7 +921,9 @@ function ProcessSection() {
               }}
               onClick={handleSubmit}
             >
-              Next
+              {lastEditedSectionIdx !== localCurrentSectionObj.getIndex()
+                ? "Next"
+                : "Done"}
             </Button>
           </div>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
