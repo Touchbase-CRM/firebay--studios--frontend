@@ -50,7 +50,9 @@ function ProcessSection() {
   // Zustand store hooks
   const {
     sectionsQueue,
+    setSectionsQueue,
     sectionsArray,
+    setSectionsArray,
     dequeueSectionZustand,
     adLength,
     currentSectionObj,
@@ -69,6 +71,8 @@ function ProcessSection() {
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] =
     useState(currentSectionObj);
+  const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
+  const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
@@ -105,7 +109,7 @@ function ProcessSection() {
     localCurrentSectionObj.getVoicePreviewFilename()
   );
 
-  const previousSectionsTotalDuration = sectionsArray
+  const previousSectionsTotalDuration = localSectionsArray
     .slice(0, currentSectionObj.getIndex())
     .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
 
@@ -156,7 +160,7 @@ function ProcessSection() {
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
-    if (isFormSubmitted && sectionsQueue.size() === 0) {
+    if (isFormSubmitted && localSectionsQueue.size() === 0) {
       // Check if the queue is empty
 
       router.push("/stitch_sections");
@@ -442,28 +446,33 @@ function ProcessSection() {
       voiceId: voiceId,
     });
     const index = localCurrentSectionObj.getIndex();
-    if (index >= 0 && index < sectionsArray.length) {
+    if (index >= 0 && index < localSectionsArray.length) {
       setTempSectionObjHolder(localCurrentSectionObj);
     } else {
-      addToSectionArrayZustand(localCurrentSectionObj);
+      // addToSectionArrayZustand(localCurrentSectionObj);
+      localSectionsArray[index] = localCurrentSectionObj;
+      setSectionsArray(localSectionsArray);
     }
 
-    if (sectionsQueue.size() === 0) {
+    if (localSectionsQueue.size() === 0) {
+      setSectionsQueue(localSectionsQueue);
       router.push("/stitch_sections");
     } else {
       console.log("Queue not empty, continue processing");
-      dequeueSectionZustand(); // Remove the first item from the queue
-      const lastDequeuedItemObject = useUserInputsStore.getState();
-      setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
+      const dequeuedSectionIdx = localSectionsQueue.dequeue();
+      const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
+      setCurrentSectionObjZustand(dequeuedSection);
+      setSectionsQueue(localSectionsQueue);
 
-      const lastDequeuedItem =
-        lastDequeuedItemObject.lastDequeuedItem.getCurrentContent();
+      const currentSectionContent = dequeuedSection.getCurrentContent();
 
       // Update the original script string to the last dequeued item
-      setTypedText(lastDequeuedItem || "");
+      setTypedText(currentSectionContent || "");
 
       // Split the dequeued item into words and update transformed words
-      const newWords = lastDequeuedItem ? lastDequeuedItem.split(" ") : [];
+      const newWords = currentSectionContent
+        ? currentSectionContent.split(" ")
+        : [];
 
       // Update the original script words array and transformed words
       setOgScriptWordsArray(newWords);
