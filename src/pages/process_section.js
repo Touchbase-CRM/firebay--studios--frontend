@@ -59,6 +59,8 @@ function ProcessSection() {
     setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
   } = useUserInputsStore();
 
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -102,9 +104,6 @@ function ProcessSection() {
     localCurrentSectionObj.getVoicePreviewFilename()
   );
 
-  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState(
-    localCurrentSectionObj.getGeneratedVoiceUrl()
-  );
   const previousSectionsTotalDuration = sectionsArray
     .slice(0, currentSectionObj.getIndex())
     .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
@@ -567,7 +566,6 @@ function ProcessSection() {
       }
 
       setGeneratedVoiceUrl(audioUrl);
-      localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
 
       const audio = new Audio(audioUrl);
       audio.addEventListener("loadedmetadata", () => {

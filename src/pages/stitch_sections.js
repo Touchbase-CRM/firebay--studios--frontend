@@ -35,6 +35,7 @@ function StitchSections() {
     tempSectionObjHolder,
     adLength,
     reset: resetUserInputsStore,
+    generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
     setCurrentSectionObjZustand,
@@ -339,6 +340,10 @@ function StitchSections() {
   const handleEditSection = (section) => {
     setCurrentSectionObjZustand(section);
     setLastEditedSectionIdx(section.getIndex());
+    if (generatedVoiceUrl) {
+      URL.revokeObjectURL(generatedVoiceUrl);
+      setGeneratedVoiceUrl("");
+    }
     router.push("/process_section");
   };
 
