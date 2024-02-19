@@ -196,11 +196,12 @@ function ProcessSection() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
   const validateScript = (script, charLimit, onSuccess, onFailure) => {
-    if (script.length > charLimit) {
+    const scriptWOApostrophe = script.replace(/'/g, "");
+    if (scriptWOApostrophe.replace(/'/g, "").length > charLimit) {
       onFailure("error", "Oops...", "You have too many characters!");
       return false; // Indicate failure
     }
-    if (script.length < 1) {
+    if (scriptWOApostrophe.length < 1) {
       onFailure("error", "Oops...", "You cannot have an empty script!");
       return false; // Indicate failure
     }
@@ -844,7 +845,7 @@ function ProcessSection() {
                   }}
                 />
                 <div style={wordCountStyle}>
-                  {typedText.length}/{charLimit}
+                  {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
 

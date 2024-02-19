@@ -102,7 +102,9 @@ export class Section {
 
   // Private method to calculate character count
   #calculateCharCount(content) {
-    return content.trim().length;
+    // Replace all apostrophes with an empty string before calculating the length
+    const contentWithoutApostrophes = content.replace(/'/g, "");
+    return contentWithoutApostrophes.trim().length;
   }
 
   // Getter for current content
