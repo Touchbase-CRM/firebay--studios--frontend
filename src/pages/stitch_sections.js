@@ -43,8 +43,6 @@ function StitchSections() {
     setLastEditedSectionIdx,
   } = useUserInputsStore();
 
-  console.log("sectionsArray", sectionsArray);
-
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -342,7 +340,6 @@ function StitchSections() {
   };
 
   const handleEditSection = (section) => {
-    console.log("Editing section at stitch sections:", section);
     setCurrentSectionObjZustand(section);
     setLastEditedSectionIdx(section.getIndex());
     if (generatedVoiceUrl) {

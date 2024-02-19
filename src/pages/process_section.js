@@ -74,9 +74,6 @@ function ProcessSection() {
   const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
-  console.log("process section current section", currentSectionObj);
-  console.log(" localCurrentSectionObj", localCurrentSectionObj);
-
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -102,7 +99,9 @@ function ProcessSection() {
       ? localCurrentSectionObj.getOriginalContent().split(" ")
       : []
   );
-  const [transformedWords, setTransformedWords] = useState({});
+  const [transformedWords, setTransformedWords] = useState(
+    localCurrentSectionObj.getCurrentTransformations()
+  );
   const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
   const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
   const [voiceName, setVoiceName] = useState(
@@ -449,6 +448,7 @@ function ProcessSection() {
       dragonsBreathMode: dragonBreathEnhancement,
       voiceId: voiceId,
     });
+    localCurrentSectionObj.setCurrentTransformations(transformedWords);
     const index = localCurrentSectionObj.getIndex();
     if (index >= 0 && index < localSectionsArray.length) {
       setTempSectionObjHolder(localCurrentSectionObj);

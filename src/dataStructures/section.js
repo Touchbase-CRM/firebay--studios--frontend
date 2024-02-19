@@ -9,6 +9,7 @@ export class Section {
     this.index = index;
     this.originalContent = originalContent;
     this.currentContent = currentContent;
+    this.currentTransformations = {};
     this.historyItemId = historyItemId;
     this.originalCharCount = this.#calculateCharCount(originalContent);
     this.currentCharCount = this.#calculateCharCount(currentContent);
@@ -22,6 +23,16 @@ export class Section {
     this.dragonBreathEnhancement = false;
     this.generatedVoiceUrl = "";
   }
+
+  // setter for current transformations
+  setCurrentTransformations(newCurrentTransformations) {
+    this.currentTransformations = newCurrentTransformations;
+  }
+  // getter for current transformations
+  getCurrentTransformations() {
+    return this.currentTransformations;
+  }
+
   // setter for generated voice url
   setGeneratedVoiceUrl(newGeneratedVoiceUrl) {
     this.generatedVoiceUrl = newGeneratedVoiceUrl;
