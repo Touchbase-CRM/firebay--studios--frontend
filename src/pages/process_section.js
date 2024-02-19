@@ -860,7 +860,7 @@ function ProcessSection() {
                   marginTop: "10px",
                 }}
               >
-                {ogScriptWordsArray.map((word, index) => (
+                {typedText.split(" ").map((word, index) => (
                   <span
                     key={index}
                     onClick={(e) => handleLeftClick(e, index)}
