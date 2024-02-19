@@ -9,7 +9,8 @@ export class Section {
     this.index = index;
     this.originalContent = originalContent;
     this.currentContent = currentContent;
-    this.currentTransformations = {};
+    this.currentTransformations = {}; // transformed words with indexes
+    this.currentWords = originalContent.split(" "); // the raw words of the transformed words above.
     this.historyItemId = historyItemId;
     this.originalCharCount = this.#calculateCharCount(originalContent);
     this.currentCharCount = this.#calculateCharCount(currentContent);
@@ -22,6 +23,15 @@ export class Section {
     this.voicePreviewFilename = "male/charley.mp3";
     this.dragonBreathEnhancement = false;
     this.generatedVoiceUrl = "";
+  }
+
+  //setter for currentWords
+  setCurrentWords(newCurrentWords) {
+    this.currentWords = newCurrentWords;
+  }
+  //getter for currentWords
+  getCurrentWords() {
+    return this.currentWords;
   }
 
   // setter for current transformations

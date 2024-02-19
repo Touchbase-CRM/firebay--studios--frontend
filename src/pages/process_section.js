@@ -91,14 +91,13 @@ function ProcessSection() {
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
   );
-  const [typedText, setTypedText] = useState(
-    localCurrentSectionObj.getCurrentContent()
-  );
+
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
     localCurrentSectionObj.getOriginalContent()
-      ? localCurrentSectionObj.getOriginalContent().split(" ")
+      ? localCurrentSectionObj.getCurrentWords()
       : []
   );
+  const [typedText, setTypedText] = useState(ogScriptWordsArray.join(" "));
   const [transformedWords, setTransformedWords] = useState(
     localCurrentSectionObj.getCurrentTransformations()
   );
@@ -449,6 +448,7 @@ function ProcessSection() {
       voiceId: voiceId,
     });
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
+    localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
     if (index >= 0 && index < localSectionsArray.length) {
       setTempSectionObjHolder(localCurrentSectionObj);
@@ -501,6 +501,9 @@ function ProcessSection() {
     return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
+  };
+  const getFinalScriptWOTransformations = () => {
+    return ogScriptWordsArray.join(" ");
   };
 
   async function generateVoiceWithCustomPreprocess(
