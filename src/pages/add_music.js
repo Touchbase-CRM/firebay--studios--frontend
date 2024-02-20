@@ -76,7 +76,7 @@ function AddMusic() {
     Math.round(musicVol * 100)
   );
 
-  const goBack = () => {
+  const handleGoBack = () => {
     router.back();
   };
 
@@ -456,7 +456,7 @@ function AddMusic() {
                 width="30px"
                 height="30px"
                 backgroundColor="#eb631c"
-                onClick={goBack} // Pass the onClick method directly
+                onClick={handleGoBack} // Pass the onClick method directly
               />
             </div>
             <h2

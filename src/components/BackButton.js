@@ -5,16 +5,17 @@ const BackButton = ({
   height = "50px",
   backgroundColor = "#eb631c",
   iconSize = "20px", // You can pass iconSize as a prop if you want it to be adjustable
+  onClick,
 }) => {
   const router = useRouter();
 
-  const goBack = () => {
+  const defaultClickBehavior = () => {
     router.back();
   };
 
   return (
     <button
-      onClick={goBack}
+      onClick={onClick || defaultClickBehavior}
       style={{
         width: width,
         height: height,

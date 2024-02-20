@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
 
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import BackButton from "@/components/BackButton";
 import useUserInputsStore from "../store/userInputs";
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -615,6 +616,11 @@ function ProcessSection() {
     localCurrentSectionObj.setDragonBreathEnhancement(newValue);
   };
 
+  const handleGoBack = () => {
+    // router.back();
+    console.log("going back");
+  };
+
   const wordCountStyle = {
     position: "absolute",
     bottom: "10px",
@@ -681,9 +687,25 @@ function ProcessSection() {
               color: "black",
               marginTop: "10px",
               marginBottom: "10px",
+              height: "180px",
             }}
           >
-            <Card.Title>
+            <div
+              style={{
+                position: "absolute", // Absolutely position the BackButton
+                top: "10px", // Adjust as needed
+                left: "10px", // Adjust as needed
+                marginBottom: "20px",
+              }}
+            >
+              <BackButton
+                width="30px"
+                height="30px"
+                backgroundColor="#eb631c"
+                onClick={handleGoBack} // Pass the onClick method directly
+              />
+            </div>
+            <Card.Title style={{ marginTop: "20px" }}>
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
               {numSectionsIdentified}
             </Card.Title>
