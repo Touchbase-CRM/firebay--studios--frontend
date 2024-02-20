@@ -1,6 +1,7 @@
 // src/store/defaultState.js
 import { Queue } from "../dataStructures/queue";
 import { Section } from "../dataStructures/section";
+import { Stack } from "../dataStructures/stack";
 
 export const defaultState = {
   // create ad page defaults
@@ -8,6 +9,7 @@ export const defaultState = {
   originalScriptString: "", // Original script as a string
   transformedWords: {}, // Object for transformed words
   sectionsQueue: new Queue(), // Queue for sections
+  sectionsStack: new Stack(), // Stack for sections
   sectionsArray: [], // Array for section objects
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
