@@ -36,6 +36,7 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
+import { Stack } from "../dataStructures/stack";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -76,6 +77,8 @@ function ProcessSection() {
     useState(currentSectionObj);
   const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [localStack, setLocalStack] = useState(() => new Stack());
+  const syncStackWithGlobal = useUserInputsStore((state) => state.setStack);
 
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
@@ -133,6 +136,58 @@ function ProcessSection() {
 
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+
+  // On component mount, initialize the local stack with the global stack's items
+  useEffect(() => {
+    const globalStack = useUserInputsStore.getState().sectionsStack;
+    const newStack = new Stack();
+    newStack.items = [...globalStack.items];
+    setLocalStack(newStack);
+  }, []);
+
+  useEffect(() => {
+    if (localStack.isEmpty()) return;
+    const lastIdx = localStack.pop();
+    const newCurrentSectionObj = sectionsArray[lastIdx];
+    //@TODO: Apply dry to consolidate this into a function.
+    setCurrentSectionObjZustand(newCurrentSectionObj);
+    setDragonBreathEnhancement(
+      newCurrentSectionObj.getDragonBreathEnhancement()
+    );
+    setSpeechRate(newCurrentSectionObj.getSpeechRate());
+    setVoiceId(newCurrentSectionObj.getVoiceId());
+    setVoiceName(newCurrentSectionObj.getVoiceName());
+    setVoicePreviewFilename(newCurrentSectionObj.getVoicePreviewFilename());
+    setModelId(newCurrentSectionObj.getModelId());
+    setTypedText(newCurrentSectionObj.getOriginalContent());
+    setTransformedWords(newCurrentSectionObj.getCurrentTransformations());
+    setOgScriptWordsArray(newCurrentSectionObj.getCurrentWords());
+    setProgressBarPercentage(
+      Math.round(
+        ((previousSectionsTotalDuration +
+          newCurrentSectionObj.getSectionDurationSeconds()) /
+          adLength) *
+          100
+      )
+    );
+    setSecondsYouHaveLeft(
+      adLength -
+        (previousSectionsTotalDuration +
+          newCurrentSectionObj.getSectionDurationSeconds())
+    );
+  }, [localStack]);
+
+  const localPushData = (newData) => {
+    localStack.push(newData);
+    // Trigger state update with a new reference to ensure re-render
+    setLocalStack(localStack.clone());
+  };
+
+  const localPopData = () => {
+    localStack.pop();
+    // Trigger state update with a new reference to ensure re-render
+    setLocalStack(localStack.clone());
+  };
 
   useEffect(() => {
     // prevent back button
@@ -621,10 +676,12 @@ function ProcessSection() {
   const handleGoBack = () => {
     console.log("going back");
     const currentSectionIdx = localCurrentSectionObj.getIndex();
-    sectionsStack.push(currentSectionIdx);
-    sectionsStack.push(currentSectionIdx - 1);
-    setLocalCurrentSectionObj(localSectionsArray[currentSectionIdx]);
-    setCurrentSectionObjZustand(localCurrentSectionObj);
+    // sectionsStack.push(currentSectionIdx);
+    localPushData(currentSectionIdx);
+    localPushData(currentSectionIdx - 1);
+    // sectionsStack.push(currentSectionIdx - 1);
+    // setLocalCurrentSectionObj(localSectionsArray[currentSectionIdx - 1]);
+    // setCurrentSectionObjZustand(localCurrentSectionObj);
     // router.push("/process_section");
   };
 
