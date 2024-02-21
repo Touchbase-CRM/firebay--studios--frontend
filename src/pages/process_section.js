@@ -79,7 +79,6 @@ function ProcessSection() {
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore((state) => state.setStack);
-
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -184,9 +183,10 @@ function ProcessSection() {
   };
 
   const localPopData = () => {
-    localStack.pop();
+    let removedData = localStack.pop();
     // Trigger state update with a new reference to ensure re-render
     setLocalStack(localStack.clone());
+    return removedData;
   };
 
   useEffect(() => {
@@ -491,6 +491,10 @@ function ProcessSection() {
     }
   };
 
+  const syncLocalStackWithGlobal = () => {
+    syncStackWithGlobal(localStack);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!localCurrentSectionObj.getHistoryItemId()) {
@@ -508,37 +512,49 @@ function ProcessSection() {
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
-    if (index >= 0 && index < localSectionsArray.length) {
-      setTempSectionObjHolder(localCurrentSectionObj);
-    } else {
-      // addToSectionArrayZustand(localCurrentSectionObj);
+
+    if (localStack.size() > 0) {
+      // save the section we are working on
       localSectionsArray[index] = localCurrentSectionObj;
-      setSectionsArray(localSectionsArray);
-    }
+      setLocalSectionsArray(localSectionsArray);
 
-    if (localSectionsQueue.size() === 0) {
-      setSectionsQueue(localSectionsQueue);
-      router.push("/stitch_sections");
+      // load the next section
+      let topIdxOnStack = localPopData();
+      setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
+      syncLocalStackWithGlobal;
     } else {
-      console.log("Queue not empty, continue processing");
-      const dequeuedSectionIdx = localSectionsQueue.dequeue();
-      const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
-      setCurrentSectionObjZustand(dequeuedSection);
-      setSectionsQueue(localSectionsQueue);
+      if (index >= 0 && index < localSectionsArray.length) {
+        setTempSectionObjHolder(localCurrentSectionObj);
+      } else {
+        // addToSectionArrayZustand(localCurrentSectionObj);
+        localSectionsArray[index] = localCurrentSectionObj;
+        setSectionsArray(localSectionsArray);
+      }
 
-      const currentSectionContent = dequeuedSection.getCurrentContent();
+      if (localSectionsQueue.size() === 0) {
+        setSectionsQueue(localSectionsQueue);
+        router.push("/stitch_sections");
+      } else {
+        console.log("Queue not empty, continue processing");
+        const dequeuedSectionIdx = localSectionsQueue.dequeue();
+        const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
+        setCurrentSectionObjZustand(dequeuedSection);
+        setSectionsQueue(localSectionsQueue);
 
-      // Update the original script string to the last dequeued item
-      setTypedText(currentSectionContent || "");
+        const currentSectionContent = dequeuedSection.getCurrentContent();
 
-      // Split the dequeued item into words and update transformed words
-      const newWords = currentSectionContent
-        ? currentSectionContent.split(" ")
-        : [];
+        // Update the original script string to the last dequeued item
+        setTypedText(currentSectionContent || "");
 
-      // Update the original script words array and transformed words
-      setOgScriptWordsArray(newWords);
-      setTransformedWords({}); // Reset the transformed words
+        // Split the dequeued item into words and update transformed words
+        const newWords = currentSectionContent
+          ? currentSectionContent.split(" ")
+          : [];
+
+        // Update the original script words array and transformed words
+        setOgScriptWordsArray(newWords);
+        setTransformedWords({}); // Reset the transformed words
+      }
     }
   };
 
