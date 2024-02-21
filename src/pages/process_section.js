@@ -692,13 +692,8 @@ function ProcessSection() {
   const handleGoBack = () => {
     console.log("going back");
     const currentSectionIdx = localCurrentSectionObj.getIndex();
-    // sectionsStack.push(currentSectionIdx);
     localPushData(currentSectionIdx);
     localPushData(currentSectionIdx - 1);
-    // sectionsStack.push(currentSectionIdx - 1);
-    // setLocalCurrentSectionObj(localSectionsArray[currentSectionIdx - 1]);
-    // setCurrentSectionObjZustand(localCurrentSectionObj);
-    // router.push("/process_section");
   };
 
   const wordCountStyle = {
