@@ -114,7 +114,7 @@ function ProcessSection() {
   );
 
   const previousSectionsTotalDuration = localSectionsArray
-    .slice(0, currentSectionObj.getIndex())
+    .slice(0, localCurrentSectionObj.getIndex())
     .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
 
   const [progressBarPercentage, setProgressBarPercentage] = useState(
@@ -131,7 +131,7 @@ function ProcessSection() {
         localCurrentSectionObj.getSectionDurationSeconds())
   );
 
-  var charLimit = currentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
+  var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   useEffect(() => {
@@ -144,7 +144,7 @@ function ProcessSection() {
     const handleBackButton = async () => {
       handleLogout();
     };
-    currentSectionObj;
+    localCurrentSectionObj;
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     window.onpopstate = handleBackButton;
@@ -561,7 +561,7 @@ function ProcessSection() {
     try {
       const preprocessRequired =
         dragonBreathEnhancement ||
-        currentSectionObj.getSpeechRate() !== "Normal";
+        localCurrentSectionObj.getSpeechRate() !== "Normal";
 
       if (!preprocessRequired) {
         const result = await generateVoiceWithElevenLabsAPI(
@@ -578,7 +578,7 @@ function ProcessSection() {
           modelId,
           auth.currentUser.uid,
           dragonBreathEnhancement,
-          currentSectionObj.getSpeechRate(),
+          localCurrentSectionObj.getSpeechRate(),
           true
         );
         audioUrl = result.audioUrl;
