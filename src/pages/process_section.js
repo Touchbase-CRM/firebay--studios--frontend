@@ -52,6 +52,8 @@ function ProcessSection() {
   const {
     sectionsQueue,
     setSectionsQueue,
+    sectionsStack,
+    setSectionsStack,
     sectionsArray,
     setSectionsArray,
     dequeueSectionZustand,
@@ -617,8 +619,13 @@ function ProcessSection() {
   };
 
   const handleGoBack = () => {
-    // router.back();
     console.log("going back");
+    const currentSectionIdx = localCurrentSectionObj.getSectionIdx();
+    sectionsStack.push(currentSectionIdx);
+    sectionsStack.push(currentSectionIdx - 1);
+    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+    router.push("/process_section");
   };
 
   const wordCountStyle = {
