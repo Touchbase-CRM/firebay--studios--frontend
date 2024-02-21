@@ -778,12 +778,14 @@ function ProcessSection() {
                 marginBottom: "20px",
               }}
             >
-              <BackButton
-                width="30px"
-                height="30px"
-                backgroundColor="#eb631c"
-                onClick={handleGoBack} // Pass the onClick method directly
-              />
+              {!localStack.isEmpty() && (
+                <BackButton
+                  width="30px"
+                  height="30px"
+                  backgroundColor="#eb631c"
+                  onClick={handleGoBack} // Pass the onClick method directly
+                />
+              )}
             </div>
             <Card.Title style={{ marginTop: "20px" }}>
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
