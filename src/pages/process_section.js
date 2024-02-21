@@ -623,8 +623,8 @@ function ProcessSection() {
     const currentSectionIdx = localCurrentSectionObj.getIndex();
     sectionsStack.push(currentSectionIdx);
     sectionsStack.push(currentSectionIdx - 1);
-    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
-    setSectionsArray(localSectionsArray);
+    setLocalCurrentSectionObj(localSectionsArray[currentSectionIdx]);
+    setCurrentSectionObjZustand(localCurrentSectionObj);
     // router.push("/process_section");
   };
 
