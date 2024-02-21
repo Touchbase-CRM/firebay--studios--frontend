@@ -148,33 +148,38 @@ function ProcessSection() {
     if (localStack.isEmpty()) return;
     const lastIdx = localStack.pop();
     const newCurrentSectionObj = sectionsArray[lastIdx];
-    //@TODO: Apply dry to consolidate this into a function.
-    setCurrentSectionObjZustand(newCurrentSectionObj);
-    setDragonBreathEnhancement(
-      newCurrentSectionObj.getDragonBreathEnhancement()
+
+    // Call the utility function with the new section object
+    updateSectionDetails(newCurrentSectionObj);
+
+    // Calculate and set progress bar percentage and seconds left
+    const progressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        newCurrentSectionObj.getSectionDurationSeconds()) /
+        adLength) *
+        100
     );
-    setSpeechRate(newCurrentSectionObj.getSpeechRate());
-    setVoiceId(newCurrentSectionObj.getVoiceId());
-    setVoiceName(newCurrentSectionObj.getVoiceName());
-    setVoicePreviewFilename(newCurrentSectionObj.getVoicePreviewFilename());
-    setModelId(newCurrentSectionObj.getModelId());
-    setTypedText(newCurrentSectionObj.getOriginalContent());
-    setTransformedWords(newCurrentSectionObj.getCurrentTransformations());
-    setOgScriptWordsArray(newCurrentSectionObj.getCurrentWords());
-    setProgressBarPercentage(
-      Math.round(
-        ((previousSectionsTotalDuration +
-          newCurrentSectionObj.getSectionDurationSeconds()) /
-          adLength) *
-          100
-      )
-    );
-    setSecondsYouHaveLeft(
+    setProgressBarPercentage(progressBarPercentage);
+    const secondsLeft =
       adLength -
-        (previousSectionsTotalDuration +
-          newCurrentSectionObj.getSectionDurationSeconds())
-    );
+      (previousSectionsTotalDuration +
+        newCurrentSectionObj.getSectionDurationSeconds());
+    setSecondsYouHaveLeft(secondsLeft);
   }, [localStack]);
+
+  // Utility function to set all section details
+  function updateSectionDetails(sectionObj) {
+    setCurrentSectionObjZustand(sectionObj);
+    setDragonBreathEnhancement(sectionObj.getDragonBreathEnhancement());
+    setSpeechRate(sectionObj.getSpeechRate());
+    setVoiceId(sectionObj.getVoiceId());
+    setVoiceName(sectionObj.getVoiceName());
+    setVoicePreviewFilename(sectionObj.getVoicePreviewFilename());
+    setModelId(sectionObj.getModelId());
+    setTypedText(sectionObj.getOriginalContent());
+    setTransformedWords(sectionObj.getCurrentTransformations());
+    setOgScriptWordsArray(sectionObj.getCurrentWords());
+  }
 
   const localPushData = (newData) => {
     localStack.push(newData);
@@ -773,14 +778,14 @@ function ProcessSection() {
                 marginBottom: "20px",
               }}
             >
-              {!localStack.isEmpty() && (
+              {
                 <BackButton
                   width="30px"
                   height="30px"
                   backgroundColor="#eb631c"
                   onClick={handleGoBack} // Pass the onClick method directly
                 />
-              )}
+              }
             </div>
             <Card.Title style={{ marginTop: "20px" }}>
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
