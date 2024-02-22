@@ -25,6 +25,34 @@ export class Section {
     this.generatedVoiceUrl = "";
   }
 
+  clone() {
+    // Create a new instance with basic properties set via constructor
+    const cloned = new Section(
+      this.index,
+      this.originalContent,
+      this.currentContent,
+      this.historyItemId,
+      this.sectionDurationSeconds
+    );
+
+    // Use setters for properties that have additional logic or consistency requirements
+    // cloned.setHistoryItemId(this.historyItemId);
+    cloned.setCurrentTransformations({ ...this.currentTransformations });
+    cloned.setCurrentWords([...this.currentWords]);
+    cloned.setGeneratedVoiceUrl(this.generatedVoiceUrl);
+    cloned.setVoicePreviewFilename(this.voicePreviewFilename);
+    cloned.setDragonBreathEnhancement(this.dragonBreathEnhancement);
+    cloned.setVoiceName(this.voiceName);
+    cloned.setVoiceId(this.voiceId);
+    cloned.setModelId(this.modelId);
+    cloned.setSpeechRate(this.speechRate);
+    cloned.setEndOfSectionPauseDurationSeconds(
+      this.endOfSectionPauseDurationSeconds
+    );
+
+    return cloned;
+  }
+
   //setter for currentWords
   setCurrentWords(newCurrentWords) {
     this.currentWords = newCurrentWords;

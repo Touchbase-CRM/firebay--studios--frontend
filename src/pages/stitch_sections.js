@@ -43,6 +43,8 @@ function StitchSections() {
     setLastEditedSectionIdx,
   } = useUserInputsStore();
 
+  console.log("sectionsArray at stitch sections", sectionsArray);
+
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);

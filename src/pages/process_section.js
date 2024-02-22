@@ -90,9 +90,9 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-  const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(
-    localCurrentSectionObj.getDragonBreathEnhancement()
-  );
+  // const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(
+  //   localCurrentSectionObj.getDragonBreathEnhancement()
+  // );
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
   );
@@ -170,7 +170,6 @@ function ProcessSection() {
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
     setCurrentSectionObjZustand(sectionObj);
-    setDragonBreathEnhancement(sectionObj.getDragonBreathEnhancement());
     setSpeechRate(sectionObj.getSpeechRate());
     setVoiceId(sectionObj.getVoiceId());
     setVoiceName(sectionObj.getVoiceName());
@@ -218,7 +217,6 @@ function ProcessSection() {
   useEffect(() => {
     // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj);
-    setDragonBreathEnhancement(currentSectionObj.getDragonBreathEnhancement());
     setSpeechRate(currentSectionObj.getSpeechRate());
     setVoiceId(currentSectionObj.getVoiceId());
   }, [currentSectionObj.getIndex()]);
@@ -511,7 +509,7 @@ function ProcessSection() {
       return;
     }
     posthog.capture("process-section-next-button-clicked", {
-      dragonsBreathMode: dragonBreathEnhancement,
+      dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
       voiceId: voiceId,
     });
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
@@ -519,6 +517,7 @@ function ProcessSection() {
     const index = localCurrentSectionObj.getIndex();
 
     if (localStack.size() > 0) {
+      console.log("Stack not empty, continue processing");
       // save the section we are working on
       localSectionsArray[index] = localCurrentSectionObj;
       setLocalSectionsArray(localSectionsArray);
@@ -528,10 +527,15 @@ function ProcessSection() {
       setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
       syncLocalStackWithGlobal;
     } else {
-      if (index >= 0 && index < localSectionsArray.length) {
+      console.log(index, localCurrentSectionObj);
+      // if (index >= 0 && index < localSectionsArray.length) {
+      if (false) {
+        // @TODO: disabled edit stitch section for now
+        console.log("Turns out to be a temp object");
         setTempSectionObjHolder(localCurrentSectionObj);
       } else {
         // addToSectionArrayZustand(localCurrentSectionObj);
+        console.log("Yo I am at regular section submit");
         localSectionsArray[index] = localCurrentSectionObj;
         setSectionsArray(localSectionsArray);
       }
@@ -636,7 +640,7 @@ function ProcessSection() {
 
     try {
       const preprocessRequired =
-        dragonBreathEnhancement ||
+        localCurrentSectionObj.getDragonBreathEnhancement() ||
         localCurrentSectionObj.getSpeechRate() !== "Normal";
 
       if (!preprocessRequired) {
@@ -653,7 +657,7 @@ function ProcessSection() {
           voiceId,
           modelId,
           auth.currentUser.uid,
-          dragonBreathEnhancement,
+          localCurrentSectionObj.getDragonBreathEnhancement(),
           localCurrentSectionObj.getSpeechRate(),
           true
         );
@@ -679,6 +683,7 @@ function ProcessSection() {
 
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
     } catch (error) {
       console.error("Error generating voice:", error);
     } finally {
@@ -688,10 +693,8 @@ function ProcessSection() {
 
   const handleDragonBreathEnhancementChange = (e) => {
     const newValue = e.target.checked;
-
-    setDragonBreathEnhancement(newValue);
-
     localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
   const handleGoBack = () => {
@@ -871,15 +874,17 @@ function ProcessSection() {
                     type="checkbox"
                     role="switch"
                     id="dragonBreathEnhancementSwitch"
-                    checked={dragonBreathEnhancement}
+                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
                     onChange={handleDragonBreathEnhancementChange}
                     style={{
-                      backgroundColor: dragonBreathEnhancement
-                        ? "#eb631c"
-                        : "white",
-                      borderColor: dragonBreathEnhancement
-                        ? "#eb631c"
-                        : "#adb5bd",
+                      backgroundColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "white",
+                      borderColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "#adb5bd",
                     }}
                   />
                 </div>
@@ -889,7 +894,7 @@ function ProcessSection() {
                 className="d-flex align-items-center"
                 style={{ marginTop: "5px" }}
               >
-                {!dragonBreathEnhancement && (
+                {!localCurrentSectionObj.getDragonBreathEnhancement() && (
                   <Alert
                     style={{
                       variant: "info",
