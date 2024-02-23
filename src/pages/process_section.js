@@ -90,9 +90,6 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-  // const [dragonBreathEnhancement, setDragonBreathEnhancement] = useState(
-  //   localCurrentSectionObj.getDragonBreathEnhancement()
-  // );
   const [speechRate, setSpeechRate] = useState(
     localCurrentSectionObj.getSpeechRate()
   );
@@ -106,7 +103,6 @@ function ProcessSection() {
   const [transformedWords, setTransformedWords] = useState(
     localCurrentSectionObj.getCurrentTransformations()
   );
-  const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
 
   const previousSectionsTotalDuration = localSectionsArray
     .slice(0, localCurrentSectionObj.getIndex())
@@ -164,7 +160,6 @@ function ProcessSection() {
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
     setSpeechRate(sectionObj.getSpeechRate());
-    setModelId(sectionObj.getModelId());
     setTypedText(sectionObj.getOriginalContent());
     setTransformedWords(sectionObj.getCurrentTransformations());
     setOgScriptWordsArray(sectionObj.getCurrentWords());
@@ -453,7 +448,6 @@ function ProcessSection() {
       metadata.newVoicePreviewFilename &&
       metadata.newVoiceModelId
     ) {
-      setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
       localCurrentSectionObj.setVoiceName(selectedVoiceName);
@@ -636,7 +630,7 @@ function ProcessSection() {
       if (!preprocessRequired) {
         const result = await generateVoiceWithElevenLabsAPI(
           mostUptodateSection,
-          modelId,
+          localCurrentSectionObj.getModelId(),
           localCurrentSectionObj.getVoiceId()
         );
         audioUrl = result.audioUrl;
@@ -645,7 +639,7 @@ function ProcessSection() {
         const result = await generateVoiceWithCustomPreprocess(
           mostUptodateSection,
           localCurrentSectionObj.getVoiceId(),
-          modelId,
+          localCurrentSectionObj.getModelId(),
           auth.currentUser.uid,
           localCurrentSectionObj.getDragonBreathEnhancement(),
           localCurrentSectionObj.getSpeechRate(),
