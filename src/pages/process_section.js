@@ -22,7 +22,6 @@ import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../firebase";
 
-import { getPortalUrl } from "../stripe_proxy_sdk";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
@@ -90,9 +89,6 @@ function ProcessSection() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
-  const [speechRate, setSpeechRate] = useState(
-    localCurrentSectionObj.getSpeechRate()
-  );
 
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
     localCurrentSectionObj.getOriginalContent()
@@ -123,7 +119,6 @@ function ProcessSection() {
   );
 
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
-  // charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   // On component mount, initialize the local stack with the global stack's items
   useEffect(() => {
@@ -159,7 +154,6 @@ function ProcessSection() {
 
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
-    setSpeechRate(sectionObj.getSpeechRate());
     setTypedText(sectionObj.getOriginalContent());
     setTransformedWords(sectionObj.getCurrentTransformations());
     setOgScriptWordsArray(sectionObj.getCurrentWords());
@@ -200,10 +194,7 @@ function ProcessSection() {
   }, [router]);
 
   useEffect(() => {
-    // Update local state when currentSectionObj changes
     setLocalCurrentSectionObj(currentSectionObj.clone());
-    // setSpeechRate(currentSectionObj.getSpeechRate());
-    // setVoiceId(currentSectionObj.getVoiceId());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -392,8 +383,8 @@ function ProcessSection() {
   };
   const handleSpeechRate = (event) => {
     const newSpeechRate = event.target.value;
-    setSpeechRate(newSpeechRate); // This will now trigger a re-render
-    localCurrentSectionObj.setSpeechRate(newSpeechRate); // Assuming you still need to keep this updated
+    localCurrentSectionObj.setSpeechRate(newSpeechRate);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
   const handleScriptChange = (e) => {
@@ -896,7 +887,7 @@ function ProcessSection() {
                 <Form.Label>Speech Rate</Form.Label>
                 <Form.Select
                   aria-label="Speech rate select"
-                  value={speechRate}
+                  value={localCurrentSectionObj.getSpeechRate()}
                   onChange={handleSpeechRate}
                 >
                   {speechRateOptions.map((option) => (
