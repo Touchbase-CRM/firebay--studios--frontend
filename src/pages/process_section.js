@@ -162,13 +162,12 @@ function ProcessSection() {
       (previousSectionsTotalDuration +
         newCurrentSectionObj.getSectionDurationSeconds());
     setSecondsYouHaveLeft(secondsLeft);
+    setCurrentSectionObjZustand(newCurrentSectionObj.clone());
   }, [localStack]);
 
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
-    setCurrentSectionObjZustand(sectionObj);
     setSpeechRate(sectionObj.getSpeechRate());
-    setVoiceId(sectionObj.getVoiceId());
     setVoicePreviewFilename(sectionObj.getVoicePreviewFilename());
     setModelId(sectionObj.getModelId());
     setTypedText(sectionObj.getOriginalContent());
@@ -212,9 +211,9 @@ function ProcessSection() {
 
   useEffect(() => {
     // Update local state when currentSectionObj changes
-    setLocalCurrentSectionObj(currentSectionObj);
-    setSpeechRate(currentSectionObj.getSpeechRate());
-    setVoiceId(currentSectionObj.getVoiceId());
+    setLocalCurrentSectionObj(currentSectionObj.clone());
+    // setSpeechRate(currentSectionObj.getSpeechRate());
+    // setVoiceId(currentSectionObj.getVoiceId());
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -457,7 +456,6 @@ function ProcessSection() {
       metadata.newVoicePreviewFilename &&
       metadata.newVoiceModelId
     ) {
-      setVoiceId(metadata.newVoiceId);
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
