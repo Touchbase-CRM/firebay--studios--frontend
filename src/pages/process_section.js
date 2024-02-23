@@ -107,10 +107,6 @@ function ProcessSection() {
     localCurrentSectionObj.getCurrentTransformations()
   );
   const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
-  const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
-  const [voicePreviewFilename, setVoicePreviewFilename] = useState(
-    localCurrentSectionObj.getVoicePreviewFilename()
-  );
 
   const previousSectionsTotalDuration = localSectionsArray
     .slice(0, localCurrentSectionObj.getIndex())
@@ -168,7 +164,6 @@ function ProcessSection() {
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
     setSpeechRate(sectionObj.getSpeechRate());
-    setVoicePreviewFilename(sectionObj.getVoicePreviewFilename());
     setModelId(sectionObj.getModelId());
     setTypedText(sectionObj.getOriginalContent());
     setTransformedWords(sectionObj.getCurrentTransformations());
@@ -310,7 +305,9 @@ function ProcessSection() {
     legalDisclaimer = false,
   }) {
     //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
-    const voiceGender = voicePreviewFilename.split("/")[0];
+    const voiceGender = localCurrentSectionObj
+      .getVoicePreviewFilename()
+      .split("/")[0];
     try {
       const response = await fetch(
         audioProcessingWebServiceUrl + "/preprocess-voiceover",
@@ -456,7 +453,6 @@ function ProcessSection() {
       metadata.newVoicePreviewFilename &&
       metadata.newVoiceModelId
     ) {
-      setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
@@ -504,7 +500,7 @@ function ProcessSection() {
     }
     posthog.capture("process-section-next-button-clicked", {
       dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
-      voiceId: voiceId,
+      voiceId: localCurrentSectionObj.getVoiceId(),
     });
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
@@ -641,14 +637,14 @@ function ProcessSection() {
         const result = await generateVoiceWithElevenLabsAPI(
           mostUptodateSection,
           modelId,
-          voiceId
+          localCurrentSectionObj.getVoiceId()
         );
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       } else {
         const result = await generateVoiceWithCustomPreprocess(
           mostUptodateSection,
-          voiceId,
+          localCurrentSectionObj.getVoiceId(),
           modelId,
           auth.currentUser.uid,
           localCurrentSectionObj.getDragonBreathEnhancement(),
@@ -1049,7 +1045,9 @@ function ProcessSection() {
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
               audioSrc={
-                generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
+                generatedVoiceUrl ||
+                baseVoicePreviewsUrl +
+                  localCurrentSectionObj.getVoicePreviewFilename()
               }
               audioTitle={localCurrentSectionObj.getVoiceName()}
               allowDownload={generatedVoiceUrl !== ""}

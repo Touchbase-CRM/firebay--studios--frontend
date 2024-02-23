@@ -489,14 +489,14 @@ function StitchSections() {
                       borderColor: "#eb631c",
                     }}
                   >
-                    Initial Section
+                    Original Section
                   </th>
                   <th
                     style={{
                       borderColor: "#eb631c",
                     }}
                   >
-                    Current Section
+                    Revised Section
                   </th>
                   <th
                     style={{
