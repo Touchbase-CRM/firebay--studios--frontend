@@ -49,6 +49,7 @@ export class Section {
     cloned.setEndOfSectionPauseDurationSeconds(
       this.endOfSectionPauseDurationSeconds
     );
+    cloned.setSectionDurationSeconds(this.sectionDurationSeconds);
 
     return cloned;
   }

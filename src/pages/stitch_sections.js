@@ -53,7 +53,7 @@ function StitchSections() {
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-
+  console.log("localSectionsArray", localSectionsArray);
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -537,7 +537,7 @@ function StitchSections() {
                       {section.currentContent}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
-                      {section.sectionDurationSeconds.toFixed(2)}
+                      {section.getSectionDurationSeconds().toFixed(2)}
                     </td>
                     <td
                       style={{

@@ -498,15 +498,9 @@ function ProcessSection() {
       setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
       syncLocalStackWithGlobal;
     } else {
-      console.log(index, localCurrentSectionObj);
-      // if (index >= 0 && index < localSectionsArray.length) {
       if (lastEditedSectionIdx === localCurrentSectionObj.getIndex()) {
-        // @TODO: disabled edit stitch section for now
-        console.log("Turns out to be a temp object");
         setTempSectionObjHolder(localCurrentSectionObj);
       } else {
-        // addToSectionArrayZustand(localCurrentSectionObj);
-        console.log("Yo I am at regular section submit");
         localSectionsArray[index] = localCurrentSectionObj;
         setSectionsArray(localSectionsArray);
       }
@@ -638,7 +632,9 @@ function ProcessSection() {
       const audio = new Audio(audioUrl);
       audio.addEventListener("loadedmetadata", () => {
         const newDuration = audio.duration;
+        console.log("newDuration", newDuration);
         localCurrentSectionObj.setSectionDurationSeconds(newDuration);
+
         setProgressBarPercentage(
           Math.round(
             ((previousSectionsTotalDuration + newDuration) / adLength) * 100
@@ -666,7 +662,6 @@ function ProcessSection() {
   };
 
   const handleGoBack = () => {
-    console.log("going back");
     const currentSectionIdx = localCurrentSectionObj.getIndex();
     localPushData(currentSectionIdx);
     localPushData(currentSectionIdx - 1);
