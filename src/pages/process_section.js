@@ -108,9 +108,6 @@ function ProcessSection() {
   );
   const [modelId, setModelId] = useState(localCurrentSectionObj.getModelId());
   const [voiceId, setVoiceId] = useState(localCurrentSectionObj.getVoiceId());
-  const [voiceName, setVoiceName] = useState(
-    localCurrentSectionObj.getVoiceName()
-  );
   const [voicePreviewFilename, setVoicePreviewFilename] = useState(
     localCurrentSectionObj.getVoicePreviewFilename()
   );
@@ -172,7 +169,6 @@ function ProcessSection() {
     setCurrentSectionObjZustand(sectionObj);
     setSpeechRate(sectionObj.getSpeechRate());
     setVoiceId(sectionObj.getVoiceId());
-    setVoiceName(sectionObj.getVoiceName());
     setVoicePreviewFilename(sectionObj.getVoicePreviewFilename());
     setModelId(sectionObj.getModelId());
     setTypedText(sectionObj.getOriginalContent());
@@ -463,7 +459,6 @@ function ProcessSection() {
     ) {
       setVoiceId(metadata.newVoiceId);
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
-      setVoiceName(selectedVoiceName);
       setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
@@ -471,6 +466,7 @@ function ProcessSection() {
       localCurrentSectionObj.setVoicePreviewFilename(
         metadata.newVoicePreviewFilename
       );
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
@@ -1057,7 +1053,7 @@ function ProcessSection() {
               audioSrc={
                 generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
               }
-              audioTitle={voiceName}
+              audioTitle={localCurrentSectionObj.getVoiceName()}
               allowDownload={generatedVoiceUrl !== ""}
             />
           </div>
