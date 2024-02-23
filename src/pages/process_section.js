@@ -52,14 +52,10 @@ function ProcessSection() {
   const {
     sectionsQueue,
     setSectionsQueue,
-    sectionsStack,
-    setSectionsStack,
     sectionsArray,
     setSectionsArray,
-    dequeueSectionZustand,
     adLength,
     currentSectionObj,
-    addToSectionArrayZustand,
     setCurrentSectionObjZustand,
     setTempSectionObjHolder,
     numSectionsIdentified,
@@ -504,7 +500,7 @@ function ProcessSection() {
     } else {
       console.log(index, localCurrentSectionObj);
       // if (index >= 0 && index < localSectionsArray.length) {
-      if (false) {
+      if (lastEditedSectionIdx === localCurrentSectionObj.getIndex()) {
         // @TODO: disabled edit stitch section for now
         console.log("Turns out to be a temp object");
         setTempSectionObjHolder(localCurrentSectionObj);
@@ -559,9 +555,6 @@ function ProcessSection() {
     return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
       .join(" ");
-  };
-  const getFinalScriptWOTransformations = () => {
-    return ogScriptWordsArray.join(" ");
   };
 
   async function generateVoiceWithCustomPreprocess(
