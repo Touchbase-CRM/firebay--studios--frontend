@@ -207,6 +207,7 @@ export class Section {
 
   // Setter for section duration in seconds
   setSectionDurationSeconds(newSectionDurationSeconds) {
+    console.log("setting section duration to", newSectionDurationSeconds);
     this.sectionDurationSeconds = newSectionDurationSeconds;
   }
 }

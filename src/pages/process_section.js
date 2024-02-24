@@ -122,6 +122,7 @@ function ProcessSection() {
     const newStack = new Stack();
     newStack.items = [...globalStack.items];
     setLocalStack(newStack);
+    console.log("UseEffect A happened");
   }, []);
 
   useEffect(() => {
@@ -146,6 +147,7 @@ function ProcessSection() {
         newCurrentSectionObj.getSectionDurationSeconds());
     setSecondsYouHaveLeft(secondsLeft);
     setCurrentSectionObjZustand(newCurrentSectionObj.clone());
+    console.log("UseEffect B happened");
   }, [localStack]);
 
   // Utility function to set all section details
@@ -173,6 +175,7 @@ function ProcessSection() {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
       e.returnValue = ""; // Chrome requires returnValue to be set
+      console.log("UseEffect C happened");
     };
 
     const handleBackButton = async () => {
@@ -190,7 +193,9 @@ function ProcessSection() {
   }, [router]);
 
   useEffect(() => {
+    console.log("UseEffect D happened");
     setLocalCurrentSectionObj(currentSectionObj.clone());
+    console.log(localCurrentSectionObj);
   }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
@@ -199,6 +204,7 @@ function ProcessSection() {
 
       router.push("/stitch_sections");
     }
+    console.log("UseEffect E happened");
   }, [isFormSubmitted, router]);
 
   useEffect(() => {
@@ -221,6 +227,8 @@ function ProcessSection() {
     };
 
     fetchVoiceOptions();
+
+    console.log("UseEffect F happened");
   }, []);
 
   const baseVoicePreviewsUrl =
@@ -628,31 +636,35 @@ function ProcessSection() {
       }
 
       setGeneratedVoiceUrl(audioUrl);
-
-      const audio = new Audio(audioUrl);
-      audio.addEventListener("loadedmetadata", () => {
-        const newDuration = audio.duration;
-        console.log("newDuration", newDuration);
-        localCurrentSectionObj.setSectionDurationSeconds(newDuration);
-
-        setProgressBarPercentage(
-          Math.round(
-            ((previousSectionsTotalDuration + newDuration) / adLength) * 100
-          )
-        );
-        setSecondsYouHaveLeft(
-          adLength - previousSectionsTotalDuration - newDuration
-        );
-      });
-
+      const newDuration = await getAudioDuration(audioUrl);
+      setProgressBarPercentage(
+        Math.round(
+          ((previousSectionsTotalDuration + newDuration) / adLength) * 100
+        )
+      );
+      setSecondsYouHaveLeft(
+        adLength - previousSectionsTotalDuration - newDuration
+      );
+      localCurrentSectionObj.setSectionDurationSeconds(newDuration);
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      console.log("This is test...");
     } catch (error) {
       console.error("Error generating voice:", error);
     } finally {
       setIsGeneratingVoice(false);
+      console.log(localCurrentSectionObj);
     }
+  }
+  function getAudioDuration(url) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(url);
+      audio.addEventListener("loadedmetadata", () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", reject);
+    });
   }
 
   const handleDragonBreathEnhancementChange = (e) => {
