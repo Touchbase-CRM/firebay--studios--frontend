@@ -74,7 +74,7 @@ function CreateSections() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/process_section");
+      router.push("/process_section/0");
     }
   }, [isFormSubmitted, router]);
 

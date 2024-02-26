@@ -173,26 +173,26 @@ function ProcessSection() {
     return removedData;
   };
 
-  // useEffect(() => {
-  //   // prevent back button
-  //   const handleBeforeUnload = (e) => {
-  //     e.preventDefault();
-  //     e.returnValue = ""; // Chrome requires returnValue to be set
-  //   };
+  useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
 
-  //   const handleBackButton = async () => {
-  //     handleLogout();
-  //   };
-  //   localCurrentSectionObj;
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+    localCurrentSectionObj;
 
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   window.onpopstate = handleBackButton;
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
 
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //     window.onpopstate = null;
-  //   };
-  // }, [router]);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
 
   // useEffect(() => {
   //   setLocalCurrentSectionObj(currentSectionObj.clone());
