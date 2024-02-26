@@ -144,10 +144,10 @@ function CreateSections() {
 
     // Update Zustand store with the local state before navigating
     setSectionsArray(localSectionsArray);
-    setSectionsQueue(localSectionsQueue);
+    // setSectionsQueue(localSectionsQueue);
 
     // Navigate to the first section if the queue is not empty
-    if (localSectionsQueue.size() !== 0) {
+    if (localSectionsArray.length !== 0) {
       router.push("/process_section/0");
     }
   };

@@ -67,13 +67,15 @@ function ProcessSection() {
 
   const { idx } = router.query;
   console.log("process section idx received", idx);
-  const tmpCurrentSectionIndex = parseInt(idx, 100) || 0;
+  const [tmpCurrentSectionIndex, setTmpCurrentSectionIndex] = useState(
+    parseInt(idx, 10)
+  );
 
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
-    return sectionsArray?.[tmpCurrentSectionIndex] || null;
+    return sectionsArray?.[tmpCurrentSectionIndex].clone() || null;
   });
   const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
@@ -128,6 +130,49 @@ function ProcessSection() {
     newStack.items = [...globalStack.items];
     setLocalStack(newStack);
   }, []);
+
+  useEffect(() => {
+    const currentIdx = parseInt(idx, 10);
+    setTmpCurrentSectionIndex(currentIdx);
+
+    if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
+      const sectionToUpdate = sectionsArray[currentIdx];
+
+      // Assuming sectionToUpdate effectively mimics the clone's intended behavior
+      setLocalCurrentSectionObj(sectionToUpdate);
+
+      // Update dependent states based on the new current section
+      setOgScriptWordsArray(
+        sectionToUpdate.getOriginalContent()
+          ? sectionToUpdate.getCurrentWords()
+          : []
+      );
+      setTypedText(
+        sectionToUpdate.getOriginalContent()
+          ? sectionToUpdate.getCurrentWords().join(" ")
+          : ""
+      );
+      setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+      // Calculate progress and time left
+      const previousSectionsTotalDuration = sectionsArray
+        .slice(0, currentIdx)
+        .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+      const newProgressBarPercentage = Math.round(
+        ((previousSectionsTotalDuration +
+          sectionToUpdate.getSectionDurationSeconds()) /
+          adLength) *
+          100
+      );
+      const newSecondsLeft =
+        adLength -
+        (previousSectionsTotalDuration +
+          sectionToUpdate.getSectionDurationSeconds());
+
+      setProgressBarPercentage(newProgressBarPercentage);
+      setSecondsYouHaveLeft(newSecondsLeft);
+    }
+  }, [idx]); // Depend solely on idx
 
   // useEffect(() => {
   //   if (localStack.isEmpty()) return;
@@ -523,16 +568,18 @@ function ProcessSection() {
         // const currentSectionContent = dequeuedSection.getCurrentContent();
 
         // Update the original script string to the last dequeued item
-        setTypedText(currentSectionContent || "");
+        // setTypedText(currentSectionContent || "");
 
-        // Split the dequeued item into words and update transformed words
-        const newWords = currentSectionContent
-          ? currentSectionContent.split(" ")
-          : [];
+        // // Split the dequeued item into words and update transformed words
+        // const newWords = currentSectionContent
+        //   ? currentSectionContent.split(" ")
+        //   : [];
 
-        // Update the original script words array and transformed words
-        setOgScriptWordsArray(newWords);
-        setTransformedWords({}); // Reset the transformed words
+        // // Update the original script words array and transformed words
+        // setOgScriptWordsArray(newWords);
+        // setTransformedWords({}); // Reset the transformed words
+        console.log("Index is ", idx);
+        console.log("tmpCurrentSectionIndex", tmpCurrentSectionIndex);
         router.push(
           "/process_section/[idx]",
           `/process_section/${tmpCurrentSectionIndex + 1}`
