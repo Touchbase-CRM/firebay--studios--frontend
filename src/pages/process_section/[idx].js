@@ -13,14 +13,14 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService"; // Adjusted
 
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import BackButton from "@/components/BackButton";
-import useUserInputsStore from "../store/userInputs";
-import withAuth from "../hocs/withAuth";
+import SimpleAudioPlayer from "../../components/SimpleAudioPlayer"; // Adjusted
+import BackButton from "@/components/BackButton"; // No change needed for absolute imports
+import useUserInputsStore from "../../store/userInputs"; // Adjusted
+import withAuth from "../../hocs/withAuth"; // Adjusted
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "../../firebase"; // Adjusted
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -35,7 +35,7 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../dataStructures/stack";
+import { Stack } from "../../dataStructures/stack"; // Adjusted
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -65,11 +65,16 @@ function ProcessSection() {
     lastEditedSectionIdx,
   } = useUserInputsStore();
 
+  const { idx } = router.query;
+  console.log("process section idx received", idx);
+  const tmpCurrentSectionIndex = parseInt(idx, 100) || 0;
+
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  const [localCurrentSectionObj, setLocalCurrentSectionObj] =
-    useState(currentSectionObj);
+  const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
+    return sectionsArray?.[tmpCurrentSectionIndex] || null;
+  });
   const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
@@ -124,29 +129,29 @@ function ProcessSection() {
     setLocalStack(newStack);
   }, []);
 
-  useEffect(() => {
-    if (localStack.isEmpty()) return;
-    const lastIdx = localStack.pop();
-    const newCurrentSectionObj = sectionsArray[lastIdx];
+  // useEffect(() => {
+  //   if (localStack.isEmpty()) return;
+  //   const lastIdx = localStack.pop();
+  //   const newCurrentSectionObj = sectionsArray[lastIdx];
 
-    // Call the utility function with the new section object
-    updateSectionDetails(newCurrentSectionObj);
+  //   // Call the utility function with the new section object
+  //   updateSectionDetails(newCurrentSectionObj);
 
-    // Calculate and set progress bar percentage and seconds left
-    const progressBarPercentage = Math.round(
-      ((previousSectionsTotalDuration +
-        newCurrentSectionObj.getSectionDurationSeconds()) /
-        adLength) *
-        100
-    );
-    setProgressBarPercentage(progressBarPercentage);
-    const secondsLeft =
-      adLength -
-      (previousSectionsTotalDuration +
-        newCurrentSectionObj.getSectionDurationSeconds());
-    setSecondsYouHaveLeft(secondsLeft);
-    setCurrentSectionObjZustand(newCurrentSectionObj.clone());
-  }, [localStack]);
+  //   // Calculate and set progress bar percentage and seconds left
+  //   const progressBarPercentage = Math.round(
+  //     ((previousSectionsTotalDuration +
+  //       newCurrentSectionObj.getSectionDurationSeconds()) /
+  //       adLength) *
+  //       100
+  //   );
+  //   setProgressBarPercentage(progressBarPercentage);
+  //   const secondsLeft =
+  //     adLength -
+  //     (previousSectionsTotalDuration +
+  //       newCurrentSectionObj.getSectionDurationSeconds());
+  //   setSecondsYouHaveLeft(secondsLeft);
+  //   setCurrentSectionObjZustand(newCurrentSectionObj.clone());
+  // }, [localStack]);
 
   // Utility function to set all section details
   function updateSectionDetails(sectionObj) {
@@ -168,30 +173,30 @@ function ProcessSection() {
     return removedData;
   };
 
-  useEffect(() => {
-    // prevent back button
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
-    };
+  // useEffect(() => {
+  //   // prevent back button
+  //   const handleBeforeUnload = (e) => {
+  //     e.preventDefault();
+  //     e.returnValue = ""; // Chrome requires returnValue to be set
+  //   };
 
-    const handleBackButton = async () => {
-      handleLogout();
-    };
-    localCurrentSectionObj;
+  //   const handleBackButton = async () => {
+  //     handleLogout();
+  //   };
+  //   localCurrentSectionObj;
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.onpopstate = handleBackButton;
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //   window.onpopstate = handleBackButton;
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.onpopstate = null;
-    };
-  }, [router]);
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //     window.onpopstate = null;
+  //   };
+  // }, [router]);
 
-  useEffect(() => {
-    setLocalCurrentSectionObj(currentSectionObj.clone());
-  }, [currentSectionObj.getIndex()]);
+  // useEffect(() => {
+  //   setLocalCurrentSectionObj(currentSectionObj.clone());
+  // }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
     if (isFormSubmitted && localSectionsQueue.size() === 0) {
@@ -495,7 +500,7 @@ function ProcessSection() {
 
       // load the next section
       let topIdxOnStack = localPopData();
-      setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
+      // setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
       syncLocalStackWithGlobal;
     } else {
       if (lastEditedSectionIdx === localCurrentSectionObj.getIndex()) {
@@ -505,17 +510,17 @@ function ProcessSection() {
         setSectionsArray(localSectionsArray);
       }
 
-      if (localSectionsQueue.size() === 0) {
+      if (tmpCurrentSectionIndex >= sectionsArray.length - 1) {
         setSectionsQueue(localSectionsQueue);
         router.push("/stitch_sections");
       } else {
-        console.log("Queue not empty, continue processing");
-        const dequeuedSectionIdx = localSectionsQueue.dequeue();
-        const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
-        setCurrentSectionObjZustand(dequeuedSection);
-        setSectionsQueue(localSectionsQueue);
+        // console.log("Queue not empty, continue processing");
+        // const dequeuedSectionIdx = localSectionsQueue.dequeue();
+        // const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
+        // setCurrentSectionObjZustand(dequeuedSection);
+        // setSectionsQueue(localSectionsQueue);
 
-        const currentSectionContent = dequeuedSection.getCurrentContent();
+        // const currentSectionContent = dequeuedSection.getCurrentContent();
 
         // Update the original script string to the last dequeued item
         setTypedText(currentSectionContent || "");
@@ -528,6 +533,10 @@ function ProcessSection() {
         // Update the original script words array and transformed words
         setOgScriptWordsArray(newWords);
         setTransformedWords({}); // Reset the transformed words
+        router.push(
+          "/process_section/[idx]",
+          `/process_section/${tmpCurrentSectionIndex + 1}`
+        );
       }
     }
   };

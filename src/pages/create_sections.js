@@ -142,16 +142,13 @@ function CreateSections() {
 
     if (!isValid) return;
 
+    // Update Zustand store with the local state before navigating
+    setSectionsArray(localSectionsArray);
+    setSectionsQueue(localSectionsQueue);
+
+    // Navigate to the first section if the queue is not empty
     if (localSectionsQueue.size() !== 0) {
-      router.push("/process_section");
-      console.log("Queue not empty, continue processing");
-      // dequeueSectionZustand(); // Remove the first item from the queue
-      const dequeuedSectionIdx = localSectionsQueue.dequeue();
-      // const lastDequeuedItemObject = useUserInputsStore.getState();
-      const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
-      setCurrentSectionObjZustand(dequeuedSection);
-      setSectionsArray(localSectionsArray);
-      setSectionsQueue(localSectionsQueue);
+      router.push("/process_section/0");
     }
   };
 
