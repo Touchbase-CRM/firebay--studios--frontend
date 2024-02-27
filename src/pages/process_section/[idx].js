@@ -13,14 +13,14 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService"; // Adjusted
+import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
 
-import SimpleAudioPlayer from "../../components/SimpleAudioPlayer"; // Adjusted
-import BackButton from "@/components/BackButton"; // No change needed for absolute imports
-import useUserInputsStore from "../../store/userInputs"; // Adjusted
-import withAuth from "../../hocs/withAuth"; // Adjusted
+import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
+import BackButton from "@/components/BackButton";
+import useUserInputsStore from "../../store/userInputs";
+import withAuth from "../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../../firebase"; // Adjusted
+import app from "../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -35,7 +35,7 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../../dataStructures/stack"; // Adjusted
+import { Stack } from "../../dataStructures/stack";
 
 function ProcessSection() {
   const posthog = usePostHog();
