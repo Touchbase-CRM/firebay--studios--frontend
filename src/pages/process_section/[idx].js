@@ -50,13 +50,9 @@ function ProcessSection() {
 
   // Zustand store hooks
   const {
-    sectionsQueue,
-    setSectionsQueue,
     sectionsArray,
     setSectionsArray,
     adLength,
-    currentSectionObj,
-    setCurrentSectionObjZustand,
     setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
@@ -77,7 +73,6 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[tmpCurrentSectionIndex].clone() || null;
   });
-  const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore((state) => state.setStack);
@@ -199,11 +194,11 @@ function ProcessSection() {
   // }, [localStack]);
 
   // Utility function to set all section details
-  function updateSectionDetails(sectionObj) {
-    setTypedText(sectionObj.getOriginalContent());
-    setTransformedWords(sectionObj.getCurrentTransformations());
-    setOgScriptWordsArray(sectionObj.getCurrentWords());
-  }
+  // function updateSectionDetails(sectionObj) {
+  //   setTypedText(sectionObj.getOriginalContent());
+  //   setTransformedWords(sectionObj.getCurrentTransformations());
+  //   setOgScriptWordsArray(sectionObj.getCurrentWords());
+  // }
 
   const localPushData = (newData) => {
     localStack.push(newData);
@@ -238,10 +233,6 @@ function ProcessSection() {
       window.onpopstate = null;
     };
   }, [router]);
-
-  // useEffect(() => {
-  //   setLocalCurrentSectionObj(currentSectionObj.clone());
-  // }, [currentSectionObj.getIndex()]);
 
   useEffect(() => {
     if (isFormSubmitted && localSectionsQueue.size() === 0) {
@@ -556,30 +547,8 @@ function ProcessSection() {
       }
 
       if (tmpCurrentSectionIndex >= sectionsArray.length - 1) {
-        setSectionsQueue(localSectionsQueue);
         router.push("/stitch_sections");
       } else {
-        // console.log("Queue not empty, continue processing");
-        // const dequeuedSectionIdx = localSectionsQueue.dequeue();
-        // const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
-        // setCurrentSectionObjZustand(dequeuedSection);
-        // setSectionsQueue(localSectionsQueue);
-
-        // const currentSectionContent = dequeuedSection.getCurrentContent();
-
-        // Update the original script string to the last dequeued item
-        // setTypedText(currentSectionContent || "");
-
-        // // Split the dequeued item into words and update transformed words
-        // const newWords = currentSectionContent
-        //   ? currentSectionContent.split(" ")
-        //   : [];
-
-        // // Update the original script words array and transformed words
-        // setOgScriptWordsArray(newWords);
-        // setTransformedWords({}); // Reset the transformed words
-        console.log("Index is ", idx);
-        console.log("tmpCurrentSectionIndex", tmpCurrentSectionIndex);
         router.push(
           "/process_section/[idx]",
           `/process_section/${tmpCurrentSectionIndex + 1}`
