@@ -220,26 +220,26 @@ function ProcessSection() {
     return removedData;
   };
 
-  useEffect(() => {
-    // prevent back button
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
-    };
+  // useEffect(() => {
+  //   // prevent back button
+  //   const handleBeforeUnload = (e) => {
+  //     e.preventDefault();
+  //     e.returnValue = ""; // Chrome requires returnValue to be set
+  //   };
 
-    const handleBackButton = async () => {
-      handleLogout();
-    };
-    localCurrentSectionObj;
+  //   const handleBackButton = async () => {
+  //     handleLogout();
+  //   };
+  //   localCurrentSectionObj;
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.onpopstate = handleBackButton;
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //   window.onpopstate = handleBackButton;
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.onpopstate = null;
-    };
-  }, [router]);
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //     window.onpopstate = null;
+  //   };
+  // }, [router]);
 
   useEffect(() => {
     if (isFormSubmitted && localSectionsQueue.size() === 0) {
@@ -788,14 +788,14 @@ function ProcessSection() {
                 marginBottom: "20px",
               }}
             >
-              {
+              {localCurrentSectionObj.getIndex() !== 0 && (
                 <BackButton
                   width="30px"
                   height="30px"
                   backgroundColor="#eb631c"
                   onClick={handleGoBack} // Pass the onClick method directly
                 />
-              }
+              )}
             </div>
             <Card.Title style={{ marginTop: "20px" }}>
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
