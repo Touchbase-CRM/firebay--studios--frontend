@@ -12,6 +12,7 @@ import { usePostHog } from "posthog-js/react";
 import { Card, Navbar, Nav, Button, Table } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
+import { Stack } from "../dataStructures/stack"; // Adjusted
 
 function StitchSections() {
   const auth = getAuth();
@@ -27,10 +28,12 @@ function StitchSections() {
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
-    setCurrentSectionObjZustand,
     lastEditedSectionIdx,
-    setLastEditedSectionIdx,
   } = useUserInputsStore();
+  const [localStack, setLocalStack] = useState(() => new Stack());
+  const syncStackWithGlobal = useUserInputsStore(
+    (state) => state.setNavigationStack
+  );
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
@@ -58,9 +61,6 @@ function StitchSections() {
       setLocalSectionsArray(localSectionsArray);
       setSectionsArray(localSectionsArray);
     }
-    // else {
-    //   setLocalSectionsArray(sectionsArray);
-    // }
   }, []);
 
   useEffect(() => {
@@ -327,14 +327,41 @@ function StitchSections() {
     }
   };
 
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const localPopData = (newData, clone = false) => {
+    let removedData = localStack.pop();
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+    return removedData;
+  };
+
+  const syncLocalStackWithGlobal = () => {
+    syncStackWithGlobal(localStack);
+  };
+
   const handleEditSection = (section) => {
-    setCurrentSectionObjZustand(section);
-    setLastEditedSectionIdx(section.getIndex());
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
       setGeneratedVoiceUrl("");
     }
-    router.push("/process_section");
+    localPushData("/stitch_sections");
+    syncLocalStackWithGlobal();
+
+    router.push(
+      "/process_section/[idx]",
+      `/process_section/${section.getIndex()}`
+    );
   };
 
   if (pendingAdvertisement) {

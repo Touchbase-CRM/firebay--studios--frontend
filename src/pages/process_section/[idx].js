@@ -62,7 +62,6 @@ function ProcessSection() {
   } = useUserInputsStore();
 
   const { idx } = router.query;
-  console.log("process section idx received", idx);
   const [tmpCurrentSectionIndex, setTmpCurrentSectionIndex] = useState(
     parseInt(idx, 10)
   );
@@ -75,7 +74,9 @@ function ProcessSection() {
   });
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
-  const syncStackWithGlobal = useUserInputsStore((state) => state.setStack);
+  const syncStackWithGlobal = useUserInputsStore(
+    (state) => state.setNavigationStack
+  );
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -118,15 +119,15 @@ function ProcessSection() {
 
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
 
-  // On component mount, initialize the local stack with the global stack's items
-  useEffect(() => {
-    const globalStack = useUserInputsStore.getState().sectionsStack;
+  const syncStackAfterNavigation = () => {
+    const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
     newStack.items = [...globalStack.items];
     setLocalStack(newStack);
-  }, []);
+  };
 
   useEffect(() => {
+    syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
     setTmpCurrentSectionIndex(currentIdx);
 
@@ -200,16 +201,22 @@ function ProcessSection() {
   //   setOgScriptWordsArray(sectionObj.getCurrentWords());
   // }
 
-  const localPushData = (newData) => {
+  const localPushData = (newData, clone = false) => {
     localStack.push(newData);
-    // Trigger state update with a new reference to ensure re-render
-    setLocalStack(localStack.clone());
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
   };
 
-  const localPopData = () => {
+  const localPopData = (newData, clone = false) => {
     let removedData = localStack.pop();
-    // Trigger state update with a new reference to ensure re-render
-    setLocalStack(localStack.clone());
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
     return removedData;
   };
 
@@ -535,16 +542,12 @@ function ProcessSection() {
       setLocalSectionsArray(localSectionsArray);
 
       // load the next section
-      let topIdxOnStack = localPopData();
-      // setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
-      syncLocalStackWithGlobal;
+      let lastInUrl = localPopData();
+      syncLocalStackWithGlobal();
+      router.push(lastInUrl);
     } else {
-      if (lastEditedSectionIdx === localCurrentSectionObj.getIndex()) {
-        setTempSectionObjHolder(localCurrentSectionObj);
-      } else {
-        localSectionsArray[index] = localCurrentSectionObj;
-        setSectionsArray(localSectionsArray);
-      }
+      localSectionsArray[index] = localCurrentSectionObj;
+      setSectionsArray(localSectionsArray);
 
       if (tmpCurrentSectionIndex >= sectionsArray.length - 1) {
         router.push("/stitch_sections");

@@ -30,6 +30,7 @@ export const defaultState = {
   tempSectionObjHolder: new Section(null, "", "", null, 0),
   numSectionsIdentified: 0,
   lastEditedSectionIdx: null,
+  navigationStack: new Stack(),
 };
 
 export default defaultState;

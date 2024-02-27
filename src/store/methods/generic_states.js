@@ -29,6 +29,11 @@ export class UserInputMethods {
     this.setLastEditedSectionIdx = this.setLastEditedSectionIdx.bind(this);
     this.setCurrentSectionObjIdx = this.setCurrentSectionObjIdx.bind(this);
     this.setSectionsQueue = this.setSectionsQueue.bind(this);
+    this.setNavigationStack = this.setNavigationStack.bind(this);
+  }
+
+  setNavigationStack(navigationStack) {
+    this.set({ navigationStack });
   }
 
   setSectionsQueue(sectionsQueue) {
