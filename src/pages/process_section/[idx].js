@@ -692,9 +692,23 @@ function ProcessSection() {
   };
 
   const handleGoBack = () => {
+    // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
-    localPushData(currentSectionIdx);
-    localPushData(currentSectionIdx - 1);
+    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+
+    // save the current url in the stack
+    localPushData(`/process_section/${currentSectionIdx}`);
+    syncLocalStackWithGlobal();
+    // move to the new url
+    if (currentSectionIdx > 0) {
+      router.push(
+        "/process_section/[idx]",
+        `/process_section/${currentSectionIdx - 1}`
+      );
+    } else {
+      router.push("/create_sections");
+    }
   };
 
   const wordCountStyle = {
