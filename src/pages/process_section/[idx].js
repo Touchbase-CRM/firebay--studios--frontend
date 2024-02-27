@@ -1053,9 +1053,7 @@ function ProcessSection() {
               }}
               onClick={handleSubmit}
             >
-              {lastEditedSectionIdx !== localCurrentSectionObj.getIndex()
-                ? "Next"
-                : "Done"}
+              {"Next"}
             </Button>
           </div>
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

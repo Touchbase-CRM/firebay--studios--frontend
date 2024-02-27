@@ -54,14 +54,14 @@ function StitchSections() {
     calculateTotalDuration();
   }, [localSectionsArray]);
 
-  useEffect(() => {
-    const index = tempSectionObjHolder.getIndex();
-    if (index !== lastEditedSectionIdx) {
-      localSectionsArray[index] = tempSectionObjHolder;
-      setLocalSectionsArray(localSectionsArray);
-      setSectionsArray(localSectionsArray);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const index = tempSectionObjHolder.getIndex();
+  //   if (index !== lastEditedSectionIdx) {
+  //     localSectionsArray[index] = tempSectionObjHolder;
+  //     setLocalSectionsArray(localSectionsArray);
+  //     setSectionsArray(localSectionsArray);
+  //   }
+  // }, []);
 
   useEffect(() => {
     // prevent back button
