@@ -655,7 +655,7 @@ function ProcessSection() {
         localHistoryItemId = result.localHistoryItemId;
       }
 
-      setGeneratedVoiceUrl(audioUrl);
+      // setGeneratedVoiceUrl(audioUrl);
       const newDuration = await getAudioDuration(audioUrl);
       setProgressBarPercentage(
         Math.round(
@@ -668,6 +668,7 @@ function ProcessSection() {
       localCurrentSectionObj.setSectionDurationSeconds(newDuration);
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+      localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
     } catch (error) {
       console.error("Error generating voice:", error);
@@ -1060,12 +1061,15 @@ function ProcessSection() {
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
               audioSrc={
-                generatedVoiceUrl ||
+                localCurrentSectionObj.getGeneratedVoiceUrl() ||
                 baseVoicePreviewsUrl +
                   localCurrentSectionObj.getVoicePreviewFilename()
               }
               audioTitle={localCurrentSectionObj.getVoiceName()}
-              allowDownload={generatedVoiceUrl !== ""}
+              allowDownload={
+                localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
+              }
+              autoplay={false}
             />
           </div>
 
