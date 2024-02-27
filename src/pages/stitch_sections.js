@@ -9,18 +9,7 @@ import Swal from "sweetalert2";
 import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
 
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Navbar,
-  Nav,
-  Button,
-  Table,
-  Spinner as BootstrapSpinner,
-} from "react-bootstrap";
-import { Play } from "react-bootstrap-icons";
+import { Card, Navbar, Nav, Button, Table } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
 
@@ -43,8 +32,6 @@ function StitchSections() {
     setLastEditedSectionIdx,
   } = useUserInputsStore();
 
-  console.log("sectionsArray at stitch sections", sectionsArray);
-
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
   const [selectedSection, setSelectedSection] = useState(null);
@@ -53,7 +40,6 @@ function StitchSections() {
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  console.log("localSectionsArray", localSectionsArray);
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
