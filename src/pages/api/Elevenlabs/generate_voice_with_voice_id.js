@@ -1,5 +1,7 @@
 import axios from "axios";
-
+export const config = {
+  maxDuration: 60,
+};
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { script, modelId, voiceId } = req.body;
