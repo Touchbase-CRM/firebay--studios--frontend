@@ -4,11 +4,10 @@ import {
   Col,
   Card,
   Form,
-  Navbar,
-  Nav,
   Button,
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
+import { NavBar } from "@/components/navBar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { useRouter } from "next/router";
@@ -351,6 +350,22 @@ function AddMusic() {
         console.error("Logout Error:", error);
       });
   };
+  const links = [
+    {
+      label: "Home",
+      url: "/home",
+      isInternal: true,
+      icon: "bi bi-house", // Bootstrap icon class
+      style: { marginRight: "10px" }, // Example styling
+    },
+    // {
+    //   label: "About",
+    //   url: "/about",
+    //   // Optionally, some links might not have an icon
+    //   style: { marginRight: "10px" },
+    // },
+    // Add more links as needed
+  ];
 
   if (pendingAdvertisement) {
     return (
@@ -421,42 +436,7 @@ function AddMusic() {
         flexDirection: "column",
       }}
     >
-      <Navbar
-        expand="lg"
-        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
-      >
-        <Navbar.Brand style={{ marginLeft: "10px" }}>
-          <img
-            src="/fire.png"
-            width="50"
-            height="50"
-            className="d-inline-block align-top"
-          />
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">{/* Nav items here */}</Nav>
-        </Navbar.Collapse>
-        <Button
-          variant="light"
-          size="sm"
-          onClick={handleLogout}
-          style={{
-            marginRight: "10px",
-            padding: "5px 10px",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <i
-            className="bi bi-box-arrow-right"
-            style={{ marginRight: "5px" }}
-          ></i>
-          Logout
-        </Button>
-      </Navbar>
+      <NavBar links={links} logoutHandler={handleLogout} />
 
       <Row>
         <Col md={6} className="mx-auto">

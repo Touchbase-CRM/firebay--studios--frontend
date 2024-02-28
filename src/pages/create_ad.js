@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Navbar,
-  Nav,
-  Button,
-  Spinner,
-} from "react-bootstrap";
+import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
+import { NavBar } from "@/components/navBar";
 import { useRouter } from "next/router";
 import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
 
@@ -358,6 +350,23 @@ function CreateAd() {
     setIsGeneratingVoice(false);
   };
 
+  const links = [
+    {
+      label: "Home",
+      url: "/home",
+      isInternal: true,
+      icon: "bi bi-house", // Bootstrap icon class
+      style: { marginRight: "10px" }, // Example styling
+    },
+    // {
+    //   label: "About",
+    //   url: "/about",
+    //   // Optionally, some links might not have an icon
+    //   style: { marginRight: "10px" },
+    // },
+    // Add more links as needed
+  ];
+
   const wordCountStyle = {
     position: "absolute",
     bottom: "10px",
@@ -377,43 +386,7 @@ function CreateAd() {
         flexDirection: "column",
       }}
     >
-      <Navbar
-        expand="lg"
-        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }} // Set the navbar background to #e4e4e4
-      >
-        <Navbar.Brand style={{ marginLeft: "10px" }}>
-          <img
-            src="/fire.png"
-            width="50"
-            height="50"
-            className="d-inline-block align-top"
-          />
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">{/* Nav items here */}</Nav>
-        </Navbar.Collapse>
-
-        <Button
-          variant="light"
-          size="sm"
-          onClick={handleLogout}
-          style={{
-            marginRight: "10px",
-            padding: "5px 10px",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <i
-            className="bi bi-box-arrow-right"
-            style={{ marginRight: "5px" }}
-          ></i>
-          Logout
-        </Button>
-      </Navbar>
+      <NavBar links={links} logoutHandler={handleLogout} />
       <Row>
         <Col md={10} className="mx-auto">
           <Card

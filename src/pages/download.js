@@ -314,7 +314,7 @@ const DownloadPage = () => {
                 }}
                 onClick={handleNewAd}
               >
-                Create a new ad
+                Home
               </button>
             </div>
           </Card.Body>
