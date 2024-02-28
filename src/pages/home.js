@@ -1,4 +1,6 @@
-import { Navbar, Nav, Button, Card } from "react-bootstrap";
+// import { Navbar, Nav, Button, Card } from "react-bootstrap";
+import { Card } from "react-bootstrap";
+import { NavBar } from "@/components/navBar";
 import Link from "next/link";
 import CustomDropdown from "../components/CustomDropdown";
 import Swal from "sweetalert2";
@@ -77,36 +79,8 @@ function Home() {
         flexDirection: "column",
       }}
     >
-      <Navbar
-        // bg="dark"
-        // variant="dark"
-        expand="lg"
-        style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }}
-      >
-        <Navbar.Brand style={{ marginLeft: "10px" }}>
-          <img
-            src="/fire.png"
-            alt="Firebay Studios"
-            width="50"
-            height="50"
-            className="d-inline-block align-top"
-          />
-        </Navbar.Brand>
-
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-between"
-        >
-          <Nav className="mr-auto">
-            {/* Other nav links or content can go here */}
-          </Nav>
-          {/* This will ensure the CustomDropdown is aligned to the right */}
-          <div style={{ paddingRight: "25px" }}>
-            <CustomDropdown items={dropdownItems} />
-          </div>
-        </Navbar.Collapse>
-      </Navbar>
+      {/* Render the NavBar and conditionally pass dropdownItems */}
+      <NavBar dropdownItems={dropdownItems} />
       <div
         style={{
           display: "flex",
