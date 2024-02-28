@@ -58,7 +58,7 @@ function ProcessSection() {
   } = useUserInputsStore();
 
   const { idx } = router.query;
-  const [tmpCurrentSectionIndex, setTmpCurrentSectionIndex] = useState(
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(
     parseInt(idx, 10)
   );
 
@@ -66,7 +66,7 @@ function ProcessSection() {
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
-    return sectionsArray?.[tmpCurrentSectionIndex].clone() || null;
+    return sectionsArray?.[currentSectionIndex].clone() || null;
   });
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
@@ -116,7 +116,7 @@ function ProcessSection() {
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
-
+  const [forceRenderKey, setForceRenderKey] = useState(0);
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
@@ -127,7 +127,7 @@ function ProcessSection() {
   useEffect(() => {
     syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
-    setTmpCurrentSectionIndex(currentIdx);
+    setCurrentSectionIndex(currentIdx);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const sectionToUpdate = sectionsArray[currentIdx];
@@ -507,12 +507,12 @@ function ProcessSection() {
       localSectionsArray[index] = localCurrentSectionObj;
       setSectionsArray(localSectionsArray);
 
-      if (tmpCurrentSectionIndex >= sectionsArray.length - 1) {
+      if (currentSectionIndex >= sectionsArray.length - 1) {
         router.push("/stitch_sections");
       } else {
         router.push(
           "/process_section/[idx]",
-          `/process_section/${tmpCurrentSectionIndex + 1}`
+          `/process_section/${currentSectionIndex + 1}`
         );
       }
     }
@@ -671,6 +671,7 @@ function ProcessSection() {
   };
 
   const handleReplayVoicePreview = () => {
+    setForceRenderKey(Math.random());
     setShowAudioPlayer(true);
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
@@ -1075,6 +1076,7 @@ function ProcessSection() {
                   localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
                 }
                 autoplay={true}
+                forceRender={forceRenderKey}
               />
             )}
           </div>
