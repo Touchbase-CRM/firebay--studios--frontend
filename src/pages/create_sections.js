@@ -14,7 +14,6 @@ import { useRouter } from "next/router";
 
 import useUserInputsStore from "../store/userInputs";
 import { Section } from "../dataStructures/section";
-import { Queue } from "../dataStructures/queue";
 
 import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -29,20 +28,13 @@ function CreateSections() {
   const {
     adLength,
     setAdLength,
-    sectionsQueue,
-    setSectionsQueue,
     sectionsArray,
     setSectionsArray,
-    enqueueSectionZustand,
-    dequeueSectionZustand,
     setNumSectionsIdentified,
-    setCurrentSectionObjZustand,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
-  const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
     useState("");
@@ -106,12 +98,8 @@ function CreateSections() {
       .split(/(?<!\.{2})\.(?!\.)\s+/)
       .filter(Boolean);
 
-    // Clear the current queue before adding new sections
-    useUserInputsStore.getState().resetSectionsQueueZustand();
     setNumSectionsIdentified(extractedSections.length);
     let tmpArray = [];
-    let tmpQueue = new Queue();
-    // Enqueue each extracted section as a Section object
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(
         index + 0,
@@ -122,11 +110,8 @@ function CreateSections() {
       ); // +1 if you want to start indexing from 1
       // Add the section to the tmpArray
       tmpArray.push(section);
-      // enqueueSectionZustand(section);
-      tmpQueue.enqueue(index);
     });
 
-    setLocalSectionsQueue(tmpQueue);
     setLocalSectionsArray(tmpArray);
   };
 
@@ -144,9 +129,8 @@ function CreateSections() {
 
     // Update Zustand store with the local state before navigating
     setSectionsArray(localSectionsArray);
-    // setSectionsQueue(localSectionsQueue);
 
-    // Navigate to the first section if the queue is not empty
+    // Navigate to the first section if the section array is not empty
     if (localSectionsArray.length !== 0) {
       router.push("/process_section/0");
     }
@@ -319,7 +303,7 @@ function CreateSections() {
                   <Form.Label style={{ color: "black" }}>
                     Sections From Your Script
                   </Form.Label>
-                  {localSectionsQueue.size() > 0 ? (
+                  {localSectionsArray.length > 0 ? (
                     <Table bordered hover style={{ borderColor: "#eb631c" }}>
                       <thead style={{ backgroundColor: "#eb631c" }}>
                         <tr>
@@ -358,15 +342,14 @@ function CreateSections() {
                         </tr>
                       </thead>
                       <tbody>
-                        {localSectionsQueue.items.map((sectionIdx, index) => {
-                          const section = localSectionsArray[sectionIdx];
+                        {localSectionsArray.map((section, index) => {
                           return (
                             <tr key={index} style={{ borderColor: "#eb631c" }}>
                               <td
                                 style={{
                                   borderColor: "#eb631c",
                                   padding: "8px",
-                                  textAlign: "center", // Center align for better aesthetics
+                                  textAlign: "center",
                                 }}
                               >
                                 {section.getIndex() + 1}
@@ -375,7 +358,6 @@ function CreateSections() {
                                 style={{
                                   borderColor: "#eb631c",
                                   padding: "8px",
-                                  // Removed maxWidth to allow this cell to take up remaining space
                                 }}
                               >
                                 {section.getOriginalContent()}
@@ -384,7 +366,7 @@ function CreateSections() {
                                 style={{
                                   borderColor: "#eb631c",
                                   padding: "8px",
-                                  textAlign: "center", // Center align for better aesthetics
+                                  textAlign: "center",
                                 }}
                               >
                                 {section.getOriginalCharCount()}
@@ -404,10 +386,10 @@ function CreateSections() {
 
               <br></br>
               {/* Display the number of sections found */}
-              {localSectionsQueue.size() > 0 && (
+              {localSectionsArray.length > 0 && (
                 <div className="alert alert-success" role="alert">
-                  We have found {localSectionsQueue.size()} section
-                  {localSectionsQueue.size() !== 1 ? "s" : ""} in your script.
+                  We have found {localSectionsArray.length} section
+                  {localSectionsArray.length !== 1 ? "s" : ""} in your script.
                   You will be prompted to produce the voice for these one by one
                   in the next few steps. To comply with the ad length you
                   desired, you will be limited to the character count mentioned
@@ -440,7 +422,6 @@ function CreateSections() {
               Next
             </Button>
           </div>
-          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
         </Col>
       </Row>
     </div>
