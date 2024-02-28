@@ -1,5 +1,3 @@
-// src/store/methods/UserInputMethods.js
-
 export class UserInputMethods {
   constructor(set) {
     this.set = set;
@@ -28,7 +26,6 @@ export class UserInputMethods {
     this.setTempSectionObjHolder = this.setTempSectionObjHolder.bind(this);
     this.setLastEditedSectionIdx = this.setLastEditedSectionIdx.bind(this);
     this.setCurrentSectionObjIdx = this.setCurrentSectionObjIdx.bind(this);
-    this.setSectionsQueue = this.setSectionsQueue.bind(this);
     this.setNavigationStack = this.setNavigationStack.bind(this);
   }
 
@@ -36,9 +33,6 @@ export class UserInputMethods {
     this.set({ navigationStack });
   }
 
-  setSectionsQueue(sectionsQueue) {
-    this.set({ sectionsQueue });
-  }
   //setter for currentSectionObjIdx
   setCurrentSectionObjIdx(currentSectionObjIdx) {
     this.set({ currentSectionObjIdx });
