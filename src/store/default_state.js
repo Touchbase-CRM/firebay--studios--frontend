@@ -1,5 +1,4 @@
 // src/store/defaultState.js
-import { Section } from "../dataStructures/section";
 import { Stack } from "../dataStructures/stack";
 
 export const defaultState = {
