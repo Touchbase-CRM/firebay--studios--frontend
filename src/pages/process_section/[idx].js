@@ -13,14 +13,14 @@ import {
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
 
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
-import useUserInputsStore from "../store/userInputs";
-import withAuth from "../hocs/withAuth";
+import useUserInputsStore from "../../store/userInputs";
+import withAuth from "../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -35,7 +35,7 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../dataStructures/stack";
+import { Stack } from "../../dataStructures/stack";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -50,30 +50,29 @@ function ProcessSection() {
 
   // Zustand store hooks
   const {
-    sectionsQueue,
-    setSectionsQueue,
     sectionsArray,
     setSectionsArray,
     adLength,
-    currentSectionObj,
-    setCurrentSectionObjZustand,
-    setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
-    lastEditedSectionIdx,
   } = useUserInputsStore();
+
+  const { idx } = router.query;
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(
+    parseInt(idx, 10)
+  );
 
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  const [localCurrentSectionObj, setLocalCurrentSectionObj] =
-    useState(currentSectionObj);
-  const [localSectionsQueue, setLocalSectionsQueue] = useState(sectionsQueue);
+  const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
+    return sectionsArray?.[currentSectionIndex].clone() || null;
+  });
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localStack, setLocalStack] = useState(() => new Stack());
-  const syncStackWithGlobal = useUserInputsStore((state) => state.setStack);
+  const syncStackWithGlobal = useUserInputsStore(
+    (state) => state.setNavigationStack
+  );
   const speechRateOptions = [
     { label: "Normal", value: "Normal" },
     { label: "1.25x", value: "1.25X" },
@@ -114,89 +113,84 @@ function ProcessSection() {
         localCurrentSectionObj.getSectionDurationSeconds())
   );
 
+  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
-
-  // On component mount, initialize the local stack with the global stack's items
-  useEffect(() => {
-    const globalStack = useUserInputsStore.getState().sectionsStack;
+  const [forceRenderKey, setForceRenderKey] = useState(0);
+  const syncStackAfterNavigation = () => {
+    const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
     newStack.items = [...globalStack.items];
     setLocalStack(newStack);
-  }, []);
-
-  useEffect(() => {
-    if (localStack.isEmpty()) return;
-    const lastIdx = localStack.pop();
-    const newCurrentSectionObj = sectionsArray[lastIdx];
-
-    // Call the utility function with the new section object
-    updateSectionDetails(newCurrentSectionObj);
-
-    // Calculate and set progress bar percentage and seconds left
-    const progressBarPercentage = Math.round(
-      ((previousSectionsTotalDuration +
-        newCurrentSectionObj.getSectionDurationSeconds()) /
-        adLength) *
-        100
-    );
-    setProgressBarPercentage(progressBarPercentage);
-    const secondsLeft =
-      adLength -
-      (previousSectionsTotalDuration +
-        newCurrentSectionObj.getSectionDurationSeconds());
-    setSecondsYouHaveLeft(secondsLeft);
-    setCurrentSectionObjZustand(newCurrentSectionObj.clone());
-  }, [localStack]);
-
-  // Utility function to set all section details
-  function updateSectionDetails(sectionObj) {
-    setTypedText(sectionObj.getOriginalContent());
-    setTransformedWords(sectionObj.getCurrentTransformations());
-    setOgScriptWordsArray(sectionObj.getCurrentWords());
-  }
-
-  const localPushData = (newData) => {
-    localStack.push(newData);
-    // Trigger state update with a new reference to ensure re-render
-    setLocalStack(localStack.clone());
   };
 
-  const localPopData = () => {
+  useEffect(() => {
+    syncStackAfterNavigation();
+    const currentIdx = parseInt(idx, 10);
+    setCurrentSectionIndex(currentIdx);
+
+    if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
+      const sectionToUpdate = sectionsArray[currentIdx];
+
+      // Assuming sectionToUpdate effectively mimics the clone's intended behavior
+      setLocalCurrentSectionObj(sectionToUpdate);
+
+      // Update dependent states based on the new current section
+      setOgScriptWordsArray(
+        sectionToUpdate.getOriginalContent()
+          ? sectionToUpdate.getCurrentWords()
+          : []
+      );
+      setTypedText(
+        sectionToUpdate.getOriginalContent()
+          ? sectionToUpdate.getCurrentWords().join(" ")
+          : ""
+      );
+      setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+      // Calculate progress and time left
+      const previousSectionsTotalDuration = sectionsArray
+        .slice(0, currentIdx)
+        .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+      const newProgressBarPercentage = Math.round(
+        ((previousSectionsTotalDuration +
+          sectionToUpdate.getSectionDurationSeconds()) /
+          adLength) *
+          100
+      );
+      const newSecondsLeft =
+        adLength -
+        (previousSectionsTotalDuration +
+          sectionToUpdate.getSectionDurationSeconds());
+
+      setProgressBarPercentage(newProgressBarPercentage);
+      setSecondsYouHaveLeft(newSecondsLeft);
+      setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+      setShowAudioPlayer(false);
+    }
+  }, [idx]); // Depend solely on idx
+
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const localPopData = (newData, clone = false) => {
     let removedData = localStack.pop();
-    // Trigger state update with a new reference to ensure re-render
-    setLocalStack(localStack.clone());
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
     return removedData;
   };
 
   useEffect(() => {
-    // prevent back button
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
-    };
-
-    const handleBackButton = async () => {
-      handleLogout();
-    };
-    localCurrentSectionObj;
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.onpopstate = handleBackButton;
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.onpopstate = null;
-    };
-  }, [router]);
-
-  useEffect(() => {
-    setLocalCurrentSectionObj(currentSectionObj.clone());
-  }, [currentSectionObj.getIndex()]);
-
-  useEffect(() => {
-    if (isFormSubmitted && localSectionsQueue.size() === 0) {
-      // Check if the queue is empty
-
+    if (isFormSubmitted) {
       router.push("/stitch_sections");
     }
   }, [isFormSubmitted, router]);
@@ -329,6 +323,13 @@ function ProcessSection() {
       return { error: error.message };
     }
   }
+  const handleVoicePreviewPlayButton = (e) => {
+    e.preventDefault();
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(
+      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+    );
+  };
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
@@ -442,9 +443,12 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      setShowAudioPlayer(true);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
-      setGeneratedVoiceUrl(""); // This line is added to reset the URL
+      setGeneratedVoiceUrl(
+        baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+      );
     } else {
       // Handle the case when no metadata is found
       console.log(
@@ -494,40 +498,20 @@ function ProcessSection() {
       setLocalSectionsArray(localSectionsArray);
 
       // load the next section
-      let topIdxOnStack = localPopData();
-      setCurrentSectionObjZustand(localSectionsArray[topIdxOnStack]);
-      syncLocalStackWithGlobal;
+      let lastInUrl = localPopData();
+      syncLocalStackWithGlobal();
+      router.push(lastInUrl);
     } else {
-      if (lastEditedSectionIdx === localCurrentSectionObj.getIndex()) {
-        setTempSectionObjHolder(localCurrentSectionObj);
-      } else {
-        localSectionsArray[index] = localCurrentSectionObj;
-        setSectionsArray(localSectionsArray);
-      }
+      localSectionsArray[index] = localCurrentSectionObj;
+      setSectionsArray(localSectionsArray);
 
-      if (localSectionsQueue.size() === 0) {
-        setSectionsQueue(localSectionsQueue);
+      if (currentSectionIndex >= sectionsArray.length - 1) {
         router.push("/stitch_sections");
       } else {
-        console.log("Queue not empty, continue processing");
-        const dequeuedSectionIdx = localSectionsQueue.dequeue();
-        const dequeuedSection = localSectionsArray[dequeuedSectionIdx];
-        setCurrentSectionObjZustand(dequeuedSection);
-        setSectionsQueue(localSectionsQueue);
-
-        const currentSectionContent = dequeuedSection.getCurrentContent();
-
-        // Update the original script string to the last dequeued item
-        setTypedText(currentSectionContent || "");
-
-        // Split the dequeued item into words and update transformed words
-        const newWords = currentSectionContent
-          ? currentSectionContent.split(" ")
-          : [];
-
-        // Update the original script words array and transformed words
-        setOgScriptWordsArray(newWords);
-        setTransformedWords({}); // Reset the transformed words
+        router.push(
+          "/process_section/[idx]",
+          `/process_section/${currentSectionIndex + 1}`
+        );
       }
     }
   };
@@ -626,7 +610,7 @@ function ProcessSection() {
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       }
-
+      setShowAudioPlayer(true);
       setGeneratedVoiceUrl(audioUrl);
       const newDuration = await getAudioDuration(audioUrl);
       setProgressBarPercentage(
@@ -640,6 +624,7 @@ function ProcessSection() {
       localCurrentSectionObj.setSectionDurationSeconds(newDuration);
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
+      localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
     } catch (error) {
       console.error("Error generating voice:", error);
@@ -664,9 +649,29 @@ function ProcessSection() {
   };
 
   const handleGoBack = () => {
+    // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
-    localPushData(currentSectionIdx);
-    localPushData(currentSectionIdx - 1);
+    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+
+    // save the current url in the stack
+    localPushData(`/process_section/${currentSectionIdx}`);
+    syncLocalStackWithGlobal();
+    // move to the new url
+    if (currentSectionIdx > 0) {
+      router.push(
+        "/process_section/[idx]",
+        `/process_section/${currentSectionIdx - 1}`
+      );
+    } else {
+      router.push("/create_sections");
+    }
+  };
+
+  const handleReplayVoicePreview = () => {
+    setForceRenderKey(Math.random());
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
   const wordCountStyle = {
@@ -746,21 +751,21 @@ function ProcessSection() {
                 marginBottom: "20px",
               }}
             >
-              {
+              {localCurrentSectionObj.getIndex() !== 0 && (
                 <BackButton
                   width="30px"
                   height="30px"
                   backgroundColor="#eb631c"
                   onClick={handleGoBack} // Pass the onClick method directly
                 />
-              }
+              )}
             </div>
             <Card.Title style={{ marginTop: "20px" }}>
               Section {localCurrentSectionObj.getIndex() + 1} of{" "}
               {numSectionsIdentified}
             </Card.Title>
             <Form key={localCurrentSectionObj.getHistoryItemId()}>
-              <Form.Group controlId="voice">
+              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
                   now={progressBarPercentage}
@@ -809,20 +814,37 @@ function ProcessSection() {
                     />
                   </div>
                 ) : (
-                  <Form.Select
-                    aria-label="Voice select"
-                    value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                    onChange={handleVoiceChange}
-                    style={{ color: "black" }}
-                  >
-                    {voiceOptions.map((voice, index) => (
-                      <option key={index} value={voice}>
-                        {" "}
-                        {/* Use unique index or better yet, a unique ID */}
-                        {voice}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {" "}
+                    {/* Wrap Form.Select and the icon in a div */}
+                    <Form.Select
+                      aria-label="Voice select"
+                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                      onChange={handleVoiceChange}
+                      style={{ color: "black" }}
+                    >
+                      {voiceOptions.map((voice, index) => (
+                        <option key={index} value={voice}>
+                          {voice}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVoicePreviewPlayButton(e); // Pass the event object
+                      }}
+                      style={{
+                        marginLeft: "10px",
+                        backgroundColor: "#eb631c", // Orange color
+                        borderColor: "#eb631c", // Orange border
+                        color: "white",
+                      }}
+                    >
+                      <i className="bi bi-play-fill"></i>
+                    </Button>{" "}
+                    {/* Modified line */}
+                  </div>
                 )}
               </Form.Group>
               <Form.Group
@@ -961,6 +983,7 @@ function ProcessSection() {
                 ))}
               </div>
             </Card.Body>
+
             {/* Position the Generate Voice button at the bottom right of the card */}
             <Button
               onClick={handleGenerateVoice}
@@ -993,40 +1016,67 @@ function ProcessSection() {
           </Card>
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
+              display: "flex", // Enable flexbox
+              justifyContent: "space-between", // Space between items
+              alignItems: "center", // Align items vertically
+              bottom: "10px",
+              left: "10px",
               fontSize: "small",
               fontWeight: "bold",
               fontStyle: "italic",
             }}
           >
+            {/* Next Button */}
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px",
+                marginRight: "10px", // Keep for right margin
                 marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
               }}
               onClick={handleSubmit}
             >
-              {lastEditedSectionIdx !== localCurrentSectionObj.getIndex()
-                ? "Next"
-                : "Done"}
+              {"Next"}
             </Button>
+
+            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReplayVoicePreview(e);
+                }}
+                style={{
+                  marginRight: "0px", // Adjusted for consistency
+                  marginTop: "20px",
+                  backgroundColor: "#FDA942",
+                  borderColor: "#FDA942",
+                }}
+              >
+                <i
+                  className="bi bi-arrow-clockwise"
+                  style={{ verticalAlign: "middle" }}
+                ></i>
+                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                  Replay Latest Read
+                </span>
+              </Button>
+            )}
           </div>
+
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
-            <SimpleAudioPlayer
-              audioSrc={
-                generatedVoiceUrl ||
-                baseVoicePreviewsUrl +
-                  localCurrentSectionObj.getVoicePreviewFilename()
-              }
-              audioTitle={localCurrentSectionObj.getVoiceName()}
-              allowDownload={generatedVoiceUrl !== ""}
-            />
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioSrc={generatedVoiceUrl}
+                audioTitle={localCurrentSectionObj.getVoiceName()}
+                allowDownload={
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
+                }
+                autoplay={true}
+                forceRender={forceRenderKey}
+              />
+            )}
           </div>
 
           {showMenu && (
