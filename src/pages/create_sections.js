@@ -28,26 +28,16 @@ function CreateSections() {
   const {
     adLength,
     setAdLength,
-    sectionsQueue,
-    enqueueSectionZustand,
-    dequeueSectionZustand,
-    // sectionsArray,
-    currentSectionObj,
-    numSectionsIdentified,
+    sectionsArray,
+    setSectionsArray,
     setNumSectionsIdentified,
-    setCurrentSectionObjZustand,
-    setOriginalScriptString,
-    ogScriptWordsArray,
-    setOgScriptWordsArray,
-    transformedWords,
-    setTransformedWords,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+  const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
     useState("");
-
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
 
@@ -76,7 +66,7 @@ function CreateSections() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/process_section");
+      router.push("/process_section/0");
     }
   }, [isFormSubmitted, router]);
 
@@ -108,10 +98,8 @@ function CreateSections() {
       .split(/(?<!\.{2})\.(?!\.)\s+/)
       .filter(Boolean);
 
-    // Clear the current queue before adding new sections
-    useUserInputsStore.getState().resetSectionsQueueZustand();
     setNumSectionsIdentified(extractedSections.length);
-    // Enqueue each extracted section as a Section object
+    let tmpArray = [];
     extractedSections.forEach((sectionContent, index) => {
       const section = new Section(
         index + 0,
@@ -120,8 +108,11 @@ function CreateSections() {
         null,
         0
       ); // +1 if you want to start indexing from 1
-      enqueueSectionZustand(section);
+      // Add the section to the tmpArray
+      tmpArray.push(section);
     });
+
+    setLocalSectionsArray(tmpArray);
   };
 
   const handleSubmit = (e) => {
@@ -136,12 +127,12 @@ function CreateSections() {
 
     if (!isValid) return;
 
-    if (sectionsQueue.size() !== 0) {
-      router.push("/process_section");
-      console.log("Queue not empty, continue processing");
-      dequeueSectionZustand(); // Remove the first item from the queue
-      const lastDequeuedItemObject = useUserInputsStore.getState();
-      setCurrentSectionObjZustand(lastDequeuedItemObject.lastDequeuedItem);
+    // Update Zustand store with the local state before navigating
+    setSectionsArray(localSectionsArray);
+
+    // Navigate to the first section if the section array is not empty
+    if (localSectionsArray.length !== 0) {
+      router.push("/process_section/0");
     }
   };
 
@@ -312,7 +303,7 @@ function CreateSections() {
                   <Form.Label style={{ color: "black" }}>
                     Sections From Your Script
                   </Form.Label>
-                  {sectionsQueue.size() > 0 ? (
+                  {localSectionsArray.length > 0 ? (
                     <Table bordered hover style={{ borderColor: "#eb631c" }}>
                       <thead style={{ backgroundColor: "#eb631c" }}>
                         <tr>
@@ -351,37 +342,38 @@ function CreateSections() {
                         </tr>
                       </thead>
                       <tbody>
-                        {sectionsQueue.items.map((section, index) => (
-                          <tr key={index} style={{ borderColor: "#eb631c" }}>
-                            <td
-                              style={{
-                                borderColor: "#eb631c",
-                                padding: "8px",
-                                textAlign: "center", // Center align for better aesthetics
-                              }}
-                            >
-                              {section.getIndex() + 1}
-                            </td>
-                            <td
-                              style={{
-                                borderColor: "#eb631c",
-                                padding: "8px",
-                                // Removed maxWidth to allow this cell to take up remaining space
-                              }}
-                            >
-                              {section.getOriginalContent()}
-                            </td>
-                            <td
-                              style={{
-                                borderColor: "#eb631c",
-                                padding: "8px",
-                                textAlign: "center", // Center align for better aesthetics
-                              }}
-                            >
-                              {section.getOriginalCharCount()}
-                            </td>
-                          </tr>
-                        ))}
+                        {localSectionsArray.map((section, index) => {
+                          return (
+                            <tr key={index} style={{ borderColor: "#eb631c" }}>
+                              <td
+                                style={{
+                                  borderColor: "#eb631c",
+                                  padding: "8px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {section.getIndex() + 1}
+                              </td>
+                              <td
+                                style={{
+                                  borderColor: "#eb631c",
+                                  padding: "8px",
+                                }}
+                              >
+                                {section.getOriginalContent()}
+                              </td>
+                              <td
+                                style={{
+                                  borderColor: "#eb631c",
+                                  padding: "8px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {section.getOriginalCharCount()}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </Table>
                   ) : (
@@ -394,14 +386,14 @@ function CreateSections() {
 
               <br></br>
               {/* Display the number of sections found */}
-              {sectionsQueue.size() > 0 && (
+              {localSectionsArray.length > 0 && (
                 <div className="alert alert-success" role="alert">
-                  We have found {sectionsQueue.size()} section
-                  {sectionsQueue.size() !== 1 ? "s" : ""} in your script. You
-                  will be prompted to produce the voice for these one by one in
-                  the next few steps. To comply with the ad length you desired,
-                  you will be limited to the character count mentioned for each
-                  section above.
+                  We have found {localSectionsArray.length} section
+                  {localSectionsArray.length !== 1 ? "s" : ""} in your script.
+                  You will be prompted to produce the voice for these one by one
+                  in the next few steps. To comply with the ad length you
+                  desired, you will be limited to the character count mentioned
+                  for each section above.
                 </div>
               )}
             </Card.Body>
@@ -430,7 +422,6 @@ function CreateSections() {
               Next
             </Button>
           </div>
-          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
         </Col>
       </Row>
     </div>

@@ -9,20 +9,10 @@ import Swal from "sweetalert2";
 import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
 
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Navbar,
-  Nav,
-  Button,
-  Table,
-  Spinner as BootstrapSpinner,
-} from "react-bootstrap";
-import { Play } from "react-bootstrap-icons";
+import { Card, Navbar, Nav, Button, Table } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
+import { Stack } from "../dataStructures/stack"; // Adjusted
 
 function StitchSections() {
   const auth = getAuth();
@@ -32,16 +22,16 @@ function StitchSections() {
   const {
     sectionsArray,
     setSectionsArray,
-    tempSectionObjHolder,
     adLength,
     reset: resetUserInputsStore,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
-    setCurrentSectionObjZustand,
-    lastEditedSectionIdx,
-    setLastEditedSectionIdx,
   } = useUserInputsStore();
+  const [localStack, setLocalStack] = useState(() => new Stack());
+  const syncStackWithGlobal = useUserInputsStore(
+    (state) => state.setNavigationStack
+  );
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
@@ -50,8 +40,7 @@ function StitchSections() {
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
-  const [localSectionsArray, setLocalSectionsArray] = useState([]);
-
+  const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -62,16 +51,6 @@ function StitchSections() {
   useEffect(() => {
     calculateTotalDuration();
   }, [localSectionsArray]);
-
-  useEffect(() => {
-    const index = tempSectionObjHolder.getIndex();
-    if (index !== lastEditedSectionIdx) {
-      localSectionsArray[index] = tempSectionObjHolder;
-      setLocalSectionsArray(localSectionsArray);
-    } else {
-      setLocalSectionsArray(sectionsArray);
-    }
-  }, []);
 
   useEffect(() => {
     // prevent back button
@@ -337,14 +316,31 @@ function StitchSections() {
     }
   };
 
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const syncLocalStackWithGlobal = () => {
+    syncStackWithGlobal(localStack);
+  };
+
   const handleEditSection = (section) => {
-    setCurrentSectionObjZustand(section);
-    setLastEditedSectionIdx(section.getIndex());
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
       setGeneratedVoiceUrl("");
     }
-    router.push("/process_section");
+    localPushData("/stitch_sections");
+    syncLocalStackWithGlobal();
+
+    router.push(
+      "/process_section/[idx]",
+      `/process_section/${section.getIndex()}`
+    );
   };
 
   if (pendingAdvertisement) {
@@ -485,14 +481,14 @@ function StitchSections() {
                       borderColor: "#eb631c",
                     }}
                   >
-                    Initial Section
+                    Original Section
                   </th>
                   <th
                     style={{
                       borderColor: "#eb631c",
                     }}
                   >
-                    Current Section
+                    Revised Section
                   </th>
                   <th
                     style={{
@@ -533,7 +529,7 @@ function StitchSections() {
                       {section.currentContent}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
-                      {section.sectionDurationSeconds.toFixed(2)}
+                      {section.getSectionDurationSeconds().toFixed(2)}
                     </td>
                     <td
                       style={{

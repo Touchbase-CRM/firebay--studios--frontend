@@ -1,5 +1,3 @@
-// src/store/methods/UserInputMethods.js
-
 export class UserInputMethods {
   constructor(set) {
     this.set = set;
@@ -25,21 +23,13 @@ export class UserInputMethods {
     this.setSectionsArray = this.setSectionsArray.bind(this);
     this.setStitchedAudioPyroHistoryItemId =
       this.setStitchedAudioPyroHistoryItemId.bind(this);
-    this.setTempSectionObjHolder = this.setTempSectionObjHolder.bind(this);
-    this.setLastEditedSectionIdx = this.setLastEditedSectionIdx.bind(this);
+    this.setNavigationStack = this.setNavigationStack.bind(this);
   }
 
-  // setter for lastEditedSectionIdx
-  setLastEditedSectionIdx(lastEditedSectionIdx) {
-    this.set({ lastEditedSectionIdx });
+  setNavigationStack(navigationStack) {
+    this.set({ navigationStack });
   }
 
-  //setter for tempSectionObjHolder
-  setTempSectionObjHolder(tempSectionObjHolder) {
-    this.set({ tempSectionObjHolder });
-  }
-
-  //stitchedAudioPyroHistoryItemId: "" set a setter for this
   setStitchedAudioPyroHistoryItemId(stitchedAudioPyroHistoryItemId) {
     this.set({ stitchedAudioPyroHistoryItemId });
   }

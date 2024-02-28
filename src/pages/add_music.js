@@ -31,6 +31,7 @@ import {
   where,
 } from "firebase/firestore";
 import app from "../firebase";
+import { Stack } from "../dataStructures/stack";
 
 const db = getFirestore(app);
 
@@ -59,6 +60,10 @@ function AddMusic() {
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
   const [tempVolume, setTempVolume] = useState(musicVol);
+  const [localStack, setLocalStack] = useState(() => new Stack());
+  const syncStackWithGlobal = useUserInputsStore(
+    (state) => state.setNavigationStack
+  );
 
   const router = useRouter();
 
@@ -76,8 +81,29 @@ function AddMusic() {
     Math.round(musicVol * 100)
   );
 
-  const goBack = () => {
-    router.back();
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const syncLocalStackWithGlobal = () => {
+    syncStackWithGlobal(localStack);
+  };
+
+  const handleGoBack = () => {
+    // save the current url in the stack
+    localPushData(`/stitch_sections`);
+    syncLocalStackWithGlobal();
+    // move to the new url
+    if (sectionsArray.length > 0) {
+      router.push("/stitch_sections");
+    } else {
+      router.push("/create_ad");
+    }
   };
 
   // Cancel token source for the Axios request
@@ -456,7 +482,7 @@ function AddMusic() {
                 width="30px"
                 height="30px"
                 backgroundColor="#eb631c"
-                onClick={goBack} // Pass the onClick method directly
+                onClick={handleGoBack} // Pass the onClick method directly
               />
             </div>
             <h2
