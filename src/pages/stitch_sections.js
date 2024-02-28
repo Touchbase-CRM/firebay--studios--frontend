@@ -22,13 +22,11 @@ function StitchSections() {
   const {
     sectionsArray,
     setSectionsArray,
-    tempSectionObjHolder,
     adLength,
     reset: resetUserInputsStore,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
-    lastEditedSectionIdx,
   } = useUserInputsStore();
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
@@ -53,15 +51,6 @@ function StitchSections() {
   useEffect(() => {
     calculateTotalDuration();
   }, [localSectionsArray]);
-
-  // useEffect(() => {
-  //   const index = tempSectionObjHolder.getIndex();
-  //   if (index !== lastEditedSectionIdx) {
-  //     localSectionsArray[index] = tempSectionObjHolder;
-  //     setLocalSectionsArray(localSectionsArray);
-  //     setSectionsArray(localSectionsArray);
-  //   }
-  // }, []);
 
   useEffect(() => {
     // prevent back button
@@ -334,16 +323,6 @@ function StitchSections() {
     } else {
       setLocalStack(localStack);
     }
-  };
-
-  const localPopData = (newData, clone = false) => {
-    let removedData = localStack.pop();
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-    return removedData;
   };
 
   const syncLocalStackWithGlobal = () => {

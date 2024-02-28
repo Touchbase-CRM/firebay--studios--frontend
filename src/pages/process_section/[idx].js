@@ -190,9 +190,7 @@ function ProcessSection() {
   };
 
   useEffect(() => {
-    if (isFormSubmitted && localSectionsQueue.size() === 0) {
-      // Check if the queue is empty
-
+    if (isFormSubmitted) {
       router.push("/stitch_sections");
     }
   }, [isFormSubmitted, router]);
