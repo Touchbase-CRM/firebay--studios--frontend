@@ -55,8 +55,6 @@ function ProcessSection() {
     adLength,
     numSectionsIdentified,
     reset: resetUserInputsStore,
-    generatedVoiceUrl,
-    setGeneratedVoiceUrl,
   } = useUserInputsStore();
 
   const { idx } = router.query;
@@ -115,6 +113,8 @@ function ProcessSection() {
         localCurrentSectionObj.getSectionDurationSeconds())
   );
 
+  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
 
   const syncStackAfterNavigation = () => {
@@ -165,6 +165,8 @@ function ProcessSection() {
 
       setProgressBarPercentage(newProgressBarPercentage);
       setSecondsYouHaveLeft(newSecondsLeft);
+      setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+      setShowAudioPlayer(false);
     }
   }, [idx]); // Depend solely on idx
 
@@ -323,6 +325,13 @@ function ProcessSection() {
       return { error: error.message };
     }
   }
+  const handleVoicePreviewPlayButton = (e) => {
+    e.preventDefault();
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(
+      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+    );
+  };
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
@@ -436,9 +445,12 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      setShowAudioPlayer(true);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
-      setGeneratedVoiceUrl(""); // This line is added to reset the URL
+      setGeneratedVoiceUrl(
+        baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+      );
     } else {
       // Handle the case when no metadata is found
       console.log(
@@ -600,8 +612,8 @@ function ProcessSection() {
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       }
-
-      // setGeneratedVoiceUrl(audioUrl);
+      setShowAudioPlayer(true);
+      setGeneratedVoiceUrl(audioUrl);
       const newDuration = await getAudioDuration(audioUrl);
       setProgressBarPercentage(
         Math.round(
@@ -656,6 +668,11 @@ function ProcessSection() {
     } else {
       router.push("/create_sections");
     }
+  };
+
+  const handleReplayVoicePreview = () => {
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
   const wordCountStyle = {
@@ -749,7 +766,7 @@ function ProcessSection() {
               {numSectionsIdentified}
             </Card.Title>
             <Form key={localCurrentSectionObj.getHistoryItemId()}>
-              <Form.Group controlId="voice">
+              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
                   now={progressBarPercentage}
@@ -816,7 +833,7 @@ function ProcessSection() {
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log("Play button clicked");
+                        handleVoicePreviewPlayButton(e); // Pass the event object
                       }}
                       style={{
                         marginLeft: "10px",
@@ -967,6 +984,7 @@ function ProcessSection() {
                 ))}
               </div>
             </Card.Body>
+
             {/* Position the Generate Voice button at the bottom right of the card */}
             <Button
               onClick={handleGenerateVoice}
@@ -999,18 +1017,21 @@ function ProcessSection() {
           </Card>
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
+              display: "flex", // Enable flexbox
+              justifyContent: "space-between", // Space between items
+              alignItems: "center", // Align items vertically
+              bottom: "10px",
+              left: "10px",
               fontSize: "small",
               fontWeight: "bold",
               fontStyle: "italic",
             }}
           >
+            {/* Next Button */}
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px",
+                marginRight: "10px", // Keep for right margin
                 marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
@@ -1019,21 +1040,43 @@ function ProcessSection() {
             >
               {"Next"}
             </Button>
+
+            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReplayVoicePreview(e);
+                }}
+                style={{
+                  marginRight: "0px", // Adjusted for consistency
+                  marginTop: "20px",
+                  backgroundColor: "#FDA942",
+                  borderColor: "#FDA942",
+                }}
+              >
+                <i
+                  className="bi bi-arrow-clockwise"
+                  style={{ verticalAlign: "middle" }}
+                ></i>
+                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                  Replay Latest Read
+                </span>
+              </Button>
+            )}
           </div>
+
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
-            <SimpleAudioPlayer
-              audioSrc={
-                localCurrentSectionObj.getGeneratedVoiceUrl() ||
-                baseVoicePreviewsUrl +
-                  localCurrentSectionObj.getVoicePreviewFilename()
-              }
-              audioTitle={localCurrentSectionObj.getVoiceName()}
-              allowDownload={
-                localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
-              }
-              autoplay={false}
-            />
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioSrc={generatedVoiceUrl}
+                audioTitle={localCurrentSectionObj.getVoiceName()}
+                allowDownload={
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
+                }
+                autoplay={true}
+              />
+            )}
           </div>
 
           {showMenu && (
