@@ -1,8 +1,15 @@
 import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
-import CustomDropdown from "../CustomDropdown";
+import CustomDropdown from "../CustomDropdown"; // Adjust the import path as needed
+import { useRouter } from "next/router";
 
-export const NavBar = ({ dropdownItems }) => {
+export const NavBar = ({ links, dropdownItems }) => {
+  const router = useRouter();
+
+  const navigate = (url) => {
+    router.push(url);
+  };
+
   return (
     <Navbar
       expand="lg"
@@ -24,7 +31,16 @@ export const NavBar = ({ dropdownItems }) => {
         className="justify-content-between"
       >
         <Nav className="mr-auto">
-          {/* Other nav links or content can go here */}
+          {/* Iterate over links and use navigate function to handle clicks */}
+          {links.map((link, index) => (
+            <Nav.Link
+              key={index}
+              onClick={() => navigate(link.url)}
+              style={link.style}
+            >
+              {link.icon && <i className={link.icon}></i>} {link.label}
+            </Nav.Link>
+          ))}
         </Nav>
         {/* Conditionally render the CustomDropdown if dropdownItems are provided */}
         {dropdownItems && dropdownItems.length > 0 && (

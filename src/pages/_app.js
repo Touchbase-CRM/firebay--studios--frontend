@@ -33,6 +33,10 @@ function MyApp({ Component, pageProps }) {
     <PostHogProvider client={posthog}>
       <AuthProvider>
         <Head>
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+          />
           <style>
             {`
               body {
