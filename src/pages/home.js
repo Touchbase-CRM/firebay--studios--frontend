@@ -2,7 +2,6 @@
 import { Card } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import Link from "next/link";
-import CustomDropdown from "../components/CustomDropdown";
 import Swal from "sweetalert2";
 
 import withAuth from "../hocs/withAuth";
@@ -71,23 +70,6 @@ function Home() {
     },
   ];
 
-  const links = [
-    {
-      label: "Home",
-      url: "/create_ad",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
-  ];
-
   return (
     <div
       style={{
@@ -97,8 +79,7 @@ function Home() {
         flexDirection: "column",
       }}
     >
-      {/* Render the NavBar and conditionally pass dropdownItems */}
-      <NavBar links={links} dropdownItems={dropdownItems} />
+      <NavBar links={[]} dropdownItems={dropdownItems} />
       <div
         style={{
           display: "flex",
