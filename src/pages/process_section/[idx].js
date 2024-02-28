@@ -53,12 +53,10 @@ function ProcessSection() {
     sectionsArray,
     setSectionsArray,
     adLength,
-    setTempSectionObjHolder,
     numSectionsIdentified,
     reset: resetUserInputsStore,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
-    lastEditedSectionIdx,
   } = useUserInputsStore();
 
   const { idx } = router.query;
@@ -170,37 +168,6 @@ function ProcessSection() {
     }
   }, [idx]); // Depend solely on idx
 
-  // useEffect(() => {
-  //   if (localStack.isEmpty()) return;
-  //   const lastIdx = localStack.pop();
-  //   const newCurrentSectionObj = sectionsArray[lastIdx];
-
-  //   // Call the utility function with the new section object
-  //   updateSectionDetails(newCurrentSectionObj);
-
-  //   // Calculate and set progress bar percentage and seconds left
-  //   const progressBarPercentage = Math.round(
-  //     ((previousSectionsTotalDuration +
-  //       newCurrentSectionObj.getSectionDurationSeconds()) /
-  //       adLength) *
-  //       100
-  //   );
-  //   setProgressBarPercentage(progressBarPercentage);
-  //   const secondsLeft =
-  //     adLength -
-  //     (previousSectionsTotalDuration +
-  //       newCurrentSectionObj.getSectionDurationSeconds());
-  //   setSecondsYouHaveLeft(secondsLeft);
-  //   setCurrentSectionObjZustand(newCurrentSectionObj.clone());
-  // }, [localStack]);
-
-  // Utility function to set all section details
-  // function updateSectionDetails(sectionObj) {
-  //   setTypedText(sectionObj.getOriginalContent());
-  //   setTransformedWords(sectionObj.getCurrentTransformations());
-  //   setOgScriptWordsArray(sectionObj.getCurrentWords());
-  // }
-
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
     if (clone) {
@@ -219,27 +186,6 @@ function ProcessSection() {
     }
     return removedData;
   };
-
-  // useEffect(() => {
-  //   // prevent back button
-  //   const handleBeforeUnload = (e) => {
-  //     e.preventDefault();
-  //     e.returnValue = ""; // Chrome requires returnValue to be set
-  //   };
-
-  //   const handleBackButton = async () => {
-  //     handleLogout();
-  //   };
-  //   localCurrentSectionObj;
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   window.onpopstate = handleBackButton;
-
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //     window.onpopstate = null;
-  //   };
-  // }, [router]);
 
   useEffect(() => {
     if (isFormSubmitted && localSectionsQueue.size() === 0) {
@@ -852,20 +798,37 @@ function ProcessSection() {
                     />
                   </div>
                 ) : (
-                  <Form.Select
-                    aria-label="Voice select"
-                    value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                    onChange={handleVoiceChange}
-                    style={{ color: "black" }}
-                  >
-                    {voiceOptions.map((voice, index) => (
-                      <option key={index} value={voice}>
-                        {" "}
-                        {/* Use unique index or better yet, a unique ID */}
-                        {voice}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {" "}
+                    {/* Wrap Form.Select and the icon in a div */}
+                    <Form.Select
+                      aria-label="Voice select"
+                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                      onChange={handleVoiceChange}
+                      style={{ color: "black" }}
+                    >
+                      {voiceOptions.map((voice, index) => (
+                        <option key={index} value={voice}>
+                          {voice}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log("Play button clicked");
+                      }}
+                      style={{
+                        marginLeft: "10px",
+                        backgroundColor: "#eb631c", // Orange color
+                        borderColor: "#eb631c", // Orange border
+                        color: "white",
+                      }}
+                    >
+                      <i className="bi bi-play-fill"></i>
+                    </Button>{" "}
+                    {/* Modified line */}
+                  </div>
                 )}
               </Form.Group>
               <Form.Group
