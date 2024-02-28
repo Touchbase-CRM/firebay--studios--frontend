@@ -709,7 +709,7 @@ function ProcessSection() {
         flexDirection: "column",
       }}
     >
-      <NavBar links={links} />
+      <NavBar links={links} logoutHandler={handleLogout} />
 
       <Row>
         <Col md={10} className="mx-auto">

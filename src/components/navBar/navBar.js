@@ -1,9 +1,9 @@
 import React from "react";
-import { Navbar, Nav } from "react-bootstrap";
-import CustomDropdown from "../CustomDropdown"; // Adjust the import path as needed
+import { Navbar, Nav, Button } from "react-bootstrap";
+import CustomDropdown from "../CustomDropdown"; // Ensure the path is correct
 import { useRouter } from "next/router";
 
-export const NavBar = ({ links, dropdownItems }) => {
+export const NavBar = ({ links, dropdownItems, logoutHandler }) => {
   const router = useRouter();
 
   const navigate = (url) => {
@@ -18,10 +18,10 @@ export const NavBar = ({ links, dropdownItems }) => {
       <Navbar.Brand style={{ marginLeft: "10px" }}>
         <img
           src="/fire.png"
-          alt="Firebay Studios"
           width="50"
           height="50"
           className="d-inline-block align-top"
+          alt="Logo"
         />
       </Navbar.Brand>
 
@@ -42,12 +42,32 @@ export const NavBar = ({ links, dropdownItems }) => {
             </Nav.Link>
           ))}
         </Nav>
-        {/* Conditionally render the CustomDropdown if dropdownItems are provided */}
-        {dropdownItems && dropdownItems.length > 0 && (
+        {/* Conditionally render the CustomDropdown or the Logout button */}
+        {dropdownItems && dropdownItems.length > 0 ? (
           <div style={{ paddingRight: "25px" }}>
             <CustomDropdown items={dropdownItems} />
           </div>
-        )}
+        ) : logoutHandler ? (
+          <Button
+            variant="light"
+            size="sm"
+            onClick={logoutHandler}
+            style={{
+              marginRight: "10px",
+              padding: "5px 10px",
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <i
+              className="bi bi-box-arrow-right"
+              style={{ marginRight: "5px" }}
+            ></i>
+            Logout
+          </Button>
+        ) : null}
       </Navbar.Collapse>
     </Navbar>
   );
