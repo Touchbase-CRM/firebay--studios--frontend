@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
@@ -11,15 +10,13 @@ export const CopyBox = ({ text }) => {
       .writeText(text)
       .then(() => {
         setHasCopied(true);
-        setTimeout(() => setHasCopied(false), 500); // Adjusted to 2000ms for better user experience
+        setTimeout(() => setHasCopied(false), 500);
       })
       .catch(() => {
-        // Handle copy error
         setHasCopied(false);
       });
   };
 
-  // Tooltip component, now checks hasCopied state
   const renderTooltip = (props) => (
     <Tooltip {...props}>
       {hasCopied ? "Copied!" : "Copy the mock script"}

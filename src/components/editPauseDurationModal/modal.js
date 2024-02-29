@@ -33,24 +33,36 @@ export const EditPauseDurationModal = ({
     }
 
     const newValue = parseFloat(inputVal);
-    // Check if newValue is a number, not negative, and less than or equal to maxValue
     if (!isNaN(newValue) && newValue >= 0 && newValue <= maxValue) {
       setValue(newValue);
     } else if (newValue < 0) {
-      // Check for negative values
       Swal.fire({
         icon: "error",
-        title: "Invalid Input",
-        text: "Pause duration cannot be negative.",
+        title:
+          "<span style='font-family: Arial, sans-serif; font-weight: 600;'>Invalid Input</span>",
+        html: "<span style='font-size: 16px;'>Pause duration cannot be negative.</span>",
+        customClass: {
+          popup: "swal-wide",
+        },
+        buttonsStyling: false,
+        confirmButtonText: "Ok",
+        confirmButtonColor: "#3085d6",
+        confirmButtonClass: "btn btn-primary",
       });
-      setValue(initialValue); // Reset to initialValue to prevent negative input
+
+      setValue(initialValue);
     } else if (newValue > maxValue) {
       Swal.fire({
         icon: "error",
-        title: `Can't be more than ${maxValue} Sec`,
-        text: "You do not have that much time left in your spot for the pause length you have asked for.",
+        title: `<span style='font-family: Arial, sans-serif; font-weight: 600;'>Can't be more than ${maxValue} Sec</span>`,
+        html: "<span style='font-size: 16px;'>You do not have that much time left in your spot for the pause length you have asked for.</span>",
+        buttonsStyling: false,
+        confirmButtonText: "Ok",
+        confirmButtonColor: "#3085d6",
+        confirmButtonClass: "btn btn-primary",
       });
-      setValue(initialValue); // Reset to initialValue to handle values greater than maxValue
+
+      setValue(initialValue);
     }
   };
 

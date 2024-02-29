@@ -111,6 +111,27 @@ body, h1, p {
   padding: 0;
 }
 
+/* Start: Swal2 styles */
+.swal2-title {
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+}
+
+.swal2-popup {
+  font-size: 16px;
+}
+
+.swal2-confirm.btn-primary {
+  background-color: #eb631c; /* Primary button color */
+  border-color: #eb631c;
+}
+
+/* Optional: Define .swal-wide for wider alerts */
+.swal-wide {
+  width: 600px !important;
+}
+
+/* End: Swal2 styles */
 
 
 
