@@ -467,6 +467,7 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      textAlign: "center",
                     }}
                   >
                     Section ID
@@ -474,6 +475,7 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      textAlign: "center",
                     }}
                   >
                     Voice Name
@@ -481,6 +483,7 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      textAlign: "center",
                     }}
                   >
                     Section Content
@@ -488,9 +491,10 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      textAlign: "center",
                     }}
                   >
-                    Duration (Sec)
+                    Duration
                   </th>
                   <th
                     style={{
@@ -499,6 +503,7 @@ function StitchSections() {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      textAlign: "center",
                     }}
                   >
                     Section End Pause
@@ -506,11 +511,14 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
+                      textAlign: "center",
                     }}
                   >
                     Play
                   </th>
-                  <th style={{ borderColor: "#eb631c" }}>Edit</th>
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
+                    Edit
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -530,7 +538,7 @@ function StitchSections() {
                       style={{
                         border: "1px solid #eb631c",
                         verticalAlign: "middle",
-                        textAlign: "left",
+                        textAlign: "center",
                       }}
                     >
                       {section.getVoiceName()}
@@ -539,7 +547,7 @@ function StitchSections() {
                       style={{
                         border: "1px solid #eb631c",
                         verticalAlign: "middle",
-                        textAlign: "left",
+                        textAlign: "center",
                       }}
                     >
                       {section.getCurrentContent()}
