@@ -29,9 +29,9 @@ export const AdvancedModeStarterAlert = () => {
         }}
       >
         <strong>What is a section?</strong>
-        <br />A section is a part of your script shares the same voice, energy,
-        or other specific nuances. We reccommend you to split your script into
-        as many sections as possible to get the best read.
+        <br />A section is a part of your script that shares the same voice,
+        energy, or other specific nuances. We recommend you to split your script
+        into as many sections as possible to get the best read.
       </p>
       <p
         style={{
@@ -42,8 +42,8 @@ export const AdvancedModeStarterAlert = () => {
       >
         <strong>How to split into sections?</strong>
         <br />
-        Imagine following is your script. Copy and paste it on the text box
-        below, and observe that you only have one section.
+        Imagine following is your script. Copy and paste it on the script text
+        box below, and observe that there is only one section.
       </p>
       {/* Reusable boxes with different texts */}
       <CopyBox text="The quick brown fox jumps over the lazy dog." />
@@ -55,9 +55,10 @@ export const AdvancedModeStarterAlert = () => {
         }}
       >
         Now we add double forward slashes (//) in places where we want to end a
-        section. Try out the following example below and see the difference.
+        section. Try out the following example below and observe that now you
+        have four sections.
       </p>
-      <CopyBox text="The quick brown fox// jumps over the lazy // dog." />
+      <CopyBox text="The quick brown fox// jumps //over the lazy // dog." />
       {/* You can add more <CopyBox /> components as needed */}
     </Alert>
   );
