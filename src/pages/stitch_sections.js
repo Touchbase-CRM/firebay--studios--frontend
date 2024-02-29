@@ -13,6 +13,7 @@ import { Card, Button, Table } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { PlayButton } from "@/components/buttons/playButton/play";
 import { EditButton } from "@/components/buttons/editButton/edit";
+import { EditPauseDurationModal } from "@/components/editPauseDurationModal/modal";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
@@ -36,6 +37,9 @@ function StitchSections() {
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
   );
+  const [isEditPauseModalVisible, setEditPauseModalVisible] = useState(false);
+  const [currentEditingSectionIndex, setCurrentEditingSectionIndex] =
+    useState(null);
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
@@ -97,6 +101,11 @@ function StitchSections() {
       totalDurationWithoutPauses,
       totalDurationWithPauses,
     };
+  };
+  const showEditPauseDurationModal = (sectionIndex) => {
+    console.log("Opening modal for section index:", sectionIndex);
+    setCurrentEditingSectionIndex(sectionIndex);
+    setEditPauseModalVisible(true);
   };
 
   const updatePauseDuration = (index, newDuration) => {
@@ -492,7 +501,7 @@ function StitchSections() {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    Section End Pause (Sec)
+                    Section End Pause
                   </th>
                   <th
                     style={{
@@ -507,64 +516,108 @@ function StitchSections() {
               <tbody>
                 {localSectionsArray.map((section, index) => (
                   <tr key={index}>
-                    <td style={{ border: "1px solid #eb631c" }}>{index + 1}</td>
-                    <td style={{ border: "1px solid #eb631c" }}>
-                      {section.originalContent}
-                    </td>
-                    <td style={{ border: "1px solid #eb631c" }}>
-                      {section.currentContent}
-                    </td>
-                    <td style={{ border: "1px solid #eb631c" }}>
-                      {section.getSectionDurationSeconds().toFixed(2)}
+                    {/* Other cells */}
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                      }}
+                    >
+                      {index + 1}
                     </td>
                     <td
                       style={{
                         border: "1px solid #eb631c",
-                        maxWidth: "220px", // Keep consistent with the header
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        verticalAlign: "middle",
+                        textAlign: "left",
                       }}
                     >
-                      {combinedVoiceoverUrl === null ? (
-                        <input
-                          type="number"
-                          value={section.getEndOfSectionPauseDurationSeconds()}
-                          onChange={(e) =>
-                            updatePauseDuration(index, e.target.value)
+                      {section.originalContent}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "left",
+                      }}
+                    >
+                      {section.currentContent}
+                    </td>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                      }}
+                    >
+                      {section.getSectionDurationSeconds().toFixed(2)} sec
+                    </td>
+                    {/* Adjusted cell for section end pause with EditButton */}
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                        padding: "0", // Remove any default padding if necessary
+                      }}
+                    >
+                      {/* Span for the duration and EditButton wrapped in a div */}
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "100%", // Take up full width of the cell
+                        }}
+                      >
+                        <span style={{ marginRight: "8px" }}>
+                          {section.getEndOfSectionPauseDurationSeconds()} sec
+                        </span>
+                        <EditButton
+                          onClickHandler={() =>
+                            showEditPauseDurationModal(index)
                           }
-                          min="0"
-                          max="10"
-                          step="0.1"
-                          style={{
-                            width: "30%",
-                            backgroundColor: "#e4e4e4",
-                            borderColor: "#e4e4e4",
-                            color: "black",
+                        />
+                        <EditPauseDurationModal
+                          show={isEditPauseModalVisible}
+                          onHide={() => setEditPauseModalVisible(false)}
+                          initialValue={section.getEndOfSectionPauseDurationSeconds()}
+                          onSave={(newPauseDuration) => {
+                            if (currentEditingSectionIndex !== null) {
+                              updatePauseDuration(
+                                currentEditingSectionIndex,
+                                newPauseDuration
+                              );
+                            }
+                            setEditPauseModalVisible(false);
                           }}
                         />
-                      ) : (
-                        // Displaying the pause duration value if combinedVoiceoverUrl is null
-                        <div>
-                          {section.getEndOfSectionPauseDurationSeconds()}{" "}
-                          seconds
-                        </div>
-                      )}
+                      </div>
                     </td>
-                    <td style={{ border: "1px solid #eb631c" }}>
+                    {/* Other cells */}
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                      }}
+                    >
                       <PlayButton
-                        onClickHandler={handleSectionPreviewPlay}
-                        handlerArgs={[section]}
+                        onClickHandler={() => handleSectionPreviewPlay(section)}
                         size="28px"
-                        stopPropagation={true}
                       />
                     </td>
-                    <td style={{ border: "1px solid #eb631c" }}>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                      }}
+                    >
                       <EditButton
-                        onClickHandler={handleEditSection}
-                        handlerArgs={[section]}
+                        onClickHandler={() => handleEditSection(section)}
                         size="28px"
-                        stopPropagation={true}
                       />
                     </td>
                   </tr>
