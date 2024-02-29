@@ -11,7 +11,7 @@ export const CopyBox = ({ text }) => {
       .writeText(text)
       .then(() => {
         setHasCopied(true);
-        setTimeout(() => setHasCopied(false), 200);
+        setTimeout(() => setHasCopied(false), 500); // Adjusted to 2000ms for better user experience
       })
       .catch(() => {
         // Handle copy error
@@ -19,9 +19,11 @@ export const CopyBox = ({ text }) => {
       });
   };
 
-  // Tooltip component
+  // Tooltip component, now checks hasCopied state
   const renderTooltip = (props) => (
-    <Tooltip {...props}>Copy the mock script</Tooltip>
+    <Tooltip {...props}>
+      {hasCopied ? "Copied!" : "Copy the mock script"}
+    </Tooltip>
   );
 
   return (
@@ -40,34 +42,34 @@ export const CopyBox = ({ text }) => {
     >
       {text}
       <OverlayTrigger placement="top" overlay={renderTooltip}>
-        <Button
-          variant="outline-secondary"
-          size="sm"
+        <button
+          onClick={copyToClipboard}
           style={{
+            backgroundColor: "transparent",
+            borderColor: "transparent",
+            color: "currentColor",
+            padding: "0",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
             position: "absolute",
             top: "2px",
             right: "2px",
-            backgroundColor: "#EB631C",
-            color: "#0c5460",
-            borderColor: "#EB631C",
             width: "25px",
             height: "25px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 0,
           }}
-          onClick={copyToClipboard}
+          className="btn"
         >
-          {hasCopied ? (
-            <i
-              className="bi bi-clipboard-check-fill"
-              style={{ color: "white" }}
-            ></i>
-          ) : (
-            <i className="bi bi-clipboard-check" style={{ color: "white" }}></i>
-          )}
-        </Button>
+          <i
+            className={
+              hasCopied ? "bi bi-clipboard2-check-fill" : "bi bi-clipboard2"
+            }
+            style={{
+              color: "#EB631C",
+              fontSize: "1rem",
+            }}
+          ></i>
+        </button>
       </OverlayTrigger>
     </div>
   );
