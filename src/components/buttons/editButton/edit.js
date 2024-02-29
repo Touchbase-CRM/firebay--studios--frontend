@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 
-export const PlayButton = ({
+export const EditButton = ({
   onClickHandler,
   handlerArgs = [],
   size = "24px",
+  preventDefault = false, // Default is false, so it only activates if explicitly set to true
+  stopPropagation = false, // Same as above
 }) => {
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+    if (stopPropagation) e.stopPropagation();
+    if (preventDefault) e.preventDefault();
     setIsClicked(true);
     onClickHandler(...handlerArgs);
     setTimeout(() => {
@@ -25,17 +27,17 @@ export const PlayButton = ({
         borderColor: "transparent",
         color: isClicked ? "#eb631c" : "currentColor",
         padding: "0",
-        display: "inline-flex", // Ensure the button respects the size of its content
-        alignItems: "center", // Center the icon vertically
-        justifyContent: "center", // Center the icon horizontally
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       className="btn"
     >
       <i
-        className={isClicked ? "bi bi-play-circle-fill" : "bi bi-play-circle"}
+        className={isClicked ? "bi bi-pencil-fill" : "bi bi-pencil"}
         style={{
           color: "#eb631c",
-          fontSize: size, // Control the size of the icon with the `size` prop
+          fontSize: size,
         }}
       ></i>
     </button>

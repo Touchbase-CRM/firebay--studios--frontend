@@ -16,7 +16,7 @@ import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService
 
 import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
-import { PlayButton } from "@/components/playButton/play";
+import { PlayButton } from "@/components/buttons/playButton/play";
 
 import useUserInputsStore from "../../store/userInputs";
 import withAuth from "../../hocs/withAuth";
@@ -798,7 +798,6 @@ function ProcessSection() {
                 ) : (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     {" "}
-                    {/* Wrap Form.Select and the icon in a div */}
                     <Form.Select
                       aria-label="Voice select"
                       value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
@@ -817,7 +816,6 @@ function ProcessSection() {
                       size="32px"
                       preventDefault={true}
                     />{" "}
-                    {/* Modified line */}
                   </div>
                 )}
               </Form.Group>

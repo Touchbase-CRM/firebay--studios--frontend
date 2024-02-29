@@ -11,7 +11,8 @@ import { usePostHog } from "posthog-js/react";
 
 import { Card, Button, Table } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
-import { PlayButton } from "@/components/playButton/play";
+import { PlayButton } from "@/components/buttons/playButton/play";
+import { EditButton } from "@/components/buttons/editButton/edit";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
@@ -554,20 +555,17 @@ function StitchSections() {
                       <PlayButton
                         onClickHandler={handleSectionPreviewPlay}
                         handlerArgs={[section]}
-                        size="32px"
+                        size="28px"
+                        stopPropagation={true}
                       />
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
-                      <Button
-                        onClick={() => handleEditSection(section)}
-                        style={{
-                          backgroundColor: "#eb631c", // Orange color
-                          borderColor: "#eb631c", // Orange border
-                          color: "white", // Adjust if needed to ensure the icon is visible
-                        }}
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </Button>
+                      <EditButton
+                        onClickHandler={handleEditSection}
+                        handlerArgs={[section]}
+                        size="28px"
+                        stopPropagation={true}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -647,7 +645,7 @@ function StitchSections() {
             borderColor: "#eb631c",
           }}
         >
-          Finalize the voiceover
+          Finalize
         </Button>
       ) : (
         <Button
