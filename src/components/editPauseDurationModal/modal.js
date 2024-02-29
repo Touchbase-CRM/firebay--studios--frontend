@@ -33,15 +33,24 @@ export const EditPauseDurationModal = ({
     }
 
     const newValue = parseFloat(inputVal);
-    if (!isNaN(newValue) && newValue <= maxValue) {
+    // Check if newValue is a number, not negative, and less than or equal to maxValue
+    if (!isNaN(newValue) && newValue >= 0 && newValue <= maxValue) {
       setValue(newValue);
+    } else if (newValue < 0) {
+      // Check for negative values
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Input",
+        text: "Pause duration cannot be negative.",
+      });
+      setValue(initialValue); // Reset to initialValue to prevent negative input
     } else if (newValue > maxValue) {
       Swal.fire({
         icon: "error",
         title: `Can't be more than ${maxValue} Sec`,
         text: "You do not have that much time left in your spot for the pause length you have asked for.",
       });
-      setValue(initialValue);
+      setValue(initialValue); // Reset to initialValue to handle values greater than maxValue
     }
   };
 
