@@ -16,6 +16,8 @@ import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService
 
 import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
+import { PlayButton } from "@/components/playButton/play";
+
 import useUserInputsStore from "../../store/userInputs";
 import withAuth from "../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
@@ -322,8 +324,7 @@ function ProcessSection() {
       return { error: error.message };
     }
   }
-  const handleVoicePreviewPlayButton = (e) => {
-    e.preventDefault();
+  const handleVoicePreviewPlayButton = () => {
     setShowAudioPlayer(true);
     setGeneratedVoiceUrl(
       baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
@@ -802,7 +803,7 @@ function ProcessSection() {
                       aria-label="Voice select"
                       value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
                       onChange={handleVoiceChange}
-                      style={{ color: "black" }}
+                      style={{ color: "black", marginRight: "10px" }}
                     >
                       {voiceOptions.map((voice, index) => (
                         <option key={index} value={voice}>
@@ -810,20 +811,12 @@ function ProcessSection() {
                         </option>
                       ))}
                     </Form.Select>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVoicePreviewPlayButton(e); // Pass the event object
-                      }}
-                      style={{
-                        marginLeft: "10px",
-                        backgroundColor: "#eb631c", // Orange color
-                        borderColor: "#eb631c", // Orange border
-                        color: "white",
-                      }}
-                    >
-                      <i className="bi bi-play-fill"></i>
-                    </Button>{" "}
+                    <PlayButton
+                      onClickHandler={handleVoicePreviewPlayButton}
+                      handlerArgs={[]}
+                      size="32px"
+                      preventDefault={true}
+                    />{" "}
                     {/* Modified line */}
                   </div>
                 )}

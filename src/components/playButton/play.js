@@ -9,6 +9,7 @@ export const PlayButton = ({
 
   const handleClick = (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setIsClicked(true);
     onClickHandler(...handlerArgs);
     setTimeout(() => {
