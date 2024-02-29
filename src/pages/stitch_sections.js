@@ -11,6 +11,7 @@ import { usePostHog } from "posthog-js/react";
 
 import { Card, Button, Table } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
+import { PlayButton } from "@/components/playButton/play";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../components/Spinner";
@@ -550,7 +551,7 @@ function StitchSections() {
                       )}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
-                      <Button
+                      {/* <Button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSectionPreviewPlay(section);
@@ -562,7 +563,11 @@ function StitchSections() {
                         }}
                       >
                         <i className="bi bi-play-circle"></i>
-                      </Button>
+                      </Button> */}
+                      <PlayButton
+                        onClickHandler={handleSectionPreviewPlay}
+                        handlerArgs={[section]}
+                      />
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
                       <Button
