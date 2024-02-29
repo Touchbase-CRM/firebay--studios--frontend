@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Form, Button, Table } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
+import { AdvancedModeStarterAlert } from "@/components/AdvancedModeStarterAlert";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
@@ -86,9 +87,7 @@ function CreateSections() {
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptForSectionSplit(updatedScript);
-    const extractedSections = updatedScript
-      .split(/(?<!\.{2})\.(?!\.)\s+/)
-      .filter(Boolean);
+    const extractedSections = updatedScript.split(/\s*\/\/\s*/).filter(Boolean);
 
     setNumSectionsIdentified(extractedSections.length);
     let tmpArray = [];
@@ -212,35 +211,7 @@ function CreateSections() {
               </Form.Group>
               {/* Message to display when script is empty */}
               {originalScriptForSectionSplit === "" && (
-                <Alert variant="info">
-                  <Alert.Heading>
-                    Simple Guide to Sections in Pyro Advanced Ad Generation Mode
-                  </Alert.Heading>
-                  <p>
-                    When making an ad with Pyro Advanced Ad Generation Mode,
-                    think of your script as being made up of small parts called
-                    “sections.” Each section is like a chunk of your ad where
-                    the speaking style doesn’t change - it’s the same voice,
-                    tone, and emotion throughout.
-                  </p>
-                  <hr />
-                  <p>
-                    <strong>How to Make a Section:</strong> End a part of your
-                    script with a dot (like the period at the end of a sentence)
-                    and then add a space. This tells Pyro you’re starting a new
-                    section with a new speaking style. If you don’t put a space
-                    after the dot (period), Pyro understands that you’re still
-                    in the same section, keeping the same speaking style.
-                  </p>
-                  <p>
-                    <strong>NOTE:</strong> These suggestions should be made to
-                    your script before uploading onto the Pyro platform.
-                  </p>
-                  <p className="mb-0">
-                    <strong>Key Tip:</strong> Dot (period) plus space equals a
-                    new section. No space means the same section continues.
-                  </p>
-                </Alert>
+                <AdvancedModeStarterAlert />
               )}
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
