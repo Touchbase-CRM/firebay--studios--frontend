@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 
-export const PlayButton = ({ onClickHandler, handlerArgs = [] }) => {
+export const PlayButton = ({
+  onClickHandler,
+  handlerArgs = [],
+  size = "24px",
+}) => {
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = (e) => {
     e.stopPropagation();
     setIsClicked(true);
-    // Call the onClickHandler with all provided arguments
     onClickHandler(...handlerArgs);
     setTimeout(() => {
       setIsClicked(false);
@@ -17,16 +20,22 @@ export const PlayButton = ({ onClickHandler, handlerArgs = [] }) => {
     <button
       onClick={handleClick}
       style={{
-        backgroundColor: "transparent", // Always transparent
-        borderColor: "transparent", // Transparent border to not show it, since icon color is used for visual effect
-        color: isClicked ? "#eb631c" : "currentColor", // Change icon color to orange when clicked
-        padding: 0, // Remove padding to make it look more like just the icon is clickable
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        color: isClicked ? "#eb631c" : "currentColor",
+        padding: "0",
+        display: "inline-flex", // Ensure the button respects the size of its content
+        alignItems: "center", // Center the icon vertically
+        justifyContent: "center", // Center the icon horizontally
       }}
-      className="btn" // Apply Bootstrap button styling
+      className="btn"
     >
       <i
         className={isClicked ? "bi bi-play-circle-fill" : "bi bi-play-circle"}
-        style={{ color: "#eb631c" }}
+        style={{
+          color: "#eb631c",
+          fontSize: size, // Control the size of the icon with the `size` prop
+        }}
       ></i>
     </button>
   );

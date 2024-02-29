@@ -551,22 +551,10 @@ function StitchSections() {
                       )}
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
-                      {/* <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSectionPreviewPlay(section);
-                        }}
-                        style={{
-                          backgroundColor: "#eb631c", // Orange color
-                          borderColor: "#eb631c", // Orange border
-                          color: "white", // Adjust if needed to ensure the icon is visible
-                        }}
-                      >
-                        <i className="bi bi-play-circle"></i>
-                      </Button> */}
                       <PlayButton
                         onClickHandler={handleSectionPreviewPlay}
                         handlerArgs={[section]}
+                        size="32px"
                       />
                     </td>
                     <td style={{ border: "1px solid #eb631c" }}>
