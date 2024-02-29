@@ -600,6 +600,18 @@ function StitchSections() {
                             }
                             setEditPauseModalVisible(false);
                           }}
+                          maxValue={Math.floor(
+                            adLength -
+                              localSectionsArray
+                                .reduce(
+                                  (acc, section) =>
+                                    acc +
+                                    section.sectionDurationSeconds +
+                                    section.getEndOfSectionPauseDurationSeconds(),
+                                  0
+                                )
+                                .toFixed(2)
+                          )}
                         />
                       </div>
                     </td>
