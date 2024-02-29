@@ -476,14 +476,14 @@ function StitchSections() {
                       borderColor: "#eb631c",
                     }}
                   >
-                    Original Section
+                    Voice Name
                   </th>
                   <th
                     style={{
                       borderColor: "#eb631c",
                     }}
                   >
-                    Revised Section
+                    Section Content
                   </th>
                   <th
                     style={{
@@ -533,7 +533,7 @@ function StitchSections() {
                         textAlign: "left",
                       }}
                     >
-                      {section.originalContent}
+                      {section.getVoiceName()}
                     </td>
                     <td
                       style={{
@@ -542,7 +542,7 @@ function StitchSections() {
                         textAlign: "left",
                       }}
                     >
-                      {section.currentContent}
+                      {section.getCurrentContent()}
                     </td>
                     <td
                       style={{
