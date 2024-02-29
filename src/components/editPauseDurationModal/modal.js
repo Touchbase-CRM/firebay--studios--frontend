@@ -61,9 +61,17 @@ export const EditPauseDurationModal = ({
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>{`Pause should be less than ${maxValue} Sec`}</Modal.Title>
+    <Modal show={show} onHide={onHide} centered>
+      <Modal.Header
+        closeButton
+        style={{
+          backgroundColor: "#f8f9fa",
+          borderBottom: "1px solid #dee2e6",
+        }}
+      >
+        <Modal.Title
+          style={{ color: "#495057", fontWeight: "500" }}
+        >{`Pause should be less than ${maxValue} Sec`}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <input
@@ -74,18 +82,44 @@ export const EditPauseDurationModal = ({
           max={maxValue}
           step="0.1"
           style={{
-            width: "100%",
-            backgroundColor: "#e4e4e4",
-            borderColor: "#e4e4e4",
-            color: "black",
+            display: "block",
+            width: "100%", // Responsive width
+            padding: "0.375rem 0.75rem", // Bootstrap's default padding
+            fontSize: "1rem", // Larger, more readable text
+            lineHeight: "1.5", // Bootstrap's default line height
+            color: "#495057", // Darker text for better readability
+            backgroundColor: "#fff", // White background
+            backgroundClip: "padding-box",
+            border: "1px solid #ced4da", // Bootstrap's default border
+            borderRadius: "0.25rem", // Rounded corners
+            transition:
+              "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out", // Smooth transition on focus
+            marginBottom: "1rem", // Add some space below the input
           }}
         />
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+      <Modal.Footer
+        style={{ backgroundColor: "#f8f9fa", borderTop: "1px solid #dee2e6" }}
+      >
+        <Button
+          variant="secondary"
+          onClick={onHide}
+          style={{
+            fontWeight: "400",
+            backgroundColor: "#FDA942",
+            borderColor: "#FDA942",
+          }}
+        >
           Close
         </Button>
-        <Button variant="primary" onClick={handleSave}>
+        <Button
+          onClick={handleSave}
+          style={{
+            fontWeight: "400",
+            backgroundColor: "#eb631c",
+            borderColor: "#eb631c",
+          }}
+        >
           Save Changes
         </Button>
       </Modal.Footer>
