@@ -84,6 +84,12 @@ function CreateSections() {
     });
   };
 
+  const handleClearScript = () => {
+    setOriginalScriptForSectionSplit("");
+    setLocalSectionsArray([]);
+    setNumSectionsIdentified(0);
+  };
+
   const handleScriptChange = (e) => {
     const updatedScript = e.target.value;
     setOriginalScriptForSectionSplit(updatedScript);
@@ -191,7 +197,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "900px",
+              height: "950px",
               marginBottom: "10px",
             }}
           >
@@ -232,6 +238,15 @@ function CreateSections() {
                   {originalScriptForSectionSplit.length}/{charLimit}
                 </div>
               </Form.Group>
+              <Button
+                style={{
+                  backgroundColor: "#FDA942",
+                  borderColor: "#FDA942",
+                }}
+                onClick={handleClearScript} // Call the handleClearScript function when clicked
+              >
+                Clear Script
+              </Button>
 
               <div
                 style={{
