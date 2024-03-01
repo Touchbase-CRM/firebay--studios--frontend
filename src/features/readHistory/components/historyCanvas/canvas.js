@@ -47,9 +47,10 @@ export const HistoryCanvas = ({ show, handleClose, reads }) => {
                     size="lg"
                     style={{
                       marginBottom: "10px",
+                      backgroundColor: "#eb631c",
+
                       borderColor: "#eb631c",
-                      color: "#eb631c",
-                      backgroundColor: "white",
+                      color: "white",
                     }}
                   >
                     Play
@@ -59,7 +60,7 @@ export const HistoryCanvas = ({ show, handleClose, reads }) => {
                     style={{
                       backgroundColor: "white",
                       borderColor: "#FDA942",
-                      color: "#FDA942",
+                      color: "black",
                     }}
                   >
                     Use Read
