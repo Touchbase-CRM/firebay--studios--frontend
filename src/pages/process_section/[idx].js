@@ -674,16 +674,6 @@ function ProcessSection() {
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
-  const wordCountStyle = {
-    position: "absolute",
-    bottom: "10px",
-    right: "10px",
-    background: "rgba(0, 0, 0, 0.7)",
-    color: "white",
-    padding: "0 5px",
-    borderRadius: "5px",
-  };
-
   const links = [
     {
       label: "Home",
@@ -903,19 +893,42 @@ function ProcessSection() {
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Edit section</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={typedText}
-                  onChange={handleScriptChange}
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                    value={typedText}
+                    onChange={handleScriptChange}
+                    style={{
+                      color: "black",
+                      height: "70px",
+                      marginRight: "10px", // Add a right margin to separate the textarea and the button
+                      marginBottom: "10px",
+                    }}
+                  />
+
+                  <PlayButton
+                    onClickHandler={handleReplayVoicePreview} // You might need to modify the handler for this button's specific action
+                    handlerArgs={[]}
+                    size="32px" // Ensure this matches the size of the other play button for consistency
+                    preventDefault={true}
+                    isDisabled={
+                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
+                    }
+                  />
+                </div>
+                <div
                   style={{
-                    color: "black",
-                    height: "70px",
-                    marginBottom: "20px",
+                    position: "absolute",
+                    bottom: "15px",
+                    right: "50px", // Adjust as necessary if the play button affects the positioning
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "0 5px",
+                    borderRadius: "5px",
                   }}
-                />
-                <div style={wordCountStyle}>
+                >
                   {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
@@ -1122,4 +1135,6 @@ function ProcessSection() {
     </div>
   );
 }
-export default withAuth(ProcessSection);
+// export default withAuth(ProcessSection);
+
+export default ProcessSection;
