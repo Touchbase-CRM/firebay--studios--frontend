@@ -5,7 +5,6 @@ import { CodeBlock } from "./codeBlock";
 export const HistoryCanvas = ({
   show,
   handleClose,
-  reads,
   localSectionHistoryObj,
 }) => {
   return (

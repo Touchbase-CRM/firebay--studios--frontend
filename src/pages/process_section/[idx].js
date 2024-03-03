@@ -734,18 +734,6 @@ function ProcessSection() {
     // Add more links as needed
   ];
 
-  const reads = [
-    {
-      title: "Read 1",
-      content: "Some dynamically generated text for read 1.",
-    },
-    {
-      title: "Read 2",
-      content: "Some dynamically generated text for read 2.",
-    },
-    // Add more reads as needed
-  ];
-
   return (
     <div
       style={{
@@ -1105,8 +1093,6 @@ function ProcessSection() {
                 <HistoryCanvas
                   show={offcanvasVisible}
                   handleClose={hideOffcanvas}
-                  // reads={localSectionHistoryObj}
-                  reads={reads}
                   localSectionHistoryObj={localSectionHistoryObj}
                 />
               </>
