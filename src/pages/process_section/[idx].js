@@ -25,6 +25,7 @@ import app from "../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
+import { HistoryCanvas } from "@/features/readHistory";
 
 import {
   getFirestore,
@@ -87,6 +88,10 @@ function ProcessSection() {
     { label: "1.75x", value: "1.75X" },
     { label: "2x", value: "2X" },
   ];
+  const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
+
+  const hideOffcanvas = () => setOffcanvasVisibility(false);
+  const showOffcanvas = () => setOffcanvasVisibility(true);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -726,6 +731,18 @@ function ProcessSection() {
     // Add more links as needed
   ];
 
+  const reads = [
+    {
+      title: "Read 1",
+      content: "Some dynamically generated text for read 1.",
+    },
+    {
+      title: "Read 2",
+      content: "Some dynamically generated text for read 2.",
+    },
+    // Add more reads as needed
+  ];
+
   return (
     <div
       style={{
@@ -1061,26 +1078,34 @@ function ProcessSection() {
             </Button>
 
             {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReplayVoicePreview(e);
-                }}
-                style={{
-                  marginRight: "0px", // Adjusted for consistency
-                  marginTop: "20px",
-                  backgroundColor: "#FDA942",
-                  borderColor: "#FDA942",
-                }}
-              >
-                <i
-                  className="bi bi-arrow-clockwise"
-                  style={{ verticalAlign: "middle" }}
-                ></i>
-                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Replay Latest Read
-                </span>
-              </Button>
+              <>
+                <Button
+                  onClick={showOffcanvas}
+                  style={{
+                    marginRight: "0px", // Adjusted for consistency
+                    marginTop: "20px",
+                    backgroundColor: "white",
+
+                    borderColor: "#FDA942",
+                  }}
+                >
+                  <span
+                    style={{
+                      verticalAlign: "middle",
+                      marginLeft: "8px",
+                      color: "black",
+                    }}
+                  >
+                    History
+                  </span>
+                </Button>
+                <HistoryCanvas
+                  show={offcanvasVisible}
+                  handleClose={hideOffcanvas}
+                  // reads={localSectionHistoryObj}
+                  reads={reads}
+                />
+              </>
             )}
           </div>
 

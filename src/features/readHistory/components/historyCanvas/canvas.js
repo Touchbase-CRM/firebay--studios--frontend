@@ -30,7 +30,7 @@ export const HistoryCanvas = ({ show, handleClose, reads }) => {
                     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <p
+                  <div
                     style={{
                       fontSize: "18px",
                       lineHeight: "1.6",
@@ -40,7 +40,7 @@ export const HistoryCanvas = ({ show, handleClose, reads }) => {
                     }}
                   >
                     <CodeBlock code={read.content} title="Charley says" />
-                  </p>
+                  </div>
                 </div>
                 <div className="d-grid gap-2">
                   <Button
