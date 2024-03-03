@@ -8,6 +8,7 @@ export const defaultState = {
   transformedWords: {}, // Object for transformed words
   sectionsStack: new Stack(), // Stack for sections
   sectionsArray: [], // Array for section objects
+  sectionHistoryArray: [], // Array for section history objects
   voiceId: "6wLJ4Wm2OxvAvetEUBCS",
   voiceName: "Charley",
   voicePreviewFilename: "male/charley.mp3",

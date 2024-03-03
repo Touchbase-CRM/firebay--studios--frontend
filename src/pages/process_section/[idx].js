@@ -53,6 +53,8 @@ function ProcessSection() {
   const {
     sectionsArray,
     setSectionsArray,
+    sectionHistoryArray,
+    setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
     reset: resetUserInputsStore,
@@ -69,7 +71,11 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
   });
+
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
+    sectionHistoryArray[currentSectionIndex] || null
+  );
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
@@ -129,6 +135,7 @@ function ProcessSection() {
     syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
     setCurrentSectionIndex(currentIdx);
+    setLocalSectionHistoryObj(sectionHistoryArray[currentIdx] || null);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const sectionToUpdate = sectionsArray[currentIdx];
@@ -472,6 +479,19 @@ function ProcessSection() {
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
+  const syncSectionHistoryArray = (index, newSectionHistoryObj) => {
+    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
+    console.log("new index local", index);
+    console.log("New section history object:", newSectionHistoryObj);
+    console.log("array found", currentArray);
+    const updatedArray = [
+      ...currentArray.slice(0, index),
+      newSectionHistoryObj,
+      ...currentArray.slice(index + 1),
+    ];
+    console.log("updated array local", updatedArray);
+    setSectionHistoryArray(updatedArray);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -487,6 +507,9 @@ function ProcessSection() {
       dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
       voiceId: localCurrentSectionObj.getVoiceId(),
     });
+    // sync the local history with global.
+    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
+    console.log("Updated section history array:", sectionHistoryArray);
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
@@ -569,6 +592,14 @@ function ProcessSection() {
     }
   }
 
+  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
+    console.log("Newly received key-value pair:", newKeyValuePair);
+    setLocalSectionHistoryObj((prevState) => ({
+      ...prevState,
+      ...newKeyValuePair,
+    }));
+  };
+
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
 
@@ -625,13 +656,17 @@ function ProcessSection() {
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
       localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
-      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone()); // can we get rid of the clone here?
+      updateLocalSectionHistoryObj({
+        [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+      });
     } catch (error) {
       console.error("Error generating voice:", error);
     } finally {
       setIsGeneratingVoice(false);
     }
   }
+
   function getAudioDuration(url) {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);

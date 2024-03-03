@@ -23,6 +23,7 @@ function CreateSections() {
     setAdLength,
     sectionsArray,
     setSectionsArray,
+    setSectionHistoryArray,
     setNumSectionsIdentified,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
@@ -126,6 +127,7 @@ function CreateSections() {
 
     // Update Zustand store with the local state before navigating
     setSectionsArray(localSectionsArray);
+    setSectionHistoryArray(new Array(localSectionsArray.length).fill(null));
 
     // Navigate to the first section if the section array is not empty
     if (localSectionsArray.length !== 0) {
