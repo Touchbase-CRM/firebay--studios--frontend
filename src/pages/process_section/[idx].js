@@ -599,10 +599,13 @@ function ProcessSection() {
 
   const updateLocalSectionHistoryObj = (newKeyValuePair) => {
     console.log("Newly received key-value pair:", newKeyValuePair);
-    setLocalSectionHistoryObj((prevState) => ({
-      ...prevState,
-      ...newKeyValuePair,
-    }));
+    setLocalSectionHistoryObj((prevMap) => {
+      const updatedMap = new Map(prevMap);
+      for (const [key, value] of Object.entries(newKeyValuePair)) {
+        updatedMap.set(key, value);
+      }
+      return updatedMap;
+    });
   };
 
   async function handleGenerateVoice() {
@@ -1104,6 +1107,7 @@ function ProcessSection() {
                   handleClose={hideOffcanvas}
                   // reads={localSectionHistoryObj}
                   reads={reads}
+                  localSectionHistoryObj={localSectionHistoryObj}
                 />
               </>
             )}

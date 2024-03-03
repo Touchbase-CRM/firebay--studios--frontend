@@ -2,7 +2,12 @@ import React from "react";
 import { Button, Offcanvas, Accordion } from "react-bootstrap";
 import { CodeBlock } from "./codeBlock";
 
-export const HistoryCanvas = ({ show, handleClose, reads }) => {
+export const HistoryCanvas = ({
+  show,
+  handleClose,
+  reads,
+  localSectionHistoryObj = [],
+}) => {
   return (
     <Offcanvas
       show={show}
@@ -15,6 +20,7 @@ export const HistoryCanvas = ({ show, handleClose, reads }) => {
       </Offcanvas.Header>
       <Offcanvas.Body style={{ overflowY: "auto", maxHeight: "80vh" }}>
         {" "}
+        {console.log("localSectionHistoryObj", localSectionHistoryObj)}
         {/* Adjust maxHeight according to your needs */}
         <Accordion defaultActiveKey="0">
           {reads.map((read, index) => (
