@@ -6,7 +6,7 @@ export const HistoryCanvas = ({
   show,
   handleClose,
   reads,
-  localSectionHistoryObj = [],
+  localSectionHistoryObj,
 }) => {
   return (
     <Offcanvas
@@ -19,62 +19,63 @@ export const HistoryCanvas = ({
         <Offcanvas.Title>Read History</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body style={{ overflowY: "auto", maxHeight: "80vh" }}>
-        {" "}
-        {console.log("localSectionHistoryObj", localSectionHistoryObj)}
-        {/* Adjust maxHeight according to your needs */}
         <Accordion defaultActiveKey="0">
-          {reads.map((read, index) => (
-            <Accordion.Item eventKey={String(index)} key={index}>
-              <Accordion.Header>{read.title}</Accordion.Header>
-              <Accordion.Body>
-                <div
-                  style={{
-                    marginBottom: "20px",
-                    padding: "20px",
-                    backgroundColor: "#f8f9fa",
-                    borderRadius: "5px",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                  }}
-                >
+          {Array.from(localSectionHistoryObj.entries()).map(
+            ([key, value], mapIndex) => (
+              <Accordion.Item eventKey={String(mapIndex)} key={key}>
+                <Accordion.Header>{`Read ${mapIndex + 1}`}</Accordion.Header>
+                <Accordion.Body>
                   <div
                     style={{
-                      fontSize: "18px",
-                      lineHeight: "1.6",
-                      color: "#495057",
-                      textAlign: "justify",
-                      margin: 0,
+                      marginBottom: "20px",
+                      padding: "20px",
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: "5px",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                   >
-                    <CodeBlock code={read.content} title="Charley says" />
+                    <div
+                      style={{
+                        fontSize: "18px",
+                        lineHeight: "1.6",
+                        color: "#495057",
+                        textAlign: "justify",
+                        margin: 0,
+                      }}
+                    >
+                      <CodeBlock
+                        code={value.getCurrentWords().join(" ")}
+                        title={`${value.getVoiceName()} says`}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="d-grid gap-2">
-                  <Button
-                    size="lg"
-                    style={{
-                      marginBottom: "10px",
-                      backgroundColor: "#eb631c",
-
-                      borderColor: "#eb631c",
-                      color: "white",
-                    }}
-                  >
-                    Play
-                  </Button>
-                  <Button
-                    size="lg"
-                    style={{
-                      backgroundColor: "white",
-                      borderColor: "#FDA942",
-                      color: "black",
-                    }}
-                  >
-                    Use Read
-                  </Button>
-                </div>
-              </Accordion.Body>
-            </Accordion.Item>
-          ))}
+                  <div className="d-grid gap-2">
+                    <Button
+                      size="lg"
+                      style={{
+                        marginBottom: "10px",
+                        backgroundColor: "#eb631c",
+                        borderColor: "#eb631c",
+                        color: "white",
+                      }}
+                    >
+                      Play
+                    </Button>
+                    <Button
+                      size="lg"
+                      style={{
+                        backgroundColor: "white",
+                        borderColor: "#FDA942",
+                        color: "black",
+                      }}
+                    >
+                      Use Read
+                    </Button>
+                  </div>
+                </Accordion.Body>
+              </Accordion.Item>
+            )
+          )}
         </Accordion>
       </Offcanvas.Body>
     </Offcanvas>
