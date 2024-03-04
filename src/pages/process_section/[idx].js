@@ -137,6 +137,8 @@ function ProcessSection() {
   };
 
   useEffect(() => {
+    console.log("Useeffect A was called");
+
     syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
     setCurrentSectionIndex(currentIdx);
@@ -182,6 +184,41 @@ function ProcessSection() {
       setShowAudioPlayer(false);
     }
   }, [idx]); // Depend solely on idx
+
+  useEffect(() => {
+    console.log("Useeffect B was called", localCurrentSectionObj);
+    const currentIdx = localCurrentSectionObj.getIndex();
+
+    setOgScriptWordsArray(
+      localCurrentSectionObj.getOriginalContent()
+        ? localCurrentSectionObj.getCurrentWords()
+        : []
+    );
+    setTypedText(
+      localCurrentSectionObj.getOriginalContent()
+        ? localCurrentSectionObj.getCurrentWords().join(" ")
+        : ""
+    );
+    setTransformedWords(localCurrentSectionObj.getCurrentTransformations());
+
+    const previousSectionsTotalDuration = sectionsArray
+      .slice(0, currentIdx)
+      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    const newProgressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds()) /
+        adLength) *
+        100
+    );
+    const newSecondsLeft =
+      adLength -
+      (previousSectionsTotalDuration +
+        localCurrentSectionObj.getSectionDurationSeconds());
+
+    setProgressBarPercentage(newProgressBarPercentage);
+    setSecondsYouHaveLeft(newSecondsLeft);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+  }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
@@ -660,6 +697,8 @@ function ProcessSection() {
       setSecondsYouHaveLeft(
         adLength - previousSectionsTotalDuration - newDuration
       );
+      localCurrentSectionObj.setCurrentTransformations(transformedWords);
+      localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
       localCurrentSectionObj.setSectionDurationSeconds(newDuration);
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
