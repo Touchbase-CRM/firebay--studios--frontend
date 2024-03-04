@@ -186,75 +186,12 @@ function ProcessSection() {
       // Assuming sectionToUpdate effectively mimics the clone's intended behavior
       setLocalCurrentSectionObj(sectionToUpdate);
       updateSectionDetails(sectionToUpdate);
-
-      // // Update dependent states based on the new current section
-      // setOgScriptWordsArray(
-      //   sectionToUpdate.getOriginalContent()
-      //     ? sectionToUpdate.getCurrentWords()
-      //     : []
-      // );
-      // setTypedText(
-      //   sectionToUpdate.getOriginalContent()
-      //     ? sectionToUpdate.getCurrentWords().join(" ")
-      //     : ""
-      // );
-      // setTransformedWords(sectionToUpdate.getCurrentTransformations());
-
-      // // Calculate progress and time left
-      // const previousSectionsTotalDuration = sectionsArray
-      //   .slice(0, currentIdx)
-      //   .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-      // const newProgressBarPercentage = Math.round(
-      //   ((previousSectionsTotalDuration +
-      //     sectionToUpdate.getSectionDurationSeconds()) /
-      //     adLength) *
-      //     100
-      // );
-      // const newSecondsLeft =
-      //   adLength -
-      //   (previousSectionsTotalDuration +
-      //     sectionToUpdate.getSectionDurationSeconds());
-
-      // setProgressBarPercentage(newProgressBarPercentage);
-      // setSecondsYouHaveLeft(newSecondsLeft);
-      // setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
       setShowAudioPlayer(false);
     }
   }, [idx]); // Depend solely on idx
 
   useEffect(() => {
     console.log("Useeffect B was called", localCurrentSectionObj);
-    const currentIdx = localCurrentSectionObj.getIndex();
-
-    // setOgScriptWordsArray(
-    //   localCurrentSectionObj.getOriginalContent()
-    //     ? localCurrentSectionObj.getCurrentWords()
-    //     : []
-    // );
-    // setTypedText(
-    //   localCurrentSectionObj.getOriginalContent()
-    //     ? localCurrentSectionObj.getCurrentWords().join(" ")
-    //     : ""
-    // );
-    // setTransformedWords(localCurrentSectionObj.getCurrentTransformations());
-
-    // const previousSectionsTotalDuration = sectionsArray
-    //   .slice(0, currentIdx)
-    //   .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-    // const newProgressBarPercentage = Math.round(
-    //   ((previousSectionsTotalDuration +
-    //     localCurrentSectionObj.getSectionDurationSeconds()) /
-    //     adLength) *
-    //     100
-    // );
-    // const newSecondsLeft =
-    //   adLength -
-    //   (previousSectionsTotalDuration +
-    //     localCurrentSectionObj.getSectionDurationSeconds());
-
-    // setProgressBarPercentage(newProgressBarPercentage);
-    // setSecondsYouHaveLeft(newSecondsLeft);
-    // setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
     updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
@@ -561,15 +498,11 @@ function ProcessSection() {
   };
   const syncSectionHistoryArray = (index, newSectionHistoryObj) => {
     const currentArray = useUserInputsStore.getState().sectionHistoryArray;
-    console.log("new index local", index);
-    console.log("New section history object:", newSectionHistoryObj);
-    console.log("array found", currentArray);
     const updatedArray = [
       ...currentArray.slice(0, index),
       newSectionHistoryObj,
       ...currentArray.slice(index + 1),
     ];
-    console.log("updated array local", updatedArray);
     setSectionHistoryArray(updatedArray);
   };
 
@@ -589,7 +522,6 @@ function ProcessSection() {
     });
     // sync the local history with global.
     syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
-    console.log("Updated section history array:", sectionHistoryArray);
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
@@ -673,7 +605,6 @@ function ProcessSection() {
   }
 
   const updateLocalSectionHistoryObj = (newKeyValuePair) => {
-    console.log("Newly received key-value pair:", newKeyValuePair);
     setLocalSectionHistoryObj((prevMap) => {
       const updatedMap = new Map(prevMap);
       for (const [key, value] of Object.entries(newKeyValuePair)) {
@@ -691,10 +622,6 @@ function ProcessSection() {
 
     let audioUrl = "";
     let localHistoryItemId;
-
-    // if (generatedVoiceUrl) {
-    //   URL.revokeObjectURL(generatedVoiceUrl);
-    // }
 
     const mostUptodateSection = getFinalScript();
 
