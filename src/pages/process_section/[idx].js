@@ -136,6 +136,42 @@ function ProcessSection() {
     setLocalStack(newStack);
   };
 
+  const updateSectionDetails = (sectionToUpdate) => {
+    const currentIdx = sectionToUpdate.getIndex();
+
+    // Update dependent states based on the new current section
+    setOgScriptWordsArray(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords()
+        : []
+    );
+    setTypedText(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords().join(" ")
+        : ""
+    );
+    setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+    // Calculate progress and time left
+    const previousSectionsTotalDuration = sectionsArray
+      .slice(0, currentIdx)
+      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    const newProgressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds()) /
+        adLength) *
+        100
+    );
+    const newSecondsLeft =
+      adLength -
+      (previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds());
+
+    setProgressBarPercentage(newProgressBarPercentage);
+    setSecondsYouHaveLeft(newSecondsLeft);
+    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+  };
+
   useEffect(() => {
     console.log("Useeffect A was called");
 
@@ -149,38 +185,39 @@ function ProcessSection() {
 
       // Assuming sectionToUpdate effectively mimics the clone's intended behavior
       setLocalCurrentSectionObj(sectionToUpdate);
+      updateSectionDetails(sectionToUpdate);
 
-      // Update dependent states based on the new current section
-      setOgScriptWordsArray(
-        sectionToUpdate.getOriginalContent()
-          ? sectionToUpdate.getCurrentWords()
-          : []
-      );
-      setTypedText(
-        sectionToUpdate.getOriginalContent()
-          ? sectionToUpdate.getCurrentWords().join(" ")
-          : ""
-      );
-      setTransformedWords(sectionToUpdate.getCurrentTransformations());
+      // // Update dependent states based on the new current section
+      // setOgScriptWordsArray(
+      //   sectionToUpdate.getOriginalContent()
+      //     ? sectionToUpdate.getCurrentWords()
+      //     : []
+      // );
+      // setTypedText(
+      //   sectionToUpdate.getOriginalContent()
+      //     ? sectionToUpdate.getCurrentWords().join(" ")
+      //     : ""
+      // );
+      // setTransformedWords(sectionToUpdate.getCurrentTransformations());
 
-      // Calculate progress and time left
-      const previousSectionsTotalDuration = sectionsArray
-        .slice(0, currentIdx)
-        .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-      const newProgressBarPercentage = Math.round(
-        ((previousSectionsTotalDuration +
-          sectionToUpdate.getSectionDurationSeconds()) /
-          adLength) *
-          100
-      );
-      const newSecondsLeft =
-        adLength -
-        (previousSectionsTotalDuration +
-          sectionToUpdate.getSectionDurationSeconds());
+      // // Calculate progress and time left
+      // const previousSectionsTotalDuration = sectionsArray
+      //   .slice(0, currentIdx)
+      //   .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+      // const newProgressBarPercentage = Math.round(
+      //   ((previousSectionsTotalDuration +
+      //     sectionToUpdate.getSectionDurationSeconds()) /
+      //     adLength) *
+      //     100
+      // );
+      // const newSecondsLeft =
+      //   adLength -
+      //   (previousSectionsTotalDuration +
+      //     sectionToUpdate.getSectionDurationSeconds());
 
-      setProgressBarPercentage(newProgressBarPercentage);
-      setSecondsYouHaveLeft(newSecondsLeft);
-      setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+      // setProgressBarPercentage(newProgressBarPercentage);
+      // setSecondsYouHaveLeft(newSecondsLeft);
+      // setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
       setShowAudioPlayer(false);
     }
   }, [idx]); // Depend solely on idx
@@ -189,35 +226,36 @@ function ProcessSection() {
     console.log("Useeffect B was called", localCurrentSectionObj);
     const currentIdx = localCurrentSectionObj.getIndex();
 
-    setOgScriptWordsArray(
-      localCurrentSectionObj.getOriginalContent()
-        ? localCurrentSectionObj.getCurrentWords()
-        : []
-    );
-    setTypedText(
-      localCurrentSectionObj.getOriginalContent()
-        ? localCurrentSectionObj.getCurrentWords().join(" ")
-        : ""
-    );
-    setTransformedWords(localCurrentSectionObj.getCurrentTransformations());
+    // setOgScriptWordsArray(
+    //   localCurrentSectionObj.getOriginalContent()
+    //     ? localCurrentSectionObj.getCurrentWords()
+    //     : []
+    // );
+    // setTypedText(
+    //   localCurrentSectionObj.getOriginalContent()
+    //     ? localCurrentSectionObj.getCurrentWords().join(" ")
+    //     : ""
+    // );
+    // setTransformedWords(localCurrentSectionObj.getCurrentTransformations());
 
-    const previousSectionsTotalDuration = sectionsArray
-      .slice(0, currentIdx)
-      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-    const newProgressBarPercentage = Math.round(
-      ((previousSectionsTotalDuration +
-        localCurrentSectionObj.getSectionDurationSeconds()) /
-        adLength) *
-        100
-    );
-    const newSecondsLeft =
-      adLength -
-      (previousSectionsTotalDuration +
-        localCurrentSectionObj.getSectionDurationSeconds());
+    // const previousSectionsTotalDuration = sectionsArray
+    //   .slice(0, currentIdx)
+    //   .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    // const newProgressBarPercentage = Math.round(
+    //   ((previousSectionsTotalDuration +
+    //     localCurrentSectionObj.getSectionDurationSeconds()) /
+    //     adLength) *
+    //     100
+    // );
+    // const newSecondsLeft =
+    //   adLength -
+    //   (previousSectionsTotalDuration +
+    //     localCurrentSectionObj.getSectionDurationSeconds());
 
-    setProgressBarPercentage(newProgressBarPercentage);
-    setSecondsYouHaveLeft(newSecondsLeft);
-    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+    // setProgressBarPercentage(newProgressBarPercentage);
+    // setSecondsYouHaveLeft(newSecondsLeft);
+    // setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+    updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
   const localPushData = (newData, clone = false) => {
@@ -654,9 +692,9 @@ function ProcessSection() {
     let audioUrl = "";
     let localHistoryItemId;
 
-    if (generatedVoiceUrl) {
-      URL.revokeObjectURL(generatedVoiceUrl);
-    }
+    // if (generatedVoiceUrl) {
+    //   URL.revokeObjectURL(generatedVoiceUrl);
+    // }
 
     const mostUptodateSection = getFinalScript();
 
