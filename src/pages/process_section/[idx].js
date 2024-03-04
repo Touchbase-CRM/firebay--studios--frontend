@@ -724,6 +724,10 @@ function ProcessSection() {
     setGeneratedVoiceUrl(audioUrl);
   };
 
+  const changeCurrentSectionObj = (newSectionObj) => {
+    setLocalCurrentSectionObj(newSectionObj.clone());
+  };
+
   const links = [
     {
       label: "Home",
@@ -1102,6 +1106,7 @@ function ProcessSection() {
                   handleClose={hideOffcanvas}
                   localSectionHistoryObj={localSectionHistoryObj}
                   playAudioUrl={playAudioUrl}
+                  changeCurrentSectionObj={changeCurrentSectionObj}
                 />
               </>
             )}

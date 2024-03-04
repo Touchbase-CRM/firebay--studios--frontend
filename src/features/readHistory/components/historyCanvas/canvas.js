@@ -7,6 +7,7 @@ export const HistoryCanvas = ({
   handleClose,
   localSectionHistoryObj,
   playAudioUrl,
+  changeCurrentSectionObj,
 }) => {
   return (
     <Offcanvas
@@ -69,6 +70,7 @@ export const HistoryCanvas = ({
                         borderColor: "#FDA942",
                         color: "black",
                       }}
+                      onClick={() => changeCurrentSectionObj(value)}
                     >
                       Use Read
                     </Button>
