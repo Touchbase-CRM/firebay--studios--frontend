@@ -6,6 +6,7 @@ export const HistoryCanvas = ({
   show,
   handleClose,
   localSectionHistoryObj,
+  playAudioUrl,
 }) => {
   return (
     <Offcanvas
@@ -57,6 +58,7 @@ export const HistoryCanvas = ({
                         borderColor: "#eb631c",
                         color: "white",
                       }}
+                      onClick={() => playAudioUrl(value.getGeneratedVoiceUrl())}
                     >
                       Play
                     </Button>

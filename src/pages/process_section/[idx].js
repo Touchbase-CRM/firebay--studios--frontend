@@ -717,6 +717,13 @@ function ProcessSection() {
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
+  const playAudioUrl = (audioUrl) => {
+    setForceRenderKey(Math.random());
+
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(audioUrl);
+  };
+
   const links = [
     {
       label: "Home",
@@ -1094,6 +1101,7 @@ function ProcessSection() {
                   show={offcanvasVisible}
                   handleClose={hideOffcanvas}
                   localSectionHistoryObj={localSectionHistoryObj}
+                  playAudioUrl={playAudioUrl}
                 />
               </>
             )}
