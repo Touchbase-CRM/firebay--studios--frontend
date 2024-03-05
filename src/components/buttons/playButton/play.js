@@ -5,7 +5,8 @@ export const PlayButton = ({
   handlerArgs = [],
   size = "24px",
   preventDefault = false, // Default is false, so it only activates if explicitly set to true
-  stopPropagation = false, // Same as above
+  stopPropagation = false, // Same as above,
+  isDisabled = false,
 }) => {
   const [isClicked, setIsClicked] = useState(false);
 
@@ -32,6 +33,7 @@ export const PlayButton = ({
         justifyContent: "center",
       }}
       className="btn"
+      disabled={isDisabled}
     >
       <i
         className={isClicked ? "bi bi-play-circle-fill" : "bi bi-play-circle"}

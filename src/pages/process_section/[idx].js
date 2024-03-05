@@ -25,6 +25,7 @@ import app from "../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
+import { HistoryCanvas } from "@/features/readHistory";
 
 import {
   getFirestore,
@@ -53,6 +54,8 @@ function ProcessSection() {
   const {
     sectionsArray,
     setSectionsArray,
+    sectionHistoryArray,
+    setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
     reset: resetUserInputsStore,
@@ -69,7 +72,11 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
   });
+
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
+    sectionHistoryArray[currentSectionIndex] || null
+  );
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
@@ -81,6 +88,10 @@ function ProcessSection() {
     { label: "1.75x", value: "1.75X" },
     { label: "2x", value: "2X" },
   ];
+  const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
+
+  const hideOffcanvas = () => setOffcanvasVisibility(false);
+  const showOffcanvas = () => setOffcanvasVisibility(true);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -118,6 +129,7 @@ function ProcessSection() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
+
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
@@ -125,51 +137,66 @@ function ProcessSection() {
     setLocalStack(newStack);
   };
 
+  const updateSectionDetails = (sectionToUpdate) => {
+    const currentIdx = sectionToUpdate.getIndex();
+
+    // Update dependent states based on the new current section
+    setOgScriptWordsArray(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords()
+        : []
+    );
+    setTypedText(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords().join(" ")
+        : ""
+    );
+    setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+    // Calculate progress and time left
+    const previousSectionsTotalDuration = sectionsArray
+      .slice(0, currentIdx)
+      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    const newProgressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds()) /
+        adLength) *
+        100
+    );
+    const newSecondsLeft =
+      adLength -
+      (previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds());
+
+    setProgressBarPercentage(newProgressBarPercentage);
+    setSecondsYouHaveLeft(newSecondsLeft);
+    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+  };
+
   useEffect(() => {
-    syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
+    syncStackAfterNavigation();
+
+    // no need to update if the current section is the same
+    if (currentIdx === localCurrentSectionObj.getIndex()) {
+      return;
+    }
+
     setCurrentSectionIndex(currentIdx);
+    setLocalSectionHistoryObj(sectionHistoryArray[currentIdx] || null);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const sectionToUpdate = sectionsArray[currentIdx];
 
-      // Assuming sectionToUpdate effectively mimics the clone's intended behavior
       setLocalCurrentSectionObj(sectionToUpdate);
-
-      // Update dependent states based on the new current section
-      setOgScriptWordsArray(
-        sectionToUpdate.getOriginalContent()
-          ? sectionToUpdate.getCurrentWords()
-          : []
-      );
-      setTypedText(
-        sectionToUpdate.getOriginalContent()
-          ? sectionToUpdate.getCurrentWords().join(" ")
-          : ""
-      );
-      setTransformedWords(sectionToUpdate.getCurrentTransformations());
-
-      // Calculate progress and time left
-      const previousSectionsTotalDuration = sectionsArray
-        .slice(0, currentIdx)
-        .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-      const newProgressBarPercentage = Math.round(
-        ((previousSectionsTotalDuration +
-          sectionToUpdate.getSectionDurationSeconds()) /
-          adLength) *
-          100
-      );
-      const newSecondsLeft =
-        adLength -
-        (previousSectionsTotalDuration +
-          sectionToUpdate.getSectionDurationSeconds());
-
-      setProgressBarPercentage(newProgressBarPercentage);
-      setSecondsYouHaveLeft(newSecondsLeft);
-      setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+      updateSectionDetails(sectionToUpdate);
       setShowAudioPlayer(false);
     }
-  }, [idx]); // Depend solely on idx
+  }, [idx]);
+
+  useEffect(() => {
+    updateSectionDetails(localCurrentSectionObj);
+  }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
@@ -472,6 +499,15 @@ function ProcessSection() {
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
+  const syncSectionHistoryArray = (index, newSectionHistoryObj) => {
+    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
+    const updatedArray = [
+      ...currentArray.slice(0, index),
+      newSectionHistoryObj,
+      ...currentArray.slice(index + 1),
+    ];
+    setSectionHistoryArray(updatedArray);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -487,6 +523,8 @@ function ProcessSection() {
       dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
       voiceId: localCurrentSectionObj.getVoiceId(),
     });
+    // sync the local history with global.
+    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
@@ -569,6 +607,16 @@ function ProcessSection() {
     }
   }
 
+  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
+    setLocalSectionHistoryObj((prevMap) => {
+      const updatedMap = new Map(prevMap);
+      for (const [key, value] of Object.entries(newKeyValuePair)) {
+        updatedMap.set(key, value);
+      }
+      return updatedMap;
+    });
+  };
+
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
 
@@ -577,10 +625,6 @@ function ProcessSection() {
 
     let audioUrl = "";
     let localHistoryItemId;
-
-    if (generatedVoiceUrl) {
-      URL.revokeObjectURL(generatedVoiceUrl);
-    }
 
     const mostUptodateSection = getFinalScript();
 
@@ -621,17 +665,23 @@ function ProcessSection() {
       setSecondsYouHaveLeft(
         adLength - previousSectionsTotalDuration - newDuration
       );
+      localCurrentSectionObj.setCurrentTransformations(transformedWords);
+      localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
       localCurrentSectionObj.setSectionDurationSeconds(newDuration);
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
       localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
-      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone()); // can we get rid of the clone here?
+      updateLocalSectionHistoryObj({
+        [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+      });
     } catch (error) {
       console.error("Error generating voice:", error);
     } finally {
       setIsGeneratingVoice(false);
     }
   }
+
   function getAudioDuration(url) {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);
@@ -651,6 +701,10 @@ function ProcessSection() {
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
+    updateLocalSectionHistoryObj({
+      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+    });
+    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
     localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
     setSectionsArray(localSectionsArray);
 
@@ -674,14 +728,15 @@ function ProcessSection() {
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
-  const wordCountStyle = {
-    position: "absolute",
-    bottom: "10px",
-    right: "10px",
-    background: "rgba(0, 0, 0, 0.7)",
-    color: "white",
-    padding: "0 5px",
-    borderRadius: "5px",
+  const playAudioUrl = (audioUrl) => {
+    setForceRenderKey(Math.random());
+
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(audioUrl);
+  };
+
+  const changeCurrentSectionObj = (newSectionObj) => {
+    setLocalCurrentSectionObj(newSectionObj.clone());
   };
 
   const links = [
@@ -903,19 +958,42 @@ function ProcessSection() {
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Edit section</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={typedText}
-                  onChange={handleScriptChange}
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                    value={typedText}
+                    onChange={handleScriptChange}
+                    style={{
+                      color: "black",
+                      height: "70px",
+                      marginRight: "10px", // Add a right margin to separate the textarea and the button
+                      marginBottom: "10px",
+                    }}
+                  />
+
+                  <PlayButton
+                    onClickHandler={handleReplayVoicePreview} // You might need to modify the handler for this button's specific action
+                    handlerArgs={[]}
+                    size="32px" // Ensure this matches the size of the other play button for consistency
+                    preventDefault={true}
+                    isDisabled={
+                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
+                    }
+                  />
+                </div>
+                <div
                   style={{
-                    color: "black",
-                    height: "70px",
-                    marginBottom: "20px",
+                    position: "absolute",
+                    bottom: "15px",
+                    right: "50px", // Adjust as necessary if the play button affects the positioning
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "0 5px",
+                    borderRadius: "5px",
                   }}
-                />
-                <div style={wordCountStyle}>
+                >
                   {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
@@ -1012,28 +1090,39 @@ function ProcessSection() {
               {"Next"}
             </Button>
 
-            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReplayVoicePreview(e);
-                }}
-                style={{
-                  marginRight: "0px", // Adjusted for consistency
-                  marginTop: "20px",
-                  backgroundColor: "#FDA942",
-                  borderColor: "#FDA942",
-                }}
-              >
-                <i
-                  className="bi bi-arrow-clockwise"
-                  style={{ verticalAlign: "middle" }}
-                ></i>
-                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Replay Latest Read
-                </span>
-              </Button>
-            )}
+            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+              localSectionHistoryObj &&
+              localSectionHistoryObj[currentSectionIndex] !== null && (
+                <>
+                  <Button
+                    onClick={showOffcanvas}
+                    style={{
+                      marginRight: "0px", // Adjusted for consistency
+                      marginTop: "20px",
+                      backgroundColor: "white",
+
+                      borderColor: "#FDA942",
+                    }}
+                  >
+                    <span
+                      style={{
+                        verticalAlign: "middle",
+                        marginLeft: "8px",
+                        color: "black",
+                      }}
+                    >
+                      History
+                    </span>
+                  </Button>
+                  <HistoryCanvas
+                    show={offcanvasVisible}
+                    handleClose={hideOffcanvas}
+                    localSectionHistoryObj={localSectionHistoryObj}
+                    playAudioUrl={playAudioUrl}
+                    changeCurrentSectionObj={changeCurrentSectionObj}
+                  />
+                </>
+              )}
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
