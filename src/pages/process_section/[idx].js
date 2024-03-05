@@ -65,6 +65,7 @@ function ProcessSection() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     parseInt(idx, 10)
   );
+  console.log("currentSectionIndex", currentSectionIndex);
 
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -129,6 +130,7 @@ function ProcessSection() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
+
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
@@ -173,25 +175,28 @@ function ProcessSection() {
   };
 
   useEffect(() => {
-    console.log("Useeffect A was called");
+    console.log("Useeffect A was called", idx);
+    // @TODO: The use Effect A and B has some overlap which is not ideal. This need scrupulous review to aggregate the logic.
+    // Look into this shoud the need arises or have more capacity.
 
-    syncStackAfterNavigation();
     const currentIdx = parseInt(idx, 10);
+    syncStackAfterNavigation();
+
     setCurrentSectionIndex(currentIdx);
+    console.log(sectionHistoryArray);
     setLocalSectionHistoryObj(sectionHistoryArray[currentIdx] || null);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const sectionToUpdate = sectionsArray[currentIdx];
 
-      // Assuming sectionToUpdate effectively mimics the clone's intended behavior
       setLocalCurrentSectionObj(sectionToUpdate);
       updateSectionDetails(sectionToUpdate);
       setShowAudioPlayer(false);
     }
-  }, [idx]); // Depend solely on idx
+  }, [idx]);
 
   useEffect(() => {
-    console.log("Useeffect B was called", localCurrentSectionObj);
+    console.log("Useeffect B was called");
     updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
@@ -698,6 +703,10 @@ function ProcessSection() {
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
+    updateLocalSectionHistoryObj({
+      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+    });
+    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
     localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
     setSectionsArray(localSectionsArray);
 
@@ -1082,38 +1091,41 @@ function ProcessSection() {
             >
               {"Next"}
             </Button>
+            {console.log(localSectionHistoryObj)}
 
-            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
-              <>
-                <Button
-                  onClick={showOffcanvas}
-                  style={{
-                    marginRight: "0px", // Adjusted for consistency
-                    marginTop: "20px",
-                    backgroundColor: "white",
-
-                    borderColor: "#FDA942",
-                  }}
-                >
-                  <span
+            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+              localSectionHistoryObj &&
+              localSectionHistoryObj[currentSectionIndex] !== null && (
+                <>
+                  <Button
+                    onClick={showOffcanvas}
                     style={{
-                      verticalAlign: "middle",
-                      marginLeft: "8px",
-                      color: "black",
+                      marginRight: "0px", // Adjusted for consistency
+                      marginTop: "20px",
+                      backgroundColor: "white",
+
+                      borderColor: "#FDA942",
                     }}
                   >
-                    History
-                  </span>
-                </Button>
-                <HistoryCanvas
-                  show={offcanvasVisible}
-                  handleClose={hideOffcanvas}
-                  localSectionHistoryObj={localSectionHistoryObj}
-                  playAudioUrl={playAudioUrl}
-                  changeCurrentSectionObj={changeCurrentSectionObj}
-                />
-              </>
-            )}
+                    <span
+                      style={{
+                        verticalAlign: "middle",
+                        marginLeft: "8px",
+                        color: "black",
+                      }}
+                    >
+                      History
+                    </span>
+                  </Button>
+                  <HistoryCanvas
+                    show={offcanvasVisible}
+                    handleClose={hideOffcanvas}
+                    localSectionHistoryObj={localSectionHistoryObj}
+                    playAudioUrl={playAudioUrl}
+                    changeCurrentSectionObj={changeCurrentSectionObj}
+                  />
+                </>
+              )}
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
@@ -1202,6 +1214,4 @@ function ProcessSection() {
     </div>
   );
 }
-// export default withAuth(ProcessSection);
-
-export default ProcessSection;
+export default withAuth(ProcessSection);
