@@ -65,7 +65,6 @@ function ProcessSection() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     parseInt(idx, 10)
   );
-  console.log("currentSectionIndex", currentSectionIndex);
 
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -175,15 +174,15 @@ function ProcessSection() {
   };
 
   useEffect(() => {
-    console.log("Useeffect A was called", idx);
-    // @TODO: The use Effect A and B has some overlap which is not ideal. This need scrupulous review to aggregate the logic.
-    // Look into this shoud the need arises or have more capacity.
-
     const currentIdx = parseInt(idx, 10);
     syncStackAfterNavigation();
 
+    // no need to update if the current section is the same
+    if (currentIdx === localCurrentSectionObj.getIndex()) {
+      return;
+    }
+
     setCurrentSectionIndex(currentIdx);
-    console.log(sectionHistoryArray);
     setLocalSectionHistoryObj(sectionHistoryArray[currentIdx] || null);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
@@ -196,7 +195,6 @@ function ProcessSection() {
   }, [idx]);
 
   useEffect(() => {
-    console.log("Useeffect B was called");
     updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
@@ -1091,7 +1089,6 @@ function ProcessSection() {
             >
               {"Next"}
             </Button>
-            {console.log(localSectionHistoryObj)}
 
             {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
               localSectionHistoryObj &&
