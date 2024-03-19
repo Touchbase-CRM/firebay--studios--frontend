@@ -213,6 +213,7 @@ function CreateSections() {
                   onChange={(e) => setAdLength(e.target.value)}
                   style={{ color: "black", marginBottom: "20px" }}
                 >
+                  <option value="10">10 seconds</option>
                   <option value="15">15 seconds</option>
                   <option value="30">30 seconds</option>
                   <option value="45">45 seconds</option>
