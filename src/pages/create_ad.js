@@ -410,7 +410,9 @@ function CreateAd() {
                   onChange={(e) => setAdLength(e.target.value)}
                   style={{ color: "black", marginBottom: "20px" }}
                 >
+                  <option value="15">15 seconds</option>
                   <option value="30">30 seconds</option>
+                  <option value="45">45 seconds</option>
                   <option value="60">60 seconds</option>
                 </Form.Select>
               </Form.Group>
