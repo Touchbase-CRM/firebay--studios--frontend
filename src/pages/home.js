@@ -21,14 +21,6 @@ function Home() {
     resetUserInputsStore();
   }, []);
 
-  useEffect(() => {
-    // Check if the user is logged in and set their email
-    const user = auth.currentUser;
-    if (user) {
-      setUserEmail(user.email); // Access and set the email address of the logged-in user
-    }
-  }, [auth]);
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     auth
