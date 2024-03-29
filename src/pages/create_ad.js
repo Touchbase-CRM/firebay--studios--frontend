@@ -64,6 +64,7 @@ function CreateAd() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
+  const restrictedVoices = ["Evan (Cloned)"];
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -437,17 +438,27 @@ function CreateAd() {
                 ) : (
                   <Form.Select
                     aria-label="Voice select"
-                    value={voiceName} // This should be the voice name, not the ID
+                    value={voiceName} // Retains the current voice name
                     onChange={handleVoiceChange}
                     style={{ color: "black" }}
                   >
-                    {voiceOptions.map((voice, index) => (
-                      <option key={index} value={voice}>
-                        {" "}
-                        {/* Use unique index or better yet, a unique ID */}
-                        {voice}
-                      </option>
-                    ))}
+                    {voiceOptions
+                      .filter((voice) => {
+                        const isRestrictedVoice =
+                          restrictedVoices.includes(voice);
+                        const isFirebayStudiosEmail =
+                          auth.currentUser.email.split("@")[1] ===
+                          "firebaystudios.com";
+                        return (
+                          !isRestrictedVoice ||
+                          (isRestrictedVoice && isFirebayStudiosEmail)
+                        );
+                      })
+                      .map((voice, index) => (
+                        <option key={voice} value={voice}>
+                          {voice}
+                        </option>
+                      ))}
                   </Form.Select>
                 )}
               </Form.Group>
