@@ -443,6 +443,7 @@ function CreateAd() {
                     style={{ color: "black" }}
                   >
                     {voiceOptions
+                      // These restrictions are temporary. Need to figure out a better data model.
                       .filter((voice) => {
                         const isRestrictedVoice =
                           restrictedVoices.includes(voice);
@@ -673,3 +674,4 @@ function CreateAd() {
   );
 }
 export default withAuth(CreateAd);
+// These restrictions are temporary. Need to figure out a better data model.
