@@ -129,6 +129,7 @@ function ProcessSection() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  const restrictedVoices = ["Evan (Cloned)"];
 
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
@@ -859,11 +860,24 @@ function ProcessSection() {
                       onChange={handleVoiceChange}
                       style={{ color: "black", marginRight: "10px" }}
                     >
-                      {voiceOptions.map((voice, index) => (
-                        <option key={index} value={voice}>
-                          {voice}
-                        </option>
-                      ))}
+                      {voiceOptions
+                        // These restrictions are temporary. Need to figure out a better data model.
+                        .filter((voice) => {
+                          const isRestrictedVoice =
+                            restrictedVoices.includes(voice);
+                          const isFirebayStudiosEmail =
+                            auth.currentUser.email.split("@")[1] ===
+                            "firebaystudios.com";
+                          return (
+                            !isRestrictedVoice ||
+                            (isRestrictedVoice && isFirebayStudiosEmail)
+                          );
+                        })
+                        .map((voice, index) => (
+                          <option key={voice} value={voice}>
+                            {voice}
+                          </option>
+                        ))}
                     </Form.Select>
                     <PlayButton
                       onClickHandler={handleVoicePreviewPlayButton}
