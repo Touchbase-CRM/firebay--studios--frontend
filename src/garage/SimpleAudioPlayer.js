@@ -1,43 +1,30 @@
-import React, { useCallback } from "react";
+// Adding this minimal audio player in case if the audio player gets too complex in the future.
+import React from "react";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+import withAuth from "../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import app from "../firebase";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
 
 export default function SimpleAudioPlayer({
   audioTitle,
   audioSrc,
   forceRender = 0,
-  autoplay = false,
-  allowDownload = false,
+  autoplay = false, // Optional autoplay prop, default is false
+  allowDownload = false, // Optional prop to allow downloading
 }) {
-  // Enhanced increment function with additional checks
-  const incrementMonthlyDownloads = useCallback(async () => {
-    if (!allowDownload) {
-      // Exit if downloading is not allowed
-      return;
-    }
-
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
-    const user = auth.currentUser;
-
-    if (user) {
-      const uid = user.uid;
-      const docRef = doc(firestore, "uid_to_org", uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists() && docSnap.data().monthly_downloads !== undefined) {
-        // Increment only if monthly_downloads field exists
-        await updateDoc(docRef, {
-          monthly_downloads: docSnap.data().monthly_downloads + 1,
-        });
-      }
-    }
-  }, [allowDownload]); // Dependency on allowDownload to reinitialize if its value changes
-
   return (
     <div className="fixed-bottom bg-light border-top">
       <div className="container pt-2 pb-2">
@@ -65,8 +52,7 @@ export default function SimpleAudioPlayer({
                     marginLeft: "auto",
                     fontSize: "1.5em",
                     color: "#EB631C",
-                  }}
-                  onClick={incrementMonthlyDownloads}
+                  }} // Adjust the value as needed
                 >
                   <i className="bi bi-download"></i>
                 </a>

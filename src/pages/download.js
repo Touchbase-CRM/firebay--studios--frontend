@@ -1,3 +1,4 @@
+// Relative Path: src/pages/download.js
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 
@@ -7,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Card, Navbar, Nav, Button } from "react-bootstrap";
 
-import { getFirestore, doc, getDoc, runTransaction } from "firebase/firestore";
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../context/auth";
 import app from "../firebase";
 import withAuth from "../hocs/withAuth";
@@ -15,8 +16,6 @@ import withAuth from "../hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import useUserInputsStore from "../store/userInputs";
-
-const db = getFirestore(app);
 
 const DownloadPage = () => {
   const posthog = usePostHog();
@@ -46,13 +45,28 @@ const DownloadPage = () => {
     };
   }, [router]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     setIsDownloading(true); // Set downloading state to true
+
     posthog.capture("download-download-button-clicked", {
       date: new Date().toISOString(),
       userId: user.uid,
       // Additional properties can be added here if needed
     });
+
+    // Ensure user is logged in
+    if (user && user.uid) {
+      const firestore = getFirestore(app);
+      const docRef = doc(firestore, "uid_to_org", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists() && docSnap.data().monthly_downloads !== undefined) {
+        // Increment only if monthly_downloads field exists
+        await updateDoc(docRef, {
+          monthly_downloads: docSnap.data().monthly_downloads + 1,
+        });
+      }
+    }
   };
 
   const handleNewAd = () => {
