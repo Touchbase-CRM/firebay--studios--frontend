@@ -11,14 +11,33 @@ import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
 import useUserInputsStore from "../store/userInputs";
 import React, { useState, useEffect, useRef } from "react";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 function Home() {
   const auth = getAuth();
   const router = useRouter();
+  const firestore = getFirestore(app);
   const { reset: resetUserInputsStore } = useUserInputsStore();
-
+  const [monthlyDownloads, setMonthlyDownloads] = useState(0);
   useEffect(() => {
     resetUserInputsStore();
+
+    const fetchMonthlyDownloads = async () => {
+      if (auth.currentUser) {
+        const uid = auth.currentUser.uid;
+        const docRef = doc(firestore, "uid_to_org", uid);
+        const docSnap = await getDoc(docRef);
+
+        if (
+          docSnap.exists() &&
+          docSnap.data().monthly_downloads !== undefined
+        ) {
+          setMonthlyDownloads(docSnap.data().monthly_downloads);
+        }
+      }
+    };
+
+    fetchMonthlyDownloads();
   }, []);
 
   const handleLogout = () => {
@@ -199,9 +218,40 @@ function Home() {
             </p>
           </Card.Footer>
         </Card>
+        {/* Display monthly downloads alert if available */}
+        {monthlyDownloads > 0 && (
+          <div
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "20px",
+              marginTop: "5px",
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+              borderRadius: "4px",
+              border: "1px solid #f5c6cb",
+              textAlign: "center",
+              fontSize: "24px",
+              fontFamily: "Arial, sans-serif",
+              fontWeight: "bold",
+            }}
+          >
+            Attention: Currently, you have made {monthlyDownloads} chargeable
+            downloads this month. If you have mistakenly downloaded a file,
+            please contact{" "}
+            <a
+              href="mailto:kjayamanna@firebaystudios.com"
+              style={{ color: "#721c24" }}
+            >
+              kjayamanna@firebaystudios.com
+            </a>{" "}
+            asap.
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default withAuth(Home);
+// export default withAuth(Home);
+export default Home;
