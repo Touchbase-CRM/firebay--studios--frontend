@@ -127,6 +127,7 @@ function ProcessSection() {
 
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [allowDownload, setAllowDownload] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const restrictedVoices = ["Evan (Cloned)"];
@@ -353,6 +354,7 @@ function ProcessSection() {
     }
   }
   const handleVoicePreviewPlayButton = () => {
+    setAllowDownload(false);
     setShowAudioPlayer(true);
     setGeneratedVoiceUrl(
       baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
@@ -471,6 +473,7 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+      setAllowDownload(false);
       setShowAudioPlayer(true);
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
@@ -655,6 +658,7 @@ function ProcessSection() {
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       }
+      setAllowDownload(true);
       setShowAudioPlayer(true);
       setGeneratedVoiceUrl(audioUrl);
       const newDuration = await getAudioDuration(audioUrl);
@@ -723,15 +727,16 @@ function ProcessSection() {
     }
   };
 
-  const handleReplayVoicePreview = () => {
+  const handleReadReplayButton = () => {
     setForceRenderKey(Math.random());
+    setAllowDownload(true);
     setShowAudioPlayer(true);
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
   const playAudioUrl = (audioUrl) => {
     setForceRenderKey(Math.random());
-
+    setAllowDownload(true);
     setShowAudioPlayer(true);
     setGeneratedVoiceUrl(audioUrl);
   };
@@ -988,7 +993,7 @@ function ProcessSection() {
                   />
 
                   <PlayButton
-                    onClickHandler={handleReplayVoicePreview} // You might need to modify the handler for this button's specific action
+                    onClickHandler={handleReadReplayButton} // You might need to modify the handler for this button's specific action
                     handlerArgs={[]}
                     size="32px" // Ensure this matches the size of the other play button for consistency
                     preventDefault={true}
@@ -1145,9 +1150,7 @@ function ProcessSection() {
               <SimpleAudioPlayer
                 audioSrc={generatedVoiceUrl}
                 audioTitle={localCurrentSectionObj.getVoiceName()}
-                allowDownload={
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== ""
-                }
+                allowDownload={allowDownload}
                 autoplay={true}
                 forceRender={forceRenderKey}
               />
