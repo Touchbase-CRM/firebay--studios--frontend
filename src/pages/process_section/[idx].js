@@ -574,7 +574,8 @@ function ProcessSection() {
       }
 
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        pyroHistoryItemId
+        pyroHistoryItemId,
+        adLength * 1000
       );
       return { audioUrl, localHistoryItemId: pyroHistoryItemId };
     } catch (error) {

@@ -240,7 +240,8 @@ function StitchSections() {
         }
 
         const audioUrl = await fetchAudioFromPyroBackendDistribution(
-          pyroHistoryItemId
+          pyroHistoryItemId,
+          0
         );
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
@@ -320,7 +321,8 @@ function StitchSections() {
     historyItemId = section.getHistoryItemId();
     if (historyItemId.substring(0, 4) === "pyro") {
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        historyItemId
+        historyItemId,
+        0
       );
 
       setAudioUrl(audioUrl);
