@@ -1,35 +1,47 @@
-// Relative path: utils/fetchFromDistribution.js
-
-export async function fetchAudioFromPyroBackendDistribution(pyroHistoryItemId) {
+export async function fetchAudioFromPyroBackendDistribution(
+  pyroHistoryItemId,
+  estimatedProcessingTime = 60000, // Assume a default estimated processing time
+  maxRetries = 3
+) {
   const bucketName = "workingdir--storage";
   const objectName = `primary--distribution/${pyroHistoryItemId}`;
+  const retryInterval = 15000; // Interval between retries if needed
 
-  try {
-    // Make a POST request to your API route, sending the object name to get the signed URL
-    const response = await fetch("/api/S3/fetchAudioFromS3", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ bucketName, objectName }),
-    });
+  let attempts = 0;
+  while (attempts < maxRetries) {
+    try {
+      const response = await fetch("/api/S3/fetchAudioFromS3", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bucketName, objectName }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Wait for the estimated processing time after fetching the URL
+      // to ensure the file is ready for use
+      await new Promise((resolve) =>
+        setTimeout(resolve, estimatedProcessingTime)
+      );
+
+      return data.url;
+    } catch (error) {
+      console.error(`Attempt #${attempts + 1} failed:`, error.message);
+      attempts += 1;
+
+      if (attempts < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, retryInterval));
+      } else {
+        throw new Error(
+          `Failed to fetch audio URL from API after ${maxRetries} attempts.`
+        );
+      }
     }
-
-    const data = await response.json();
-
-    // Use the signed URL directly for audio playback or download
-    // Here, return the URL for further use, such as setting it as the src for an audio element
-    return data.url;
-  } catch (error) {
-    console.error("Error fetching audio URL from API:", error);
-    throw new Error("Failed to fetch audio URL from API");
   }
 }
-
-// New image fetch function
-//   export async function fetchImageFromPyroBackendDistributionWithPolling(pyroHistoryItemId) {
-//     // Function implementation
-//   }

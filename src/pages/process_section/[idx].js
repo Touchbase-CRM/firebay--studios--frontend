@@ -615,6 +615,7 @@ function ProcessSection() {
           localCurrentSectionObj.getModelId(),
           localCurrentSectionObj.getVoiceId()
         );
+        // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       } else {
@@ -627,13 +628,17 @@ function ProcessSection() {
           localCurrentSectionObj.getSpeechRate(),
           true
         );
+        // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       }
+
       setAllowDownload(true);
       setShowAudioPlayer(true);
       setGeneratedVoiceUrl(audioUrl);
+
       const newDuration = await getAudioDuration(audioUrl);
+
       setProgressBarPercentage(
         Math.round(
           ((previousSectionsTotalDuration + newDuration) / adLength) * 100
@@ -865,7 +870,8 @@ function ProcessSection() {
                   </div>
                 )}
               </Form.Group>
-              {adLength !== "60" && adLength !== "45" ? (
+              {/* {adLength !== "60" && adLength !== "45" ? ( */}
+              {9 === 9 ? (
                 <div>
                   <Form.Group
                     controlId="dragonBreathToggle"
