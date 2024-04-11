@@ -132,6 +132,9 @@ function ProcessSection() {
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const restrictedVoices = ["Evan (Cloned)"];
+  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
+  const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
+  const SECTOMILLISEC = 1000;
 
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
@@ -573,10 +576,18 @@ function ProcessSection() {
         throw new Error("Failed to preprocess voiceover");
       }
 
+      // @TODO: Replace estimatedProcessingTime with a pub/sub.
+      const estimatedProcessingTime =
+        (1 / CHARACTERSPERSEC) *
+          localCurrentSectionObj.getCurrentCharCount() *
+          SECTOMILLISEC +
+        ADDITIONALWAITTIME;
+
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
         pyroHistoryItemId,
-        adLength * 1000
+        estimatedProcessingTime
       );
+
       return { audioUrl, localHistoryItemId: pyroHistoryItemId };
     } catch (error) {
       console.error("Error in generating voice with custom preprocess:", error);
