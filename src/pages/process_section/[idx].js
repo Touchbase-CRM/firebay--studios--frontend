@@ -38,6 +38,7 @@ import {
 } from "firebase/firestore";
 import _ from "lodash";
 import { Stack } from "../../dataStructures/stack";
+import { fetchAudioFromPyroBackendDistribution } from "../../utils/fetchFromDistribution";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -131,6 +132,9 @@ function ProcessSection() {
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const restrictedVoices = ["Evan (Cloned)"];
+  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
+  const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
+  const SECTOMILLISEC = 1000;
 
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
@@ -271,35 +275,6 @@ function ProcessSection() {
       text: text,
     });
   };
-
-  async function fetchAudioFromPyroBackendDistribution(pyroHistoryItemId) {
-    const bucketName = "workingdir--storage";
-    const objectName = `primary--distribution/${pyroHistoryItemId}`;
-
-    try {
-      // Make a POST request to your API route, sending the object name to get the signed URL
-      const response = await fetch("/api/S3/fetchAudioFromS3", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ bucketName, objectName }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Use the signed URL directly for audio playback or download
-      // Here, return the URL for further use, such as setting it as the src for an audio element
-      return data.url;
-    } catch (error) {
-      console.error("Error fetching audio URL from API:", error);
-      throw new Error("Failed to fetch audio URL from API");
-    }
-  }
 
   async function preprocessVoiceover({
     script,
@@ -601,9 +576,18 @@ function ProcessSection() {
         throw new Error("Failed to preprocess voiceover");
       }
 
+      // @TODO: Replace estimatedProcessingTime with a pub/sub.
+      const estimatedProcessingTime =
+        (1 / CHARACTERSPERSEC) *
+          localCurrentSectionObj.getCurrentCharCount() *
+          SECTOMILLISEC +
+        ADDITIONALWAITTIME;
+
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        pyroHistoryItemId
+        pyroHistoryItemId,
+        estimatedProcessingTime
       );
+
       return { audioUrl, localHistoryItemId: pyroHistoryItemId };
     } catch (error) {
       console.error("Error in generating voice with custom preprocess:", error);
@@ -643,6 +627,7 @@ function ProcessSection() {
           localCurrentSectionObj.getModelId(),
           localCurrentSectionObj.getVoiceId()
         );
+        // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       } else {
@@ -655,13 +640,17 @@ function ProcessSection() {
           localCurrentSectionObj.getSpeechRate(),
           true
         );
+        // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
       }
+
       setAllowDownload(true);
       setShowAudioPlayer(true);
       setGeneratedVoiceUrl(audioUrl);
+
       const newDuration = await getAudioDuration(audioUrl);
+
       setProgressBarPercentage(
         Math.round(
           ((previousSectionsTotalDuration + newDuration) / adLength) * 100
@@ -893,92 +882,73 @@ function ProcessSection() {
                   </div>
                 )}
               </Form.Group>
-              {adLength !== "60" && adLength !== "45" ? (
-                <div>
-                  <Form.Group
-                    controlId="dragonBreathToggle"
-                    className="d-flex align-items-center"
-                    style={{ marginTop: "10px" }}
-                  >
-                    <Form.Label
-                      className="mb-0"
-                      style={{ marginRight: "10px" }}
-                    >
-                      Dragon's Breath Enhancement
-                    </Form.Label>
-                    <div className="form-check form-switch">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        role="switch"
-                        id="dragonBreathEnhancementSwitch"
-                        checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                        onChange={handleDragonBreathEnhancementChange}
-                        style={{
-                          backgroundColor:
-                            localCurrentSectionObj.getDragonBreathEnhancement()
-                              ? "#eb631c"
-                              : "white",
-                          borderColor:
-                            localCurrentSectionObj.getDragonBreathEnhancement()
-                              ? "#eb631c"
-                              : "#adb5bd",
-                        }}
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group
-                    controlId="dragonBreathToggle"
-                    className="d-flex align-items-center"
-                    style={{ marginTop: "5px" }}
-                  >
-                    {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                      <Alert
-                        style={{
-                          variant: "info",
-                          fontSize: "10px",
-                          padding: "5px 10px",
-                        }}
-                      >
-                        Pyro Tip: 10X the energy of the selected voice as if a
-                        sword forged by dragon's breath
-                      </Alert>
-                    ) : null}
-                  </Form.Group>
-                  {/* Speech Rate Dropdown Menu */}
-                  <Form.Group
-                    controlId="speechRate"
-                    style={{ marginTop: "10px" }}
-                  >
-                    <Form.Label>Speech Rate</Form.Label>
-                    <Form.Select
-                      aria-label="Speech rate select"
-                      value={localCurrentSectionObj.getSpeechRate()}
-                      onChange={handleSpeechRate}
-                    >
-                      {speechRateOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-              ) : (
-                <Alert
-                  style={{
-                    marginTop: "50px",
-                    variant: "alert alert-danger",
-                    fontSize: "24px",
-                    padding: "5px 10px",
-                  }}
+              <div>
+                <Form.Group
+                  controlId="dragonBreathToggle"
+                  className="d-flex align-items-center"
+                  style={{ marginTop: "10px" }}
                 >
-                  Note: Dragon's Breath Mode and Speech Rate options are
-                  temporarily not available for 45 sec and 60 sec spots due to
-                  maintainance. If you have an urgent need, please email
-                  kjayamanna@firebaystudios.com
-                </Alert>
-              )}
+                  <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                    Dragon's Breath Enhancement
+                  </Form.Label>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="dragonBreathEnhancementSwitch"
+                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                      onChange={handleDragonBreathEnhancementChange}
+                      style={{
+                        backgroundColor:
+                          localCurrentSectionObj.getDragonBreathEnhancement()
+                            ? "#eb631c"
+                            : "white",
+                        borderColor:
+                          localCurrentSectionObj.getDragonBreathEnhancement()
+                            ? "#eb631c"
+                            : "#adb5bd",
+                      }}
+                    />
+                  </div>
+                </Form.Group>
+                <Form.Group
+                  controlId="dragonBreathToggle"
+                  className="d-flex align-items-center"
+                  style={{ marginTop: "5px" }}
+                >
+                  {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
+                    <Alert
+                      style={{
+                        variant: "info",
+                        fontSize: "10px",
+                        padding: "5px 10px",
+                      }}
+                    >
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Alert>
+                  ) : null}
+                </Form.Group>
+                {/* Speech Rate Dropdown Menu */}
+                <Form.Group
+                  controlId="speechRate"
+                  style={{ marginTop: "10px" }}
+                >
+                  <Form.Label>Speech Rate</Form.Label>
+                  <Form.Select
+                    aria-label="Speech rate select"
+                    value={localCurrentSectionObj.getSpeechRate()}
+                    onChange={handleSpeechRate}
+                  >
+                    {speechRateOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
             </Form>
           </Card>
         </Col>
