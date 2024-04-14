@@ -882,93 +882,73 @@ function ProcessSection() {
                   </div>
                 )}
               </Form.Group>
-              {/* {adLength !== "60" && adLength !== "45" ? ( */}
-              {9 === 9 ? (
-                <div>
-                  <Form.Group
-                    controlId="dragonBreathToggle"
-                    className="d-flex align-items-center"
-                    style={{ marginTop: "10px" }}
-                  >
-                    <Form.Label
-                      className="mb-0"
-                      style={{ marginRight: "10px" }}
-                    >
-                      Dragon's Breath Enhancement
-                    </Form.Label>
-                    <div className="form-check form-switch">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        role="switch"
-                        id="dragonBreathEnhancementSwitch"
-                        checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                        onChange={handleDragonBreathEnhancementChange}
-                        style={{
-                          backgroundColor:
-                            localCurrentSectionObj.getDragonBreathEnhancement()
-                              ? "#eb631c"
-                              : "white",
-                          borderColor:
-                            localCurrentSectionObj.getDragonBreathEnhancement()
-                              ? "#eb631c"
-                              : "#adb5bd",
-                        }}
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group
-                    controlId="dragonBreathToggle"
-                    className="d-flex align-items-center"
-                    style={{ marginTop: "5px" }}
-                  >
-                    {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                      <Alert
-                        style={{
-                          variant: "info",
-                          fontSize: "10px",
-                          padding: "5px 10px",
-                        }}
-                      >
-                        Pyro Tip: 10X the energy of the selected voice as if a
-                        sword forged by dragon's breath
-                      </Alert>
-                    ) : null}
-                  </Form.Group>
-                  {/* Speech Rate Dropdown Menu */}
-                  <Form.Group
-                    controlId="speechRate"
-                    style={{ marginTop: "10px" }}
-                  >
-                    <Form.Label>Speech Rate</Form.Label>
-                    <Form.Select
-                      aria-label="Speech rate select"
-                      value={localCurrentSectionObj.getSpeechRate()}
-                      onChange={handleSpeechRate}
-                    >
-                      {speechRateOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </div>
-              ) : (
-                <Alert
-                  style={{
-                    marginTop: "50px",
-                    variant: "alert alert-danger",
-                    fontSize: "24px",
-                    padding: "5px 10px",
-                  }}
+              <div>
+                <Form.Group
+                  controlId="dragonBreathToggle"
+                  className="d-flex align-items-center"
+                  style={{ marginTop: "10px" }}
                 >
-                  Note: Dragon's Breath Mode and Speech Rate options are
-                  temporarily not available for 45 sec and 60 sec spots due to
-                  maintainance. If you have an urgent need, please email
-                  kjayamanna@firebaystudios.com
-                </Alert>
-              )}
+                  <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                    Dragon's Breath Enhancement
+                  </Form.Label>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="dragonBreathEnhancementSwitch"
+                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                      onChange={handleDragonBreathEnhancementChange}
+                      style={{
+                        backgroundColor:
+                          localCurrentSectionObj.getDragonBreathEnhancement()
+                            ? "#eb631c"
+                            : "white",
+                        borderColor:
+                          localCurrentSectionObj.getDragonBreathEnhancement()
+                            ? "#eb631c"
+                            : "#adb5bd",
+                      }}
+                    />
+                  </div>
+                </Form.Group>
+                <Form.Group
+                  controlId="dragonBreathToggle"
+                  className="d-flex align-items-center"
+                  style={{ marginTop: "5px" }}
+                >
+                  {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
+                    <Alert
+                      style={{
+                        variant: "info",
+                        fontSize: "10px",
+                        padding: "5px 10px",
+                      }}
+                    >
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Alert>
+                  ) : null}
+                </Form.Group>
+                {/* Speech Rate Dropdown Menu */}
+                <Form.Group
+                  controlId="speechRate"
+                  style={{ marginTop: "10px" }}
+                >
+                  <Form.Label>Speech Rate</Form.Label>
+                  <Form.Select
+                    aria-label="Speech rate select"
+                    value={localCurrentSectionObj.getSpeechRate()}
+                    onChange={handleSpeechRate}
+                  >
+                    {speechRateOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </div>
             </Form>
           </Card>
         </Col>
