@@ -60,7 +60,7 @@ function CreateSections() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/process_section/0");
+      router.push("/advanced-mode/script-to-ad/process-section/0");
     }
   }, [isFormSubmitted, router]);
 
@@ -131,7 +131,7 @@ function CreateSections() {
 
     // Navigate to the first section if the section array is not empty
     if (localSectionsArray.length !== 0) {
-      router.push("/process_section/0");
+      router.push("/advanced-mode/script-to-ad/process-section/0");
     }
   };
 

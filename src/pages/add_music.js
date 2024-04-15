@@ -95,11 +95,11 @@ function AddMusic() {
 
   const handleGoBack = () => {
     // save the current url in the stack
-    localPushData(`/stitch_sections`);
+    localPushData(`/advanced-mode/script-to-ad/stitch-sections`);
     syncLocalStackWithGlobal();
     // move to the new url
     if (sectionsArray.length > 0) {
-      router.push("/stitch_sections");
+      router.push("/advanced-mode/script-to-ad/stitch-sections");
     } else {
       router.push("/quick-mode/script-to-ad/create-ad");
     }
