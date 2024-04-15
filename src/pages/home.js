@@ -173,7 +173,7 @@ function Home() {
               style={{
                 maxWidth: "1000px",
                 width: "95%",
-                height: "auto",
+                height: "1000px", // Added a minimum height so the modal covers more area
                 fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif',
                 backgroundColor: "#f8f9fa",
                 color: "#343a40",
@@ -195,6 +195,7 @@ function Home() {
                 style={{
                   borderBottom: "1px solid #dee2e6",
                   padding: "20px 30px",
+                  backgroundColor: "#e4e4e4",
                 }}
               >
                 <Modal.Title
