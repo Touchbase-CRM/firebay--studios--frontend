@@ -1,6 +1,7 @@
 // import { Navbar, Nav, Button, Card } from "react-bootstrap";
 import { Card, Modal, Button } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
+import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
@@ -93,6 +94,27 @@ function Home() {
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
+  const buttonOptions = [
+    {
+      text: "Script to Ad",
+      handler: handleQuickModeModalClose,
+      href: "/quick-mode/script-to-ad/create-ad",
+      variant: "success",
+      backgroundColor: "#eb631c",
+      borderColor: "#eb631c",
+      textColor: "white",
+    },
+    {
+      text: "Voice to Ad",
+      handler: handleQuickModeModalClose,
+      href: "/quick-mode/voice-to-ad/create-ad",
+      variant: "primary",
+      backgroundColor: "white",
+      borderColor: "#FDA942",
+      textColor: "black",
+    },
+  ];
+
   return (
     <div
       style={{
@@ -166,90 +188,12 @@ function Home() {
             >
               Quick Ad Generation
             </Button>
-            <Modal
+            <ActionSelectorModal
               show={quickModeModalShow}
               onHide={handleQuickModeModalClose}
-              centered
-              style={{
-                maxWidth: "1000px",
-                width: "95%",
-                height: "1000px", // Added a minimum height so the modal covers more area
-                fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif',
-                backgroundColor: "#f8f9fa",
-                color: "#343a40",
-                borderRadius: "12px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                overflow: "hidden",
-              }}
-            >
-              <Modal.Header
-                closeButton
-                style={{
-                  borderBottom: "1px solid #dee2e6",
-                  padding: "20px 30px",
-                  backgroundColor: "#e4e4e4",
-                }}
-              >
-                <Modal.Title
-                  style={{
-                    fontWeight: "600",
-                    fontSize: "28px",
-                    color: "#495057",
-                  }}
-                >
-                  Choose Ad Type
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="d-grid gap-2" style={{ width: "100%" }}>
-                  <Link href="/quick-mode/script-to-ad/create-ad" passHref>
-                    <Button
-                      variant="success"
-                      size="lg"
-                      onClick={handleQuickModeModalClose}
-                      style={{
-                        marginBottom: "10px",
-                        backgroundColor: "#eb631c",
-                        borderColor: "#eb631c",
-                        color: "white",
-                        width: "100%", // Make button take the full width
-                        fontSize: "20px",
-                        fontWeight: "600",
-                        padding: "15px 30px",
-                      }}
-                    >
-                      Script to Ad
-                    </Button>
-                  </Link>
-                  <Link href="/quick-mode/voice-to-ad/create-ad" passHref>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={handleQuickModeModalClose}
-                      style={{
-                        backgroundColor: "white",
-                        borderColor: "#FDA942",
-                        color: "black",
-                        width: "100%", // Make button take the full width
-                        fontSize: "20px",
-                        fontWeight: "600",
-                        padding: "15px 30px",
-                      }}
-                    >
-                      Voice to Ad
-                    </Button>
-                  </Link>
-                </div>
-              </Modal.Body>
-            </Modal>
+              title="Choose Ad Type"
+              buttonOptions={buttonOptions}
+            />
 
             <div style={{ marginBottom: "20px" }}>
               <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
