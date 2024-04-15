@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import useUserInputsStore from "../store/userInputs";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import useUserInputsStore from "../../../store/userInputs";
+import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
 import { getAuth } from "firebase/auth";
-import withAuth from "../hocs/withAuth";
+import withAuth from "../../../hocs/withAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -16,9 +16,9 @@ import { EditButton } from "@/components/buttons/editButton/edit";
 import { EditPauseDurationModal } from "@/components/editPauseDurationModal/modal";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Spinner from "../components/Spinner";
-import { Stack } from "../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../utils/fetchFromDistribution";
+import Spinner from "../../../components/Spinner";
+import { Stack } from "../../../dataStructures/stack";
+import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchFromDistribution";
 
 function StitchSections() {
   const auth = getAuth();

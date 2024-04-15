@@ -101,7 +101,7 @@ function AddMusic() {
     if (sectionsArray.length > 0) {
       router.push("/stitch_sections");
     } else {
-      router.push("/create_ad");
+      router.push("/quick-mode/script-to-ad/create-ad");
     }
   };
 
@@ -162,7 +162,7 @@ function AddMusic() {
       if (result.isConfirmed) {
         reset(); // Reset the user inputs to default values
 
-        router.push("/create_ad");
+        router.push("/quick-mode/script-to-ad/create-ad");
       }
     });
   };

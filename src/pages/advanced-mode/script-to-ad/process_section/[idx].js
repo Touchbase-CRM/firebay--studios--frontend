@@ -12,16 +12,17 @@ import {
 import { NavBar } from "@/components/navBar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
+// import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "@/services/elevenLabsService";
 
-import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
 import { PlayButton } from "@/components/buttons/playButton/play";
 
-import useUserInputsStore from "../../store/userInputs";
-import withAuth from "../../hocs/withAuth";
+import useUserInputsStore from "../../../../store/userInputs";
+import withAuth from "../../../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../../firebase";
+import app from "../../../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -37,8 +38,8 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../utils/fetchFromDistribution";
+import { Stack } from "../../../../dataStructures/stack";
+import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -712,7 +713,7 @@ function ProcessSection() {
         `/process_section/${currentSectionIdx - 1}`
       );
     } else {
-      router.push("/create_sections");
+      router.push("/advanced-mode/script-to-ad/create-sections");
     }
   };
 

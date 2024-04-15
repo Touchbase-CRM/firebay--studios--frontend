@@ -149,7 +149,7 @@ function Home() {
             }}
           >
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/create_ad" passHref>
+              <Link href="/quick-mode/script-to-ad/create-ad" passHref>
                 <button
                   style={{
                     width: "100%",
@@ -171,7 +171,7 @@ function Home() {
               </Link>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/create_sections" passHref>
+              <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
                 <button
                   style={{
                     width: "100%",

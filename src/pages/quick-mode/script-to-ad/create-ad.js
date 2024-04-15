@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "@/services/elevenLabsService";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import useUserInputsStore from "../store/userInputs";
+import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
+import useUserInputsStore from "../../../store/userInputs";
 
-import withAuth from "../hocs/withAuth";
+import withAuth from "../../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "../../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";

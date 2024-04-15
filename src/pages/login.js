@@ -57,7 +57,7 @@ const LoginPage = () => {
             email: email,
           });
 
-          // If the user has an active subscription and verified email, redirect to the create_ad page
+          // If the user has an active subscription and verified email, redirect to the quick-script-to-ad/create-ad page
           router.push("/home");
         } catch (error) {
           Swal.fire({

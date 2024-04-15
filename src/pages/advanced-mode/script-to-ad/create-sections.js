@@ -5,10 +5,10 @@ import { AdvancedModeStarterAlert } from "@/components/AdvancedModeStarterAlert"
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
-import useUserInputsStore from "../store/userInputs";
-import { Section } from "../dataStructures/section";
+import useUserInputsStore from "../../../store/userInputs";
+import { Section } from "../../../dataStructures/section";
 
-import withAuth from "../hocs/withAuth";
+import withAuth from "../../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
 import Alert from "react-bootstrap/Alert";

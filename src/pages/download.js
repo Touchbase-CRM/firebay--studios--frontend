@@ -110,7 +110,7 @@ const DownloadPage = () => {
       // Additional properties can be added here if needed
     });
 
-    router.push("/create_ad");
+    router.push("/quick-mode/script-to-ad/create-ad");
   };
 
   return (
@@ -275,7 +275,7 @@ const DownloadPage = () => {
                 </li>
                 <li style={{ marginBottom: "12px" }}>
                   {sectionsArray.length === 0 && (
-                    <Link href="/create_ad" passHref>
+                    <Link href="/quick-mode/script-to-ad/create-ad" passHref>
                       <button
                         style={{
                           width: "100%",
