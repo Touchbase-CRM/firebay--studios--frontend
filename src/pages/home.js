@@ -125,17 +125,16 @@ function Home() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "transparent", // Retained as transparent
-            border: "1px solid #eb631c", // Retained as is
-            color: "black", // Retained as black
+            backgroundColor: "transparent",
+            border: "1px solid #eb631c",
           }}
         >
           <Card.Header
             style={{
               padding: "16px",
               borderBottom: "1px solid rgba(255,255,255,0.1)",
-              backgroundColor: "#e4e4e4", // Changed to light gray
-              color: "black", // Changed to black
+              backgroundColor: "#e4e4e4",
+              color: "black",
             }}
           >
             <h1 style={{ margin: 0, fontSize: "24px" }}>Starter</h1>
@@ -148,8 +147,8 @@ function Home() {
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-              backgroundColor: "#FFFFFF", // Retained as white
-              color: "black", // Retained as black
+              backgroundColor: "#FFFFFF",
+              color: "black",
             }}
           >
             <Button
@@ -159,6 +158,10 @@ function Home() {
                 color: "white",
                 marginBottom: "20px",
                 borderColor: "#eb631c",
+                width: "100%",
+                padding: "10px 20px",
+                fontSize: "16px",
+                borderRadius: "12px",
               }}
             >
               Quick Ad Generation
@@ -198,13 +201,13 @@ function Home() {
               <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
                 <button
                   style={{
+                    backgroundColor: "#eb631c",
+                    color: "white",
+                    border: "1px solid #eb631c",
                     width: "100%",
                     padding: "10px 20px",
                     fontSize: "16px",
                     cursor: "pointer",
-                    backgroundColor: "#eb631c", // Custom color for the button
-                    border: "#eb631c",
-                    color: "white", // White text color for buttons
                     textDecoration: "none",
                     display: "inline-block",
                     margin: "4px 2px",
@@ -222,56 +225,25 @@ function Home() {
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
               backgroundColor: "#e4e4e4",
-              color: "black",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-              background: "linear-gradient(to right, #e4e4e4, #f9f9f9)", // Gradient background
-              borderRadius: "0 0 10px 10px", // Rounded corners at the bottom
-              fontSize: "10px", // Enhanced typography
-              lineHeight: "1.6", // Improved line spacing for readability
-              textAlign: "center", // Center align text
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+              background: "linear-gradient(to right, #e4e4e4, #f9f9f9)",
+              borderRadius: "0 0 10px 10px",
+              fontSize: "10px",
+              lineHeight: "1.6",
+              textAlign: "center",
             }}
           >
             <p>
               <i
                 className="bi bi-exclamation-triangle-fill"
                 style={{ marginRight: "8px", color: "#eb631c" }}
-              ></i>{" "}
-              {/* Example icon */}* Once you start creating an ad, please do not
-              use the browser back button or reload the page. You will lose all
-              your progress and it will log you out of your account.
+              ></i>
+              * Once you start creating an ad, please do not use the browser
+              back button or reload the page. You will lose all your progress
+              and it will log you out of your account.
             </p>
           </Card.Footer>
         </Card>
-        {/* Display monthly downloads alert if available */}
-        {monthlyDownloads > 0 && (
-          <div
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "20px",
-              marginTop: "5px",
-              backgroundColor: "#f8d7da",
-              color: "#721c24",
-              borderRadius: "4px",
-              border: "1px solid #f5c6cb",
-              textAlign: "center",
-              fontSize: "24px",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: "bold",
-            }}
-          >
-            Attention: Currently, you have made {monthlyDownloads} chargeable
-            downloads this month. If you have mistakenly downloaded a file,
-            please contact{" "}
-            <a
-              href="mailto:kjayamanna@firebaystudios.com"
-              style={{ color: "#721c24" }}
-            >
-              kjayamanna@firebaystudios.com
-            </a>{" "}
-            asap.
-          </div>
-        )}
       </div>
     </div>
   );
