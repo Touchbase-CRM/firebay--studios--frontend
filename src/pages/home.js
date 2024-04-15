@@ -81,10 +81,10 @@ function Home() {
     }
   };
   const dropdownItems = [
-    {
-      text: "Manage Subscription",
-      handler: handleManageSubscription,
-    },
+    // {
+    //   text: "Manage Subscription",
+    //   handler: handleManageSubscription,
+    // },
     {
       text: "Logout",
       handler: handleLogout,
@@ -242,6 +242,36 @@ function Home() {
             </p>
           </Card.Footer>
         </Card>
+        {/* Display monthly downloads alert if available */}
+        {monthlyDownloads > 0 && (
+          <div
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "20px",
+              marginTop: "5px",
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+              borderRadius: "4px",
+              border: "1px solid #f5c6cb",
+              textAlign: "center",
+              fontSize: "24px",
+              fontFamily: "Arial, sans-serif",
+              fontWeight: "bold",
+            }}
+          >
+            Attention: Currently, you have made {monthlyDownloads} chargeable
+            downloads this month. If you have mistakenly downloaded a file,
+            please contact{" "}
+            <a
+              href="mailto:kjayamanna@firebaystudios.com"
+              style={{ color: "#721c24" }}
+            >
+              kjayamanna@firebaystudios.com
+            </a>{" "}
+            asap.
+          </div>
+        )}
       </div>
     </div>
   );

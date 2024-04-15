@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "@/services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";

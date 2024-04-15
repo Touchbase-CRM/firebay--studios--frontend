@@ -12,8 +12,7 @@ import {
 import { NavBar } from "@/components/navBar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-// import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
-import { generateVoiceWithElevenLabsAPI } from "@/services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
 import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
