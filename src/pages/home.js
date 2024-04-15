@@ -1,5 +1,5 @@
 // import { Navbar, Nav, Button, Card } from "react-bootstrap";
-import { Card } from "react-bootstrap";
+import { Card, Modal, Button } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -19,6 +19,7 @@ function Home() {
   const firestore = getFirestore(app);
   const { reset: resetUserInputsStore } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
+  const [quickModeModalShow, setQuickModeModalShow] = useState(false);
   useEffect(() => {
     resetUserInputsStore();
 
@@ -89,6 +90,9 @@ function Home() {
     },
   ];
 
+  const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
+  const handleQuickModeModalClose = () => setQuickModeModalShow(false);
+
   return (
     <div
       style={{
@@ -148,28 +152,48 @@ function Home() {
               color: "black", // Retained as black
             }}
           >
-            <div style={{ marginBottom: "20px" }}>
-              <Link href="/quick-mode/script-to-ad/create-ad" passHref>
-                <button
-                  style={{
-                    width: "100%",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                    backgroundColor: "#eb631c", // Custom color for the button
-                    border: "none",
-                    color: "white", // White text color for buttons
-                    textDecoration: "none",
-                    display: "inline-block",
-                    margin: "4px 2px",
-                    transitionDuration: "0.4s",
-                    borderRadius: "12px",
-                  }}
-                >
-                  Quick Ad Generation
-                </button>
-              </Link>
-            </div>
+            <Button
+              onClick={handleQuickModeModalOpen}
+              style={{
+                backgroundColor: "#eb631c",
+                color: "white",
+                marginBottom: "20px",
+                borderColor: "#eb631c",
+              }}
+            >
+              Quick Ad Generation
+            </Button>
+            <Modal
+              show={quickModeModalShow}
+              onHide={handleQuickModeModalClose}
+              centered
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Choose Ad Type</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="d-grid gap-2">
+                  <Link href="/quick-mode/script-to-ad/create-ad" passHref>
+                    <Button
+                      variant="success"
+                      size="lg"
+                      onClick={handleQuickModeModalClose}
+                    >
+                      Script to Ad
+                    </Button>
+                  </Link>
+                  <Link href="/quick-mode/voice-to-ad/create-ad" passHref>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleQuickModeModalClose}
+                    >
+                      Voice to Ad
+                    </Button>
+                  </Link>
+                </div>
+              </Modal.Body>
+            </Modal>
             <div style={{ marginBottom: "20px" }}>
               <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
                 <button
