@@ -171,7 +171,7 @@ function StitchSections() {
   const handleNext = (e) => {
     e.preventDefault();
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
-    router.push("/add_music");
+    router.push("/add-music");
   };
 
   const handleSubmit = async (e) => {

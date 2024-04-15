@@ -100,7 +100,7 @@ const DownloadPage = () => {
       // Additional properties can be added here if needed
     });
 
-    router.push("/add_music");
+    router.push("/add-music");
   };
 
   const handleChangeScriptOrVoice = () => {
@@ -251,7 +251,7 @@ const DownloadPage = () => {
               </h5>
               <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
                 <li style={{ marginBottom: "12px" }}>
-                  <Link href="/add_music" passHref>
+                  <Link href="/add-music" passHref>
                     <button
                       style={{
                         width: "100%",

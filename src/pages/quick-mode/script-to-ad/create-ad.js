@@ -74,7 +74,7 @@ function CreateAd() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/add_music");
+      router.push("/add-music");
     }
   }, [isFormSubmitted, router]);
 
