@@ -169,18 +169,56 @@ function Home() {
             <Modal
               show={quickModeModalShow}
               onHide={handleQuickModeModalClose}
-              centered
+              centered // This property should ideally center the modal, but we'll add additional styling for safety.
+              style={{
+                maxWidth: "1000px", // Increased maximum width
+                width: "95%", // Making the modal wider
+                height: "auto", // Auto height to adjust based on content
+                fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif', // Artistic Typography
+                backgroundColor: "#f8f9fa", // Subtle background color
+                color: "#343a40", // Text color
+                borderRadius: "12px", // Slightly more rounded corners
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)", // Enhanced shadow for depth
+                display: "flex", // Using Flex to center the modal
+                flexDirection: "column", // Column direction for inner elements
+                justifyContent: "center", // Center vertically in view
+                alignItems: "center", // Center horizontally in view
+                position: "fixed", // Fixed position to stay in place
+                top: "50%", // Position at 50% from top
+                left: "50%", // Position at 50% from left
+                transform: "translate(-50%, -50%)", // Translate to truly center the modal
+                overflow: "hidden", // Ensures no overflow
+              }}
             >
-              <Modal.Header closeButton>
-                <Modal.Title>Choose Ad Type</Modal.Title>
+              <Modal.Header
+                closeButton
+                style={{
+                  borderBottom: "1px solid #dee2e6",
+                  padding: "20px 30px",
+                }}
+              >
+                <Modal.Title
+                  style={{
+                    fontWeight: "600",
+                    fontSize: "35px", // Increased title font size for emphasis
+                    color: "#495057", // Stylish title color
+                  }}
+                >
+                  Choose Ad Type
+                </Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <div className="d-grid gap-2">
+                <div className="d-grid gap-2" style={{ padding: "20px 0" }}>
                   <Link href="/quick-mode/script-to-ad/create-ad" passHref>
                     <Button
                       variant="success"
                       size="lg"
                       onClick={handleQuickModeModalClose}
+                      style={{
+                        fontSize: "20px", // Further increased button text size
+                        fontWeight: "600", // Bold text for button
+                        padding: "15px 30px", // Increased padding for larger buttons
+                      }}
                     >
                       Script to Ad
                     </Button>
@@ -190,6 +228,11 @@ function Home() {
                       variant="primary"
                       size="lg"
                       onClick={handleQuickModeModalClose}
+                      style={{
+                        fontSize: "20px", // Consistent with other button
+                        fontWeight: "600", // Bold text for emphasis
+                        padding: "15px 30px", // Uniform button styling
+                      }}
                     >
                       Voice to Ad
                     </Button>
@@ -197,6 +240,7 @@ function Home() {
                 </div>
               </Modal.Body>
             </Modal>
+
             <div style={{ marginBottom: "20px" }}>
               <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
                 <button
