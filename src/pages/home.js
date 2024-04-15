@@ -169,25 +169,25 @@ function Home() {
             <Modal
               show={quickModeModalShow}
               onHide={handleQuickModeModalClose}
-              centered // This property should ideally center the modal, but we'll add additional styling for safety.
+              centered
               style={{
-                maxWidth: "1000px", // Increased maximum width
-                width: "95%", // Making the modal wider
-                height: "auto", // Auto height to adjust based on content
-                fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif', // Artistic Typography
-                backgroundColor: "#f8f9fa", // Subtle background color
-                color: "#343a40", // Text color
-                borderRadius: "12px", // Slightly more rounded corners
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)", // Enhanced shadow for depth
-                display: "flex", // Using Flex to center the modal
-                flexDirection: "column", // Column direction for inner elements
-                justifyContent: "center", // Center vertically in view
-                alignItems: "center", // Center horizontally in view
-                position: "fixed", // Fixed position to stay in place
-                top: "50%", // Position at 50% from top
-                left: "50%", // Position at 50% from left
-                transform: "translate(-50%, -50%)", // Translate to truly center the modal
-                overflow: "hidden", // Ensures no overflow
+                maxWidth: "1000px",
+                width: "95%",
+                height: "auto",
+                fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif',
+                backgroundColor: "#f8f9fa",
+                color: "#343a40",
+                borderRadius: "12px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                overflow: "hidden",
               }}
             >
               <Modal.Header
@@ -200,24 +200,29 @@ function Home() {
                 <Modal.Title
                   style={{
                     fontWeight: "600",
-                    fontSize: "35px", // Increased title font size for emphasis
-                    color: "#495057", // Stylish title color
+                    fontSize: "28px",
+                    color: "#495057",
                   }}
                 >
                   Choose Ad Type
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <div className="d-grid gap-2" style={{ padding: "20px 0" }}>
+                <div className="d-grid gap-2" style={{ width: "100%" }}>
                   <Link href="/quick-mode/script-to-ad/create-ad" passHref>
                     <Button
                       variant="success"
                       size="lg"
                       onClick={handleQuickModeModalClose}
                       style={{
-                        fontSize: "20px", // Further increased button text size
-                        fontWeight: "600", // Bold text for button
-                        padding: "15px 30px", // Increased padding for larger buttons
+                        marginBottom: "10px",
+                        backgroundColor: "#eb631c",
+                        borderColor: "#eb631c",
+                        color: "white",
+                        width: "100%", // Make button take the full width
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        padding: "15px 30px",
                       }}
                     >
                       Script to Ad
@@ -229,9 +234,13 @@ function Home() {
                       size="lg"
                       onClick={handleQuickModeModalClose}
                       style={{
-                        fontSize: "20px", // Consistent with other button
-                        fontWeight: "600", // Bold text for emphasis
-                        padding: "15px 30px", // Uniform button styling
+                        backgroundColor: "white",
+                        borderColor: "#FDA942",
+                        color: "black",
+                        width: "100%", // Make button take the full width
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        padding: "15px 30px",
                       }}
                     >
                       Voice to Ad
