@@ -293,7 +293,7 @@ const SignupPage = () => {
                 <p className="text-center">
                   On Trial?{" "}
                   <a
-                    href="/trial_login"
+                    href="/trial-login"
                     style={{ color: "black", fontWeight: "bold" }}
                   >
                     Trial Login
