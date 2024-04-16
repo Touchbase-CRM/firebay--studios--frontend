@@ -1,5 +1,5 @@
 // relative path: src/pages/speech_style_transfer.js
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
 import { elevenlabsSTS } from "@/middleware/speechToSpeech";
 import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
@@ -8,6 +8,25 @@ import { ViewUploadedAudio } from "@/components/viewUploadedAudio/uploadedAudio"
 import Swal from "sweetalert2";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { NavBar } from "@/components/navBar";
+import { useRouter } from "next/router";
+
+import useUserInputsStore from "../../../store/userInputs";
+
+import withAuth from "../../../hocs/withAuth";
+import { getAuth } from "firebase/auth";
+import app from "../../../firebase";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
+
+import { usePostHog } from "posthog-js/react";
 
 async function getAudioDuration(blob) {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -16,32 +35,186 @@ async function getAudioDuration(blob) {
   return audioBuffer.duration;
 }
 
-function userSpeech() {
+function CreateAd() {
+  const posthog = usePostHog();
+  const auth = getAuth();
+  const router = useRouter();
+  const voiceAudioPlayerRef = useRef(null);
+
+  // Zustand store hooks
+  const {
+    ogScriptWordsArray, //holds the original script words as an array of strings.
+    setOgScriptWordsArray,
+    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
+    setOriginalScriptString,
+    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
+    setTransformedWords,
+    voiceId,
+    setVoiceId,
+    voiceName,
+    setVoiceName,
+    voicePreviewFilename,
+    setVoicePreviewFilename,
+    adLength,
+    setAdLength,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
+    historyItemId,
+    setHistoryItemId,
+    modelId,
+    setModelId,
+  } = useUserInputsStore();
+  const [voiceOptions, setVoiceOptions] = useState([]);
+  const [isFormSubmitted, setFormSubmitted] = useState(false);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
+  const restrictedVoices = ["Evan (Cloned)"];
+
+  const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
+  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
+
+  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
+  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
-  const [adLength, setAdLength] = useState("30");
-  const [voiceId, setVoiceId] = useState("6wLJ4Wm2OxvAvetEUBCS");
+  // const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
+  // const [adLength, setAdLength] = useState("30");
+  // const [voiceId, setVoiceId] = useState("6wLJ4Wm2OxvAvetEUBCS");
   const [uploadedFile, setUploadedFile] = useState("");
   const [audioDuration, setAudioDuration] = useState("00:00");
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [audioTitle, setAudioTitle] = useState("");
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
     Kate: "cBijDV6IOSWp9c8dA7Xn",
   };
-  const [voiceName, setVoiceName] = useState("Charley");
-  const [audioTitle, setAudioTitle] = useState("");
+  // const [voiceName, setVoiceName] = useState("Charley");
+  // const [audioTitle, setAudioTitle] = useState("");
 
   // Convert voices object to an array for rendering in the form select
-  const voiceOptions = Object.entries(voices).map(([name, id]) => ({
-    name: name,
-    id: id,
-  }));
+  // const voiceOptions = Object.entries(voices).map(([name, id]) => ({
+  //   name: name,
+  //   id: id,
+  // }));
+
+  useEffect(() => {
+    if (isFormSubmitted) {
+      router.push("/add-music");
+    }
+  }, [isFormSubmitted, router]);
+
+  useEffect(() => {
+    // prevent back button
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Chrome requires returnValue to be set
+    };
+
+    const handleBackButton = async () => {
+      handleLogout();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.onpopstate = handleBackButton;
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onpopstate = null;
+    };
+  }, [router]);
+
+  useEffect(() => {
+    const fetchVoiceOptions = async () => {
+      const voicesDocRef = doc(
+        getFirestore(app),
+        "fetch_data_to_frontend",
+        "pyro_voices"
+      );
+      try {
+        const docSnapshot = await getDoc(voicesDocRef);
+        if (docSnapshot.exists()) {
+          setVoiceOptions(docSnapshot.data().pyro_voice_choices);
+        } else {
+          console.log("No voice options found in document");
+        }
+      } catch (error) {
+        console.error("Error fetching voice options:", error);
+      }
+    };
+
+    fetchVoiceOptions();
+  }, []);
 
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
+  const fetchVoiceMetaData = async (voiceName) => {
+    const db = getFirestore(app);
+    const voiceQuery = query(
+      collection(db, "pyro_voices"),
+      where("pyro_name", "==", voiceName)
+    );
+
+    try {
+      const querySnapshot = await getDocs(voiceQuery);
+      if (!querySnapshot.empty) {
+        const docData = querySnapshot.docs[0].data();
+        return {
+          newVoiceId: docData.elevenlabs_id,
+          newVoicePreviewFilename: docData.voice_preview_filename,
+          newVoiceModelId: docData.model_id,
+        };
+      } else {
+        console.log("No matching documents found for voice:", voiceName);
+        return {}; // Return an empty object instead of null
+      }
+    } catch (error) {
+      console.error("Error fetching voice metadata:", error);
+      return {}; // Return an empty object in case of error
+    }
+  };
+
+  const handleVoiceChange = async (e) => {
+    const selectedVoiceName = e.target.value;
+    const metadata = await fetchVoiceMetaData(selectedVoiceName);
+
+    if (
+      metadata &&
+      metadata.newVoiceId &&
+      metadata.newVoicePreviewFilename &&
+      metadata.newVoiceModelId
+    ) {
+      setVoiceId(metadata.newVoiceId);
+      setVoicePreviewFilename(metadata.newVoicePreviewFilename);
+      setVoiceName(selectedVoiceName);
+      setModelId(metadata.newVoiceModelId);
+
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(""); // This line is added to reset the URL
+    } else {
+      // Handle the case when no metadata is found
+      console.log(
+        "No metadata found for the selected voice:",
+        selectedVoiceName
+      );
+    }
+
+    // Assuming you want to play the new voice preview immediately
+    if (metadata.newVoicePreviewFilename) {
+      const previewUrl =
+        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      if (voiceAudioPlayerRef.current) {
+        voiceAudioPlayerRef.current.src = previewUrl;
+        voiceAudioPlayerRef.current.load();
+        voiceAudioPlayerRef.current.play();
+      }
+    }
+  };
 
   const processInputAudio = useCallback(
     async (blob, fileName = "AddedAudio.mp3") => {
@@ -103,14 +276,16 @@ function userSpeech() {
     }
   };
 
-  const handleVoiceChange = (e) => {
-    // Only for demo purposes.
-    const selectedVoiceId = e.target.value;
-    const selectedVoiceName = Object.keys(voices).find(
-      (name) => voices[name] === selectedVoiceId
-    );
-    setVoiceName(selectedVoiceName);
-    setVoiceId(selectedVoiceId);
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
   };
 
   const handleFileUpload = useCallback(
@@ -140,6 +315,22 @@ function userSpeech() {
   };
 
   const dropdownItems = [];
+  const links = [
+    {
+      label: "Home",
+      url: "/home",
+      isInternal: true,
+      icon: "bi bi-house", // Bootstrap icon class
+      style: { marginRight: "10px" }, // Example styling
+    },
+    // {
+    //   label: "About",
+    //   url: "/about",
+    //   // Optionally, some links might not have an icon
+    //   style: { marginRight: "10px" },
+    // },
+    // Add more links as needed
+  ];
 
   return (
     <div
@@ -150,7 +341,7 @@ function userSpeech() {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} dropdownItems={dropdownItems} />
+      <NavBar links={links} logoutHandler={handleLogout} />
       <Row>
         <Col md={10} className="mx-auto">
           <Card
@@ -174,7 +365,10 @@ function userSpeech() {
                   onChange={(e) => setAdLength(e.target.value)}
                   style={{ color: "black", marginBottom: "20px" }}
                 >
+                  <option value="10">10 seconds</option>
+                  <option value="15">15 seconds</option>
                   <option value="30">30 seconds</option>
+                  <option value="45">45 seconds</option>
                   <option value="60">60 seconds</option>
                 </Form.Select>
               </Form.Group>
@@ -198,15 +392,28 @@ function userSpeech() {
                 ) : (
                   <Form.Select
                     aria-label="Voice select"
-                    value={voiceId} // Change to use voiceId for the value
+                    value={voiceName} // Retains the current voice name
                     onChange={handleVoiceChange}
                     style={{ color: "black" }}
                   >
-                    {voiceOptions.map((voice, index) => (
-                      <option key={index} value={voice.id}>
-                        {voice.name}
-                      </option>
-                    ))}
+                    {voiceOptions
+                      // These restrictions are temporary. Need to figure out a better data model.
+                      .filter((voice) => {
+                        const isRestrictedVoice =
+                          restrictedVoices.includes(voice);
+                        const isFirebayStudiosEmail =
+                          auth.currentUser.email.split("@")[1] ===
+                          "firebaystudios.com";
+                        return (
+                          !isRestrictedVoice ||
+                          (isRestrictedVoice && isFirebayStudiosEmail)
+                        );
+                      })
+                      .map((voice, index) => (
+                        <option key={voice} value={voice}>
+                          {voice}
+                        </option>
+                      ))}
                   </Form.Select>
                 )}
               </Form.Group>
@@ -229,7 +436,7 @@ function userSpeech() {
             }}
           >
             <Card.Body>
-              <Card.Title>Voice to Ad Generator</Card.Title>
+              <Card.Title>Voice Editor</Card.Title>
 
               <div
                 style={{
@@ -388,4 +595,5 @@ function userSpeech() {
     </div>
   );
 }
-export default userSpeech;
+export default CreateAd;
+// export default withAuth(CreateAd);
