@@ -19,15 +19,13 @@ async function parseForm(req) {
         return reject({ error: "Error parsing the form data.", status: 500 });
       }
 
-      console.log(files); // Debugging: See the structure of `files`
-
       if (!files.audio || files.audio.length === 0) {
         return reject({ error: "No audio file provided.", status: 400 });
       }
 
-      const audioFile = files.audio[0]; // Access the first file in the array
+      const audioFile = files.audio[0];
       if (!audioFile.filepath) {
-        console.log("Received file info:", audioFile); // More debugging
+        console.log("Received file info:", audioFile);
         return reject({ error: "File path is undefined.", status: 400 });
       }
 
@@ -48,16 +46,10 @@ export default async function handler(req, res) {
       ? fields.voice_id[0]
       : fields.voice_id;
 
-    // Logging to verify the types (temporary, for debugging)
-    console.log("Model ID Type:", typeof modelId);
-    console.log("Voice ID Type:", typeof voiceId);
-
     const audioStream = fs.createReadStream(audioFile.filepath);
-    console.log("Audio File Path:", audioFile.filepath);
-    console.log("Streaming Audio File:", audioFile.originalFilename);
 
     const formData = new FormData();
-    formData.append("model_id", modelId); // Ensure it's a string
+    formData.append("model_id", modelId);
     formData.append("audio", audioStream, {
       filename: audioFile.originalFilename,
     });
