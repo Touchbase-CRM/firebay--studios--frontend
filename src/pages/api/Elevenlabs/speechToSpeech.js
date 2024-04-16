@@ -9,6 +9,17 @@ export const config = {
   },
 };
 
+// Normalize fields to ensure no fields are arrays unless explicitly allowed
+function normalizeFields(fields) {
+  const normalizedFields = {};
+  for (const key in fields) {
+    normalizedFields[key] = Array.isArray(fields[key])
+      ? fields[key][0]
+      : fields[key];
+  }
+  return normalizedFields;
+}
+
 // Asynchronous function to parse the form
 async function parseForm(req) {
   return new Promise((resolve, reject) => {
@@ -25,11 +36,11 @@ async function parseForm(req) {
 
       const audioFile = files.audio[0];
       if (!audioFile.filepath) {
-        console.log("Received file info:", audioFile);
         return reject({ error: "File path is undefined.", status: 400 });
       }
 
-      resolve({ fields, files: { audio: audioFile } }); // Normalize the files object for the handler
+      const normalizedFields = normalizeFields(fields);
+      resolve({ fields: normalizedFields, files: { audio: audioFile } }); // Normalize the files object for the handler
     });
   });
 }
@@ -38,24 +49,19 @@ export default async function handler(req, res) {
   try {
     const { fields, files } = await parseForm(req);
     const audioFile = files.audio; // Already a single file object after parseForm normalization
-
-    const modelId = Array.isArray(fields.model_id)
-      ? fields.model_id[0]
-      : fields.model_id;
-    const voiceId = Array.isArray(fields.voice_id)
-      ? fields.voice_id[0]
-      : fields.voice_id;
-
     const audioStream = fs.createReadStream(audioFile.filepath);
 
     const formData = new FormData();
-    formData.append("model_id", modelId);
+    // Append all fields dynamically
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
     formData.append("audio", audioStream, {
       filename: audioFile.originalFilename,
     });
 
     const response = await axios.post(
-      `https://api.elevenlabs.io/v1/speech-to-speech/${voiceId}`,
+      `https://api.elevenlabs.io/v1/speech-to-speech/${fields.voice_id}`,
       formData,
       {
         headers: {
