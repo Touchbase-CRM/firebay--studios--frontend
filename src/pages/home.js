@@ -337,23 +337,46 @@ function Home() {
             key={notification.id}
             style={{
               width: "100%",
-              padding: "10px",
-              marginBottom: "20px",
-              marginTop: "5px",
-              backgroundColor: "#f8d7da",
-              color: "#721c24",
-              borderRadius: "4px",
-              border: "1px solid #f5c6cb",
-              textAlign: "center",
-              fontSize: "24px",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: "bold",
+              padding: "20px",
+              marginBottom: "10px",
+              marginTop: "10px",
+              backgroundColor: "#fff8e1", // Parchment-like background color
+              color: "#5e412f", // Dark brown text color reminiscent of ink
+              borderRadius: "8px",
+              border: "1px solid #f4e4bc", // Subtle border color
+              textAlign: "left", // Align text to the left
+              fontSize: "16px", // Size adjusted for readability with decorative fonts
+              fontFamily: "'EB Garamond', serif", // A font that is reminiscent of Renaissance typefaces
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Soft shadow for a slight lift effect
+              display: "flex", // Use flexbox for layout
+              justifyContent: "space-between", // Space between title/message and button
+              alignItems: "center", // Vertically center align items
             }}
           >
-            {notification.title}: {notification.message}
+            <div>
+              <div style={{ fontSize: "20px", marginBottom: "4px" }}>
+                {notification.title}
+              </div>
+              <div style={{ fontStyle: "italic" }}>
+                <span style={{ fontWeight: "bold" }}>
+                  {notification.notification_type}:
+                </span>{" "}
+                {notification.message}
+              </div>
+            </div>
             <button
               onClick={() => deleteNotification(notification.id)}
-              style={{ marginLeft: "10px", color: "#721c24" }}
+              style={{
+                backgroundColor: "#ac9485", // Button color that complements the theme
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                fontFamily: "'EB Garamond', serif",
+                fontSize: "16px",
+                marginLeft: "20px", // Give some space between the text and button
+              }}
             >
               Close
             </button>
