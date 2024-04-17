@@ -63,6 +63,8 @@ function CreateAd() {
     setV2aUploadedAudioUrl,
     v2aQuickUploadedFile,
     setV2aQuickUploadedFile,
+    v2aQuickGeneratedAudioBlob,
+    setv2aQuickGeneratedAudioBlob,
   } = useUserInputsStore();
 
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -79,7 +81,8 @@ function CreateAd() {
   const [v2aQuickAudioDuration, setV2aQuickAudioDuration] = useState("00:00");
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [v2aQuickAudioBlob, setv2aQuickAudioBlob] = useState(null);
+  // const [v2aQuickGeneratedAudioBlob, setv2aQuickGeneratedAudioBlob] =
+  //   useState(null);
   const [audioTitle, setAudioTitle] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
@@ -221,7 +224,7 @@ function CreateAd() {
 
         const minutes = Math.floor(duration / 60);
         const seconds = Math.floor(duration % 60);
-        setv2aQuickAudioBlob(blob); // Store the Blob for later use
+        setv2aQuickGeneratedAudioBlob(blob); // Store the Blob for later use
         setV2aQuickAudioDuration(
           `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
         );
@@ -251,7 +254,11 @@ function CreateAd() {
       const modelId = "eleven_multilingual_sts_v2"; // @TODO: Replace with the desired model ID if we need to use a different model.
 
       // Call your API function with the necessary parameters
-      const result = await elevenlabsSTS(v2aQuickAudioBlob, voiceId, modelId);
+      const result = await elevenlabsSTS(
+        v2aQuickGeneratedAudioBlob,
+        voiceId,
+        modelId
+      );
 
       if (result && result.audioUrl) {
         const localHistoryItemId = result.localHistoryItemId;
@@ -327,7 +334,7 @@ function CreateAd() {
   };
 
   const handleRecordingComplete = (blob) => {
-    setv2aQuickAudioBlob(blob);
+    setv2aQuickGeneratedAudioBlob(blob);
     processInputAudio(blob);
   };
 
