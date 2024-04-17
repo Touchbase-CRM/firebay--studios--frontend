@@ -57,7 +57,10 @@ function CreateAd() {
     setHistoryItemId,
     modelId,
     setModelId,
+    adGenerationMethod,
+    setAdGenerationMethod,
   } = useUserInputsStore();
+
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const restrictedVoices = ["Evan (Cloned)"];
@@ -77,6 +80,11 @@ function CreateAd() {
   const [audioTitle, setAudioTitle] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
+
+  useEffect(() => {
+    setAdGenerationMethod("voice-to-ad");
+  }, []);
+
   useEffect(() => {
     if (isFormSubmitted) {
       router.push("/add-music");
@@ -442,7 +450,7 @@ function CreateAd() {
             }}
           >
             <Card.Body>
-              <Card.Title>Voice Editor</Card.Title>
+              <Card.Title>Add Your Voice</Card.Title>
 
               <div
                 style={{

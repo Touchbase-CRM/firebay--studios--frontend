@@ -25,6 +25,11 @@ export class UserInputMethods {
       this.setStitchedAudioPyroHistoryItemId.bind(this);
     this.setNavigationStack = this.setNavigationStack.bind(this);
     this.setSectionHistoryArray = this.setSectionHistoryArray.bind(this);
+    this.setAdGenerationMethod = this.setAdGenerationMethod.bind(this);
+  }
+
+  setAdGenerationMethod(adGenerationMethod) {
+    this.set({ adGenerationMethod });
   }
   setSectionHistoryArray(sectionHistoryArray) {
     this.set({ sectionHistoryArray });

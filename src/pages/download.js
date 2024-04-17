@@ -23,7 +23,17 @@ const DownloadPage = () => {
   const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset, generatedVoiceUrl, sectionsArray } = useUserInputsStore();
+  const { reset, generatedVoiceUrl, sectionsArray, adGenerationMethod } =
+    useUserInputsStore();
+
+  console.log(adGenerationMethod);
+
+  const redirectUrl =
+    adGenerationMethod === "voice-to-ad"
+      ? "/quick-mode/voice-to-ad/create-ad"
+      : "/quick-mode/script-to-ad/create-ad";
+
+  console.log(redirectUrl);
 
   useEffect(() => {
     // prevent back button
@@ -275,7 +285,7 @@ const DownloadPage = () => {
                 </li>
                 <li style={{ marginBottom: "12px" }}>
                   {sectionsArray.length === 0 && (
-                    <Link href="/quick-mode/script-to-ad/create-ad" passHref>
+                    <Link href={redirectUrl} passHref>
                       <button
                         style={{
                           width: "100%",
@@ -293,7 +303,9 @@ const DownloadPage = () => {
                         }}
                         onClick={handleChangeScriptOrVoice}
                       >
-                        Change Script or Voice
+                        {adGenerationMethod === "voice-to-ad"
+                          ? "Change Your Voice"
+                          : "Change Your Script"}
                       </button>
                     </Link>
                   )}
