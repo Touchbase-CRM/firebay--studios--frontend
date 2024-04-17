@@ -1,4 +1,4 @@
-// src/store/defaultState.js
+// Relative path: src/store/defaultState.js
 import { Stack } from "../dataStructures/stack";
 
 export const defaultState = {

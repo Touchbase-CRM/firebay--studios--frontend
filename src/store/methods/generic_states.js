@@ -1,3 +1,4 @@
+// Relative path: src/store/methods/generic_states.js
 export class UserInputMethods {
   constructor(set) {
     this.set = set;
