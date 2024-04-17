@@ -7,6 +7,12 @@ export class QuickVoiceToAdSetters {
 
     // Binding methods to ensure 'this' context
     this.setV2aUploadedAudioUrl = this.setV2aUploadedAudioUrl.bind(this);
+    this.setV2aQuickUploadedFile = this.setV2aQuickUploadedFile.bind(this);
+  }
+
+  // Method to set the quick uploaded file
+  setV2aQuickUploadedFile(file) {
+    this.set({ v2aQuickUploadedFile: file });
   }
 
   // Method to set the uploaded audio URL

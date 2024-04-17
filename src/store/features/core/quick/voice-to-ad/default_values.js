@@ -2,5 +2,6 @@
 
 export const quickVoiceToAdDefaultValues = {
   v2aUploadedAudioUrl: "",
+  v2aQuickUploadedFile: "",
 };
 export default quickVoiceToAdDefaultValues;
