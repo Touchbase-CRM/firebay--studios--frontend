@@ -25,7 +25,7 @@ export const defaultState = {
   modelId: "eleven_multilingual_v2",
   numSectionsIdentified: 0,
   navigationStack: new Stack(),
-  adGenerationMethod: "voice-to-ad",
+  adGenerationMethod: "",
 };
 
 export default defaultState;

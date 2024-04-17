@@ -51,6 +51,7 @@ function AddMusic() {
     generatedVoiceUrl,
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
+    adGenerationMethod,
   } = useUserInputsStore();
 
   const baseMusicPreviewsUrl =
@@ -100,6 +101,8 @@ function AddMusic() {
     // move to the new url
     if (sectionsArray.length > 0) {
       router.push("/advanced-mode/script-to-ad/stitch-sections");
+    } else if (adGenerationMethod === "voice-to-ad") {
+      router.push("/quick-mode/voice-to-ad/create-ad");
     } else {
       router.push("/quick-mode/script-to-ad/create-ad");
     }
