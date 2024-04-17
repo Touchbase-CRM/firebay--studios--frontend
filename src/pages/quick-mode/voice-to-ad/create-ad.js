@@ -88,6 +88,7 @@ function CreateAd() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioTitle, setAudioTitle] = useState("");
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
@@ -243,6 +244,7 @@ function CreateAd() {
         const fileUrl = URL.createObjectURL(blob);
         setShowAudioPlayer(false);
         setGeneratedVoiceUrl(fileUrl);
+        setUploadedAudioUrl(fileUrl);
       } catch (error) {
         console.error("Error processing audio file: ", error);
         setAudioDuration("Unknown");
@@ -300,12 +302,14 @@ function CreateAd() {
   const handleRemoveAudio = () => {
     setUploadedFile(null);
     setAudioDuration("00:00");
+    setUploadedAudioUrl("");
     setShowAudioPlayer(false);
   };
 
   const handleUploadPlay = () => {
     setForceRenderKey(Math.random());
     setAudioTitle(uploadedFile.name);
+    setGeneratedVoiceUrl(uploadedAudioUrl);
     setShowAudioPlayer(true);
   };
 
