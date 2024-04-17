@@ -89,6 +89,7 @@ function CreateAd() {
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioTitle, setAudioTitle] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
+  const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
   const voices = {
     Charley: "6wLJ4Wm2OxvAvetEUBCS",
@@ -209,6 +210,8 @@ function CreateAd() {
     if (metadata.newVoicePreviewFilename) {
       const previewUrl =
         baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      setShowAudioPlayer(true);
+      setAudioAutoPlay(true);
       if (voiceAudioPlayerRef.current) {
         voiceAudioPlayerRef.current.src = previewUrl;
         voiceAudioPlayerRef.current.load();
@@ -592,6 +595,7 @@ function CreateAd() {
                 }
                 audioTitle={voiceName}
                 allowDownload={generatedVoiceUrl !== ""}
+                autoplay={audioAutoPlay}
               />
             )}
           </div>
