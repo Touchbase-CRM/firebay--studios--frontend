@@ -81,6 +81,7 @@ function CreateAd() {
   const [v2aUploadedAudioUrl, setV2aUploadedAudioUrl] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
+  // useeffect to set adGenerationMethod
   useEffect(() => {
     setAdGenerationMethod("voice-to-ad");
   }, []);

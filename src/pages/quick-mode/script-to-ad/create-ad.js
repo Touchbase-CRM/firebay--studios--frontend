@@ -54,6 +54,7 @@ function CreateAd() {
     setHistoryItemId,
     modelId,
     setModelId,
+    setAdGenerationMethod,
   } = useUserInputsStore();
 
   // const [showExamples, setShowExamples] = useState(false);
@@ -71,6 +72,10 @@ function CreateAd() {
 
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+
+  useEffect(() => {
+    setAdGenerationMethod("script-to-ad");
+  }, []);
 
   useEffect(() => {
     if (isFormSubmitted) {

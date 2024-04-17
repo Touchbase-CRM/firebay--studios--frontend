@@ -26,15 +26,6 @@ const DownloadPage = () => {
   const { reset, generatedVoiceUrl, sectionsArray, adGenerationMethod } =
     useUserInputsStore();
 
-  console.log(adGenerationMethod);
-
-  const redirectUrl =
-    adGenerationMethod === "voice-to-ad"
-      ? "/quick-mode/voice-to-ad/create-ad"
-      : "/quick-mode/script-to-ad/create-ad";
-
-  console.log(redirectUrl);
-
   useEffect(() => {
     // prevent back button
     const handleBeforeUnload = (e) => {
@@ -113,14 +104,30 @@ const DownloadPage = () => {
     router.push("/add-music");
   };
 
+  // const handleChangeScriptOrVoice = () => {
+  //   posthog.capture("download-change-script-or-voice-clicked", {
+  //     date: new Date().toISOString(),
+  //     userId: user.uid,
+  //     // Additional properties can be added here if needed
+  //   });
+
+  //   router.push("/quick-mode/script-to-ad/create-ad");
+  // };
+
   const handleChangeScriptOrVoice = () => {
     posthog.capture("download-change-script-or-voice-clicked", {
       date: new Date().toISOString(),
       userId: user.uid,
       // Additional properties can be added here if needed
     });
+    // Additional logic can be executed here before redirecting
+    const redirectUrl =
+      adGenerationMethod === "voice-to-ad"
+        ? "/quick-mode/voice-to-ad/create-ad"
+        : "/quick-mode/script-to-ad/create-ad";
 
-    router.push("/quick-mode/script-to-ad/create-ad");
+    // Navigate to the new page
+    router.push(redirectUrl);
   };
 
   return (
@@ -285,29 +292,27 @@ const DownloadPage = () => {
                 </li>
                 <li style={{ marginBottom: "12px" }}>
                   {sectionsArray.length === 0 && (
-                    <Link href={redirectUrl} passHref>
-                      <button
-                        style={{
-                          width: "100%",
-                          padding: "10px 20px",
-                          fontSize: "16px",
-                          cursor: "pointer",
-                          backgroundColor: "#eb631c", // Custom color
-                          border: "none",
-                          color: "white", // White text color for buttons
-                          textDecoration: "none",
-                          display: "inline-block",
-                          margin: "4px 2px",
-                          transitionDuration: "0.4s",
-                          borderRadius: "12px",
-                        }}
-                        onClick={handleChangeScriptOrVoice}
-                      >
-                        {adGenerationMethod === "voice-to-ad"
-                          ? "Change Your Voice"
-                          : "Change Your Script"}
-                      </button>
-                    </Link>
+                    <button
+                      style={{
+                        width: "100%",
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        backgroundColor: "#eb631c", // Custom color
+                        border: "none",
+                        color: "white", // White text color for buttons
+                        textDecoration: "none",
+                        display: "inline-block",
+                        margin: "4px 2px",
+                        transitionDuration: "0.4s",
+                        borderRadius: "12px",
+                      }}
+                      onClick={handleChangeScriptOrVoice}
+                    >
+                      {adGenerationMethod === "voice-to-ad"
+                        ? "Change Your Voice"
+                        : "Change Your Script"}
+                    </button>
                   )}
                 </li>
               </ul>
