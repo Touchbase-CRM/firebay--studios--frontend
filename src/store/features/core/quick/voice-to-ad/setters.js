@@ -10,6 +10,12 @@ export class QuickVoiceToAdSetters {
     this.setV2aQuickUploadedFile = this.setV2aQuickUploadedFile.bind(this);
     this.setv2aQuickGeneratedAudioBlob =
       this.setv2aQuickGeneratedAudioBlob.bind(this);
+    this.setV2aQuickAudioDuration = this.setV2aQuickAudioDuration.bind(this);
+  }
+
+  // Method to set the quick audio duration
+  setV2aQuickAudioDuration(duration) {
+    this.set({ v2aQuickAudioDuration: duration });
   }
 
   // Method to set the quick generated audio blob

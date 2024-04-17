@@ -57,7 +57,6 @@ function CreateAd() {
     setHistoryItemId,
     modelId,
     setModelId,
-    adGenerationMethod,
     setAdGenerationMethod,
     v2aUploadedAudioUrl,
     setV2aUploadedAudioUrl,
@@ -65,6 +64,8 @@ function CreateAd() {
     setV2aQuickUploadedFile,
     v2aQuickGeneratedAudioBlob,
     setv2aQuickGeneratedAudioBlob,
+    v2aQuickAudioDuration,
+    setV2aQuickAudioDuration,
   } = useUserInputsStore();
 
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -78,15 +79,11 @@ function CreateAd() {
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  const [v2aQuickAudioDuration, setV2aQuickAudioDuration] = useState("00:00");
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  // const [v2aQuickGeneratedAudioBlob, setv2aQuickGeneratedAudioBlob] =
-  //   useState(null);
   const [audioTitle, setAudioTitle] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
-  // useeffect to set adGenerationMethod
   useEffect(() => {
     setAdGenerationMethod("voice-to-ad");
   }, []);
@@ -638,5 +635,5 @@ function CreateAd() {
     </div>
   );
 }
-export default CreateAd;
-// export default withAuth(CreateAd);
+// export default CreateAd;
+export default withAuth(CreateAd);
