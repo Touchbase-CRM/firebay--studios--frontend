@@ -71,7 +71,7 @@ export default async function handler(req, res) {
         responseType: "stream",
       }
     );
-
+    res.setHeader("history-item-id", response.headers["history-item-id"]);
     res.setHeader("Content-Type", response.headers["content-type"]);
     response.data.pipe(res);
   } catch (error) {

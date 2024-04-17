@@ -15,8 +15,9 @@ async function elevenlabsSTS(audioBlob, voiceId, modelId) {
     }
     const blob = await response.blob();
     const audioUrl = URL.createObjectURL(blob);
+    const localHistoryItemId = response.headers.get("history-item-id");
 
-    return { audioUrl };
+    return { audioUrl, localHistoryItemId };
   } catch (error) {
     console.error("Failed to generate voice:", error);
     throw error;

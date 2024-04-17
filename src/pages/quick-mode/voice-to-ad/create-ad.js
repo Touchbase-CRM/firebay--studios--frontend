@@ -43,12 +43,6 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
-    ogScriptWordsArray, //holds the original script words as an array of strings.
-    setOgScriptWordsArray,
-    originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
-    setOriginalScriptString,
-    transformedWords, //holds transformed words as an object of strings where the keys are the original word indexes and the values are the transformed word..
-    setTransformedWords,
     voiceId,
     setVoiceId,
     voiceName,
@@ -66,10 +60,6 @@ function CreateAd() {
   } = useUserInputsStore();
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
-
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
   const restrictedVoices = ["Evan (Cloned)"];
 
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
@@ -79,9 +69,6 @@ function CreateAd() {
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  // const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
-  // const [adLength, setAdLength] = useState("30");
-  // const [voiceId, setVoiceId] = useState("6wLJ4Wm2OxvAvetEUBCS");
   const [uploadedFile, setUploadedFile] = useState("");
   const [audioDuration, setAudioDuration] = useState("00:00");
   const [forceRenderKey, setForceRenderKey] = useState(0);
@@ -90,19 +77,6 @@ function CreateAd() {
   const [audioTitle, setAudioTitle] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
-
-  const voices = {
-    Charley: "6wLJ4Wm2OxvAvetEUBCS",
-    Kate: "cBijDV6IOSWp9c8dA7Xn",
-  };
-  // const [voiceName, setVoiceName] = useState("Charley");
-  // const [audioTitle, setAudioTitle] = useState("");
-
-  // Convert voices object to an array for rendering in the form select
-  // const voiceOptions = Object.entries(voices).map(([name, id]) => ({
-  //   name: name,
-  //   id: id,
-  // }));
 
   useEffect(() => {
     if (isFormSubmitted) {
@@ -262,15 +236,23 @@ function CreateAd() {
 
     try {
       // voiceId and modelId need to be defined or selected by the user in your UI
-      const modelId = "eleven_english_sts_v2"; // Should be set based on your application logic or user's selection
+      const modelId = "eleven_multilingual_sts_v2"; // @TODO: Replace with the desired model ID if we need to use a different model.
 
       // Call your API function with the necessary parameters
       const result = await elevenlabsSTS(audioBlob, voiceId, modelId);
 
       if (result && result.audioUrl) {
+        const localHistoryItemId = result.localHistoryItemId;
+        setHistoryItemId(localHistoryItemId);
         setGeneratedVoiceUrl(result.audioUrl);
         setShowAudioPlayer(true); // Show the audio player with the new generated voice
         setAudioTitle(voiceName);
+        setAudioAutoPlay(true);
+        posthog.capture("quick-mode--voice-to-ad--create-ad-voice-generated", {
+          userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+          voiceId: voiceId,
+          historyItemId: localHistoryItemId,
+        });
       } else {
         console.error("API did not return an audio URL.");
       }
@@ -279,6 +261,20 @@ function CreateAd() {
     } finally {
       setIsGeneratingVoice(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!historyItemId) {
+      showAlert(
+        "info",
+        "Action Required",
+        "Please generate the voice audio before proceeding further."
+      );
+      return;
+    }
+    // route to add_music page
+    router.push("/add-music");
   };
 
   const handleLogout = () => {
@@ -310,6 +306,8 @@ function CreateAd() {
   };
 
   const handleUploadPlay = () => {
+    setAudioAutoPlay(true);
+
     setForceRenderKey(Math.random());
     setAudioTitle(uploadedFile.name);
     setGeneratedVoiceUrl(uploadedAudioUrl);
@@ -321,7 +319,6 @@ function CreateAd() {
     processInputAudio(blob);
   };
 
-  const dropdownItems = [];
   const links = [
     {
       label: "Home",
@@ -330,13 +327,6 @@ function CreateAd() {
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
     },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
   ];
 
   return (
@@ -575,16 +565,31 @@ function CreateAd() {
               )}
             </Button>
           </Card>
-          <div
-            style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          ></div>
+          {historyItemId && (
+            <div
+              style={{
+                // position: "absolute",
+                // bottom: "10px",
+                // left: "10px",
+                fontSize: "small",
+                fontWeight: "bold",
+                fontStyle: "italic",
+              }}
+            >
+              <Button
+                className="mt-3"
+                style={{
+                  marginRight: "10px",
+                  marginTop: "20px",
+                  backgroundColor: "#EB631C",
+                  borderColor: "#EB631C",
+                }}
+                onClick={handleSubmit}
+              >
+                Next
+              </Button>
+            </div>
+          )}
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             {showAudioPlayer && (
