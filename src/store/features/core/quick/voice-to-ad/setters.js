@@ -1,7 +1,7 @@
 // src/store/features/core/quick/voice-to-ad/setters.js
 
 // Class for voice-to-ad setter functions
-export class VoiceToAdSetters {
+export class QuickVoiceToAdSetters {
   constructor(set) {
     this.set = set;
 

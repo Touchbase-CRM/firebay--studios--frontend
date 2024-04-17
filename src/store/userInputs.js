@@ -2,19 +2,19 @@
 import { create } from "zustand";
 import { defaultState } from "./default_state";
 import { UserInputMethods } from "./methods/generic_states";
-import voiceToAdDefaultValues from "./features/core/quick/voice-to-ad/defaut_values";
-import { VoiceToAdSetters } from "./features/core/quick/voice-to-ad/setters";
+import quickVoiceToAdDefaultValues from "./features/core/quick/voice-to-ad/defaut_values";
+import { QuickVoiceToAdSetters } from "./features/core/quick/voice-to-ad/setters";
 
 const useUserInputsStore = create((set) => {
   const userInputMethods = new UserInputMethods(set);
-  const voiceToAdSetters = new VoiceToAdSetters(set);
+  const voiceToAdSetters = new QuickVoiceToAdSetters(set);
 
   return {
     ...defaultState,
-    ...voiceToAdDefaultValues,
+    ...quickVoiceToAdDefaultValues,
     ...userInputMethods,
     ...voiceToAdSetters,
-    reset: () => set({ ...defaultState, ...voiceToAdDefaultValues }),
+    reset: () => set({ ...defaultState, ...quickVoiceToAdDefaultValues }),
   };
 });
 

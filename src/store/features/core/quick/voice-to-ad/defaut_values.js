@@ -1,6 +1,6 @@
 // src/store/features/core/quick/voice-to-ad/default_values.js
 
-export const voiceToAdDefaultValues = {
+export const quickVoiceToAdDefaultValues = {
   v2aUploadedAudioUrl: "",
 };
-export default voiceToAdDefaultValues;
+export default quickVoiceToAdDefaultValues;
