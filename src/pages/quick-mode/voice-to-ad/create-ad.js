@@ -582,11 +582,12 @@ function CreateAd() {
           <div style={{ position: "relative", marginTop: "400px" }}>
             {showAudioPlayer && (
               <SimpleAudioPlayer
-                key={forceRenderKey} // Corrected from forceRender to key
-                audioSrc={generatedVoiceUrl}
-                audioTitle={audioTitle}
-                allowDownload={!!generatedVoiceUrl} // This will return true or false based on the truthiness of generatedVoiceUrl
-                autoplay={true}
+                audioSrc={
+                  generatedVoiceUrl ||
+                  baseVoicePreviewsUrl + voicePreviewFilename
+                }
+                audioTitle={voiceName}
+                allowDownload={generatedVoiceUrl !== ""}
               />
             )}
           </div>
