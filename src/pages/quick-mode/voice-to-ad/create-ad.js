@@ -80,7 +80,6 @@ function CreateAd() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [v2aAudioBlob, setv2aAudioBlob] = useState(null);
   const [audioTitle, setAudioTitle] = useState("");
-  // const [v2aUploadedAudioUrl, setV2aUploadedAudioUrl] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
   // useeffect to set adGenerationMethod
