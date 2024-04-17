@@ -12,7 +12,16 @@ import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
 import useUserInputsStore from "../store/userInputs";
 import React, { useState, useEffect, useRef } from "react";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 function Home() {
   const auth = getAuth();
@@ -21,6 +30,26 @@ function Home() {
   const { reset: resetUserInputsStore } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
   const [quickModeModalShow, setQuickModeModalShow] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const notificationsRef = collection(firestore, "notifications");
+      const q = query(notificationsRef, where("user_id", "==", uid));
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const loadedNotifications = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(loadedNotifications);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [auth.currentUser]);
+
   useEffect(() => {
     resetUserInputsStore();
 
@@ -41,6 +70,37 @@ function Home() {
 
     fetchMonthlyDownloads();
   }, []);
+
+  // Function to display notifications
+  function displayNotification(title, message, id) {
+    Swal.fire({
+      title: title,
+      html: message,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Close",
+      cancelButtonText: "Keep Open",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteNotification(id);
+      }
+    });
+  }
+
+  const deleteNotification = (notificationId) => {
+    const docRef = doc(firestore, "notifications", notificationId);
+    deleteDoc(docRef)
+      .then(() => {
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (notification) => notification.id !== notificationId
+          )
+        );
+      })
+      .catch((error) => console.error("Error deleting notification: ", error));
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -272,6 +332,33 @@ function Home() {
             asap.
           </div>
         )}
+        {notifications.map((notification) => (
+          <div
+            key={notification.id}
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "20px",
+              marginTop: "5px",
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+              borderRadius: "4px",
+              border: "1px solid #f5c6cb",
+              textAlign: "center",
+              fontSize: "24px",
+              fontFamily: "Arial, sans-serif",
+              fontWeight: "bold",
+            }}
+          >
+            {notification.title}: {notification.message}
+            <button
+              onClick={() => deleteNotification(notification.id)}
+              style={{ marginLeft: "10px", color: "#721c24" }}
+            >
+              Close
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
