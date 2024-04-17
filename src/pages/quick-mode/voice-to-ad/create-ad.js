@@ -72,13 +72,13 @@ function CreateAd() {
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState("");
-  const [audioDuration, setAudioDuration] = useState("00:00");
+  const [v2aQuickUploadedFile, setV2aQuickUploadedFile] = useState("");
+  const [v2aQuickAudioDuration, setV2aQuickAudioDuration] = useState("00:00");
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
+  const [v2aAudioBlob, setv2aAudioBlob] = useState(null);
   const [audioTitle, setAudioTitle] = useState("");
-  const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
+  const [v2aUploadedAudioUrl, setV2aUploadedAudioUrl] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
   useEffect(() => {
@@ -218,9 +218,11 @@ function CreateAd() {
 
         const minutes = Math.floor(duration / 60);
         const seconds = Math.floor(duration % 60);
-        setAudioBlob(blob); // Store the Blob for later use
-        setAudioDuration(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
-        setUploadedFile({
+        setv2aAudioBlob(blob); // Store the Blob for later use
+        setV2aQuickAudioDuration(
+          `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
+        );
+        setV2aQuickUploadedFile({
           name: fileName.slice(0, 40), // This will keep only the first 20 characters of the fileName
           size: (blob.size / 1024 / 1024).toFixed(2) + " MB",
         });
@@ -228,17 +230,17 @@ function CreateAd() {
         const fileUrl = URL.createObjectURL(blob);
         setShowAudioPlayer(false);
         setGeneratedVoiceUrl(fileUrl);
-        setUploadedAudioUrl(fileUrl);
+        setV2aUploadedAudioUrl(fileUrl);
       } catch (error) {
         console.error("Error processing audio file: ", error);
-        setAudioDuration("Unknown");
+        setV2aQuickAudioDuration("Unknown");
       }
     },
     [adLength]
   );
 
   const handleGenerateVoice = async () => {
-    if (!uploadedFile) return;
+    if (!v2aQuickUploadedFile) return;
     setIsGeneratingVoice(true);
 
     try {
@@ -246,7 +248,7 @@ function CreateAd() {
       const modelId = "eleven_multilingual_sts_v2"; // @TODO: Replace with the desired model ID if we need to use a different model.
 
       // Call your API function with the necessary parameters
-      const result = await elevenlabsSTS(audioBlob, voiceId, modelId);
+      const result = await elevenlabsSTS(v2aAudioBlob, voiceId, modelId);
 
       if (result && result.audioUrl) {
         const localHistoryItemId = result.localHistoryItemId;
@@ -306,9 +308,9 @@ function CreateAd() {
   const { openFileSelector } = useFileUploader(handleFileUpload);
 
   const handleRemoveAudio = () => {
-    setUploadedFile(null);
-    setAudioDuration("00:00");
-    setUploadedAudioUrl("");
+    setV2aQuickUploadedFile(null);
+    setV2aQuickAudioDuration("00:00");
+    setV2aUploadedAudioUrl("");
     setShowAudioPlayer(false);
   };
 
@@ -316,13 +318,13 @@ function CreateAd() {
     setAudioAutoPlay(true);
 
     setForceRenderKey(Math.random());
-    setAudioTitle(uploadedFile.name);
-    setGeneratedVoiceUrl(uploadedAudioUrl);
+    setAudioTitle(v2aQuickUploadedFile.name);
+    setGeneratedVoiceUrl(v2aUploadedAudioUrl);
     setShowAudioPlayer(true);
   };
 
   const handleRecordingComplete = (blob) => {
-    setAudioBlob(blob);
+    setv2aAudioBlob(blob);
     processInputAudio(blob);
   };
 
@@ -377,7 +379,7 @@ function CreateAd() {
                   {[10, 15, 30, 45, 60]
                     .filter(
                       (length) =>
-                        length >= parseDurationToSeconds(audioDuration)
+                        length >= parseDurationToSeconds(v2aQuickAudioDuration)
                     )
                     .map((length) => (
                       <option key={length} value={length}>
@@ -541,11 +543,11 @@ function CreateAd() {
                   height: "150px",
                 }}
               >
-                {uploadedFile && (
+                {v2aQuickUploadedFile && (
                   <ViewUploadedAudio
-                    fileName={uploadedFile.name}
-                    fileSize={uploadedFile.size} // Will display "Unknown", or you can attempt to calculate this if necessary
-                    fileLength={audioDuration}
+                    fileName={v2aQuickUploadedFile.name}
+                    fileSize={v2aQuickUploadedFile.size} // Will display "Unknown", or you can attempt to calculate this if necessary
+                    fileLength={v2aQuickAudioDuration}
                     onPlay={handleUploadPlay}
                     onRemove={handleRemoveAudio}
                   />
