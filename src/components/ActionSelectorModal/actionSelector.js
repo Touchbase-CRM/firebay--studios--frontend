@@ -11,7 +11,7 @@ export const ActionSelectorModal = ({ show, onHide, title, buttonOptions }) => {
       style={{
         maxWidth: "1000px",
         width: "95%",
-        height: "auto",
+        height: "900px",
         fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif',
         backgroundColor: "#f8f9fa",
         color: "#343a40",
