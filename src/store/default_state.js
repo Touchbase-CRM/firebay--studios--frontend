@@ -1,4 +1,4 @@
-// src/store/defaultState.js
+// Relative path: src/store/defaultState.js
 import { Stack } from "../dataStructures/stack";
 
 export const defaultState = {
@@ -25,6 +25,7 @@ export const defaultState = {
   modelId: "eleven_multilingual_v2",
   numSectionsIdentified: 0,
   navigationStack: new Stack(),
+  adGenerationMethod: "",
 };
 
 export default defaultState;

@@ -12,16 +12,16 @@ import {
 import { NavBar } from "@/components/navBar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "../../services/elevenLabsService";
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
-import SimpleAudioPlayer from "../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
 import { PlayButton } from "@/components/buttons/playButton/play";
 
-import useUserInputsStore from "../../store/userInputs";
-import withAuth from "../../hocs/withAuth";
+import useUserInputsStore from "../../../../store/userInputs";
+import withAuth from "../../../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../../firebase";
+import app from "../../../../firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -37,8 +37,8 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../utils/fetchFromDistribution";
+import { Stack } from "../../../../dataStructures/stack";
+import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -225,7 +225,7 @@ function ProcessSection() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/stitch_sections");
+      router.push("/advanced-mode/script-to-ad/stitch-sections");
     }
   }, [isFormSubmitted, router]);
 
@@ -523,11 +523,13 @@ function ProcessSection() {
       setSectionsArray(localSectionsArray);
 
       if (currentSectionIndex >= sectionsArray.length - 1) {
-        router.push("/stitch_sections");
+        router.push("/advanced-mode/script-to-ad/stitch-sections");
       } else {
         router.push(
-          "/process_section/[idx]",
-          `/process_section/${currentSectionIndex + 1}`
+          "/advanced-mode/script-to-ad/process-section/[idx]",
+          `/advanced-mode/script-to-ad/process-section/${
+            currentSectionIndex + 1
+          }`
         );
       }
     }
@@ -703,16 +705,18 @@ function ProcessSection() {
     setSectionsArray(localSectionsArray);
 
     // save the current url in the stack
-    localPushData(`/process_section/${currentSectionIdx}`);
+    localPushData(
+      `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
+    );
     syncLocalStackWithGlobal();
     // move to the new url
     if (currentSectionIdx > 0) {
       router.push(
-        "/process_section/[idx]",
-        `/process_section/${currentSectionIdx - 1}`
+        "/advanced-mode/script-to-ad/process-section/[idx]",
+        `/advanced-mode/script-to-ad/process-section/${currentSectionIdx - 1}`
       );
     } else {
-      router.push("/create_sections");
+      router.push("/advanced-mode/script-to-ad/create-sections");
     }
   };
 

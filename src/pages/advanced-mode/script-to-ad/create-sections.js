@@ -5,10 +5,10 @@ import { AdvancedModeStarterAlert } from "@/components/AdvancedModeStarterAlert"
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
-import useUserInputsStore from "../store/userInputs";
-import { Section } from "../dataStructures/section";
+import useUserInputsStore from "../../../store/userInputs";
+import { Section } from "../../../dataStructures/section";
 
-import withAuth from "../hocs/withAuth";
+import withAuth from "../../../hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
 import Alert from "react-bootstrap/Alert";
@@ -60,7 +60,7 @@ function CreateSections() {
 
   useEffect(() => {
     if (isFormSubmitted) {
-      router.push("/process_section/0");
+      router.push("/advanced-mode/script-to-ad/process-section/0");
     }
   }, [isFormSubmitted, router]);
 
@@ -131,7 +131,7 @@ function CreateSections() {
 
     // Navigate to the first section if the section array is not empty
     if (localSectionsArray.length !== 0) {
-      router.push("/process_section/0");
+      router.push("/advanced-mode/script-to-ad/process-section/0");
     }
   };
 

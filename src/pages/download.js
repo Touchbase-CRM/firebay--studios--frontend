@@ -23,7 +23,8 @@ const DownloadPage = () => {
   const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset, generatedVoiceUrl, sectionsArray } = useUserInputsStore();
+  const { reset, generatedVoiceUrl, sectionsArray, adGenerationMethod } =
+    useUserInputsStore();
 
   useEffect(() => {
     // prevent back button
@@ -100,8 +101,18 @@ const DownloadPage = () => {
       // Additional properties can be added here if needed
     });
 
-    router.push("/add_music");
+    router.push("/add-music");
   };
+
+  // const handleChangeScriptOrVoice = () => {
+  //   posthog.capture("download-change-script-or-voice-clicked", {
+  //     date: new Date().toISOString(),
+  //     userId: user.uid,
+  //     // Additional properties can be added here if needed
+  //   });
+
+  //   router.push("/quick-mode/script-to-ad/create-ad");
+  // };
 
   const handleChangeScriptOrVoice = () => {
     posthog.capture("download-change-script-or-voice-clicked", {
@@ -109,8 +120,14 @@ const DownloadPage = () => {
       userId: user.uid,
       // Additional properties can be added here if needed
     });
+    // Additional logic can be executed here before redirecting
+    const redirectUrl =
+      adGenerationMethod === "voice-to-ad"
+        ? "/quick-mode/voice-to-ad/create-ad"
+        : "/quick-mode/script-to-ad/create-ad";
 
-    router.push("/create_ad");
+    // Navigate to the new page
+    router.push(redirectUrl);
   };
 
   return (
@@ -251,7 +268,7 @@ const DownloadPage = () => {
               </h5>
               <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
                 <li style={{ marginBottom: "12px" }}>
-                  <Link href="/add_music" passHref>
+                  <Link href="/add-music" passHref>
                     <button
                       style={{
                         width: "100%",
@@ -275,27 +292,27 @@ const DownloadPage = () => {
                 </li>
                 <li style={{ marginBottom: "12px" }}>
                   {sectionsArray.length === 0 && (
-                    <Link href="/create_ad" passHref>
-                      <button
-                        style={{
-                          width: "100%",
-                          padding: "10px 20px",
-                          fontSize: "16px",
-                          cursor: "pointer",
-                          backgroundColor: "#eb631c", // Custom color
-                          border: "none",
-                          color: "white", // White text color for buttons
-                          textDecoration: "none",
-                          display: "inline-block",
-                          margin: "4px 2px",
-                          transitionDuration: "0.4s",
-                          borderRadius: "12px",
-                        }}
-                        onClick={handleChangeScriptOrVoice}
-                      >
-                        Change Script or Voice
-                      </button>
-                    </Link>
+                    <button
+                      style={{
+                        width: "100%",
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        backgroundColor: "#eb631c", // Custom color
+                        border: "none",
+                        color: "white", // White text color for buttons
+                        textDecoration: "none",
+                        display: "inline-block",
+                        margin: "4px 2px",
+                        transitionDuration: "0.4s",
+                        borderRadius: "12px",
+                      }}
+                      onClick={handleChangeScriptOrVoice}
+                    >
+                      {adGenerationMethod === "voice-to-ad"
+                        ? "Change Your Voice"
+                        : "Change Your Script"}
+                    </button>
                   )}
                 </li>
               </ul>

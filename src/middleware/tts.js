@@ -1,4 +1,4 @@
-async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+export async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
   try {
     const response = await fetch(
       "/api/Elevenlabs/generate_voice_with_voice_id",
@@ -25,5 +25,3 @@ async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
     throw err;
   }
 }
-
-export { generateVoiceWithElevenLabsAPI };

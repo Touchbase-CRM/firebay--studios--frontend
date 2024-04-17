@@ -51,6 +51,7 @@ function AddMusic() {
     generatedVoiceUrl,
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
+    adGenerationMethod,
   } = useUserInputsStore();
 
   const baseMusicPreviewsUrl =
@@ -95,13 +96,15 @@ function AddMusic() {
 
   const handleGoBack = () => {
     // save the current url in the stack
-    localPushData(`/stitch_sections`);
+    localPushData(`/advanced-mode/script-to-ad/stitch-sections`);
     syncLocalStackWithGlobal();
     // move to the new url
     if (sectionsArray.length > 0) {
-      router.push("/stitch_sections");
+      router.push("/advanced-mode/script-to-ad/stitch-sections");
+    } else if (adGenerationMethod === "voice-to-ad") {
+      router.push("/quick-mode/voice-to-ad/create-ad");
     } else {
-      router.push("/create_ad");
+      router.push("/quick-mode/script-to-ad/create-ad");
     }
   };
 
@@ -162,7 +165,7 @@ function AddMusic() {
       if (result.isConfirmed) {
         reset(); // Reset the user inputs to default values
 
-        router.push("/create_ad");
+        router.push("/quick-mode/script-to-ad/create-ad");
       }
     });
   };

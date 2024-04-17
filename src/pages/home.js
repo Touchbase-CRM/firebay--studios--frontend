@@ -1,6 +1,7 @@
 // import { Navbar, Nav, Button, Card } from "react-bootstrap";
-import { Card } from "react-bootstrap";
+import { Card, Modal, Button } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
+import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
@@ -11,7 +12,16 @@ import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
 import useUserInputsStore from "../store/userInputs";
 import React, { useState, useEffect, useRef } from "react";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 function Home() {
   const auth = getAuth();
@@ -19,6 +29,27 @@ function Home() {
   const firestore = getFirestore(app);
   const { reset: resetUserInputsStore } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
+  const [quickModeModalShow, setQuickModeModalShow] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const notificationsRef = collection(firestore, "notifications");
+      const q = query(notificationsRef, where("user_id", "==", uid));
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const loadedNotifications = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotifications(loadedNotifications);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [auth.currentUser]);
+
   useEffect(() => {
     resetUserInputsStore();
 
@@ -39,6 +70,37 @@ function Home() {
 
     fetchMonthlyDownloads();
   }, []);
+
+  // Function to display notifications
+  function displayNotification(title, message, id) {
+    Swal.fire({
+      title: title,
+      html: message,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Close",
+      cancelButtonText: "Keep Open",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteNotification(id);
+      }
+    });
+  }
+
+  const deleteNotification = (notificationId) => {
+    const docRef = doc(firestore, "notifications", notificationId);
+    deleteDoc(docRef)
+      .then(() => {
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (notification) => notification.id !== notificationId
+          )
+        );
+      })
+      .catch((error) => console.error("Error deleting notification: ", error));
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -79,13 +141,37 @@ function Home() {
     }
   };
   const dropdownItems = [
-    {
-      text: "Manage Subscription",
-      handler: handleManageSubscription,
-    },
+    // {
+    //   text: "Manage Subscription",
+    //   handler: handleManageSubscription,
+    // },
     {
       text: "Logout",
       handler: handleLogout,
+    },
+  ];
+
+  const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
+  const handleQuickModeModalClose = () => setQuickModeModalShow(false);
+
+  const buttonOptions = [
+    {
+      text: "Script to Ad",
+      handler: handleQuickModeModalClose,
+      href: "/quick-mode/script-to-ad/create-ad",
+      variant: "success",
+      backgroundColor: "#eb631c",
+      borderColor: "#eb631c",
+      textColor: "white",
+    },
+    {
+      text: "Voice to Ad",
+      handler: handleQuickModeModalClose,
+      href: "/quick-mode/voice-to-ad/create-ad",
+      variant: "primary",
+      backgroundColor: "white",
+      borderColor: "#FDA942",
+      textColor: "black",
     },
   ];
 
@@ -121,17 +207,16 @@ function Home() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "transparent", // Retained as transparent
-            border: "1px solid #eb631c", // Retained as is
-            color: "black", // Retained as black
+            backgroundColor: "transparent",
+            border: "1px solid #eb631c",
           }}
         >
           <Card.Header
             style={{
               padding: "16px",
               borderBottom: "1px solid rgba(255,255,255,0.1)",
-              backgroundColor: "#e4e4e4", // Changed to light gray
-              color: "black", // Changed to black
+              backgroundColor: "#e4e4e4",
+              color: "black",
             }}
           >
             <h1 style={{ margin: 0, fontSize: "24px" }}>Starter</h1>
@@ -144,43 +229,43 @@ function Home() {
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-              backgroundColor: "#FFFFFF", // Retained as white
-              color: "black", // Retained as black
+              backgroundColor: "#FFFFFF",
+              color: "black",
             }}
           >
+            <Button
+              onClick={handleQuickModeModalOpen}
+              style={{
+                backgroundColor: "#eb631c",
+                color: "white",
+                marginBottom: "20px",
+                borderColor: "#eb631c",
+                width: "100%",
+                padding: "10px 20px",
+                fontSize: "16px",
+                borderRadius: "12px",
+              }}
+            >
+              Quick Ad Generation
+            </Button>
+            <ActionSelectorModal
+              show={quickModeModalShow}
+              onHide={handleQuickModeModalClose}
+              title="Choose Ad Type"
+              buttonOptions={buttonOptions}
+            />
+
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/create_ad" passHref>
+              <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
                 <button
                   style={{
+                    backgroundColor: "#eb631c",
+                    color: "white",
+                    border: "1px solid #eb631c",
                     width: "100%",
                     padding: "10px 20px",
                     fontSize: "16px",
                     cursor: "pointer",
-                    backgroundColor: "#eb631c", // Custom color for the button
-                    border: "none",
-                    color: "white", // White text color for buttons
-                    textDecoration: "none",
-                    display: "inline-block",
-                    margin: "4px 2px",
-                    transitionDuration: "0.4s",
-                    borderRadius: "12px",
-                  }}
-                >
-                  Quick Ad Generation
-                </button>
-              </Link>
-            </div>
-            <div style={{ marginBottom: "20px" }}>
-              <Link href="/create_sections" passHref>
-                <button
-                  style={{
-                    width: "100%",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                    backgroundColor: "#eb631c", // Custom color for the button
-                    border: "#eb631c",
-                    color: "white", // White text color for buttons
                     textDecoration: "none",
                     display: "inline-block",
                     margin: "4px 2px",
@@ -198,23 +283,22 @@ function Home() {
               borderTop: "1px solid rgba(255,255,255,0.1)",
               padding: "12px 16px",
               backgroundColor: "#e4e4e4",
-              color: "black",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-              background: "linear-gradient(to right, #e4e4e4, #f9f9f9)", // Gradient background
-              borderRadius: "0 0 10px 10px", // Rounded corners at the bottom
-              fontSize: "10px", // Enhanced typography
-              lineHeight: "1.6", // Improved line spacing for readability
-              textAlign: "center", // Center align text
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+              background: "linear-gradient(to right, #e4e4e4, #f9f9f9)",
+              borderRadius: "0 0 10px 10px",
+              fontSize: "10px",
+              lineHeight: "1.6",
+              textAlign: "center",
             }}
           >
             <p>
               <i
                 className="bi bi-exclamation-triangle-fill"
                 style={{ marginRight: "8px", color: "#eb631c" }}
-              ></i>{" "}
-              {/* Example icon */}* Once you start creating an ad, please do not
-              use the browser back button or reload the page. You will lose all
-              your progress and it will log you out of your account.
+              ></i>
+              * Once you start creating an ad, please do not use the browser
+              back button or reload the page. You will lose all your progress
+              and it will log you out of your account.
             </p>
           </Card.Footer>
         </Card>
@@ -248,6 +332,56 @@ function Home() {
             asap.
           </div>
         )}
+        {notifications.map((notification) => (
+          <div
+            key={notification.id}
+            style={{
+              width: "100%",
+              padding: "20px",
+              marginBottom: "10px",
+              marginTop: "10px",
+              backgroundColor: "#fff8e1", // Parchment-like background color
+              color: "#5e412f", // Dark brown text color reminiscent of ink
+              borderRadius: "8px",
+              border: "1px solid #f4e4bc", // Subtle border color
+              textAlign: "left", // Align text to the left
+              fontSize: "16px", // Size adjusted for readability with decorative fonts
+              fontFamily: "'EB Garamond', serif", // A font that is reminiscent of Renaissance typefaces
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Soft shadow for a slight lift effect
+              display: "flex", // Use flexbox for layout
+              justifyContent: "space-between", // Space between title/message and button
+              alignItems: "center", // Vertically center align items
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "20px", marginBottom: "4px" }}>
+                {notification.title}
+              </div>
+              <div style={{ fontStyle: "italic" }}>
+                <span style={{ fontWeight: "bold" }}>
+                  {notification.notification_type}:
+                </span>{" "}
+                {notification.message}
+              </div>
+            </div>
+            <button
+              onClick={() => deleteNotification(notification.id)}
+              style={{
+                backgroundColor: "#ac9485", // Button color that complements the theme
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                fontFamily: "'EB Garamond', serif",
+                fontSize: "16px",
+                marginLeft: "20px", // Give some space between the text and button
+              }}
+            >
+              Close
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
