@@ -215,7 +215,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "600px",
+              height: "950px",
               marginBottom: "10px",
             }}
           >
@@ -335,20 +335,22 @@ function CreateSections() {
                   >
                     Clear
                   </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleTutorialShow}
-                    style={{
-                      position: "absolute",
-                      right: "0px",
-                      bottom: "10px",
-                      backgroundColor: "white",
-                      borderColor: "#FDA942",
-                      color: "black",
-                    }} // Adjusted to align horizontally with the Clear Script button
-                  >
-                    Tutorial
-                  </Button>
+                  {originalScriptForSectionSplit === "" && (
+                    <Button
+                      variant="primary"
+                      onClick={handleTutorialShow}
+                      style={{
+                        position: "absolute",
+                        right: "0px",
+                        bottom: "10px",
+                        backgroundColor: "white",
+                        borderColor: "#FDA942",
+                        color: "black",
+                      }} // Adjusted to align horizontally with the Clear Script button
+                    >
+                      Tutorial
+                    </Button>
+                  )}
                 </div>
               </Form.Group>
 
@@ -359,11 +361,12 @@ function CreateSections() {
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
-                  maxHeight: "400px", // Set a max-height for scrollable area
+                  maxHeight: "350px", // Set a max-height for scrollable area
                   overflowY: "auto", // Add vertical scrollbar
+                  backgroundColor: "rgba(0, 0, 0, 0.05)", // Add gray background
                 }}
               >
-                <div>
+                <div style={{ marginTop: "10px" }}>
                   <Form.Label style={{ color: "black" }}>
                     Sections From Your Script
                   </Form.Label>
