@@ -33,11 +33,12 @@ function CreateSections() {
     setSectionsArray,
     setSectionHistoryArray,
     setNumSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+    setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  const [enableFreeStyle, setEnableFreeStyle] = useState(false);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
     useState("");
@@ -159,7 +160,7 @@ function CreateSections() {
 
   const handleFreeStyleChange = (e) => {
     const newValue = e.target.checked;
-    setEnableFreeStyle(newValue);
+    setS2aAdvancedFreeStyleStatus(newValue);
   };
   const handleTutorialClose = () => setShowTutorial(false);
   const handleTutorialShow = () => setShowTutorial(true);
@@ -269,11 +270,15 @@ function CreateSections() {
                     type="checkbox"
                     role="switch"
                     id="freeStyleSwitch"
-                    checked={enableFreeStyle}
+                    checked={s2aAdvancedFreeStyleStatus}
                     onChange={handleFreeStyleChange}
                     style={{
-                      backgroundColor: enableFreeStyle ? "#eb631c" : "white",
-                      borderColor: enableFreeStyle ? "#eb631c" : "#adb5bd",
+                      backgroundColor: s2aAdvancedFreeStyleStatus
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: s2aAdvancedFreeStyleStatus
+                        ? "#eb631c"
+                        : "#adb5bd",
                     }}
                   />
                 </div>

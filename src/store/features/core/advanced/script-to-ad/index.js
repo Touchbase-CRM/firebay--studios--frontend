@@ -1,4 +1,4 @@
-// src/store/features/core/quick/voice-to-ad/index.js
+// src/store/features/core/advanced/script-to-ad/index.js
 
 export * from "./default_values";
 
