@@ -262,7 +262,7 @@ function CreateSections() {
                 style={{ marginTop: "10px" }}
               >
                 <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
-                  Freestyle Mode
+                  Free Style Mode
                 </Form.Label>
                 <div className="form-check form-switch">
                   <input
@@ -291,13 +291,15 @@ function CreateSections() {
                 <Alert
                   style={{
                     variant: "info",
-                    fontSize: "10px",
+                    fontSize: "12px",
                     padding: "5px 10px",
                   }}
                 >
                   Pyro Tip: If you are not concerned about sticking to the spot
                   length of {adLength} Sec , you can enable free style mode to
-                  lift the character count restrictions.
+                  lift the character count restrictions. We will still display
+                  the character limit as a reccomendation which you may choose
+                  to ignore.
                 </Alert>
               </Form.Group>
 
@@ -463,9 +465,21 @@ function CreateSections() {
                   We have found {localSectionsArray.length} section
                   {localSectionsArray.length !== 1 ? "s" : ""} in your script.
                   You will be prompted to produce the voice for these one by one
-                  in the next few steps. To comply with the ad length you
-                  desired, you will be limited to the character count mentioned
-                  for each section above.
+                  in the next few steps. <span> </span>
+                  {s2aAdvancedFreeStyleStatus ? (
+                    <span>
+                      To help ensure the ad fits your desired length, we suggest
+                      keeping within the character count mentioned above for
+                      each section. Since you are in Freestyle mode, of course
+                      you can ignore it.
+                    </span>
+                  ) : (
+                    <span>
+                      To comply with the ad length you desired, you will be
+                      limited to the character count mentioned for each section
+                      above.
+                    </span>
+                  )}
                 </div>
               )}
             </Card.Body>

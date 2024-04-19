@@ -25,7 +25,12 @@ const useUserInputsStore = create((set) => {
     ...userInputMethods,
     ...voiceToAdSetters,
     ...advancedScriptToAdSetters,
-    reset: () => set({ ...defaultState, ...quickVoiceToAdDefaultValues }),
+    reset: () =>
+      set({
+        ...defaultState,
+        ...quickVoiceToAdDefaultValues,
+        ...advancedScriptToAdDefaultValues,
+      }),
   };
 });
 
