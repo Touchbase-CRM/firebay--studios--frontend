@@ -59,6 +59,7 @@ function ProcessSection() {
     setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -256,7 +257,11 @@ function ProcessSection() {
 
   const validateScript = (script, charLimit, onSuccess, onFailure) => {
     const scriptWOApostrophe = script.replace(/'/g, "");
-    if (scriptWOApostrophe.replace(/'/g, "").length > charLimit) {
+
+    if (
+      !s2aAdvancedFreeStyleStatus &&
+      scriptWOApostrophe.replace(/'/g, "").length > charLimit
+    ) {
       onFailure("error", "Oops...", "You have too many characters!");
       return false; // Indicate failure
     }

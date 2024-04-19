@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Form, Button, Table } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Table,
+  Offcanvas,
+} from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { AdvancedModeStarterAlert } from "@/components/AdvancedModeStarterAlert";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -25,17 +33,18 @@ function CreateSections() {
     setSectionsArray,
     setSectionHistoryArray,
     setNumSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+    setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  const [enableFreeStyle, setEnableFreeStyle] = useState(false);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
     useState("");
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-
+  const [showTutorial, setShowTutorial] = useState(false);
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
@@ -151,8 +160,10 @@ function CreateSections() {
 
   const handleFreeStyleChange = (e) => {
     const newValue = e.target.checked;
-    setEnableFreeStyle(newValue);
+    setS2aAdvancedFreeStyleStatus(newValue);
   };
+  const handleTutorialClose = () => setShowTutorial(false);
+  const handleTutorialShow = () => setShowTutorial(true);
 
   const links = [
     {
@@ -205,7 +216,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "1050px",
+              height: "950px",
               marginBottom: "10px",
             }}
           >
@@ -228,15 +239,30 @@ function CreateSections() {
               </Form.Group>
               {/* Message to display when script is empty */}
               {originalScriptForSectionSplit === "" && (
-                <AdvancedModeStarterAlert />
+                <>
+                  <Offcanvas
+                    show={showTutorial}
+                    onHide={handleTutorialClose}
+                    placement="end"
+                    style={{ width: "800px" }}
+                  >
+                    <Offcanvas.Header closeButton>
+                      <Offcanvas.Title>Tutorial</Offcanvas.Title>
+                    </Offcanvas.Header>
+                    <Offcanvas.Body>
+                      <AdvancedModeStarterAlert />
+                    </Offcanvas.Body>
+                  </Offcanvas>
+                </>
               )}
+
               <Form.Group
                 controlId="freeStyleToggle"
                 className="d-flex align-items-center"
                 style={{ marginTop: "10px" }}
               >
                 <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
-                  Freestyle Mode
+                  Free Style Mode
                 </Form.Label>
                 <div className="form-check form-switch">
                   <input
@@ -244,11 +270,15 @@ function CreateSections() {
                     type="checkbox"
                     role="switch"
                     id="freeStyleSwitch"
-                    checked={enableFreeStyle}
+                    checked={s2aAdvancedFreeStyleStatus}
                     onChange={handleFreeStyleChange}
                     style={{
-                      backgroundColor: enableFreeStyle ? "#eb631c" : "white",
-                      borderColor: enableFreeStyle ? "#eb631c" : "#adb5bd",
+                      backgroundColor: s2aAdvancedFreeStyleStatus
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: s2aAdvancedFreeStyleStatus
+                        ? "#eb631c"
+                        : "#adb5bd",
                     }}
                   />
                 </div>
@@ -261,13 +291,15 @@ function CreateSections() {
                 <Alert
                   style={{
                     variant: "info",
-                    fontSize: "10px",
+                    fontSize: "12px",
                     padding: "5px 10px",
                   }}
                 >
                   Pyro Tip: If you are not concerned about sticking to the spot
                   length of {adLength} Sec , you can enable free style mode to
-                  lift the character count restrictions.
+                  lift the character count restrictions. We will still display
+                  the character limit as a reccomendation which you may choose
+                  to ignore.
                 </Alert>
               </Form.Group>
 
@@ -285,19 +317,49 @@ function CreateSections() {
                     marginBottom: "20px",
                   }}
                 />
-                <div style={wordCountStyle}>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "62px",
+                    right: "3px",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "0 5px",
+                    borderRadius: "5px",
+                  }}
+                >
                   {originalScriptForSectionSplit.length}/{charLimit}
                 </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Button
+                    style={{
+                      backgroundColor: "#FDA942",
+                      borderColor: "#FDA942",
+                    }}
+                    onClick={handleClearScript}
+                  >
+                    Clear
+                  </Button>
+                  {originalScriptForSectionSplit === "" && (
+                    <Button
+                      variant="primary"
+                      onClick={handleTutorialShow}
+                      style={{
+                        position: "absolute",
+                        right: "0px",
+                        bottom: "10px",
+                        backgroundColor: "white",
+                        borderColor: "#FDA942",
+                        color: "black",
+                      }} // Adjusted to align horizontally with the Clear Script button
+                    >
+                      Tutorial
+                    </Button>
+                  )}
+                </div>
               </Form.Group>
-              <Button
-                style={{
-                  backgroundColor: "#FDA942",
-                  borderColor: "#FDA942",
-                }}
-                onClick={handleClearScript} // Call the handleClearScript function when clicked
-              >
-                Clear Script
-              </Button>
 
               <div
                 style={{
@@ -306,11 +368,12 @@ function CreateSections() {
                   padding: "10px",
                   borderRadius: "5px",
                   marginTop: "10px",
-                  maxHeight: "400px", // Set a max-height for scrollable area
+                  maxHeight: "350px", // Set a max-height for scrollable area
                   overflowY: "auto", // Add vertical scrollbar
+                  backgroundColor: "rgba(0, 0, 0, 0.05)", // Add gray background
                 }}
               >
-                <div>
+                <div style={{ marginTop: "10px" }}>
                   <Form.Label style={{ color: "black" }}>
                     Sections From Your Script
                   </Form.Label>
@@ -402,9 +465,21 @@ function CreateSections() {
                   We have found {localSectionsArray.length} section
                   {localSectionsArray.length !== 1 ? "s" : ""} in your script.
                   You will be prompted to produce the voice for these one by one
-                  in the next few steps. To comply with the ad length you
-                  desired, you will be limited to the character count mentioned
-                  for each section above.
+                  in the next few steps. <span> </span>
+                  {s2aAdvancedFreeStyleStatus ? (
+                    <span>
+                      To help ensure the ad fits your desired length, we suggest
+                      keeping within the character count mentioned above for
+                      each section. Since you are in Freestyle mode, of course
+                      you can ignore it.
+                    </span>
+                  ) : (
+                    <span>
+                      To comply with the ad length you desired, you will be
+                      limited to the character count mentioned for each section
+                      above.
+                    </span>
+                  )}
                 </div>
               )}
             </Card.Body>
