@@ -29,6 +29,7 @@ function CreateSections() {
   } = useUserInputsStore();
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [enableFreeStyle, setEnableFreeStyle] = useState(false);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
     useState("");
@@ -148,6 +149,11 @@ function CreateSections() {
       });
   };
 
+  const handleFreeStyleChange = (e) => {
+    const newValue = e.target.checked;
+    setEnableFreeStyle(newValue);
+  };
+
   const links = [
     {
       label: "Home",
@@ -199,7 +205,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "950px",
+              height: "1050px",
               marginBottom: "10px",
             }}
           >
@@ -224,6 +230,46 @@ function CreateSections() {
               {originalScriptForSectionSplit === "" && (
                 <AdvancedModeStarterAlert />
               )}
+              <Form.Group
+                controlId="freeStyleToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Freestyle Mode
+                </Form.Label>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="freeStyleSwitch"
+                    checked={enableFreeStyle}
+                    onChange={handleFreeStyleChange}
+                    style={{
+                      backgroundColor: enableFreeStyle ? "#eb631c" : "white",
+                      borderColor: enableFreeStyle ? "#eb631c" : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "5px" }}
+              >
+                <Alert
+                  style={{
+                    variant: "info",
+                    fontSize: "10px",
+                    padding: "5px 10px",
+                  }}
+                >
+                  Pyro Tip: If you are not concerned about sticking to the spot
+                  length of {adLength} Sec , you can enable free style mode to
+                  lift the character count restrictions.
+                </Alert>
+              </Form.Group>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Script</Form.Label>
