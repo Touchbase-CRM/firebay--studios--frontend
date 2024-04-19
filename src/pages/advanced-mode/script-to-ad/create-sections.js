@@ -242,7 +242,8 @@ function CreateSections() {
                   <Offcanvas
                     show={showTutorial}
                     onHide={handleTutorialClose}
-                    placement="start"
+                    placement="end"
+                    style={{ width: "800px" }}
                   >
                     <Offcanvas.Header closeButton>
                       <Offcanvas.Title>Tutorial</Offcanvas.Title>
