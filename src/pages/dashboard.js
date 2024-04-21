@@ -18,6 +18,10 @@ const Dashboard = () => {
     console.log("Edit action initiated");
   };
 
+  const handleRenameClick = () => {
+    console.log("Rename action initiated");
+  };
+
   return (
     <Container
       fluid
@@ -89,6 +93,16 @@ const Dashboard = () => {
                       title="Duplicate Ad"
                     >
                       <i className="bi bi-files" style={{ color: "green" }}></i>
+                    </Button>
+                    <Button
+                      variant="link"
+                      onClick={handleRenameClick}
+                      title="Rename Ad"
+                    >
+                      <i
+                        className="bi bi-input-cursor-text"
+                        style={{ color: "black" }}
+                      ></i>
                     </Button>
                     <Button
                       variant="link"
