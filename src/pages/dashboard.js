@@ -10,6 +10,10 @@ const Dashboard = () => {
     console.log("Delete button clicked");
   };
 
+  const handleCopyClick = () => {
+    console.log("Copy action initiated");
+  };
+
   return (
     <Container
       fluid
@@ -71,6 +75,9 @@ const Dashboard = () => {
                         style={{ color: "black" }}
                       ></i>
                     </Button>
+                    <Button variant="link" onClick={handleCopyClick}>
+                      <i className="bi bi-files" style={{ color: "green" }}></i>
+                    </Button>
                     <Button variant="link" onClick={handleDeleteClick}>
                       <i
                         className="bi bi-trash-fill"
@@ -88,8 +95,6 @@ const Dashboard = () => {
       <Row>
         <Col xs={12} className="text-right">
           <div style={{ marginTop: "20px" }}>
-            {" "}
-            {/* Adds space between table and navigation */}
             <Button variant="outline-secondary" disabled>
               {"<"}
             </Button>{" "}
