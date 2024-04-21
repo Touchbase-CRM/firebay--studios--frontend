@@ -14,6 +14,10 @@ const Dashboard = () => {
     console.log("Copy action initiated");
   };
 
+  const handleEditClick = () => {
+    console.log("Edit action initiated");
+  };
+
   return (
     <Container
       fluid
@@ -69,16 +73,38 @@ const Dashboard = () => {
                   <td>Upbeat</td>
                   <td>Nov 3, 2023, 10:32AM</td>
                   <td>
-                    <Button variant="link" onClick={handleDownloadClick}>
+                    <Button
+                      variant="link"
+                      onClick={handleDownloadClick}
+                      title="Download Ad"
+                    >
                       <i
                         className="bi bi-download"
                         style={{ color: "black" }}
                       ></i>
                     </Button>
-                    <Button variant="link" onClick={handleCopyClick}>
+                    <Button
+                      variant="link"
+                      onClick={handleCopyClick}
+                      title="Duplicate Ad"
+                    >
                       <i className="bi bi-files" style={{ color: "green" }}></i>
                     </Button>
-                    <Button variant="link" onClick={handleDeleteClick}>
+                    <Button
+                      variant="link"
+                      onClick={handleEditClick}
+                      title="Edit Ad"
+                    >
+                      <i
+                        className="bi bi-pencil-square"
+                        style={{ color: "black" }}
+                      ></i>
+                    </Button>
+                    <Button
+                      variant="link"
+                      onClick={handleDeleteClick}
+                      title="Delete Ad"
+                    >
                       <i
                         className="bi bi-trash-fill"
                         style={{ color: "red" }}
