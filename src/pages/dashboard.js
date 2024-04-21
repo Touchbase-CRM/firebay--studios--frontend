@@ -1,10 +1,9 @@
-// relative path: src/pages/dashboard.js
 import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Dashboard = () => {
-  const handlePlayClick = () => {
-    console.log("Play button clicked");
+  const handleDownloadClick = () => {
+    console.log("Download button clicked");
   };
 
   const handleDeleteClick = () => {
@@ -34,7 +33,7 @@ const Dashboard = () => {
               backgroundColor: "#eb631c",
               borderColor: "#eb631c",
               color: "white",
-              alignSelf: "flex-start", // Aligns button to the right within the column
+              alignSelf: "flex-start",
             }}
           >
             Create a new ad
@@ -66,9 +65,9 @@ const Dashboard = () => {
                   <td>Upbeat</td>
                   <td>Nov 3, 2023, 10:32AM</td>
                   <td>
-                    <Button variant="link" onClick={handlePlayClick}>
+                    <Button variant="link" onClick={handleDownloadClick}>
                       <i
-                        className="bi bi-play-fill"
+                        className="bi bi-download"
                         style={{ color: "black" }}
                       ></i>
                     </Button>
