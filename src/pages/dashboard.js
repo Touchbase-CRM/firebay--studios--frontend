@@ -1,5 +1,5 @@
 // dashboard.js
-import { Button, Table } from "react-bootstrap";
+import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Dashboard = () => {
@@ -11,14 +11,38 @@ const Dashboard = () => {
     console.log("Delete button clicked");
   };
 
+  // Adjusted styles for the page elements
+  const headerStyles = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px", // Added space between header and table
+    paddingTop: "20px", // Just for some breathing room at the top
+    backgroundColor: "white", // Ensuring the background is white
+  };
+
+  const tableHeaderStyle = {
+    backgroundColor: "#e4e4e4",
+  };
+
   return (
-    <div>
-      <h1>Your ads</h1>
-      <Button variant="warning" style={{ backgroundColor: "#eb631c" }}>
-        Create a new ad
-      </Button>
+    <Container fluid style={{ backgroundColor: "white" }}>
+      <div style={headerStyles}>
+        <h1>Your ads</h1>
+        <Button
+          variant="warning"
+          style={{
+            backgroundColor: "#eb631c",
+            borderColor: "#eb631c",
+            color: "white",
+          }}
+        >
+          Create a new ad
+        </Button>
+      </div>
+
       <Table striped bordered hover>
-        <thead>
+        <thead style={tableHeaderStyle}>
           <tr>
             <th>Ad Name</th>
             <th>Voice</th>
@@ -28,7 +52,7 @@ const Dashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 6 }).map((_, index) => (
             <tr key={index}>
               <td>Lorem ipsum dolor sit amet, consecte...</td>
               <td>Charley</td>
@@ -46,7 +70,16 @@ const Dashboard = () => {
           ))}
         </tbody>
       </Table>
-    </div>
+
+      <div className="pagination-container" style={{ paddingBottom: "20px" }}>
+        <Button variant="outline-secondary" disabled>
+          {"<"}
+        </Button>{" "}
+        <Button variant="outline-secondary" disabled>
+          {">"}
+        </Button>
+      </div>
+    </Container>
   );
 };
 
