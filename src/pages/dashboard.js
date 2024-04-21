@@ -63,7 +63,7 @@ const Dashboard = () => {
             >
               <tr>
                 <th>Ad Name</th>
-                <th>Type</th>
+                <th>Voice</th>
                 <th>Created</th>
                 <th>Last Downloaded</th>
                 <th>Actions</th>
@@ -73,7 +73,7 @@ const Dashboard = () => {
               {Array.from({ length: 6 }).map((_, index) => (
                 <tr key={index}>
                   <td>Lorem ipsum dolor sit amet, consecte...</td>
-                  <td>S2A Quick</td>
+                  <td>Charley</td>
                   <td>Nov 3, 2023, 11:32AM</td>
                   <td>Nov 5, 2023, 10:32AM</td>
                   <td>
