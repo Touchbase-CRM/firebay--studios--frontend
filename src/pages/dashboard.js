@@ -21,25 +21,23 @@ const Dashboard = () => {
     minHeight: "100vh", // Full view height
   };
 
-  const tableStyles = {
-    marginLeft: "auto", // Aligns the table to the right edge of the parent container
-    marginRight: "auto", // Keeps space from the right edge of the viewport
-    maxWidth: "calc(100% - 40px)", // Ensures some space between the table and the viewport edges
+  const rightAlignedButton = {
+    display: "flex",
+    justifyContent: "flex-end", // Aligns the 'Create a new ad' button to the right
+    marginBottom: "1rem", // Adds some space between the button and the table
   };
 
   return (
     <Container fluid style={pageStyles}>
-      <Row className="align-items-center mb-4">
-        <Col xs={12} md={8}>
-          <h1>Your ads</h1>
-        </Col>
-        <Col xs={12} md={4} className="text-md-right">
+      <Row style={rightAlignedButton}>
+        <Col xs={12}>
           <Button
             variant="warning"
             style={{
               backgroundColor: "#eb631c",
               borderColor: "#eb631c",
               color: "white",
+              alignSelf: "flex-start", // Aligns button to the right within the column
             }}
           >
             Create a new ad
@@ -48,8 +46,8 @@ const Dashboard = () => {
       </Row>
 
       <Row>
-        <Col style={{ paddingLeft: "0", paddingRight: "0" }}>
-          <Table striped bordered hover style={tableStyles}>
+        <Col xs={12}>
+          <Table striped bordered hover>
             <thead style={tableHeaderStyle}>
               <tr>
                 <th>Ad Name</th>
@@ -87,14 +85,18 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      <Row className="justify-content-center pt-4">
-        <Col className="text-center">
-          <Button variant="outline-secondary" disabled>
-            {"<"}
-          </Button>{" "}
-          <Button variant="outline-secondary" disabled>
-            {">"}
-          </Button>
+      <Row>
+        <Col xs={12} className="text-right">
+          <div style={{ marginTop: "20px" }}>
+            {" "}
+            {/* Adds space between table and navigation */}
+            <Button variant="outline-secondary" disabled>
+              {"<"}
+            </Button>{" "}
+            <Button variant="outline-secondary" disabled>
+              {">"}
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>
