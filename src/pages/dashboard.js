@@ -92,7 +92,7 @@ const Dashboard = () => {
                       onClick={handleCopyClick}
                       title="Duplicate Ad"
                     >
-                      <i className="bi bi-files" style={{ color: "green" }}></i>
+                      <i className="bi bi-files" style={{ color: "black" }}></i>
                     </Button>
                     <Button
                       variant="link"
