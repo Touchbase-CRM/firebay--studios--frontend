@@ -1,4 +1,4 @@
-// dashboard.js
+// relative path: src/pages/dashboard.js
 import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -11,25 +11,22 @@ const Dashboard = () => {
     console.log("Delete button clicked");
   };
 
-  const tableHeaderStyle = {
-    backgroundColor: "#e4e4e4",
-  };
-
-  const pageStyles = {
-    backgroundColor: "white", // Ensures the page background is white
-    padding: "20px", // Adds padding around the content
-    minHeight: "100vh", // Full view height
-  };
-
-  const rightAlignedButton = {
-    display: "flex",
-    justifyContent: "flex-end", // Aligns the 'Create a new ad' button to the right
-    marginBottom: "1rem", // Adds some space between the button and the table
-  };
-
   return (
-    <Container fluid style={pageStyles}>
-      <Row style={rightAlignedButton}>
+    <Container
+      fluid
+      style={{
+        backgroundColor: "white",
+        padding: "20px",
+        minHeight: "100vh",
+      }}
+    >
+      <Row
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "1rem",
+        }}
+      >
         <Col xs={12}>
           <Button
             variant="warning"
@@ -48,7 +45,11 @@ const Dashboard = () => {
       <Row>
         <Col xs={12}>
           <Table striped bordered hover>
-            <thead style={tableHeaderStyle}>
+            <thead
+              style={{
+                backgroundColor: "#e4e4e4",
+              }}
+            >
               <tr>
                 <th>Ad Name</th>
                 <th>Voice</th>
