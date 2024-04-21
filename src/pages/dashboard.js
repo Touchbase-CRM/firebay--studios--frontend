@@ -11,35 +11,47 @@ const Dashboard = () => {
     console.log("Delete button clicked");
   };
 
-  // Adjusted styles for the page elements
-  const headerStyles = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px", // Added space between header and table
-    paddingTop: "20px", // Just for some breathing room at the top
-    backgroundColor: "white", // Ensuring the background is white
-  };
-
   const tableHeaderStyle = {
     backgroundColor: "#e4e4e4",
   };
 
+  const pageStyles = {
+    backgroundColor: "white", // Ensures the page background is white
+    padding: "20px 0", // Adds padding to the top and bottom
+    minHeight: "100vh", // Full view height
+  };
+
+  const buttonContainerStyles = {
+    display: "flex",
+    justifyContent: "flex-end",
+    paddingBottom: "1rem", // Adds space between button and table
+  };
+
+  // Ensure that the global styles do not interfere
+  const globalReset = {
+    margin: 0, // Resets any margin that may cause the black stripe
+    padding: 0, // Resets any padding that may cause the black stripe
+  };
+
   return (
-    <Container fluid style={{ backgroundColor: "white" }}>
-      <div style={headerStyles}>
-        <h1>Your ads</h1>
-        <Button
-          variant="warning"
-          style={{
-            backgroundColor: "#eb631c",
-            borderColor: "#eb631c",
-            color: "white",
-          }}
-        >
-          Create a new ad
-        </Button>
-      </div>
+    <Container fluid style={pageStyles}>
+      <Row style={globalReset}>
+        <Col xs={12} md={6}>
+          <h1>Your ads</h1>
+        </Col>
+        <Col xs={12} md={6} style={buttonContainerStyles}>
+          <Button
+            variant="warning"
+            style={{
+              backgroundColor: "#eb631c",
+              borderColor: "#eb631c",
+              color: "white",
+            }}
+          >
+            Create a new ad
+          </Button>
+        </Col>
+      </Row>
 
       <Table striped bordered hover>
         <thead style={tableHeaderStyle}>
@@ -71,14 +83,16 @@ const Dashboard = () => {
         </tbody>
       </Table>
 
-      <div className="pagination-container" style={{ paddingBottom: "20px" }}>
-        <Button variant="outline-secondary" disabled>
-          {"<"}
-        </Button>{" "}
-        <Button variant="outline-secondary" disabled>
-          {">"}
-        </Button>
-      </div>
+      <Row className="justify-content-center" style={{ paddingTop: "20px" }}>
+        <Col className="text-center">
+          <Button variant="outline-secondary" disabled>
+            {"<"}
+          </Button>{" "}
+          <Button variant="outline-secondary" disabled>
+            {">"}
+          </Button>
+        </Col>
+      </Row>
     </Container>
   );
 };
