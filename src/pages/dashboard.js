@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -27,7 +28,10 @@ const Dashboard = () => {
       });
       return;
     }
-    router.push("/home");
+    router.push({
+      pathname: "/home",
+      query: { projectName: adName },
+    });
   };
 
   const handleCreateAd = () => {

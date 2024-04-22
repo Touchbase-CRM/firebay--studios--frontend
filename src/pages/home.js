@@ -1,5 +1,4 @@
-// import { Navbar, Nav, Button, Card } from "react-bootstrap";
-import { Card, Modal, Button } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
 import Link from "next/link";
@@ -31,6 +30,9 @@ function Home() {
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
   const [quickModeModalShow, setQuickModeModalShow] = useState(false);
   const [notifications, setNotifications] = useState([]);
+
+  const { projectName } = router.query;
+  console.log(projectName);
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -274,6 +276,28 @@ function Home() {
                   }}
                 >
                   Advanced Ad Generation
+                </button>
+              </Link>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Link href="/dashboard" passHref>
+                <button
+                  style={{
+                    backgroundColor: "#eb631c",
+                    color: "white",
+                    border: "1px solid #eb631c",
+                    width: "100%",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    display: "inline-block",
+                    margin: "4px 2px",
+                    transitionDuration: "0.4s",
+                    borderRadius: "12px",
+                  }}
+                >
+                  Discard
                 </button>
               </Link>
             </div>
