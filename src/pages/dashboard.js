@@ -2,6 +2,9 @@ import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Dashboard = () => {
+  const handleCreateAd = () => {
+    console.log("Create Ad button clicked");
+  };
   const handleDownloadClick = () => {
     console.log("Download button clicked");
   };
@@ -47,6 +50,7 @@ const Dashboard = () => {
               color: "white",
               alignSelf: "flex-start",
             }}
+            onClick={handleCreateAd}
           >
             Create a new ad
           </Button>
