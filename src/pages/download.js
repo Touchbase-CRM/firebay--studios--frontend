@@ -72,7 +72,7 @@ const DownloadPage = () => {
 
   const handleNewAd = () => {
     reset();
-    router.push("/home");
+    router.push("/dashboard");
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
