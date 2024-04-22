@@ -7,9 +7,37 @@ export class AdvancedScriptToAdSetters {
     // Binding methods to ensure 'this' context
     this.setS2aAdvancedFreeStyleStatus =
       this.setS2aAdvancedFreeStyleStatus.bind(this);
+    this.setSectionHistoryArray = this.setSectionHistoryArray.bind(this);
+    this.setStitchedAudioPyroHistoryItemId =
+      this.setStitchedAudioPyroHistoryItemId.bind(this);
+    this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
+    this.setSectionsArray = this.setSectionsArray.bind(this);
+    this.setAdSecondsConsumed = this.setAdSecondsConsumed.bind(this);
+    this.setNavigationStack = this.setNavigationStack.bind(this);
+  }
+
+  setNavigationStack(navigationStack) {
+    this.set({ navigationStack });
+  }
+  setAdSecondsConsumed(adSecondsConsumed) {
+    this.set({ adSecondsConsumed });
+  }
+  setSectionsArray(sectionsArray) {
+    this.set({ sectionsArray });
   }
 
   setS2aAdvancedFreeStyleStatus(status) {
     this.set({ s2aAdvancedFreeStyleStatus: status });
+  }
+
+  setSectionHistoryArray(sectionHistoryArray) {
+    this.set({ sectionHistoryArray });
+  }
+
+  setStitchedAudioPyroHistoryItemId(stitchedAudioPyroHistoryItemId) {
+    this.set({ stitchedAudioPyroHistoryItemId });
+  }
+  setNumSectionsIdentified(numSectionsIdentified) {
+    this.set({ numSectionsIdentified });
   }
 }
