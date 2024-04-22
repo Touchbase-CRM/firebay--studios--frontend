@@ -1,9 +1,31 @@
 import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { GenericModal } from "@/components/foundationComponents/modal";
+import React, { useState } from "react";
 
 const Dashboard = () => {
+  const [showCreateAdModal, setShowCreateAdModal] = useState(false);
+  const [adName, setAdName] = useState("");
+
+  const handleCloseModal = () => {
+    setShowCreateAdModal(false);
+    setAdName("");
+  };
+
+  const handleAdNameChange = (event) => {
+    setAdName(event.target.value);
+  };
+
+  const handleNextOnCreateAd = () => {
+    if (!adName.trim()) {
+      alert("Please enter a name for the Spot.");
+      return;
+    }
+    setShowCreateAdModal(false);
+  };
+
   const handleCreateAd = () => {
-    console.log("Create Ad button clicked");
+    setShowCreateAdModal(true);
   };
   const handleDownloadClick = () => {
     console.log("Download button clicked");
@@ -58,7 +80,7 @@ const Dashboard = () => {
             }}
             onClick={handleCreateAd}
           >
-            Create a new ad
+            Create a new Spot
           </Button>
         </Col>
       </Row>
@@ -72,7 +94,7 @@ const Dashboard = () => {
               }}
             >
               <tr>
-                <th>Ad Name</th>
+                <th>Spot Name</th>
                 <th>Created</th>
                 <th>Last Downloaded</th>
                 <th>Actions</th>
@@ -88,7 +110,7 @@ const Dashboard = () => {
                     <Button
                       variant="link"
                       onClick={handleDownloadClick}
-                      title="Download Ad"
+                      title="Download Spot"
                     >
                       <i
                         className="bi bi-download"
@@ -98,14 +120,14 @@ const Dashboard = () => {
                     <Button
                       variant="link"
                       onClick={handleCopyClick}
-                      title="Duplicate Ad"
+                      title="Duplicate Spot"
                     >
                       <i className="bi bi-files" style={{ color: "black" }}></i>
                     </Button>
                     <Button
                       variant="link"
                       onClick={handleRenameClick}
-                      title="Rename Ad"
+                      title="Rename Spot"
                     >
                       <i
                         className="bi bi-input-cursor-text"
@@ -115,7 +137,7 @@ const Dashboard = () => {
                     <Button
                       variant="link"
                       onClick={handleEditClick}
-                      title="Edit Ad"
+                      title="Edit Spot"
                     >
                       <i
                         className="bi bi-pencil-square"
@@ -125,7 +147,7 @@ const Dashboard = () => {
                     <Button
                       variant="link"
                       onClick={handleDeleteClick}
-                      title="Delete Ad"
+                      title="Delete Spot"
                     >
                       <i
                         className="bi bi-trash-fill"
@@ -158,6 +180,22 @@ const Dashboard = () => {
           </div>
         </Col>
       </Row>
+      <GenericModal
+        show={showCreateAdModal}
+        onHide={handleCloseModal}
+        title="Enter Spot Name"
+        onSave={handleNextOnCreateAd}
+        closeButtonLabel="Discard"
+        saveButtonLabel="Next"
+      >
+        <input
+          type="text"
+          value={adName}
+          onChange={handleAdNameChange}
+          className="form-control"
+          placeholder="Type the Spot name here"
+        />
+      </GenericModal>
     </Container>
   );
 };
