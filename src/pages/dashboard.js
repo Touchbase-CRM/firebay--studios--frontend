@@ -24,6 +24,12 @@ const Dashboard = () => {
   const handleRenameClick = () => {
     console.log("Rename action initiated");
   };
+  const handlePreviousTableContent = () => {
+    console.log("Previous table content action initiated");
+  };
+  const handleNextTableContent = () => {
+    console.log("Next table content action initiated");
+  };
 
   return (
     <Container
@@ -137,10 +143,16 @@ const Dashboard = () => {
       <Row>
         <Col xs={12} className="text-right">
           <div style={{ marginTop: "20px" }}>
-            <Button variant="outline-secondary" disabled>
+            <Button
+              variant="outline-secondary"
+              onClick={handlePreviousTableContent}
+            >
               {"<"}
             </Button>{" "}
-            <Button variant="outline-secondary" disabled>
+            <Button
+              variant="outline-secondary"
+              onClick={handleNextTableContent}
+            >
               {">"}
             </Button>
           </div>
