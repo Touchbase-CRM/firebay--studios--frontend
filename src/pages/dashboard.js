@@ -2,10 +2,12 @@ import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [adName, setAdName] = useState("");
+  const router = useRouter();
 
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
@@ -18,10 +20,14 @@ const Dashboard = () => {
 
   const handleNextOnCreateAd = () => {
     if (!adName.trim()) {
-      alert("Please enter a name for the Spot.");
+      Swal.fire({
+        title: "Error!",
+        text: "Please enter a name for the Spot.",
+        icon: "error",
+      });
       return;
     }
-    setShowCreateAdModal(false);
+    router.push("/home");
   };
 
   const handleCreateAd = () => {
