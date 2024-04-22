@@ -32,7 +32,6 @@ function Home() {
   const [notifications, setNotifications] = useState([]);
 
   const { projectName } = router.query;
-  console.log(projectName);
 
   useEffect(() => {
     if (auth.currentUser) {
