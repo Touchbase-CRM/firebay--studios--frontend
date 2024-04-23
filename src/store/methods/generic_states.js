@@ -17,7 +17,6 @@ export class UserInputMethods {
     this.setBackgroundMusicFilename =
       this.setBackgroundMusicFilename.bind(this);
     this.setGeneratedVoiceUrl = this.setGeneratedVoiceUrl.bind(this);
-    this.setHistoryItemId = this.setHistoryItemId.bind(this);
     this.setModelId = this.setModelId.bind(this);
     this.setAdGenerationMethod = this.setAdGenerationMethod.bind(this);
   }
@@ -72,10 +71,6 @@ export class UserInputMethods {
 
   setGeneratedVoiceUrl(generatedVoiceUrl) {
     this.set({ generatedVoiceUrl });
-  }
-
-  setHistoryItemId(historyItemId) {
-    this.set({ historyItemId });
   }
 
   setModelId(modelId) {

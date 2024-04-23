@@ -9,26 +9,35 @@ import {
 } from "@/store/features/core/quick/voice-to-ad";
 
 import {
+  quickScriptToAdDefaultValues,
+  QuickScriptToAdSetters,
+} from "./features/core/quick/script-to-ad";
+
+import {
   advancedScriptToAdDefaultValues,
   AdvancedScriptToAdSetters,
 } from "@/store/features/core/advanced/script-to-ad";
 
 const useUserInputsStore = create((set) => {
   const userInputMethods = new UserInputMethods(set);
-  const voiceToAdSetters = new QuickVoiceToAdSetters(set);
+  const quickVoiceToAdSetters = new QuickVoiceToAdSetters(set);
+  const quickScriptToAdSetters = new QuickScriptToAdSetters(set);
   const advancedScriptToAdSetters = new AdvancedScriptToAdSetters(set);
 
   return {
     ...defaultState,
     ...quickVoiceToAdDefaultValues,
+    ...quickScriptToAdDefaultValues,
+    ...quickScriptToAdSetters,
+    ...quickVoiceToAdSetters,
     ...advancedScriptToAdDefaultValues,
-    ...userInputMethods,
-    ...voiceToAdSetters,
     ...advancedScriptToAdSetters,
+    ...userInputMethods,
     reset: () =>
       set({
         ...defaultState,
         ...quickVoiceToAdDefaultValues,
+        ...quickScriptToAdDefaultValues,
         ...advancedScriptToAdDefaultValues,
       }),
   };

@@ -13,7 +13,6 @@ export const defaultState = {
   backgroundMusicFilename: "Electro Sport_Rock.mp3",
   musicVol: 0.1,
   generatedVoiceUrl: "",
-  historyItemId: null,
   modelId: "eleven_multilingual_v2",
   adGenerationMethod: "",
 };
