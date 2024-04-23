@@ -2,6 +2,7 @@
 export class Queue {
   constructor() {
     this.items = [];
+    this.signature = "fsCustomClass";
   }
 
   enqueue(element) {

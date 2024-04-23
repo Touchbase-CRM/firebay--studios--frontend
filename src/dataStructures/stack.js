@@ -1,6 +1,7 @@
 export class Stack {
   constructor(items = []) {
     this.items = items;
+    this.signature = "fsCustomClass";
   }
 
   push(element) {

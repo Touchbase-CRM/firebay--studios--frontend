@@ -7,6 +7,7 @@ export class Section {
     sectionDurationSeconds = 0
   ) {
     this.index = index;
+    this.signature = "fsCustomClass";
     this.originalContent = originalContent;
     this.currentContent = currentContent;
     this.currentTransformations = {}; // transformed words with indexes
@@ -36,7 +37,7 @@ export class Section {
     );
 
     // Use setters for properties that have additional logic or consistency requirements
-    // cloned.setHistoryItemId(this.historyItemId);
+    cloned.signature = this.signature;
     cloned.setCurrentTransformations({ ...this.currentTransformations });
     cloned.setCurrentWords([...this.currentWords]);
     cloned.setGeneratedVoiceUrl(this.generatedVoiceUrl);
