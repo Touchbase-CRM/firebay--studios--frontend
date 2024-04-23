@@ -1,4 +1,4 @@
-const serializeClassInstance = (instance) => {
+export const serializeClassInstance = (instance) => {
   const proto = Object.getPrototypeOf(instance);
   const serialized = {};
 
@@ -18,4 +18,6 @@ const serializeClassInstance = (instance) => {
   return serialized;
 };
 
-export default serializeClassInstance;
+export const isCustomClassInstance = (object) => {
+  return object && object.signature === "fsCustomClass";
+};
