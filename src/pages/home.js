@@ -20,7 +20,11 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  addDoc,
 } from "firebase/firestore";
+
+import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
+import { defaultState } from "../store/shared_default_values";
 
 function Home() {
   const auth = getAuth();
@@ -137,11 +141,77 @@ function Home() {
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
+  const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
+  const serializeInstance = (instance) => {
+    const proto = Object.getPrototypeOf(instance);
+    return Object.getOwnPropertyNames(proto)
+      .filter(
+        (prop) => typeof instance[prop] === "function" && prop.startsWith("get")
+      )
+      .reduce((acc, getterName) => {
+        const propName =
+          getterName.charAt(3).toLowerCase() + getterName.slice(4);
+        acc[propName] = instance[getterName]();
+        return acc;
+      }, {});
+  };
+
+  const serializeProperties = (dataObject) => {
+    if (Array.isArray(dataObject)) {
+      return dataObject.map((item) => serializeProperties(item)); // Recursively serialize each item in the array
+    } else if (typeof dataObject === "object" && dataObject !== null) {
+      return Object.keys(dataObject).reduce((serializedResult, key) => {
+        const value = dataObject[key];
+        serializedResult[key] = isCustomClass(value)
+          ? serializeInstance(value)
+          : typeof value === "object"
+          ? serializeProperties(value)
+          : value; // Recursively serialize if it's an object
+        return serializedResult;
+      }, {});
+    }
+    return dataObject; // Return as is if not an object or array
+  };
+
+  const saveSpotToFirestore = async (data, projectName) => {
+    const db = getFirestore(app);
+    const adsCollectionRef = collection(db, "ads");
+
+    try {
+      // Use the data object directly in the addDoc call
+      const docRef = await addDoc(adsCollectionRef, {
+        ...data, // Spread the data object
+        projectName: projectName, // Adding projectName here for better clarity
+      });
+      console.log("Document written with ID:", docRef.id);
+    } catch (error) {
+      console.error("Error adding document to Firestore:", error);
+    }
+  };
+  const saveQuickScriptToAd = async (projectName) => {
+    const serializedConfigFeature = serializeProperties(
+      quickScriptToAdDefaultValues
+    );
+    const serializedConfigShared = serializeProperties(defaultState);
+
+    const data = {
+      mode: "QuickScriptToAd",
+      featureSpecificStates: serializedConfigFeature,
+      sharedStates: serializedConfigShared,
+    };
+
+    await saveSpotToFirestore(data, projectName);
+  };
+
   const buttonOptions = [
     {
       text: "Script to Ad",
-      handler: handleQuickModeModalClose,
-      href: "/quick-mode/script-to-ad/create-ad",
+      handler: async () => {
+        await saveQuickScriptToAd(projectName);
+        handleQuickModeModalClose();
+        router.push("/quick-mode/script-to-ad/create-ad");
+      },
+      // href: "/quick-mode/script-to-ad/create-ad",
       variant: "success",
       backgroundColor: "#eb631c",
       borderColor: "#eb631c",
