@@ -28,8 +28,8 @@ import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
 
-import { saveToFirestore } from "@/utils/dbReadWriteOps/firestoreOperations";
-import { serializeProperties } from "@/utils/dbReadWriteOps/serializationUtils";
+// import { saveToFirestore } from "@/utils/dbReadWriteOps/firestoreOperations";
+import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function Home() {
   const auth = getAuth();
@@ -145,25 +145,6 @@ function Home() {
 
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
-
-  const serializeAndSaveModeData = async (
-    mode,
-    projectName,
-    modeSpecificStates,
-    sharedStates
-  ) => {
-    const serializedModeSpecificStates =
-      serializeProperties(modeSpecificStates);
-    const serializedSharedStates = serializeProperties(sharedStates);
-
-    const data = {
-      mode: mode,
-      featureSpecificStates: serializedModeSpecificStates,
-      sharedStates: serializedSharedStates,
-    };
-
-    await saveToFirestore(data, projectName, mode);
-  };
 
   const saveQuickScriptToAd = async (projectName) => {
     await serializeAndSaveModeData(

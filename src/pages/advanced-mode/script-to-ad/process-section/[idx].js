@@ -753,6 +753,25 @@ function ProcessSection() {
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
 
+  const serializeAndSaveModeData = async (
+    mode,
+    projectName,
+    modeSpecificStates,
+    sharedStates
+  ) => {
+    const serializedModeSpecificStates =
+      serializeProperties(modeSpecificStates);
+    const serializedSharedStates = serializeProperties(sharedStates);
+
+    const data = {
+      mode: mode,
+      featureSpecificStates: serializedModeSpecificStates,
+      sharedStates: serializedSharedStates,
+    };
+
+    await saveToFirestore(data, projectName, mode);
+  };
+
   const links = [
     {
       label: "Dashboard",
