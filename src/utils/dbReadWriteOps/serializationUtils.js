@@ -1,5 +1,11 @@
 //Relative path: src/utils/dbReadWriteOps/serializationUtils.js
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  setDoc,
+} from "firebase/firestore";
 import app from "../../firebase"; // Update the import path as necessary
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
@@ -34,26 +40,51 @@ const serializeProperties = (dataObject) => {
   return dataObject;
 };
 
-const saveToFirestore = async (data, projectName, mode) => {
+const saveToFirestore = async (data, spotName, mode, docId = null) => {
   const db = getFirestore(app);
   const adsCollectionRef = collection(db, "ads");
   try {
-    const docRef = await addDoc(adsCollectionRef, {
-      ...data,
-      projectName,
-      mode,
-    });
+    let docRef;
+    if (docId) {
+      // When updating, we use the existing docId and do not include spotName
+      const existingDocRef = doc(db, "ads", docId);
+      await setDoc(
+        existingDocRef,
+        {
+          ...data,
+          mode, // Only update mode and other data fields, not spotName
+        },
+        { merge: true }
+      );
+      docRef = existingDocRef;
+    } else {
+      // Ensure spotName is provided for new documents
+      if (!spotName) {
+        throw new Error(
+          "Project name is required when creating a new document."
+        );
+      }
+      // When creating a new document, include spotName
+      docRef = await addDoc(adsCollectionRef, {
+        ...data,
+        spotName, // Include spotName when creating a new document
+        mode,
+      });
+    }
     console.log("Document written with ID:", docRef.id);
+    return docRef.id; // Returning the document ID
   } catch (error) {
     console.error("Error adding document to Firestore:", error);
+    throw error; // Rethrow the error for upstream handling
   }
 };
 
 export const serializeAndSaveModeData = async (
   mode,
-  projectName,
+  spotName = null, // only pass this when creating a new spot
   modeSpecificStates,
-  sharedStates
+  sharedStates,
+  docId = null // Optionally pass in a docId
 ) => {
   const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
   const serializedSharedStates = serializeProperties(sharedStates);
@@ -64,5 +95,6 @@ export const serializeAndSaveModeData = async (
     sharedStates: serializedSharedStates,
   };
 
-  await saveToFirestore(data, projectName, mode);
+  const savedDocId = await saveToFirestore(data, spotName, mode, docId);
+  return savedDocId; // Return the document ID
 };

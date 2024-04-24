@@ -15,6 +15,7 @@ export const defaultState = {
   generatedVoiceUrl: "",
   modelId: "eleven_multilingual_v2",
   adGenerationMethod: "",
+  spotId: "",
 };
 
 export default defaultState;

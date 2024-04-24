@@ -27,20 +27,22 @@ import { defaultState } from "../store/shared_default_values";
 import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
-
-// import { saveToFirestore } from "@/utils/dbReadWriteOps/firestoreOperations";
 import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function Home() {
   const auth = getAuth();
   const router = useRouter();
   const firestore = getFirestore(app);
-  const { reset: resetUserInputsStore } = useUserInputsStore();
+  const {
+    spotId,
+    setSpotId,
+    reset: resetUserInputsStore,
+  } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
   const [quickModeModalShow, setQuickModeModalShow] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  const { projectName } = router.query;
+  const { spotName } = router.query;
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -146,36 +148,39 @@ function Home() {
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
-  const saveQuickScriptToAd = async (projectName) => {
-    await serializeAndSaveModeData(
+  const saveQuickScriptToAd = async (spotName) => {
+    const tmpSpotId = await serializeAndSaveModeData(
       "QuickScriptToAd",
-      projectName,
+      spotName,
       quickScriptToAdDefaultValues,
       defaultState
     );
+    setSpotId(tmpSpotId);
   };
-  const saveQuickVoiceToAd = async (projectName) => {
-    await serializeAndSaveModeData(
+  const saveQuickVoiceToAd = async (spotName) => {
+    const tmpSpotId = await serializeAndSaveModeData(
       "QuickVoiceToAd",
-      projectName,
+      spotName,
       quickVoiceToAdDefaultValues,
       defaultState
     );
+    setSpotId(tmpSpotId);
   };
-  const saveAdvancedScriptToAd = async (projectName) => {
-    await serializeAndSaveModeData(
+  const saveAdvancedScriptToAd = async (spotName) => {
+    const tmpSpotId = await serializeAndSaveModeData(
       "AdvancedScriptToAd",
-      projectName,
+      spotName,
       advancedScriptToAdDefaultValues,
       defaultState
     );
+    setSpotId(tmpSpotId);
   };
 
   const buttonOptions = [
     {
       text: "Script to Ad",
       handler: async () => {
-        await saveQuickScriptToAd(projectName);
+        await saveQuickScriptToAd(spotName);
         handleQuickModeModalClose();
         router.push("/quick-mode/script-to-ad/create-ad");
       },
@@ -187,7 +192,7 @@ function Home() {
     {
       text: "Voice to Ad",
       handler: async () => {
-        await saveQuickVoiceToAd(projectName);
+        await saveQuickVoiceToAd(spotName);
         handleQuickModeModalClose();
         router.push("/quick-mode/voice-to-ad/create-ad");
       },
@@ -281,7 +286,7 @@ function Home() {
             <div style={{ marginBottom: "20px" }}>
               <button
                 onClick={async () => {
-                  await saveAdvancedScriptToAd(projectName);
+                  await saveAdvancedScriptToAd(spotName);
                   router.push("/advanced-mode/script-to-ad/create-sections");
                 }}
                 style={{

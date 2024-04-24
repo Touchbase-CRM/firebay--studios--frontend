@@ -30,7 +30,7 @@ const Dashboard = () => {
     }
     router.push({
       pathname: "/home",
-      query: { projectName: adName },
+      query: { spotName: adName },
     });
   };
 

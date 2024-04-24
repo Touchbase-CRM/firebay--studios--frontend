@@ -19,6 +19,11 @@ export class UserInputMethods {
     this.setGeneratedVoiceUrl = this.setGeneratedVoiceUrl.bind(this);
     this.setModelId = this.setModelId.bind(this);
     this.setAdGenerationMethod = this.setAdGenerationMethod.bind(this);
+    this.setSpotId = this.setSpotId.bind(this);
+  }
+
+  setSpotId(spotId) {
+    this.set({ spotId });
   }
 
   setAdGenerationMethod(adGenerationMethod) {

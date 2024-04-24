@@ -39,6 +39,7 @@ import {
 import _ from "lodash";
 import { Stack } from "../../../../dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
+import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -753,23 +754,13 @@ function ProcessSection() {
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
 
-  const serializeAndSaveModeData = async (
-    mode,
-    projectName,
-    modeSpecificStates,
-    sharedStates
-  ) => {
-    const serializedModeSpecificStates =
-      serializeProperties(modeSpecificStates);
-    const serializedSharedStates = serializeProperties(sharedStates);
-
-    const data = {
-      mode: mode,
-      featureSpecificStates: serializedModeSpecificStates,
-      sharedStates: serializedSharedStates,
-    };
-
-    await saveToFirestore(data, projectName, mode);
+  const handleSaveState = () => {
+    serializeAndSaveModeData(
+      "AdvancedScriptToAd",
+      "abc",
+      advancedScriptToAdDefaultValues,
+      defaultState
+    );
   };
 
   const links = [
