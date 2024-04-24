@@ -1089,7 +1089,7 @@ function ProcessSection() {
           <div
             style={{
               display: "flex", // Enable flexbox
-              justifyContent: "space-between", // Space between items
+              justifyContent: "flex-start", // Align items to the start of the container
               alignItems: "center", // Align items vertically
               bottom: "10px",
               left: "10px",
@@ -1102,7 +1102,7 @@ function ProcessSection() {
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px", // Keep for right margin
+                marginRight: "auto", // Push all subsequent items to the right
                 marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
@@ -1111,40 +1111,68 @@ function ProcessSection() {
             >
               {"Next"}
             </Button>
+            {/* Save Button */}
+            <Button
+              onClick={showOffcanvas}
+              style={{
+                marginRight: "10px", // Space between Save and History (or placeholder)
+                marginTop: "20px",
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+              }}
+            >
+              <span
+                style={{
+                  verticalAlign: "middle",
+                  marginLeft: "8px",
+                  color: "black",
+                }}
+              >
+                Save
+              </span>
+            </Button>
 
+            {/* Conditional rendering for History Button or an invisible placeholder */}
             {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-              localSectionHistoryObj &&
-              localSectionHistoryObj[currentSectionIndex] !== null && (
-                <>
-                  <Button
-                    onClick={showOffcanvas}
+            localSectionHistoryObj &&
+            localSectionHistoryObj[currentSectionIndex] !== null ? (
+              <>
+                <Button
+                  onClick={showOffcanvas}
+                  style={{
+                    marginRight: "0px", // No right margin, to stick to the canvas trigger
+                    marginTop: "20px",
+                    backgroundColor: "white",
+                    borderColor: "#FDA942",
+                  }}
+                >
+                  <span
                     style={{
-                      marginRight: "0px", // Adjusted for consistency
-                      marginTop: "20px",
-                      backgroundColor: "white",
-
-                      borderColor: "#FDA942",
+                      verticalAlign: "middle",
+                      marginLeft: "8px",
+                      color: "black",
                     }}
                   >
-                    <span
-                      style={{
-                        verticalAlign: "middle",
-                        marginLeft: "8px",
-                        color: "black",
-                      }}
-                    >
-                      History
-                    </span>
-                  </Button>
-                  <HistoryCanvas
-                    show={offcanvasVisible}
-                    handleClose={hideOffcanvas}
-                    localSectionHistoryObj={localSectionHistoryObj}
-                    playAudioUrl={playAudioUrl}
-                    changeCurrentSectionObj={changeCurrentSectionObj}
-                  />
-                </>
-              )}
+                    History
+                  </span>
+                </Button>
+                <HistoryCanvas
+                  show={offcanvasVisible}
+                  handleClose={hideOffcanvas}
+                  localSectionHistoryObj={localSectionHistoryObj}
+                  playAudioUrl={playAudioUrl}
+                  changeCurrentSectionObj={changeCurrentSectionObj}
+                />
+              </>
+            ) : (
+              <div
+                style={{
+                  width: "74px", // Approximate width of the History button
+                  height: "38px", // Approximate height of the button, matching marginTop
+                  visibility: "hidden", // Make the placeholder invisible
+                }}
+              ></div>
+            )}
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
