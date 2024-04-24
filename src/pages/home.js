@@ -158,49 +158,60 @@ function Home() {
 
   const serializeProperties = (dataObject) => {
     if (Array.isArray(dataObject)) {
-      return dataObject.map((item) => serializeProperties(item)); // Recursively serialize each item in the array
-    } else if (typeof dataObject === "object" && dataObject !== null) {
+      return dataObject.map(serializeProperties);
+    } else if (dataObject && typeof dataObject === "object") {
       return Object.keys(dataObject).reduce((serializedResult, key) => {
         const value = dataObject[key];
         serializedResult[key] = isCustomClass(value)
           ? serializeInstance(value)
           : typeof value === "object"
           ? serializeProperties(value)
-          : value; // Recursively serialize if it's an object
+          : value;
         return serializedResult;
       }, {});
     }
-    return dataObject; // Return as is if not an object or array
+    return dataObject;
   };
 
-  const saveSpotToFirestore = async (data, projectName) => {
+  const saveToFirestore = async (data, projectName, mode) => {
     const db = getFirestore(app);
     const adsCollectionRef = collection(db, "ads");
-
     try {
-      // Use the data object directly in the addDoc call
       const docRef = await addDoc(adsCollectionRef, {
-        ...data, // Spread the data object
-        projectName: projectName, // Adding projectName here for better clarity
+        ...data,
+        projectName,
+        mode,
       });
       console.log("Document written with ID:", docRef.id);
     } catch (error) {
       console.error("Error adding document to Firestore:", error);
     }
   };
-  const saveQuickScriptToAd = async (projectName) => {
-    const serializedConfigFeature = serializeProperties(
-      quickScriptToAdDefaultValues
-    );
-    const serializedConfigShared = serializeProperties(defaultState);
+  const serializeAndSaveModeData = async (
+    mode,
+    projectName,
+    modeSpecificStates,
+    sharedStates
+  ) => {
+    const serializedModeSpecificStates =
+      serializeProperties(modeSpecificStates);
+    const serializedSharedStates = serializeProperties(sharedStates);
 
     const data = {
-      mode: "QuickScriptToAd",
-      featureSpecificStates: serializedConfigFeature,
-      sharedStates: serializedConfigShared,
+      mode: mode,
+      featureSpecificStates: serializedModeSpecificStates,
+      sharedStates: serializedSharedStates,
     };
 
-    await saveSpotToFirestore(data, projectName);
+    await saveToFirestore(data, projectName, mode);
+  };
+  const saveQuickScriptToAd = async (projectName) => {
+    await serializeAndSaveModeData(
+      "QuickScriptToAd",
+      projectName,
+      quickScriptToAdDefaultValues,
+      defaultState
+    );
   };
 
   const buttonOptions = [
@@ -211,7 +222,6 @@ function Home() {
         handleQuickModeModalClose();
         router.push("/quick-mode/script-to-ad/create-ad");
       },
-      // href: "/quick-mode/script-to-ad/create-ad",
       variant: "success",
       backgroundColor: "#eb631c",
       borderColor: "#eb631c",
