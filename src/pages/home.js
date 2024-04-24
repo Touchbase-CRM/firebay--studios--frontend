@@ -72,24 +72,6 @@ function Home() {
     fetchMonthlyDownloads();
   }, []);
 
-  // Function to display notifications
-  function displayNotification(title, message, id) {
-    Swal.fire({
-      title: title,
-      html: message,
-      icon: "info",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Close",
-      cancelButtonText: "Keep Open",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteNotification(id);
-      }
-    });
-  }
-
   const deleteNotification = (notificationId) => {
     const docRef = doc(firestore, "notifications", notificationId);
     deleteDoc(docRef)
