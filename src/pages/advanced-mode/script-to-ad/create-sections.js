@@ -75,7 +75,7 @@ function CreateSections() {
   }, [isFormSubmitted, router]);
 
   const validateScript = (script, charLimit, onSuccess, onFailure) => {
-    if (script.length > charLimit) {
+    if (!s2aAdvancedFreeStyleStatus && script.length > charLimit) {
       onFailure("error", "Oops...", "You have too many characters!");
       return false; // Indicate failure
     }
