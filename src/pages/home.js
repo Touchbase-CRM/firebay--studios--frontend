@@ -23,8 +23,10 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
 import { defaultState } from "../store/shared_default_values";
+import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
+import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
+import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
 
 function Home() {
   const auth = getAuth();
@@ -213,6 +215,22 @@ function Home() {
       defaultState
     );
   };
+  const saveQuickVoiceToAd = async (projectName) => {
+    await serializeAndSaveModeData(
+      "QuickVoiceToAd",
+      projectName,
+      quickVoiceToAdDefaultValues,
+      defaultState
+    );
+  };
+  const saveAdvancedScriptToAd = async (projectName) => {
+    await serializeAndSaveModeData(
+      "AdvancedScriptToAd",
+      projectName,
+      advancedScriptToAdDefaultValues,
+      defaultState
+    );
+  };
 
   const buttonOptions = [
     {
@@ -229,8 +247,11 @@ function Home() {
     },
     {
       text: "Voice to Ad",
-      handler: handleQuickModeModalClose,
-      href: "/quick-mode/voice-to-ad/create-ad",
+      handler: async () => {
+        await saveQuickVoiceToAd(projectName);
+        handleQuickModeModalClose();
+        router.push("/quick-mode/voice-to-ad/create-ad");
+      },
       variant: "primary",
       backgroundColor: "white",
       borderColor: "#FDA942",
@@ -319,26 +340,28 @@ function Home() {
             />
 
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
-                <button
-                  style={{
-                    backgroundColor: "#eb631c",
-                    color: "white",
-                    border: "1px solid #eb631c",
-                    width: "100%",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    display: "inline-block",
-                    margin: "4px 2px",
-                    transitionDuration: "0.4s",
-                    borderRadius: "12px",
-                  }}
-                >
-                  Advanced Ad Generation
-                </button>
-              </Link>
+              <button
+                onClick={async () => {
+                  await saveAdvancedScriptToAd(projectName);
+                  router.push("/advanced-mode/script-to-ad/create-sections");
+                }}
+                style={{
+                  backgroundColor: "#eb631c",
+                  color: "white",
+                  border: "1px solid #eb631c",
+                  width: "100%",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  margin: "4px 2px",
+                  transitionDuration: "0.4s",
+                  borderRadius: "12px",
+                }}
+              >
+                Advanced Ad Generation
+              </button>
             </div>
             <div style={{ marginBottom: "20px" }}>
               <Link href="/dashboard" passHref>
