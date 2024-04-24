@@ -1,8 +1,8 @@
-// serializationUtils.js
+//Relative path: src/utils/dbReadWriteOps/serializationUtils.js
 
-export const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
+const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
 
-export const serializeInstance = (instance) => {
+const serializeInstance = (instance) => {
   const proto = Object.getPrototypeOf(instance);
   return Object.getOwnPropertyNames(proto)
     .filter(

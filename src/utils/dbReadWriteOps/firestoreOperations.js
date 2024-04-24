@@ -1,4 +1,4 @@
-// firestoreOperations.js
+// Relative path: src/utils/dbReadWriteOps/firestoreOperations.js
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import app from "../../firebase"; // Update the import path as necessary
 

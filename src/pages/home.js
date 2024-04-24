@@ -28,6 +28,9 @@ import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
 
+import { saveToFirestore } from "@/utils/dbReadWriteOps/firestoreOperations";
+import { serializeProperties } from "@/utils/dbReadWriteOps/serializationUtils";
+
 function Home() {
   const auth = getAuth();
   const router = useRouter();
@@ -143,52 +146,6 @@ function Home() {
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
-  const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
-  const serializeInstance = (instance) => {
-    const proto = Object.getPrototypeOf(instance);
-    return Object.getOwnPropertyNames(proto)
-      .filter(
-        (prop) => typeof instance[prop] === "function" && prop.startsWith("get")
-      )
-      .reduce((acc, getterName) => {
-        const propName =
-          getterName.charAt(3).toLowerCase() + getterName.slice(4);
-        acc[propName] = instance[getterName]();
-        return acc;
-      }, {});
-  };
-
-  const serializeProperties = (dataObject) => {
-    if (Array.isArray(dataObject)) {
-      return dataObject.map(serializeProperties);
-    } else if (dataObject && typeof dataObject === "object") {
-      return Object.keys(dataObject).reduce((serializedResult, key) => {
-        const value = dataObject[key];
-        serializedResult[key] = isCustomClass(value)
-          ? serializeInstance(value)
-          : typeof value === "object"
-          ? serializeProperties(value)
-          : value;
-        return serializedResult;
-      }, {});
-    }
-    return dataObject;
-  };
-
-  const saveToFirestore = async (data, projectName, mode) => {
-    const db = getFirestore(app);
-    const adsCollectionRef = collection(db, "ads");
-    try {
-      const docRef = await addDoc(adsCollectionRef, {
-        ...data,
-        projectName,
-        mode,
-      });
-      console.log("Document written with ID:", docRef.id);
-    } catch (error) {
-      console.error("Error adding document to Firestore:", error);
-    }
-  };
   const serializeAndSaveModeData = async (
     mode,
     projectName,
@@ -207,6 +164,7 @@ function Home() {
 
     await saveToFirestore(data, projectName, mode);
   };
+
   const saveQuickScriptToAd = async (projectName) => {
     await serializeAndSaveModeData(
       "QuickScriptToAd",
