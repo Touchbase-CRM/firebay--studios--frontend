@@ -63,6 +63,16 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+  const saveStatesFeatureSpecific = {
+    sectionsArray,
+    sectionHistoryArray,
+    numSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+  };
+  const saveStatesShared = {
+    adLength,
+  };
+
   const { idx } = router.query;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     parseInt(idx, 10)
@@ -1115,7 +1125,7 @@ function ProcessSection() {
             <Button
               onClick={showOffcanvas}
               style={{
-                marginRight: "10px", // Space between Save and History (or placeholder)
+                marginRight: "10px", // Space between Save and History
                 marginTop: "20px",
                 backgroundColor: "white",
                 borderColor: "#FDA942",
@@ -1132,47 +1142,46 @@ function ProcessSection() {
               </span>
             </Button>
 
-            {/* Conditional rendering for History Button or an invisible placeholder */}
-            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-            localSectionHistoryObj &&
-            localSectionHistoryObj[currentSectionIndex] !== null ? (
-              <>
-                <Button
-                  onClick={showOffcanvas}
-                  style={{
-                    marginRight: "0px", // No right margin, to stick to the canvas trigger
-                    marginTop: "20px",
-                    backgroundColor: "white",
-                    borderColor: "#FDA942",
-                  }}
-                >
-                  <span
-                    style={{
-                      verticalAlign: "middle",
-                      marginLeft: "8px",
-                      color: "black",
-                    }}
-                  >
-                    History
-                  </span>
-                </Button>
-                <HistoryCanvas
-                  show={offcanvasVisible}
-                  handleClose={hideOffcanvas}
-                  localSectionHistoryObj={localSectionHistoryObj}
-                  playAudioUrl={playAudioUrl}
-                  changeCurrentSectionObj={changeCurrentSectionObj}
-                />
-              </>
-            ) : (
-              <div
+            {/* Always render History Button but conditionally disable it */}
+            <Button
+              onClick={showOffcanvas}
+              disabled={
+                !(
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                  localSectionHistoryObj &&
+                  localSectionHistoryObj[currentSectionIndex] !== null
+                )
+              }
+              style={{
+                marginRight: "0px", // No right margin, to stick to the canvas trigger
+                marginTop: "20px",
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+                opacity:
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                  localSectionHistoryObj &&
+                  localSectionHistoryObj[currentSectionIndex] !== null
+                    ? "1"
+                    : "0.5",
+              }}
+            >
+              <span
                 style={{
-                  width: "74px", // Approximate width of the History button
-                  height: "38px", // Approximate height of the button, matching marginTop
-                  visibility: "hidden", // Make the placeholder invisible
+                  verticalAlign: "middle",
+                  marginLeft: "8px",
+                  color: "black",
                 }}
-              ></div>
-            )}
+              >
+                History
+              </span>
+            </Button>
+            <HistoryCanvas
+              show={offcanvasVisible}
+              handleClose={hideOffcanvas}
+              localSectionHistoryObj={localSectionHistoryObj}
+              playAudioUrl={playAudioUrl}
+              changeCurrentSectionObj={changeCurrentSectionObj}
+            />
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

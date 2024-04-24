@@ -9,6 +9,26 @@ export const HistoryCanvas = ({
   playAudioUrl,
   changeCurrentSectionObj,
 }) => {
+  // Guard clause to handle null or undefined localSectionHistoryObj
+  if (!localSectionHistoryObj) {
+    // Optionally, you can render a placeholder or a message indicating no history is available
+    return (
+      <Offcanvas
+        show={show}
+        onHide={handleClose}
+        placement="end"
+        style={{ width: "800px" }}
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Read History</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <p>No history available.</p>
+        </Offcanvas.Body>
+      </Offcanvas>
+    );
+  }
+
   return (
     <Offcanvas
       show={show}
