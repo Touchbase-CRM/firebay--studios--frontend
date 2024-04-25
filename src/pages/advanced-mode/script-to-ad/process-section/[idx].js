@@ -66,18 +66,6 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
-  const saveStatesFeatureSpecific = {
-    // sectionsArray,
-    sectionHistoryArray,
-    numSectionsIdentified,
-    s2aAdvancedFreeStyleStatus,
-  };
-
-  const saveStatesShared = {
-    spotId,
-    adLength,
-  };
-
   const { idx } = router.query;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     parseInt(idx, 10)
@@ -151,6 +139,18 @@ function ProcessSection() {
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
   const SECTOMILLISEC = 1000;
+
+  const saveStatesFeatureSpecific = {
+    localSectionsArray,
+    localSectionHistoryObj,
+    numSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+  };
+
+  const saveStatesShared = {
+    spotId,
+    adLength,
+  };
 
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;

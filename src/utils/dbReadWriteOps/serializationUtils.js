@@ -26,6 +26,17 @@ const serializeInstance = (instance) => {
 const serializeProperties = (dataObject) => {
   if (Array.isArray(dataObject)) {
     return dataObject.map(serializeProperties);
+  } else if (dataObject instanceof Map) {
+    // Handle Map objects separately
+    const result = {};
+    dataObject.forEach((value, key) => {
+      result[key] = isCustomClass(value)
+        ? serializeInstance(value)
+        : typeof value === "object"
+        ? serializeProperties(value)
+        : value;
+    });
+    return result;
   } else if (dataObject && typeof dataObject === "object") {
     return Object.keys(dataObject).reduce((serializedResult, key) => {
       const value = dataObject[key];
@@ -41,7 +52,6 @@ const serializeProperties = (dataObject) => {
 };
 
 const saveToFirestore = async (data, spotName, mode, docId = null) => {
-  console.log("saveToFirestore: ", data, spotName, mode, docId);
   const db = getFirestore(app);
   const adsCollectionRef = collection(db, "ads");
   try {
