@@ -34,7 +34,6 @@ function StitchSections() {
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
-    navigationStack,
     stitchedAudioPyroHistoryItemId,
     spotId,
   } = useUserInputsStore();
@@ -42,7 +41,7 @@ function StitchSections() {
   const saveFeatureSpecificStates = {
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
-    navigationStack,
+    // navigationStack, // not needed
   };
 
   const saveSharedStates = {
@@ -121,7 +120,6 @@ function StitchSections() {
     };
   };
   const showEditPauseDurationModal = (sectionIndex) => {
-    console.log("Opening modal for section index:", sectionIndex);
     setCurrentEditingSectionIndex(sectionIndex);
     setEditPauseModalVisible(true);
   };
@@ -185,9 +183,20 @@ function StitchSections() {
       .catch((err) => console.error(err));
   };
 
+  const handleSaveState = () => {
+    serializeAndSaveModeData(
+      "AdvancedScriptToAd",
+      null,
+      saveFeatureSpecificStates,
+      saveSharedStates,
+      spotId
+    );
+  };
+
   const handleNext = (e) => {
     e.preventDefault();
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
+    handleSaveState();
     router.push("/add-music");
   };
 
@@ -251,6 +260,7 @@ function StitchSections() {
       setPendingAdvertisement(false); // Set pending to false when API call completes
     }
     setSectionsArray(localSectionsArray);
+    // handle state is not needed because audio will expire anyways
   };
 
   const cancelLoading = () => {
@@ -342,19 +352,11 @@ function StitchSections() {
     localPushData("/advanced-mode/script-to-ad/stitch-sections");
     syncLocalStackWithGlobal();
 
+    handleSaveState();
+
     router.push(
       "/advanced-mode/script-to-ad/process-section/[idx]",
       `/advanced-mode/script-to-ad/process-section/${section.getIndex()}`
-    );
-  };
-
-  const handleSaveState = () => {
-    serializeAndSaveModeData(
-      "AdvancedScriptToAd",
-      null,
-      saveFeatureSpecificStates,
-      saveSharedStates,
-      spotId
     );
   };
 

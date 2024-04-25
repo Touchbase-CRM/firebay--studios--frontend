@@ -548,10 +548,13 @@ function ProcessSection() {
       // load the next section
       let lastInUrl = localPopData();
       syncLocalStackWithGlobal();
+      handleSaveState();
+
       router.push(lastInUrl);
     } else {
       localSectionsArray[index] = localCurrentSectionObj;
       setSectionsArray(localSectionsArray);
+      handleSaveState();
 
       if (currentSectionIndex >= sectionsArray.length - 1) {
         router.push("/advanced-mode/script-to-ad/stitch-sections");
@@ -743,6 +746,7 @@ function ProcessSection() {
       `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
     );
     syncLocalStackWithGlobal();
+    handleSaveState();
     // move to the new url
     if (currentSectionIdx > 0) {
       router.push(
