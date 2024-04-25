@@ -25,9 +25,10 @@ const serializeInstance = (instance) => {
 
 const serializeProperties = (dataObject) => {
   if (Array.isArray(dataObject)) {
+    // Handle arrays by recursively serializing each element
     return dataObject.map(serializeProperties);
   } else if (dataObject instanceof Map) {
-    // Handle Map objects separately
+    // Handle Map objects by serializing each entry
     const result = {};
     dataObject.forEach((value, key) => {
       result[key] = isCustomClass(value)
@@ -38,6 +39,7 @@ const serializeProperties = (dataObject) => {
     });
     return result;
   } else if (dataObject && typeof dataObject === "object") {
+    // Handle standard objects and check each property
     return Object.keys(dataObject).reduce((serializedResult, key) => {
       const value = dataObject[key];
       serializedResult[key] = isCustomClass(value)

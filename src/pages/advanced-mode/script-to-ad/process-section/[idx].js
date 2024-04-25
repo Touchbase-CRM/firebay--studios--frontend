@@ -141,7 +141,9 @@ function ProcessSection() {
   const SECTOMILLISEC = 1000;
 
   const saveStatesFeatureSpecific = {
+    sectionsArray,
     localSectionsArray,
+    sectionHistoryArray,
     localSectionHistoryObj,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
