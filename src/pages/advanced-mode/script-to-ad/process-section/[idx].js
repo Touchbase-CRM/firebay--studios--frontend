@@ -72,6 +72,7 @@ function ProcessSection() {
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
   };
+
   const saveStatesShared = {
     spotId,
     adLength,
