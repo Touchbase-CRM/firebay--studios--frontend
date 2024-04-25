@@ -41,6 +41,7 @@ const serializeProperties = (dataObject) => {
 };
 
 const saveToFirestore = async (data, spotName, mode, docId = null) => {
+  console.log("saveToFirestore: ", data, spotName, mode, docId);
   const db = getFirestore(app);
   const adsCollectionRef = collection(db, "ads");
   try {
@@ -67,7 +68,7 @@ const saveToFirestore = async (data, spotName, mode, docId = null) => {
       // When creating a new document, include spotName
       docRef = await addDoc(adsCollectionRef, {
         ...data,
-        spotName, // Include spotName when creating a new document
+        spotName: spotName, // Include spotName when creating a new document
         mode,
       });
     }

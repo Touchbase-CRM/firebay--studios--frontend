@@ -40,6 +40,7 @@ import _ from "lodash";
 import { Stack } from "../../../../dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
 import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
+import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -54,6 +55,7 @@ function ProcessSection() {
 
   // Zustand store hooks
   const {
+    spotId,
     sectionsArray,
     setSectionsArray,
     sectionHistoryArray,
@@ -65,12 +67,13 @@ function ProcessSection() {
   } = useUserInputsStore();
 
   const saveStatesFeatureSpecific = {
-    sectionsArray,
+    // sectionsArray,
     sectionHistoryArray,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
   };
   const saveStatesShared = {
+    spotId,
     adLength,
   };
 
@@ -757,9 +760,10 @@ function ProcessSection() {
   const handleSaveState = () => {
     serializeAndSaveModeData(
       "AdvancedScriptToAd",
-      "abc",
-      advancedScriptToAdDefaultValues,
-      defaultState
+      null,
+      saveStatesFeatureSpecific,
+      saveStatesShared,
+      spotId
     );
   };
 
@@ -1133,7 +1137,7 @@ function ProcessSection() {
             </Button>
             {/* Save Button */}
             <Button
-              onClick={showOffcanvas}
+              onClick={handleSaveState}
               style={{
                 marginRight: "10px", // Space between Save and History
                 marginTop: "20px",
