@@ -142,9 +142,7 @@ function ProcessSection() {
 
   const saveStatesFeatureSpecific = {
     sectionsArray,
-    localSectionsArray,
     sectionHistoryArray,
-    localSectionHistoryObj,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
   };
@@ -500,13 +498,22 @@ function ProcessSection() {
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
-  const syncSectionHistoryArray = (index, newSectionHistoryObj) => {
+
+  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
     const currentArray = useUserInputsStore.getState().sectionHistoryArray;
     const updatedArray = [
       ...currentArray.slice(0, index),
       newSectionHistoryObj,
       ...currentArray.slice(index + 1),
     ];
+    return updatedArray;
+  };
+
+  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
+    const updatedArray = addCurrentSectionHistoryToArray(
+      index,
+      newSectionHistoryObj
+    );
     setSectionHistoryArray(updatedArray);
   };
 
@@ -525,7 +532,10 @@ function ProcessSection() {
       voiceId: localCurrentSectionObj.getVoiceId(),
     });
     // sync the local history with global.
-    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
@@ -722,7 +732,10 @@ function ProcessSection() {
     updateLocalSectionHistoryObj({
       [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
     });
-    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
     localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
     setSectionsArray(localSectionsArray);
 
@@ -761,6 +774,17 @@ function ProcessSection() {
   };
 
   const handleSaveState = () => {
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    const tmpHistoryArray = addCurrentSectionHistoryToArray(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    saveStatesFeatureSpecific.sectionHistoryArray = tmpHistoryArray;
+
     serializeAndSaveModeData(
       "AdvancedScriptToAd",
       null,
