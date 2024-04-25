@@ -40,7 +40,6 @@ import _ from "lodash";
 import { Stack } from "../../../../dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
 import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
-import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -65,6 +64,18 @@ function ProcessSection() {
     s2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    sectionsArray,
+    sectionHistoryArray,
+    numSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+  };
+
+  const saveSharedStates = {
+    spotId,
+    adLength,
+  };
 
   const { idx } = router.query;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
@@ -139,18 +150,6 @@ function ProcessSection() {
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
   const SECTOMILLISEC = 1000;
-
-  const saveStatesFeatureSpecific = {
-    sectionsArray,
-    sectionHistoryArray,
-    numSectionsIdentified,
-    s2aAdvancedFreeStyleStatus,
-  };
-
-  const saveStatesShared = {
-    spotId,
-    adLength,
-  };
 
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
@@ -783,13 +782,13 @@ function ProcessSection() {
       currentSectionIndex,
       localSectionHistoryObj
     );
-    saveStatesFeatureSpecific.sectionHistoryArray = tmpHistoryArray;
+    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
 
     serializeAndSaveModeData(
       "AdvancedScriptToAd",
       null,
-      saveStatesFeatureSpecific,
-      saveStatesShared,
+      saveFeatureSpecificStates,
+      saveSharedStates,
       spotId
     );
   };
