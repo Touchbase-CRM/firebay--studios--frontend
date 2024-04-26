@@ -789,7 +789,6 @@ function ProcessSection() {
     saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
 
     serializeAndSaveModeData(
-      "AdvancedScriptToAd",
       null,
       saveFeatureSpecificStates,
       saveSharedStates,

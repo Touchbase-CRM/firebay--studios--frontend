@@ -150,7 +150,6 @@ function Home() {
 
   const saveQuickScriptToAd = async (spotName) => {
     const tmpSpotId = await serializeAndSaveModeData(
-      "QuickScriptToAd",
       spotName,
       quickScriptToAdDefaultValues,
       defaultState
@@ -159,7 +158,6 @@ function Home() {
   };
   const saveQuickVoiceToAd = async (spotName) => {
     const tmpSpotId = await serializeAndSaveModeData(
-      "QuickVoiceToAd",
       spotName,
       quickVoiceToAdDefaultValues,
       defaultState
@@ -168,7 +166,6 @@ function Home() {
   };
   const saveAdvancedScriptToAd = async (spotName) => {
     const tmpSpotId = await serializeAndSaveModeData(
-      "AdvancedScriptToAd",
       spotName,
       advancedScriptToAdDefaultValues,
       defaultState

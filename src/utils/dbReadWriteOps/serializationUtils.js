@@ -53,7 +53,7 @@ const serializeProperties = (dataObject) => {
   return dataObject;
 };
 
-const saveToFirestore = async (data, spotName, mode, docId = null) => {
+const saveToFirestore = async (data, spotName, docId = null) => {
   const db = getFirestore(app);
   const adsCollectionRef = collection(db, "ads");
   try {
@@ -65,7 +65,6 @@ const saveToFirestore = async (data, spotName, mode, docId = null) => {
         existingDocRef,
         {
           ...data,
-          mode, // Only update mode and other data fields, not spotName
         },
         { merge: true }
       );
@@ -81,7 +80,6 @@ const saveToFirestore = async (data, spotName, mode, docId = null) => {
       docRef = await addDoc(adsCollectionRef, {
         ...data,
         spotName: spotName, // Include spotName when creating a new document
-        mode,
       });
     }
     console.log("Document written with ID:", docRef.id);
@@ -93,21 +91,19 @@ const saveToFirestore = async (data, spotName, mode, docId = null) => {
 };
 
 export const serializeAndSaveModeData = async (
-  mode,
   spotName = null, // only pass this when creating a new spot
   modeSpecificStates,
   sharedStates,
-  docId = null // Optionally pass in a docId
+  docId = null //  only pass this when updating an existing spot.
 ) => {
   const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
   const serializedSharedStates = serializeProperties(sharedStates);
 
   const data = {
-    mode: mode,
     featureSpecificStates: serializedModeSpecificStates,
     sharedStates: serializedSharedStates,
   };
 
-  const savedDocId = await saveToFirestore(data, spotName, mode, docId);
+  const savedDocId = await saveToFirestore(data, spotName, docId);
   return savedDocId; // Return the document ID
 };

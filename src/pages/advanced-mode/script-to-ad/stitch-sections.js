@@ -185,7 +185,6 @@ function StitchSections() {
 
   const handleSaveState = () => {
     serializeAndSaveModeData(
-      "AdvancedScriptToAd",
       null,
       saveFeatureSpecificStates,
       saveSharedStates,

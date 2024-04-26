@@ -12,16 +12,13 @@ export class AdvancedScriptToAdSetters {
       this.setStitchedAudioPyroHistoryItemId.bind(this);
     this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
     this.setSectionsArray = this.setSectionsArray.bind(this);
-    this.setAdSecondsConsumed = this.setAdSecondsConsumed.bind(this);
     this.setNavigationStack = this.setNavigationStack.bind(this);
   }
 
   setNavigationStack(navigationStack) {
     this.set({ navigationStack });
   }
-  setAdSecondsConsumed(adSecondsConsumed) {
-    this.set({ adSecondsConsumed });
-  }
+
   setSectionsArray(sectionsArray) {
     this.set({ sectionsArray });
   }

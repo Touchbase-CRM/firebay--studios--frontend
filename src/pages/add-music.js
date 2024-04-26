@@ -376,7 +376,6 @@ function AddMusic() {
 
   const handleSaveState = () => {
     serializeAndSaveModeData(
-      "Shared", // get rid of this param
       null,
       saveFeatureSpecificStates,
       saveSharedStates,
