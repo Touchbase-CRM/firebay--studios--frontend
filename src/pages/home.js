@@ -24,7 +24,10 @@ import {
 } from "firebase/firestore";
 
 import { defaultState } from "../store/shared_default_values";
-import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
+import {
+  advancedScriptToAdDefaultValues,
+  AdvancedScriptToAdSetters,
+} from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
 import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
@@ -34,8 +37,29 @@ function Home() {
   const router = useRouter();
   const firestore = getFirestore(app);
   const {
-    spotId,
+    // shared states
+    setOgScriptWordsArray,
+    setOriginalScriptString,
+    setTransformedWords,
+    setVoiceId,
+    setVoiceName,
+    setVoicePreviewFilename,
+    setAdLength,
+    setChosenMusic,
+    setMusicVol,
+    setPreviewFileName,
+    setBackgroundMusicFilename,
+    setGeneratedVoiceUrl,
+    setModelId,
+    setAdGenerationMethod,
     setSpotId,
+    spotId,
+    // advanced script to ad states
+    setNavigationStack,
+    setSectionsArray,
+    setNumSectionsIdentified,
+    setSectionHistoryArray,
+    setStitchedAudioPyroHistoryItemId,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);

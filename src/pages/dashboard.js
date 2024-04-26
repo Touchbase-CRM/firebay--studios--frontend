@@ -4,11 +4,40 @@ import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
+import useUserInputsStore from "../store/userInputs";
+import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [adName, setAdName] = useState("");
   const router = useRouter();
+
+  const {
+    // shared states
+    setOgScriptWordsArray,
+    setOriginalScriptString,
+    setTransformedWords,
+    setVoiceId,
+    setVoiceName,
+    setVoicePreviewFilename,
+    setAdLength,
+    setChosenMusic,
+    setMusicVol,
+    setPreviewFileName,
+    setBackgroundMusicFilename,
+    setGeneratedVoiceUrl,
+    setModelId,
+    setAdGenerationMethod,
+    setSpotId,
+    spotId,
+    // advanced script to ad states
+    setNavigationStack,
+    setSectionsArray,
+    setNumSectionsIdentified,
+    setSectionHistoryArray,
+    setStitchedAudioPyroHistoryItemId,
+    reset: resetUserInputsStore,
+  } = useUserInputsStore();
 
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
@@ -34,6 +63,17 @@ const Dashboard = () => {
     });
   };
 
+  // async function handleEditSpot(spotId) {
+  async function handleEditSpot() {
+    const spotId = "oS2QZMt8QnddYNhL0flk";
+    try {
+      const data = await deserializeAndLoadModeData({ spotId });
+      console.log("Fetched data:", data);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  }
+
   const handleCreateAd = () => {
     setShowCreateAdModal(true);
   };
@@ -47,10 +87,6 @@ const Dashboard = () => {
 
   const handleCopyClick = () => {
     console.log("Copy action initiated");
-  };
-
-  const handleEditClick = () => {
-    console.log("Edit action initiated");
   };
 
   const handleRenameClick = () => {
@@ -146,7 +182,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={handleEditClick}
+                      onClick={handleEditSpot}
                       title="Edit Spot"
                     >
                       <i
