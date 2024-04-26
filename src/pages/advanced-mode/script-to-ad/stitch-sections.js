@@ -184,12 +184,12 @@ function StitchSections() {
   };
 
   const handleSaveState = () => {
-    serializeAndSaveModeData(
-      null,
-      saveFeatureSpecificStates,
-      saveSharedStates,
-      spotId
-    );
+    serializeAndSaveModeData({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
   };
 
   const handleNext = (e) => {

@@ -53,14 +53,22 @@ const serializeProperties = (dataObject) => {
   return dataObject;
 };
 
-const saveToFirestore = async (data, spotName, docId = null) => {
+const saveToFirestore = async (data, spotName = null, spotId = null) => {
   const db = getFirestore(app);
   const adsCollectionRef = collection(db, "ads");
+
+  // Assert that exactly one of spotName or spotId is provided
+  if ((spotName && spotId) || (!spotName && !spotId)) {
+    throw new Error(
+      "Either spotName or spotId must be provided, but not both."
+    );
+  }
+
   try {
     let docRef;
-    if (docId) {
-      // When updating, we use the existing docId and do not include spotName
-      const existingDocRef = doc(db, "ads", docId);
+    if (spotId) {
+      // When updating, we use the existing spotId
+      const existingDocRef = doc(db, "ads", spotId);
       await setDoc(
         existingDocRef,
         {
@@ -70,16 +78,10 @@ const saveToFirestore = async (data, spotName, docId = null) => {
       );
       docRef = existingDocRef;
     } else {
-      // Ensure spotName is provided for new documents
-      if (!spotName) {
-        throw new Error(
-          "Project name is required when creating a new document."
-        );
-      }
-      // When creating a new document, include spotName
+      // When creating a new document, spotName must be provided
       docRef = await addDoc(adsCollectionRef, {
         ...data,
-        spotName: spotName, // Include spotName when creating a new document
+        spotName: spotName,
       });
     }
     console.log("Document written with ID:", docRef.id);
@@ -90,12 +92,12 @@ const saveToFirestore = async (data, spotName, docId = null) => {
   }
 };
 
-export const serializeAndSaveModeData = async (
-  spotName = null, // only pass this when creating a new spot
+export const serializeAndSaveModeData = async ({
+  spotName = null, // used when creating a new spot
+  spotId = null, // used when updating an existing spot
   modeSpecificStates,
   sharedStates,
-  docId = null //  only pass this when updating an existing spot.
-) => {
+}) => {
   const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
   const serializedSharedStates = serializeProperties(sharedStates);
 
@@ -104,6 +106,13 @@ export const serializeAndSaveModeData = async (
     sharedStates: serializedSharedStates,
   };
 
-  const savedDocId = await saveToFirestore(data, spotName, docId);
-  return savedDocId; // Return the document ID
+  // Assert that exactly one of spotName or spotId is provided
+  if ((spotName && spotId) || (!spotName && !spotId)) {
+    throw new Error(
+      "Either spotName or spotId must be provided, but not both."
+    );
+  }
+
+  const savedSpotId = await saveToFirestore(data, spotName, spotId);
+  return savedSpotId;
 };

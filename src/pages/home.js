@@ -149,27 +149,31 @@ function Home() {
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
   const saveQuickScriptToAd = async (spotName) => {
-    const tmpSpotId = await serializeAndSaveModeData(
-      spotName,
-      quickScriptToAdDefaultValues,
-      defaultState
-    );
+    const tmpSpotId = await serializeAndSaveModeData({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      modeSpecificStates: quickScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
     setSpotId(tmpSpotId);
   };
+
   const saveQuickVoiceToAd = async (spotName) => {
-    const tmpSpotId = await serializeAndSaveModeData(
-      spotName,
-      quickVoiceToAdDefaultValues,
-      defaultState
-    );
+    const tmpSpotId = await serializeAndSaveModeData({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      modeSpecificStates: quickVoiceToAdDefaultValues,
+      sharedStates: defaultState,
+    });
     setSpotId(tmpSpotId);
   };
   const saveAdvancedScriptToAd = async (spotName) => {
-    const tmpSpotId = await serializeAndSaveModeData(
-      spotName,
-      advancedScriptToAdDefaultValues,
-      defaultState
-    );
+    const tmpSpotId = await serializeAndSaveModeData({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      modeSpecificStates: advancedScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
     setSpotId(tmpSpotId);
   };
 
