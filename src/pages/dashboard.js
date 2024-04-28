@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import useUserInputsStore from "../store/userInputs";
 import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
+import { Section } from "../dataStructures/section";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -63,15 +64,55 @@ const Dashboard = () => {
     });
   };
 
-  // async function handleEditSpot(spotId) {
+  const deserializeSectionsArray = (serializedSections) => {
+    return serializedSections.map((serializedSection) =>
+      Section.deserialize(serializedSection)
+    );
+  };
+
+  const deserializeSectionHistoryArray = (sectionHistoryArray) => {
+    return sectionHistoryArray.map((section) => {
+      const transformedSection = {};
+      for (const key in section) {
+        transformedSection[key] = Section.deserialize(section[key]);
+      }
+      return transformedSection;
+    });
+  };
+
+  async function updateState(data) {
+    return new Promise((resolve) => {
+      setOgScriptWordsArray(data.featureSpecificStates.ogScriptWordsArray);
+      setOriginalScriptString(data.featureSpecificStates.originalScriptString);
+      // Include all other set operations
+      const tmparr = deserializeSectionsArray(
+        data.featureSpecificStates.sectionsArray
+      );
+      setSectionsArray(tmparr);
+      const tmpHistoryArray = deserializeSectionHistoryArray(
+        data.featureSpecificStates.sectionHistoryArray
+      );
+      console.log("tmpHistoryArray is ", tmpHistoryArray);
+      // setSectionHistoryArray(tmpHistoryArray);
+      resolve();
+    });
+  }
+
   async function handleEditSpot() {
-    const spotId = "oS2QZMt8QnddYNhL0flk";
+    const spotId = "oS2QZMt8QnddYNhL0flk"; // Hardcoded for development
+
     try {
       const data = await deserializeAndLoadModeData({ spotId });
-      console.log("Fetched data:", data);
+      await updateState(data); // Wait for all state updates to complete
+      console.log("All state updates completed");
     } catch (error) {
-      console.error("Failed to fetch data:", error);
+      console.error("Failed to fetch or update state:", error);
     }
+
+    setTimeout(() => {
+      console.log("Redirecting...");
+      router.push("/advanced-mode/script-to-ad/process-section/0");
+    }, 10000); // Adjust the timing if necessary
   }
 
   const handleCreateAd = () => {
