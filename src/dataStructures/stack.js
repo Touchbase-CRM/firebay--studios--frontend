@@ -30,7 +30,6 @@ export class Stack {
     return this.items.length;
   }
 
-  // Update an element at a given index
   update(index, element) {
     if (index < 0 || index >= this.items.length) {
       return "Invalid index";
@@ -39,17 +38,20 @@ export class Stack {
     return `Element at index ${index} updated`;
   }
 
-  // Display the stack
   printStack() {
     return this.items.toString();
   }
 
-  /**
-   * Clones the stack by creating a new stack with a copy of the current items.
-   *Used for deep cloning to force re-rendering.
-   * @return {Stack} A new stack with a copy of the current items.
-   */
   clone() {
     return new Stack([...this.items]);
+  }
+
+  serialize() {
+    return JSON.stringify(this.items);
+  }
+
+  static deserialize(data) {
+    const items = JSON.parse(data);
+    return new Stack(items);
   }
 }

@@ -55,6 +55,52 @@ export class Section {
     return cloned;
   }
 
+  serialize() {
+    return {
+      index: this.index,
+      signature: this.signature,
+      originalContent: this.originalContent,
+      currentContent: this.currentContent,
+      historyItemId: this.historyItemId,
+      sectionDurationSeconds: this.sectionDurationSeconds,
+      endOfSectionPauseDurationSeconds: this.endOfSectionPauseDurationSeconds,
+      speechRate: this.speechRate,
+      modelId: this.modelId,
+      voiceId: this.voiceId,
+      voiceName: this.voiceName,
+      voicePreviewFilename: this.voicePreviewFilename,
+      dragonBreathEnhancement: this.dragonBreathEnhancement,
+      generatedVoiceUrl: this.generatedVoiceUrl,
+      currentTransformations: this.currentTransformations,
+      currentWords: this.currentWords,
+    };
+  }
+
+  static deserialize(data) {
+    const section = new Section(
+      data.index,
+      data.originalContent,
+      data.currentContent,
+      data.historyItemId,
+      data.sectionDurationSeconds
+    );
+
+    section.setEndOfSectionPauseDurationSeconds(
+      data.endOfSectionPauseDurationSeconds
+    );
+    section.setSpeechRate(data.speechRate);
+    section.setModelId(data.modelId);
+    section.setVoiceId(data.voiceId);
+    section.setVoiceName(data.voiceName);
+    section.setVoicePreviewFilename(data.voicePreviewFilename);
+    section.setDragonBreathEnhancement(data.dragonBreathEnhancement);
+    section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
+    section.setCurrentTransformations(data.currentTransformations);
+    section.setCurrentWords(data.currentWords);
+
+    return section;
+  }
+
   //setter for currentWords
   setCurrentWords(newCurrentWords) {
     this.currentWords = newCurrentWords;

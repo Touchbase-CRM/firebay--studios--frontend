@@ -10,43 +10,25 @@ import app from "../../firebase"; // Update the import path as necessary
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
 
-const serializeInstance = (instance) => {
-  const proto = Object.getPrototypeOf(instance);
-  return Object.getOwnPropertyNames(proto)
-    .filter(
-      (prop) => typeof instance[prop] === "function" && prop.startsWith("get")
-    )
-    .reduce((acc, getterName) => {
-      const propName = getterName.charAt(3).toLowerCase() + getterName.slice(4);
-      acc[propName] = instance[getterName]();
-      return acc;
-    }, {});
-};
-
 const serializeProperties = (dataObject) => {
   if (Array.isArray(dataObject)) {
-    // Handle arrays by recursively serializing each element
     return dataObject.map(serializeProperties);
   } else if (dataObject instanceof Map) {
-    // Handle Map objects by serializing each entry
     const result = {};
     dataObject.forEach((value, key) => {
-      result[key] = isCustomClass(value)
-        ? serializeInstance(value)
-        : typeof value === "object"
-        ? serializeProperties(value)
-        : value;
+      result[key] = serializeProperties(value);
     });
     return result;
   } else if (dataObject && typeof dataObject === "object") {
-    // Handle standard objects and check each property
     return Object.keys(dataObject).reduce((serializedResult, key) => {
       const value = dataObject[key];
-      serializedResult[key] = isCustomClass(value)
-        ? serializeInstance(value)
-        : typeof value === "object"
-        ? serializeProperties(value)
-        : value;
+      if (isCustomClass(value)) {
+        serializedResult[key] = value.serialize();
+      } else if (typeof value === "object") {
+        serializedResult[key] = serializeProperties(value);
+      } else {
+        serializedResult[key] = value;
+      }
       return serializedResult;
     }, {});
   }
