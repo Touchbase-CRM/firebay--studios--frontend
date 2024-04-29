@@ -90,9 +90,12 @@ function ProcessSection() {
   });
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+
+  console.log("Vesemir says", sectionHistoryArray[currentSectionIndex]);
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
+  console.log("Yen say", localSectionHistoryObj);
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack

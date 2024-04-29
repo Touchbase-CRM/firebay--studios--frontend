@@ -72,9 +72,9 @@ const Dashboard = () => {
 
   const deserializeSectionHistoryArray = (sectionHistoryArray) => {
     return sectionHistoryArray.map((section) => {
-      const transformedSection = {};
+      const transformedSection = new Map();
       for (const key in section) {
-        transformedSection[key] = Section.deserialize(section[key]);
+        transformedSection.set(key, Section.deserialize(section[key]));
       }
       return transformedSection;
     });
@@ -94,7 +94,7 @@ const Dashboard = () => {
         data.featureSpecificStates.sectionHistoryArray
       );
       console.log("tmpHistoryArray is ", tmpHistoryArray);
-      // setSectionHistoryArray(tmpHistoryArray);
+      setSectionHistoryArray(tmpHistoryArray);
       resolve();
     });
   }
