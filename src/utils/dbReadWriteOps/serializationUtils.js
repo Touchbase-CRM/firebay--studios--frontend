@@ -7,8 +7,12 @@ import {
   setDoc,
 } from "firebase/firestore";
 import app from "../../firebase"; // Update the import path as necessary
+import { getAuth } from "firebase/auth";
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
+const auth = getAuth(app);
+
+const userId = auth.currentUser.uid;
 
 export const writeToFirestore = async (collectionName, data, docId = null) => {
   const db = getFirestore(app);
@@ -34,6 +38,7 @@ const writeSpotMetaDataToFirestore = async ({
 }) => {
   // Prepare the data to be written
   const data = {
+    userId,
     spotName,
     created,
     lastDownloaded,
@@ -115,6 +120,7 @@ export const createSpotInDb = async ({
   const serializedSharedStates = serializeProperties(sharedStates);
 
   const data = {
+    userId,
     featureSpecificStates: serializedModeSpecificStates,
     sharedStates: serializedSharedStates,
   };
