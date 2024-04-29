@@ -26,6 +26,29 @@ export const writeToFirestore = async (collectionName, data, docId = null) => {
   return docRef.id;
 };
 
+const writeSpotMetaDataToFirestore = async ({
+  spotName,
+  spotId,
+  created,
+  lastDownloaded,
+}) => {
+  // Prepare the data to be written
+  const data = {
+    spotName,
+    created,
+    lastDownloaded,
+  };
+
+  try {
+    // Use the writeToFirestore function to write data
+    const documentId = await writeToFirestore("spots_meta_data", data, spotId);
+    return documentId;
+  } catch (error) {
+    console.error("Error writing spot meta data to Firestore:", error);
+    throw error; // Rethrow the error for upstream handling
+  }
+};
+
 const writeSpotStatesToFirestore = async (
   data,
   spotName = null,
@@ -104,5 +127,16 @@ export const createSpotInDb = async ({
   }
 
   const savedSpotId = await writeSpotStatesToFirestore(data, spotName, spotId);
+  console.log("savedSpotId:", savedSpotId); // Debugging output
+
+  if (spotName) {
+    // only run when creating a new spot
+    await writeSpotMetaDataToFirestore({
+      spotName,
+      spotId: savedSpotId,
+      created: new Date(),
+      lastDownloaded: null,
+    });
+  }
   return savedSpotId;
 };
