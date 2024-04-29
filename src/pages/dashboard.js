@@ -88,6 +88,7 @@ const Dashboard = () => {
       const tmparr = deserializeSectionsArray(
         data.featureSpecificStates.sectionsArray
       );
+      console.log("tmparr is ", tmparr);
       setSectionsArray(tmparr);
       const tmpHistoryArray = deserializeSectionHistoryArray(
         data.featureSpecificStates.sectionHistoryArray
@@ -99,7 +100,7 @@ const Dashboard = () => {
   }
 
   async function handleEditSpot() {
-    const spotId = "oS2QZMt8QnddYNhL0flk"; // Hardcoded for development
+    const spotId = "K8ZCWdvRYBrx5yseZFDm"; // Hardcoded for development
 
     try {
       const data = await deserializeAndLoadModeData({ spotId });

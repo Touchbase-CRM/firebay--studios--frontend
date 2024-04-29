@@ -9,6 +9,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import app from "../../firebase"; // Update the import path as necessary
+import { Section } from "../../dataStructures/section";
 
 const isSerializedCustomClass = (obj) =>
   typeof obj === "object" &&
@@ -17,7 +18,7 @@ const isSerializedCustomClass = (obj) =>
   obj.signature === "fsCustomClass";
 
 const deserializeInstance = (serializedInstance) => {
-  const instance = new CustomClass(); // Adjust the class name as necessary
+  const instance = new Section(); // Adjust the class name as necessary
   for (const [key, value] of Object.entries(serializedInstance)) {
     instance[`set${key.charAt(0).toUpperCase() + key.slice(1)}`](value);
   }
@@ -69,7 +70,7 @@ const readFromFirestore = async (spotName = null, spotId = null) => {
       docsSnapshot = querySnapshot.docs[0].data(); // Assuming there's only one document per spotName
     }
 
-    return deserializeProperties(docsSnapshot);
+    return docsSnapshot;
   } catch (error) {
     console.error("Error reading document from Firestore:", error);
     throw error;
