@@ -82,18 +82,35 @@ const Dashboard = () => {
 
   async function updateState(data) {
     return new Promise((resolve) => {
-      setOgScriptWordsArray(data.featureSpecificStates.ogScriptWordsArray);
-      setOriginalScriptString(data.featureSpecificStates.originalScriptString);
+      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+      setOriginalScriptString(data.sharedStates.originalScriptString);
+      setTransformedWords(data.sharedStates.transformedWords);
+      setVoiceId(data.sharedStates.voiceId);
+      setVoiceName(data.sharedStates.voiceName);
+      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+      setAdLength(data.sharedStates.adLength);
+      setChosenMusic(data.sharedStates.chosenMusic);
+      setMusicVol(data.sharedStates.musicVol);
+      setPreviewFileName(data.sharedStates.previewFileName);
+      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+      setModelId(data.sharedStates.modelId);
+      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+      setSpotId(data.sharedStates.spotId);
+      setNumSectionsIdentified(
+        data.featureSpecificStates.numSectionsIdentified
+      );
+      setStitchedAudioPyroHistoryItemId(
+        data.featureSpecificStates.stitchedAudioPyroHistoryItemId
+      );
       // Include all other set operations
       const tmparr = deserializeSectionsArray(
         data.featureSpecificStates.sectionsArray
       );
-      console.log("tmparr is ", tmparr);
       setSectionsArray(tmparr);
       const tmpHistoryArray = deserializeSectionHistoryArray(
         data.featureSpecificStates.sectionHistoryArray
       );
-      console.log("tmpHistoryArray is ", tmpHistoryArray);
       setSectionHistoryArray(tmpHistoryArray);
       resolve();
     });
@@ -110,10 +127,8 @@ const Dashboard = () => {
       console.error("Failed to fetch or update state:", error);
     }
 
-    setTimeout(() => {
-      console.log("Redirecting...");
-      router.push("/advanced-mode/script-to-ad/process-section/0");
-    }, 10000); // Adjust the timing if necessary
+    console.log("Redirecting...");
+    router.push("/advanced-mode/script-to-ad/process-section/0");
   }
 
   const handleCreateAd = () => {
