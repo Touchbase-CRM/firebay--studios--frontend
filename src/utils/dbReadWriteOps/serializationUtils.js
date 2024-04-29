@@ -10,6 +10,53 @@ import app from "../../firebase"; // Update the import path as necessary
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
 
+export const writeToFirestore = async (collectionName, data, docId = null) => {
+  const db = getFirestore(app);
+  const collectionRef = collection(db, collectionName);
+
+  let docRef;
+  if (docId) {
+    // Updating an existing document
+    docRef = doc(db, collectionName, docId);
+    await setDoc(docRef, data, { merge: true });
+  } else {
+    // Creating a new document
+    docRef = await addDoc(collectionRef, data);
+  }
+  return docRef.id;
+};
+
+const writeSpotMetaDataToFirestore = async (
+  data,
+  spotName = null,
+  spotId = null
+) => {
+  // Assert that exactly one of spotName or spotId is provided
+  if ((spotName && spotId) || (!spotName && !spotId)) {
+    throw new Error(
+      "Either spotName or spotId must be provided, but not both."
+    );
+  }
+
+  try {
+    let docId = spotId;
+    let documentData = { ...data };
+
+    // Include spotName in the data if creating a new document
+    if (!docId && spotName) {
+      documentData.spotName = spotName;
+    }
+
+    // Write to Firestore using the abstracted function
+    const documentId = await writeToFirestore("ads", documentData, docId);
+    console.log("Document written with ID:", documentId);
+    return documentId; // Returning the document ID
+  } catch (error) {
+    console.error("Error writing document to Firestore:", error);
+    throw error; // Rethrow the error for upstream handling
+  }
+};
+
 const serializeProperties = (dataObject) => {
   if (Array.isArray(dataObject)) {
     return dataObject.map(serializeProperties);
@@ -35,46 +82,7 @@ const serializeProperties = (dataObject) => {
   return dataObject;
 };
 
-const saveToFirestore = async (data, spotName = null, spotId = null) => {
-  const db = getFirestore(app);
-  const adsCollectionRef = collection(db, "ads");
-
-  // Assert that exactly one of spotName or spotId is provided
-  if ((spotName && spotId) || (!spotName && !spotId)) {
-    throw new Error(
-      "Either spotName or spotId must be provided, but not both."
-    );
-  }
-
-  try {
-    let docRef;
-    if (spotId) {
-      // When updating, we use the existing spotId
-      const existingDocRef = doc(db, "ads", spotId);
-      await setDoc(
-        existingDocRef,
-        {
-          ...data,
-        },
-        { merge: true }
-      );
-      docRef = existingDocRef;
-    } else {
-      // When creating a new document, spotName must be provided
-      docRef = await addDoc(adsCollectionRef, {
-        ...data,
-        spotName: spotName,
-      });
-    }
-    console.log("Document written with ID:", docRef.id);
-    return docRef.id; // Returning the document ID
-  } catch (error) {
-    console.error("Error adding document to Firestore:", error);
-    throw error; // Rethrow the error for upstream handling
-  }
-};
-
-export const serializeAndSaveModeData = async ({
+export const createSpotInDb = async ({
   spotName = null, // used when creating a new spot
   spotId = null, // used when updating an existing spot
   modeSpecificStates,
@@ -95,6 +103,10 @@ export const serializeAndSaveModeData = async ({
     );
   }
 
-  const savedSpotId = await saveToFirestore(data, spotName, spotId);
+  const savedSpotId = await writeSpotMetaDataToFirestore(
+    data,
+    spotName,
+    spotId
+  );
   return savedSpotId;
 };

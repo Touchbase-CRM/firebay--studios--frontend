@@ -31,7 +31,7 @@ import {
 } from "firebase/firestore";
 import app from "../firebase";
 import { Stack } from "../dataStructures/stack";
-import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 const db = getFirestore(app);
 
@@ -375,7 +375,7 @@ function AddMusic() {
   };
 
   const handleSaveState = () => {
-    serializeAndSaveModeData({
+    createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
       modeSpecificStates: saveFeatureSpecificStates,

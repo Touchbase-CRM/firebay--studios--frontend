@@ -19,7 +19,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../../../components/Spinner";
 import { Stack } from "../../../dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchFromDistribution";
-import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function StitchSections() {
   const auth = getAuth();
@@ -184,7 +184,7 @@ function StitchSections() {
   };
 
   const handleSaveState = () => {
-    serializeAndSaveModeData({
+    createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
       modeSpecificStates: saveFeatureSpecificStates,

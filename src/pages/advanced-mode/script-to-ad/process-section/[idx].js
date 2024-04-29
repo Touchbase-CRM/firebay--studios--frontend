@@ -39,7 +39,7 @@ import {
 import _ from "lodash";
 import { Stack } from "../../../../dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
-import { serializeAndSaveModeData } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -791,7 +791,7 @@ function ProcessSection() {
     );
     saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
 
-    serializeAndSaveModeData({
+    createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
       modeSpecificStates: saveFeatureSpecificStates,
