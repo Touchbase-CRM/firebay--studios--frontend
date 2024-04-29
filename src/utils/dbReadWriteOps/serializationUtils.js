@@ -26,7 +26,7 @@ export const writeToFirestore = async (collectionName, data, docId = null) => {
   return docRef.id;
 };
 
-const writeSpotMetaDataToFirestore = async (
+const writeSpotStatesToFirestore = async (
   data,
   spotName = null,
   spotId = null
@@ -103,10 +103,6 @@ export const createSpotInDb = async ({
     );
   }
 
-  const savedSpotId = await writeSpotMetaDataToFirestore(
-    data,
-    spotName,
-    spotId
-  );
+  const savedSpotId = await writeSpotStatesToFirestore(data, spotName, spotId);
   return savedSpotId;
 };
