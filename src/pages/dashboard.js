@@ -17,7 +17,9 @@ import {
   orderBy,
   limit,
   getDocs,
+  Timestamp,
 } from "firebase/firestore";
+// import { Timestamp } from "firebase/firestore";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -56,19 +58,33 @@ const Dashboard = () => {
   } = useUserInputsStore();
 
   useEffect(() => {
+    if (!currentUser) {
+      console.log("No user logged in");
+      return;
+    }
+
     const fetchSpots = async () => {
       try {
         const spotsQuery = query(
           collection(db, "spots_meta_data"),
-          where("userId", "==", currentUser.uid) // Replace 'CURRENT_USER_ID' with actual current user ID
+          where("userId", "==", currentUser.uid)
           // orderBy("created", "desc"),
           // limit(6)
         );
         const querySnapshot = await getDocs(spotsQuery);
-        const fetchedSpots = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const fetchedSpots = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            spotName: data.spotName || "-", // Show '-' if spotName is null or undefined
+            created: data.created
+              ? data.created.toDate().toLocaleString()
+              : "-", // Show '-' if created date is null
+            lastDownloaded: data.lastDownloaded
+              ? data.lastDownloaded.toDate().toLocaleString()
+              : "Never", // Show 'Never' if lastDownloaded is null
+          };
+        });
         console.log("fetchedSpots", fetchedSpots);
         setSpots(fetchedSpots);
       } catch (error) {
@@ -82,7 +98,7 @@ const Dashboard = () => {
     };
 
     fetchSpots();
-  }, []);
+  }, [currentUser, db]); // Add dependencies here
 
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
@@ -246,9 +262,10 @@ const Dashboard = () => {
             <tbody>
               {spots.map((spot, index) => (
                 <tr key={index}>
-                  <td>{spot.spotName}</td>
-                  <td>{new Date(spot.created).toLocaleString()}</td>
-                  <td>{new Date(spot.lastDownloaded).toLocaleString()}</td>
+                  <td>{spot.spotName || "-"}</td>
+                  <td>{spot.created || "-"}</td>
+                  <td>{spot.lastDownloaded || "Never"}</td>
+
                   <td>
                     <Button
                       variant="link"
