@@ -1,17 +1,32 @@
 import { Button, Table, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GenericModal } from "@/components/foundationComponents/modal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import useUserInputsStore from "../store/userInputs";
 import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
 import { Section } from "../dataStructures/section";
+import { getAuth } from "firebase/auth";
+import app from "../firebase";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from "firebase/firestore";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
+  const [spots, setSpots] = useState([]);
   const [adName, setAdName] = useState("");
   const router = useRouter();
+  const auth = getAuth(app);
+  const currentUser = auth.currentUser;
+  const db = getFirestore(app);
 
   const {
     // shared states
@@ -39,6 +54,35 @@ const Dashboard = () => {
     setStitchedAudioPyroHistoryItemId,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
+
+  useEffect(() => {
+    const fetchSpots = async () => {
+      try {
+        const spotsQuery = query(
+          collection(db, "spots_meta_data"),
+          where("userId", "==", currentUser.uid) // Replace 'CURRENT_USER_ID' with actual current user ID
+          // orderBy("created", "desc"),
+          // limit(6)
+        );
+        const querySnapshot = await getDocs(spotsQuery);
+        const fetchedSpots = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log("fetchedSpots", fetchedSpots);
+        setSpots(fetchedSpots);
+      } catch (error) {
+        console.error("Error fetching spots:", error);
+        Swal.fire({
+          title: "Error fetching spots!",
+          text: error.message,
+          icon: "error",
+        });
+      }
+    };
+
+    fetchSpots();
+  }, []);
 
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
@@ -116,19 +160,15 @@ const Dashboard = () => {
     });
   }
 
-  async function handleEditSpot() {
-    const spotId = "K8ZCWdvRYBrx5yseZFDm"; // Hardcoded for development
-
+  async function handleEditSpot(spotId) {
     try {
       const data = await deserializeAndLoadModeData({ spotId });
       await updateState(data); // Wait for all state updates to complete
-      console.log("All state updates completed");
+      console.log("All state updates completed for spot:", spotId);
+      router.push("/advanced-mode/script-to-ad/process-section/0");
     } catch (error) {
       console.error("Failed to fetch or update state:", error);
     }
-
-    console.log("Redirecting...");
-    router.push("/advanced-mode/script-to-ad/process-section/0");
   }
 
   const handleCreateAd = () => {
@@ -204,11 +244,11 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 6 }).map((_, index) => (
+              {spots.map((spot, index) => (
                 <tr key={index}>
-                  <td>Lorem ipsum dolor sit amet, consecte...</td>
-                  <td>Nov 3, 2023, 11:32AM</td>
-                  <td>Nov 5, 2023, 10:32AM</td>
+                  <td>{spot.spotName}</td>
+                  <td>{new Date(spot.created).toLocaleString()}</td>
+                  <td>{new Date(spot.lastDownloaded).toLocaleString()}</td>
                   <td>
                     <Button
                       variant="link"
@@ -239,7 +279,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={handleEditSpot}
+                      onClick={() => handleEditSpot(spot.id)} // Correctly passing the function as a closure
                       title="Edit Spot"
                     >
                       <i
