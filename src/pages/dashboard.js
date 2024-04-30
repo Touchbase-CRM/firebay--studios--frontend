@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
   const [adName, setAdName] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
   const router = useRouter();
   const auth = getAuth(app);
@@ -60,8 +60,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Slice the spots array to get only the current page items
-    setPaginatedSpots(spots.slice(currentIndex, currentIndex + pageSize));
-  }, [spots, currentIndex]);
+    setPaginatedSpots(
+      spots.slice(currentTableIndex, currentTableIndex + pageSize)
+    );
+  }, [spots, currentTableIndex]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -209,15 +211,15 @@ const Dashboard = () => {
   };
   const handleNextTableContent = () => {
     // Check if we have more spots to show
-    if (currentIndex + pageSize < spots.length) {
-      setCurrentIndex(currentIndex + pageSize);
+    if (currentTableIndex + pageSize < spots.length) {
+      setCurrentTableIndex(currentTableIndex + pageSize);
     }
   };
 
   const handlePreviousTableContent = () => {
     // Check if we aren't at the beginning
-    if (currentIndex - pageSize >= 0) {
-      setCurrentIndex(currentIndex - pageSize);
+    if (currentTableIndex - pageSize >= 0) {
+      setCurrentTableIndex(currentTableIndex - pageSize);
     }
   };
 
@@ -336,14 +338,14 @@ const Dashboard = () => {
             <Button
               variant="outline-secondary"
               onClick={handlePreviousTableContent}
-              disabled={currentIndex === 0}
+              disabled={currentTableIndex === 0}
             >
               {"<"}
             </Button>{" "}
             <Button
               variant="outline-secondary"
               onClick={handleNextTableContent}
-              disabled={currentIndex + pageSize >= spots.length}
+              disabled={currentTableIndex + pageSize >= spots.length}
             >
               {">"}
             </Button>
