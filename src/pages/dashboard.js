@@ -19,6 +19,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 const Dashboard = () => {
@@ -203,10 +204,6 @@ const Dashboard = () => {
     console.log("Download button clicked");
   };
 
-  const handleDeleteClick = () => {
-    console.log("Delete button clicked");
-  };
-
   const handleCopyClick = (spotId) => {
     console.log("Copy action initiated");
   };
@@ -274,6 +271,48 @@ const Dashboard = () => {
     // Check if we aren't at the beginning
     if (currentTableIndex - pageSize >= 0) {
       setCurrentTableIndex(currentTableIndex - pageSize);
+    }
+  };
+  const handleDeleteSpot = async (spotId) => {
+    try {
+      const confirmation = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (confirmation.isConfirmed) {
+        // Reference to the documents in Firestore
+        const spotRef = doc(db, "spots", spotId);
+        const spotMetaRef = doc(db, "spots_meta_data", spotId);
+        const adsRef = doc(db, "ads", spotId);
+
+        // Delete documents from Firestore
+        await deleteDoc(spotRef);
+        await deleteDoc(spotMetaRef);
+        await deleteDoc(adsRef);
+
+        // Update local state to remove the deleted spot
+        const updatedSpots = spots.filter((spot) => spot.id !== spotId);
+        setSpots(updatedSpots);
+
+        Swal.fire(
+          "Deleted!",
+          "The spot and its associated data have been deleted.",
+          "success"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to delete spot and associated data:", error);
+      Swal.fire({
+        title: "Deletion Failed",
+        text: error.message,
+        icon: "error",
+      });
     }
   };
 
@@ -370,7 +409,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={handleDeleteClick}
+                      onClick={() => handleDeleteSpot(spot.id)}
                       title="Delete Spot"
                     >
                       <i
