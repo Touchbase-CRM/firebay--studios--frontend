@@ -17,6 +17,8 @@ import {
   orderBy,
   limit,
   getDocs,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 
 const Dashboard = () => {
@@ -25,6 +27,9 @@ const Dashboard = () => {
   const [adName, setAdName] = useState("");
   const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [newSpotName, setNewSpotName] = useState("");
+  const [selectedSpotId, setSelectedSpotId] = useState("");
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -206,9 +211,63 @@ const Dashboard = () => {
     console.log("Copy action initiated");
   };
 
-  const handleRenameClick = () => {
-    console.log("Rename action initiated");
+  const handleRenameClick = (spotId) => {
+    console.log("Selected spot ID for renaming:", spotId); // Log the spot ID to check its value
+    setSelectedSpotId(spotId); // Save the selected spot's ID for updating
+    setShowRenameModal(true); // Show the rename modal
   };
+
+  const handleRenameSpot = async () => {
+    if (!newSpotName.trim()) {
+      Swal.fire({
+        title: "Error!",
+        text: "Please enter a valid name for the spot.",
+        icon: "error",
+      });
+      return;
+    }
+
+    if (!selectedSpotId || typeof selectedSpotId !== "string") {
+      console.error("Invalid spot ID:", selectedSpotId); // Log the invalid ID
+      Swal.fire({
+        title: "Error",
+        text: "No valid spot selected for renaming.",
+        icon: "error",
+      });
+      return;
+    }
+
+    try {
+      const spotRef = doc(db, "spots_meta_data", selectedSpotId);
+      const adRef = doc(db, "ads", selectedSpotId);
+
+      console.log(
+        "Updating spot and ad references with new name:",
+        newSpotName
+      ); // Log update attempt
+      await updateDoc(spotRef, { spotName: newSpotName });
+      await updateDoc(adRef, { spotName: newSpotName });
+
+      const updatedSpots = spots.map((spot) =>
+        spot.id === selectedSpotId ? { ...spot, spotName: newSpotName } : spot
+      );
+      setSpots(updatedSpots);
+      setShowRenameModal(false); // Close the modal after update
+    } catch (error) {
+      console.error("Failed to update spot name:", error);
+      Swal.fire({
+        title: "Update Failed",
+        text: error.message,
+        icon: "error",
+      });
+    }
+  };
+
+  const handleCloseRenameModal = () => {
+    setShowRenameModal(false);
+    setNewSpotName(""); // Reset the input field
+  };
+
   const handleNextTableContent = () => {
     // Check if we have more spots to show
     if (currentTableIndex + pageSize < spots.length) {
@@ -296,7 +355,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={handleRenameClick}
+                      onClick={() => handleRenameClick(spot.id)}
                       title="Rename Spot"
                     >
                       <i
@@ -352,6 +411,23 @@ const Dashboard = () => {
           </div>
         </Col>
       </Row>
+
+      <GenericModal
+        show={showRenameModal}
+        onHide={handleCloseRenameModal}
+        title="Rename Spot"
+        onSave={handleRenameSpot}
+        closeButtonLabel="Cancel"
+        saveButtonLabel="Save"
+      >
+        <input
+          type="text"
+          value={newSpotName}
+          onChange={(e) => setNewSpotName(e.target.value)}
+          className="form-control"
+          placeholder="Enter the new Spot name"
+        />
+      </GenericModal>
 
       <GenericModal
         show={showCreateAdModal}
