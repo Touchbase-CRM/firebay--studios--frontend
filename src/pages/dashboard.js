@@ -98,7 +98,7 @@ const Dashboard = () => {
     };
 
     fetchSpots();
-  }, [currentUser, db]); // Add dependencies here
+  }, [currentUser]);
 
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
