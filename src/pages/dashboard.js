@@ -258,6 +258,21 @@ const Dashboard = () => {
         spotName: newCopySpotName,
       });
 
+      // Update the local spots array
+      const newSpot = {
+        id: newSpotMetaRef.id,
+        spotName: newCopySpotName,
+        created: new Date().toLocaleString(), // Adjust according to how 'created' should be formatted
+        lastDownloaded: "Never", // Adjust if needed
+      };
+
+      setSpots([...spots, newSpot]);
+      setPaginatedSpots(
+        [...spots, newSpot].slice(
+          currentTableIndex,
+          currentTableIndex + pageSize
+        )
+      );
       setShowCopyModal(false); // Close the modal after successful copy
       Swal.fire("Success", "Spot copied successfully!", "success");
     } catch (error) {
