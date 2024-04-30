@@ -17,6 +17,8 @@ import {
   orderBy,
   limit,
   getDocs,
+  getDoc,
+  setDoc,
   doc,
   updateDoc,
   deleteDoc,
@@ -31,6 +33,9 @@ const Dashboard = () => {
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [selectedSpotId, setSelectedSpotId] = useState("");
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [newCopySpotName, setNewCopySpotName] = useState("");
+  const [copySpotId, setCopySpotId] = useState("");
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -205,7 +210,60 @@ const Dashboard = () => {
   };
 
   const handleCopyClick = (spotId) => {
-    console.log("Copy action initiated");
+    setCopySpotId(spotId);
+    setShowCopyModal(true);
+  };
+
+  const handleSaveCopy = async () => {
+    if (!newCopySpotName.trim()) {
+      Swal.fire("Error", "Please enter a valid name for the copy.", "error");
+      return;
+    }
+
+    if (!copySpotId) {
+      console.error("Copy operation failed: No spot ID provided.");
+      Swal.fire(
+        "Error",
+        "No spot ID provided for the copy operation.",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      // Get references to the original documents
+      const spotRef = doc(db, "spots_meta_data", copySpotId);
+      const adRef = doc(db, "ads", copySpotId);
+
+      // Fetch the documents
+      const spotSnap = await getDoc(spotRef);
+      const adSnap = await getDoc(adRef);
+
+      if (!spotSnap.exists() || !adSnap.exists()) {
+        Swal.fire("Error", "Original spot data not found.", "error");
+        return;
+      }
+
+      // Create a new document in 'spots_meta_data', which automatically generates a new ID
+      const newSpotMetaRef = doc(collection(db, "spots_meta_data"));
+      await setDoc(newSpotMetaRef, {
+        ...spotSnap.data(),
+        spotName: newCopySpotName,
+      });
+
+      // Use the same ID for the 'ads' document
+      const newAdRef = doc(db, "ads", newSpotMetaRef.id);
+      await setDoc(newAdRef, {
+        ...adSnap.data(),
+        spotName: newCopySpotName,
+      });
+
+      setShowCopyModal(false); // Close the modal after successful copy
+      Swal.fire("Success", "Spot copied successfully!", "success");
+    } catch (error) {
+      console.error("Copy failed:", error);
+      Swal.fire("Failed to copy spot", error.message, "error");
+    }
   };
 
   const handleRenameSpot = (spotId) => {
@@ -382,7 +440,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={handleCopyClick}
+                      onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
                       title="Duplicate Spot"
                     >
                       <i className="bi bi-files" style={{ color: "black" }}></i>
@@ -445,6 +503,22 @@ const Dashboard = () => {
           </div>
         </Col>
       </Row>
+      <GenericModal
+        show={showCopyModal}
+        onHide={() => setShowCopyModal(false)}
+        title="Copy Spot"
+        onSave={handleSaveCopy}
+        closeButtonLabel="Cancel"
+        saveButtonLabel="Copy"
+      >
+        <input
+          type="text"
+          value={newCopySpotName}
+          onChange={(e) => setNewCopySpotName(e.target.value)}
+          className="form-control"
+          placeholder="Enter the new Spot name"
+        />
+      </GenericModal>
 
       <GenericModal
         show={showRenameModal}
