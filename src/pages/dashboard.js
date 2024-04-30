@@ -25,10 +25,13 @@ const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
   const [adName, setAdName] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [paginatedSpots, setPaginatedSpots] = useState([]);
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
+  const pageSize = 6;
 
   const {
     // shared states
@@ -56,6 +59,11 @@ const Dashboard = () => {
     setStitchedAudioPyroHistoryItemId,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
+
+  useEffect(() => {
+    // Slice the spots array to get only the current page items
+    setPaginatedSpots(spots.slice(currentIndex, currentIndex + pageSize));
+  }, [spots, currentIndex]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -205,11 +213,18 @@ const Dashboard = () => {
   const handleRenameClick = () => {
     console.log("Rename action initiated");
   };
-  const handlePreviousTableContent = () => {
-    console.log("Previous table content action initiated");
-  };
   const handleNextTableContent = () => {
-    console.log("Next table content action initiated");
+    // Check if we have more spots to show
+    if (currentIndex + pageSize < spots.length) {
+      setCurrentIndex(currentIndex + pageSize);
+    }
+  };
+
+  const handlePreviousTableContent = () => {
+    // Check if we aren't at the beginning
+    if (currentIndex - pageSize >= 0) {
+      setCurrentIndex(currentIndex - pageSize);
+    }
   };
 
   return (
@@ -260,12 +275,11 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {spots.map((spot, index) => (
+              {paginatedSpots.map((spot, index) => (
                 <tr key={index}>
                   <td>{spot.spotName || "-"}</td>
                   <td>{spot.created || "-"}</td>
                   <td>{spot.lastDownloaded || "Never"}</td>
-
                   <td>
                     <Button
                       variant="link"
@@ -296,7 +310,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={() => handleEditSpot(spot.id)} // Correctly passing the function as a closure
+                      onClick={() => handleEditSpot(spot.id)}
                       title="Edit Spot"
                     >
                       <i
@@ -328,18 +342,21 @@ const Dashboard = () => {
             <Button
               variant="outline-secondary"
               onClick={handlePreviousTableContent}
+              disabled={currentIndex === 0}
             >
               {"<"}
             </Button>{" "}
             <Button
               variant="outline-secondary"
               onClick={handleNextTableContent}
+              disabled={currentIndex + pageSize >= spots.length}
             >
               {">"}
             </Button>
           </div>
         </Col>
       </Row>
+
       <GenericModal
         show={showCreateAdModal}
         onHide={handleCloseModal}
