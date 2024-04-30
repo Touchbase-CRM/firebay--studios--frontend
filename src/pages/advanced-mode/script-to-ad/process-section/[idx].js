@@ -677,6 +677,7 @@ function ProcessSection() {
           localCurrentSectionObj.getSpeechRate(),
           true
         );
+
         // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
@@ -708,6 +709,19 @@ function ProcessSection() {
       });
     } catch (error) {
       console.error("Error generating voice:", error);
+      if (error.name === "NetworkError") {
+        // Handle network errors specifically
+        console.error("Check your network or API endpoint:", error);
+      } else if (error.message.includes("pyro_history_item_id")) {
+        // Handle missing ID errors specifically
+        console.error(
+          "API response missing required 'pyro_history_item_id':",
+          error
+        );
+      } else {
+        // Handle all other errors
+        console.error("Processing error:", error);
+      }
     } finally {
       setIsGeneratingVoice(false);
     }

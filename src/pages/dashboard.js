@@ -17,9 +17,7 @@ import {
   orderBy,
   limit,
   getDocs,
-  Timestamp,
 } from "firebase/firestore";
-// import { Timestamp } from "firebase/firestore";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -76,8 +74,6 @@ const Dashboard = () => {
         const spotsQuery = query(
           collection(db, "spots_meta_data"),
           where("userId", "==", currentUser.uid)
-          // orderBy("created", "desc"),
-          // limit(6)
         );
         const querySnapshot = await getDocs(spotsQuery);
         const fetchedSpots = querySnapshot.docs.map((doc) => {
@@ -93,7 +89,6 @@ const Dashboard = () => {
               : "Never", // Show 'Never' if lastDownloaded is null
           };
         });
-        console.log("fetchedSpots", fetchedSpots);
         setSpots(fetchedSpots);
       } catch (error) {
         console.error("Error fetching spots:", error);
@@ -188,7 +183,6 @@ const Dashboard = () => {
     try {
       const data = await deserializeAndLoadModeData({ spotId });
       await updateState(data); // Wait for all state updates to complete
-      console.log("All state updates completed for spot:", spotId);
       router.push("/advanced-mode/script-to-ad/process-section/0");
     } catch (error) {
       console.error("Failed to fetch or update state:", error);

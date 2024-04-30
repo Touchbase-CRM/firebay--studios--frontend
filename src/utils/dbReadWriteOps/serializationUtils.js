@@ -133,7 +133,6 @@ export const createSpotInDb = async ({
   }
 
   const savedSpotId = await writeSpotStatesToFirestore(data, spotName, spotId);
-  console.log("savedSpotId:", savedSpotId); // Debugging output
 
   if (spotName) {
     // only run when creating a new spot
