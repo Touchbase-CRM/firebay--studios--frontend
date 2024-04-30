@@ -244,11 +244,16 @@ const Dashboard = () => {
         return;
       }
 
+      // Get current timestamp
+      const now = new Date();
+
       // Create a new document in 'spots_meta_data', which automatically generates a new ID
       const newSpotMetaRef = doc(collection(db, "spots_meta_data"));
       await setDoc(newSpotMetaRef, {
         ...spotSnap.data(),
         spotName: newCopySpotName,
+        created: now,
+        lastDownloaded: null,
       });
 
       // Use the same ID for the 'ads' document
@@ -262,8 +267,8 @@ const Dashboard = () => {
       const newSpot = {
         id: newSpotMetaRef.id,
         spotName: newCopySpotName,
-        created: new Date().toLocaleString(), // Adjust according to how 'created' should be formatted
-        lastDownloaded: "Never", // Adjust if needed
+        created: now.toLocaleString(),
+        lastDownloaded: "Never", // You can also decide to display something else or leave it blank
       };
 
       setSpots([...spots, newSpot]);
