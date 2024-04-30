@@ -211,13 +211,13 @@ const Dashboard = () => {
     console.log("Copy action initiated");
   };
 
-  const handleRenameClick = (spotId) => {
+  const handleRenameSpot = (spotId) => {
     console.log("Selected spot ID for renaming:", spotId); // Log the spot ID to check its value
     setSelectedSpotId(spotId); // Save the selected spot's ID for updating
     setShowRenameModal(true); // Show the rename modal
   };
 
-  const handleRenameSpot = async () => {
+  const updateSpotName = async () => {
     if (!newSpotName.trim()) {
       Swal.fire({
         title: "Error!",
@@ -241,10 +241,6 @@ const Dashboard = () => {
       const spotRef = doc(db, "spots_meta_data", selectedSpotId);
       const adRef = doc(db, "ads", selectedSpotId);
 
-      console.log(
-        "Updating spot and ad references with new name:",
-        newSpotName
-      ); // Log update attempt
       await updateDoc(spotRef, { spotName: newSpotName });
       await updateDoc(adRef, { spotName: newSpotName });
 
@@ -355,7 +351,7 @@ const Dashboard = () => {
                     </Button>
                     <Button
                       variant="link"
-                      onClick={() => handleRenameClick(spot.id)}
+                      onClick={() => handleRenameSpot(spot.id)}
                       title="Rename Spot"
                     >
                       <i
@@ -416,7 +412,7 @@ const Dashboard = () => {
         show={showRenameModal}
         onHide={handleCloseRenameModal}
         title="Rename Spot"
-        onSave={handleRenameSpot}
+        onSave={updateSpotName}
         closeButtonLabel="Cancel"
         saveButtonLabel="Save"
       >
