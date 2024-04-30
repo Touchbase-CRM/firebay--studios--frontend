@@ -207,12 +207,11 @@ const Dashboard = () => {
     console.log("Delete button clicked");
   };
 
-  const handleCopyClick = () => {
+  const handleCopyClick = (spotId) => {
     console.log("Copy action initiated");
   };
 
   const handleRenameSpot = (spotId) => {
-    console.log("Selected spot ID for renaming:", spotId); // Log the spot ID to check its value
     setSelectedSpotId(spotId); // Save the selected spot's ID for updating
     setShowRenameModal(true); // Show the rename modal
   };
