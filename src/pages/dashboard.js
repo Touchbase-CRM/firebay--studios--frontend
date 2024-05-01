@@ -122,6 +122,16 @@ const Dashboard = () => {
     fetchSpots();
   }, [currentUser]);
 
+  const checkSpotNameExists = async (spotName) => {
+    const spotsQuery = query(
+      collection(db, "spots_meta_data"),
+      where("spotName", "==", spotName),
+      where("userId", "==", currentUser.uid)
+    );
+    const querySnapshot = await getDocs(spotsQuery);
+    return !querySnapshot.empty; // returns true if the name exists
+  };
+
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
     setAdName("");
@@ -131,7 +141,7 @@ const Dashboard = () => {
     setAdName(event.target.value);
   };
 
-  const handleNextOnCreateAd = () => {
+  const handleNextOnCreateAd = async () => {
     if (!adName.trim()) {
       Swal.fire({
         title: "Error!",
@@ -140,6 +150,17 @@ const Dashboard = () => {
       });
       return;
     }
+
+    const exists = await checkSpotNameExists(adName);
+    if (exists) {
+      Swal.fire({
+        title: "Duplicate Name",
+        text: "This spot name already exists. Please choose a different name.",
+        icon: "error",
+      });
+      return;
+    }
+
     router.push({
       pathname: "/home",
       query: { spotName: adName },
@@ -324,11 +345,18 @@ const Dashboard = () => {
       return;
     }
 
-    if (!selectedSpotId || typeof selectedSpotId !== "string") {
-      console.error("Invalid spot ID:", selectedSpotId); // Log the invalid ID
+    if (
+      newSpotName === spots.find((spot) => spot.id === selectedSpotId)?.spotName
+    ) {
+      setShowRenameModal(false); // If the name hasn't changed, just close the modal.
+      return;
+    }
+
+    const exists = await checkSpotNameExists(newSpotName);
+    if (exists) {
       Swal.fire({
-        title: "Error",
-        text: "No valid spot selected for renaming.",
+        title: "Duplicate Name",
+        text: "This spot name already exists. Please choose a different name.",
         icon: "error",
       });
       return;
