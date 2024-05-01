@@ -18,7 +18,10 @@ import { EditPauseDurationModal } from "@/components/editPauseDurationModal/moda
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../../../components/Spinner";
 import { Stack } from "../../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchAudio/fetchFromDistribution";
+import {
+  fetchAudioFromPyroBackendDistribution,
+  fetchAudioFromElevenLabs,
+} from "@/utils/fetchAudio/fetchFromDistribution";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function StitchSections() {
@@ -161,26 +164,10 @@ function StitchSections() {
     setLocalSectionsArray(newArray);
   };
 
-  const fetchAudioFromElevenLabs = (historyItemId) => {
-    fetch("/api/Elevenlabs/generate_voice_with_history_item_id", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ historyItemId }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch audio");
-        }
-        return response.blob(); // Handle the response as a blob
-      })
-      .then((blob) => {
-        const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
-        setAudioUrl(audioUrl);
-        setNowPlayingUrl(audioUrl);
-      })
-      .catch((err) => console.error(err));
+  const fetchAudioFromElevenLabsWrapper = async (historyItemId) => {
+    const audioUrl = await fetchAudioFromElevenLabs(historyItemId);
+    setAudioUrl(audioUrl);
+    setNowPlayingUrl(audioUrl);
   };
 
   const handleSaveState = () => {
@@ -326,7 +313,7 @@ function StitchSections() {
       setAudioUrl(audioUrl);
       setNowPlayingUrl(audioUrl);
     } else {
-      fetchAudioFromElevenLabs(historyItemId);
+      await fetchAudioFromElevenLabsWrapper(historyItemId);
     }
   };
 
