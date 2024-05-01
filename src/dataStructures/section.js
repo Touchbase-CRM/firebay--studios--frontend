@@ -256,4 +256,22 @@ export class Section {
   setSectionDurationSeconds(newSectionDurationSeconds) {
     this.sectionDurationSeconds = newSectionDurationSeconds;
   }
+
+  // Method to update audio URL when the blob url is expired.
+  async updateAudioUrl(estimatedProcessingTime = 0, maxRetries = 3) {
+    if (!this.historyItemId) {
+      console.log("History item ID is not set.");
+      return;
+    }
+    try {
+      const audioUrl = await fetchAudioFromPyroBackendDistribution(
+        this.historyItemId,
+        estimatedProcessingTime,
+        maxRetries
+      );
+      this.setGeneratedVoiceUrl(audioUrl);
+    } catch (error) {
+      console.error("Failed to update audio URL:", error.message);
+    }
+  }
 }

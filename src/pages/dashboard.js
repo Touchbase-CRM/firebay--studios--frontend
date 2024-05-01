@@ -141,24 +141,35 @@ const Dashboard = () => {
     });
   };
 
-  const deserializeSectionsArray = (serializedSections) => {
-    return serializedSections.map((serializedSection) =>
-      Section.deserialize(serializedSection)
+  const deserializeSectionsArray = async (serializedSections) => {
+    const sections = await Promise.all(
+      serializedSections.map(async (serializedSection) => {
+        const section = Section.deserialize(serializedSection);
+        await section.updateAudioUrl(0, 3); // Assuming you pass 0 for estimatedProcessingTime and 3 for maxRetries
+        return section;
+      })
     );
+    return sections;
   };
 
-  const deserializeSectionHistoryArray = (sectionHistoryArray) => {
-    return sectionHistoryArray.map((section) => {
-      const transformedSection = new Map();
-      for (const key in section) {
-        transformedSection.set(key, Section.deserialize(section[key]));
-      }
-      return transformedSection;
-    });
+  const deserializeSectionHistoryArray = async (sectionHistoryArray) => {
+    const updatedSectionHistoryArray = await Promise.all(
+      sectionHistoryArray.map(async (section) => {
+        const transformedSection = new Map();
+        for (const key in section) {
+          const deserializedSection = Section.deserialize(section[key]);
+          await deserializedSection.updateAudioUrl(0, 3); // Using default values for demonstration
+          transformedSection.set(key, deserializedSection);
+        }
+        return transformedSection;
+      })
+    );
+    return updatedSectionHistoryArray;
   };
 
-  async function updateState(data) {
-    return new Promise((resolve) => {
+  function updateState(data) {
+    return new Promise(async (resolve) => {
+      // Synchronous state updates
       setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
       setOriginalScriptString(data.sharedStates.originalScriptString);
       setTransformedWords(data.sharedStates.transformedWords);
@@ -180,16 +191,22 @@ const Dashboard = () => {
       setStitchedAudioPyroHistoryItemId(
         data.featureSpecificStates.stitchedAudioPyroHistoryItemId
       );
-      // Include all other set operations
-      const tmparr = deserializeSectionsArray(
-        data.featureSpecificStates.sectionsArray
-      );
-      setSectionsArray(tmparr);
-      const tmpHistoryArray = deserializeSectionHistoryArray(
-        data.featureSpecificStates.sectionHistoryArray
-      );
-      setSectionHistoryArray(tmpHistoryArray);
-      resolve();
+
+      // Asynchronous state updates
+      try {
+        const tmparr = await deserializeSectionsArray(
+          data.featureSpecificStates.sectionsArray
+        );
+        setSectionsArray(tmparr);
+        const tmpHistoryArray = await deserializeSectionHistoryArray(
+          data.featureSpecificStates.sectionHistoryArray
+        );
+        setSectionHistoryArray(tmpHistoryArray);
+        resolve(); // Resolve the promise after all async updates are done
+      } catch (error) {
+        console.error("Error updating state:", error);
+        resolve(); // Resolve the promise also on error to not hang the promise
+      }
     });
   }
 
