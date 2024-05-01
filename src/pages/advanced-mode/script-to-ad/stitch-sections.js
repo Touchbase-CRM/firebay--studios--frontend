@@ -22,7 +22,10 @@ import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
 } from "@/utils/fetchAudio/fetchFromDistribution";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import {
+  createSpotInDb,
+  writeToFirestore,
+} from "@/utils/dbReadWriteOps/serializationUtils";
 
 function StitchSections() {
   const auth = getAuth();
@@ -246,7 +249,17 @@ function StitchSections() {
       setPendingAdvertisement(false); // Set pending to false when API call completes
     }
     setSectionsArray(localSectionsArray);
-    // handle state is not needed because audio will expire anyways
+    await writeToFirestore(
+      "spots_meta_data",
+      { historyItemId: stitchedAudioPyroHistoryItemId },
+      spotId
+    )
+      .then(() =>
+        console.log("History item ID saved successfully to Firestore")
+      )
+      .catch((error) =>
+        console.error("Error saving document to Firestore:", error)
+      );
   };
 
   const cancelLoading = () => {

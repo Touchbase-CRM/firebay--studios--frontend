@@ -42,10 +42,7 @@ const deserializeProperties = (dataObject) => {
   return dataObject;
 };
 
-const readFromFirestore = async (spotName = null, spotId = null) => {
-  const db = getFirestore(app);
-  const adsCollectionRef = collection(db, "ads");
-
+const readSpotsFromFirestore = async (spotName = null, spotId = null) => {
   if ((spotName && spotId) || (!spotName && !spotId)) {
     throw new Error(
       "Either spotName or spotId must be provided, but not both."
@@ -53,26 +50,44 @@ const readFromFirestore = async (spotName = null, spotId = null) => {
   }
 
   try {
-    let docsSnapshot;
     if (spotId) {
-      const docRef = doc(db, "ads", spotId);
-      const docSnapshot = await getDoc(docRef);
-      if (!docSnapshot.exists()) {
-        throw new Error("No document found with the provided spotId.");
-      }
-      docsSnapshot = docSnapshot.data();
+      return await readFromFirestore("ads", spotId);
     } else {
+      const db = getFirestore(app);
+      const adsCollectionRef = collection(db, "ads");
       const q = query(adsCollectionRef, where("spotName", "==", spotName));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         throw new Error("No documents found with the provided spotName.");
       }
-      docsSnapshot = querySnapshot.docs[0].data(); // Assuming there's only one document per spotName
+      return querySnapshot.docs[0].data(); // Assuming there's only one document per spotName
     }
-
-    return docsSnapshot;
   } catch (error) {
-    console.error("Error reading document from Firestore:", error);
+    console.error("Error reading spots from Firestore:", error);
+    throw error;
+  }
+};
+
+export const readFromFirestore = async (
+  collectionName,
+  docId = null,
+  fieldName = null
+) => {
+  const db = getFirestore(app);
+
+  try {
+    if (docId) {
+      const docRef = doc(db, collectionName, docId);
+      const docSnapshot = await getDoc(docRef);
+      if (!docSnapshot.exists()) {
+        throw new Error("No document found with the provided ID.");
+      }
+      return fieldName ? docSnapshot.data()[fieldName] : docSnapshot.data();
+    } else {
+      throw new Error("Document ID must be provided.");
+    }
+  } catch (error) {
+    console.error(`Error reading from Firestore (${collectionName}):`, error);
     throw error;
   }
 };
@@ -81,6 +96,6 @@ export const deserializeAndLoadModeData = async ({
   spotName = null,
   spotId = null,
 }) => {
-  const loadedData = await readFromFirestore(spotName, spotId);
+  const loadedData = await readSpotsFromFirestore(spotName, spotId);
   return loadedData;
 };
