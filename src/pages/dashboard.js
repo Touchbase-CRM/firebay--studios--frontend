@@ -8,6 +8,7 @@ import useUserInputsStore from "../store/userInputs";
 import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
 import { Section } from "../dataStructures/section";
 import { getAuth } from "firebase/auth";
+
 import app from "../firebase";
 import {
   getFirestore,

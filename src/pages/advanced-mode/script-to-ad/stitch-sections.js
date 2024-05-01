@@ -18,7 +18,7 @@ import { EditPauseDurationModal } from "@/components/editPauseDurationModal/moda
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../../../components/Spinner";
 import { Stack } from "../../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchFromDistribution";
+import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchAudio/fetchFromDistribution";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function StitchSections() {
