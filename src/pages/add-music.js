@@ -31,7 +31,10 @@ import {
 } from "firebase/firestore";
 import app from "../firebase";
 import { Stack } from "../dataStructures/stack";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import {
+  createSpotInDb,
+  writeToFirestore,
+} from "@/utils/dbReadWriteOps/serializationUtils";
 
 const db = getFirestore(app);
 
@@ -332,11 +335,27 @@ function AddMusic() {
         responseType: "arraybuffer",
         cancelToken: cancelTokenSourceRef.current.token, // Using the token from useRef
       })
-      .then((response) => {
+      .then(async (response) => {
         console.log("Audio data received");
 
         const audioBlob = new Blob([response.data], { type: "audio/mp3" });
         const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Save to Firestore using utility function
+        const historyId = historyItemId
+          ? historyItemId
+          : stitchedAudioPyroHistoryItemId;
+        await writeToFirestore(
+          "spots_meta_data",
+          { historyItemId: historyId },
+          spotId
+        )
+          .then(() =>
+            console.log("History item ID saved successfully to Firestore")
+          )
+          .catch((error) =>
+            console.error("Error saving document to Firestore:", error)
+          );
 
         router.push({
           pathname: "/download",

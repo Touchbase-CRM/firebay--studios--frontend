@@ -140,6 +140,7 @@ export const createSpotInDb = async ({
       spotName,
       spotId: savedSpotId,
       created: new Date(),
+      historyItemId: null,
       lastDownloaded: null,
     });
   }
