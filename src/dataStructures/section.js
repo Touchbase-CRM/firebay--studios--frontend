@@ -1,3 +1,8 @@
+import {
+  fetchAudioFromPyroBackendDistribution,
+  fetchAudioFromElevenLabs,
+} from "@/utils/fetchAudio/fetchFromDistribution";
+
 export class Section {
   constructor(
     index,
@@ -264,11 +269,16 @@ export class Section {
       return;
     }
     try {
-      const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        this.historyItemId,
-        estimatedProcessingTime,
-        maxRetries
-      );
+      let audioUrl;
+      if (this.historyItemId.startsWith("pyro_")) {
+        audioUrl = await fetchAudioFromPyroBackendDistribution(
+          this.historyItemId,
+          estimatedProcessingTime,
+          maxRetries
+        );
+      } else {
+        audioUrl = await fetchAudioFromElevenLabs(this.historyItemId);
+      }
       this.setGeneratedVoiceUrl(audioUrl);
     } catch (error) {
       console.error("Failed to update audio URL:", error.message);
