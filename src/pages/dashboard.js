@@ -460,7 +460,7 @@ const Dashboard = () => {
               <tr>
                 <th>Spot Name</th>
                 <th>Created</th>
-                <th>Last Downloaded</th>
+                {/* <th>Last Downloaded</th> */}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -469,9 +469,9 @@ const Dashboard = () => {
                 <tr key={index}>
                   <td>{spot.spotName || "-"}</td>
                   <td>{spot.created || "-"}</td>
-                  <td>{spot.lastDownloaded || "Never"}</td>
+                  {/* <td>{spot.lastDownloaded || "Never"}</td> */}
                   <td>
-                    <Button
+                    {/* <Button
                       variant="link"
                       onClick={handleDownloadClick}
                       title="Download Spot"
@@ -480,7 +480,7 @@ const Dashboard = () => {
                         className="bi bi-download"
                         style={{ color: "black" }}
                       ></i>
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="link"
                       onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
