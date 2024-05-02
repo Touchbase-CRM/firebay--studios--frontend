@@ -57,6 +57,7 @@ function AddMusic() {
 
   const saveFeatureSpecificStates = {
     stitchedAudioPyroHistoryItemId,
+    historyItemId,
   };
 
   const saveSharedStates = {
@@ -64,7 +65,6 @@ function AddMusic() {
     previewFileName,
     backgroundMusicFilename,
     musicVol,
-    historyItemId,
     adGenerationMethod,
     spotId,
     adLength,
@@ -381,6 +381,7 @@ function AddMusic() {
       sharedStates: saveSharedStates,
     });
   };
+
   const links = [
     {
       label: "Dashboard",

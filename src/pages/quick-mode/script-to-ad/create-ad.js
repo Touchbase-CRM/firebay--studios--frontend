@@ -25,6 +25,8 @@ import {
   where,
 } from "firebase/firestore";
 
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+
 function CreateAd() {
   const posthog = usePostHog();
   const auth = getAuth();
@@ -56,6 +58,22 @@ function CreateAd() {
     setModelId,
     setAdGenerationMethod,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    historyItemId,
+  };
+
+  const saveSharedStates = {
+    ogScriptWordsArray,
+    originalScriptString,
+    transformedWords,
+    voiceId,
+    voiceName,
+    voicePreviewFilename,
+    adLength,
+    generatedVoiceUrl,
+    modelId,
+  };
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -356,6 +374,26 @@ function CreateAd() {
     setIsGeneratingVoice(false);
   };
 
+  const handleSaveState = () => {
+    // syncSectionHistoryArrayWithZustand(
+    //   currentSectionIndex,
+    //   localSectionHistoryObj
+    // );
+    // // can't wait for above function to finish so repeat it without saving to zustand.
+    // const tmpHistoryArray = addCurrentSectionHistoryToArray(
+    //   currentSectionIndex,
+    //   localSectionHistoryObj
+    // );
+    // saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
+
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
+
   const links = [
     {
       label: "Dashboard",
@@ -575,19 +613,15 @@ function CreateAd() {
           </Card>
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
+              display: "flex",
+              justifyContent: "space-between", // Ensures the buttons are on opposite sides
+              marginTop: "20px", // Adjusted margin for overall alignment
             }}
           >
+            {/* Next Button */}
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px",
-                marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
               }}
@@ -595,7 +629,20 @@ function CreateAd() {
             >
               Next
             </Button>
+            {/* Save Button */}
+            <Button
+              className="mt-3"
+              onClick={handleSubmit}
+              style={{
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+                color: "black",
+              }}
+            >
+              Save
+            </Button>
           </div>
+
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
@@ -678,5 +725,7 @@ function CreateAd() {
     </div>
   );
 }
-export default withAuth(CreateAd);
+// export default withAuth(CreateAd);
+export default CreateAd;
+
 // These restrictions are temporary. Need to figure out a better data model.
