@@ -177,6 +177,7 @@ function StitchSections() {
     createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
+      mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
       sharedStates: saveSharedStates,
     });

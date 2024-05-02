@@ -176,6 +176,7 @@ function Home() {
     const tmpSpotId = await createSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       spotId: null,
+      mode: "quick-script-to-ad",
       modeSpecificStates: quickScriptToAdDefaultValues,
       sharedStates: defaultState,
     });
@@ -186,6 +187,7 @@ function Home() {
     const tmpSpotId = await createSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       spotId: null,
+      mode: "quick-voice-to-ad",
       modeSpecificStates: quickVoiceToAdDefaultValues,
       sharedStates: defaultState,
     });
@@ -195,6 +197,7 @@ function Home() {
     const tmpSpotId = await createSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       spotId: null,
+      mode: "advanced-script-to-ad",
       modeSpecificStates: advancedScriptToAdDefaultValues,
       sharedStates: defaultState,
     });

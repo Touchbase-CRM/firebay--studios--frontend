@@ -113,6 +113,7 @@ const serializeProperties = (dataObject) => {
 export const createSpotInDb = async ({
   spotName = null, // used when creating a new spot
   spotId = null, // used when updating an existing spot
+  mode,
   modeSpecificStates,
   sharedStates,
 }) => {
@@ -139,6 +140,7 @@ export const createSpotInDb = async ({
     await writeSpotMetaDataToFirestore({
       spotName,
       spotId: savedSpotId,
+      mode: mode,
       created: new Date(),
       historyItemId: null,
       lastDownloaded: null,
