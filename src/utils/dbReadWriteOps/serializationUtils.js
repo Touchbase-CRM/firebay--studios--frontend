@@ -33,6 +33,7 @@ export const writeToFirestore = async (collectionName, data, docId = null) => {
 const writeSpotMetaDataToFirestore = async ({
   spotName,
   spotId,
+  mode,
   created,
   lastDownloaded,
 }) => {
@@ -40,6 +41,7 @@ const writeSpotMetaDataToFirestore = async ({
   const data = {
     userId,
     spotName,
+    mode,
     created,
     lastDownloaded,
   };

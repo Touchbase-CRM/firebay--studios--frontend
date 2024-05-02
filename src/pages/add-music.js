@@ -31,6 +31,7 @@ import {
 } from "firebase/firestore";
 import app from "../firebase";
 import { Stack } from "../dataStructures/stack";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 const db = getFirestore(app);
 
@@ -373,10 +374,22 @@ function AddMusic() {
       });
   };
 
+  const getMode = () => {
+    if (adGenerationMethod === "script-to-ad") {
+      return historyItemId ? "advanced-script-to-ad" : "quick-script-to-ad";
+    }
+
+    if (adGenerationMethod === "voice-to-ad") {
+      return "quick-voice-to-ad";
+    }
+  };
+
   const handleSaveState = () => {
+    const mode = getMode();
     createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
+      mode: mode,
       modeSpecificStates: saveFeatureSpecificStates,
       sharedStates: saveSharedStates,
     });

@@ -5,7 +5,10 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import useUserInputsStore from "../store/userInputs";
-import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
+import {
+  deserializeAndLoadModeData,
+  readFromFirestore,
+} from "@/utils/dbReadWriteOps/deserializationUtils";
 import { Section } from "../dataStructures/section";
 import { getAuth } from "firebase/auth";
 
@@ -193,7 +196,46 @@ const Dashboard = () => {
     return updatedSectionHistoryArray;
   };
 
-  function updateState(data) {
+  async function handleEditSpot(spotId) {
+    try {
+      const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
+      switch (mode) {
+        case "advanced-script-to-ad":
+          await manageAdvancedEditSpot(spotId);
+          break;
+        case "quick-script-to-ad":
+          await manageQuickScriptToAdSpot(spotId);
+          break;
+        case "quick-voice-to-ad":
+          await manageQuickVoiceToAdSpot(spotId);
+          break;
+        default:
+          throw new Error(`Unsupported mode: ${mode}`);
+      }
+    } catch (error) {
+      console.error("Error handling the spot mode:", error);
+    }
+  }
+
+  async function manageAdvancedEditSpot(spotId) {
+    const data = await deserializeAndLoadModeData({ spotId });
+    await updateAdvancedS2AState(data);
+    router.push("/advanced-mode/script-to-ad/process-section/0");
+  }
+
+  async function manageQuickScriptToAdSpot(spotId) {
+    const data = await deserializeAndLoadModeData({ spotId });
+    await updateQuickS2AState(data);
+    router.push("/quick-mode/script-to-ad/create-ad");
+  }
+
+  async function manageQuickVoiceToAdSpot(spotId) {
+    const data = await deserializeAndLoadModeData({ spotId });
+    await updateQuickV2AState(data);
+    router.push("/quick-mode/voice-to-ad/create-ad");
+  }
+
+  function updateAdvancedS2AState(data) {
     return new Promise(async (resolve) => {
       // Synchronous state updates
       setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
@@ -234,16 +276,6 @@ const Dashboard = () => {
         resolve(); // Resolve the promise also on error to not hang the promise
       }
     });
-  }
-
-  async function handleEditSpot(spotId) {
-    try {
-      const data = await deserializeAndLoadModeData({ spotId });
-      await updateState(data); // Wait for all state updates to complete
-      router.push("/advanced-mode/script-to-ad/process-section/0");
-    } catch (error) {
-      console.error("Failed to fetch or update state:", error);
-    }
   }
 
   const handleCreateAd = () => {
