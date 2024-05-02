@@ -74,6 +74,7 @@ const Dashboard = () => {
     setSectionsArray,
     setNumSectionsIdentified,
     setSectionHistoryArray,
+    setHistoryItemId,
     setStitchedAudioPyroHistoryItemId,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
@@ -275,6 +276,33 @@ const Dashboard = () => {
         console.error("Error updating state:", error);
         resolve(); // Resolve the promise also on error to not hang the promise
       }
+    });
+  }
+
+  function updateQuickS2AState(data) {
+    return new Promise(async (resolve) => {
+      // Synchronous state updates
+      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+      setOriginalScriptString(data.sharedStates.originalScriptString);
+      setTransformedWords(data.sharedStates.transformedWords);
+      setVoiceId(data.sharedStates.voiceId);
+      setVoiceName(data.sharedStates.voiceName);
+      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+      setAdLength(data.sharedStates.adLength);
+      setChosenMusic(data.sharedStates.chosenMusic);
+      setMusicVol(data.sharedStates.musicVol);
+      setPreviewFileName(data.sharedStates.previewFileName);
+      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+      setModelId(data.sharedStates.modelId);
+      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+      setSpotId(data.sharedStates.spotId);
+      setHistoryItemId(data.featureSpecificStates.historyItemId);
+
+      // Asynchronous state updates: None for now
+
+      // Resolve promise after all updates
+      resolve();
     });
   }
 

@@ -36,6 +36,7 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
+    spotId,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
@@ -73,6 +74,7 @@ function CreateAd() {
     adLength,
     generatedVoiceUrl,
     modelId,
+    spotId,
   };
 
   // const [showExamples, setShowExamples] = useState(false);
@@ -633,7 +635,7 @@ function CreateAd() {
             {/* Save Button */}
             <Button
               className="mt-3"
-              onClick={handleSubmit}
+              onClick={handleSaveState}
               style={{
                 backgroundColor: "white",
                 borderColor: "#FDA942",
