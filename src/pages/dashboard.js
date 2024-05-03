@@ -32,6 +32,7 @@ import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
 } from "@/utils/fetchAudio/fetchFromDistribution";
+import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 const Dashboard = () => {
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -201,6 +202,15 @@ const Dashboard = () => {
     return updatedSectionHistoryArray;
   };
 
+  const fetchUploadedAudio = async (fileName) => {
+    const response = await fetchResourceFromS3(
+      "workingdir--storage",
+      `save--files/${fileName}`,
+      0
+    );
+    return response;
+  };
+
   async function handleEditSpot(spotId) {
     try {
       const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
@@ -333,11 +343,11 @@ const Dashboard = () => {
       // Asynchronous state updates:
       setV2aUploadedAudioUrl(data.featureSpecificStates.v2aUploadedAudioUrl);
       setV2aQuickUploadedFile(data.featureSpecificStates.v2aQuickUploadedFile);
-      setv2aQuickGeneratedAudioBlob(
-        data.featureSpecificStates.v2aQuickGeneratedAudioBlob
-      );
       setV2aQuickAudioDuration(
         data.featureSpecificStates.v2aQuickAudioDuration
+      );
+      setv2aQuickGeneratedAudioBlob(
+        fetchUploadedAudio(data.featureSpecificStates.v2aUploadedAudioUrl.name)
       );
 
       // Resolve promise after all updates
