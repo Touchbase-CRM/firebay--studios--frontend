@@ -69,7 +69,7 @@ function StitchSections() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
-  const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
+  const [nowPlayingUrl, setNowPlayingUrl] = useState(false); // This is a bug; look at Jira for more details
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const musicGenWebServiceUrl =

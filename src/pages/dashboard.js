@@ -346,9 +346,10 @@ const Dashboard = () => {
       setV2aQuickAudioDuration(
         data.featureSpecificStates.v2aQuickAudioDuration
       );
-      setv2aQuickGeneratedAudioBlob(
-        fetchUploadedAudio(data.featureSpecificStates.v2aUploadedAudioUrl.name)
+      const tmpAudioUrl = await fetchUploadedAudio(
+        data.featureSpecificStates.v2aQuickUploadedFile.name
       );
+      setV2aUploadedAudioUrl(tmpAudioUrl);
 
       // Resolve promise after all updates
       resolve();
