@@ -728,7 +728,4 @@ function CreateAd() {
     </div>
   );
 }
-// export default withAuth(CreateAd);
-export default CreateAd;
-
-// These restrictions are temporary. Need to figure out a better data model.
+export default withAuth(CreateAd);
