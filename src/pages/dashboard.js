@@ -28,10 +28,6 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-import {
-  fetchAudioFromPyroBackendDistribution,
-  fetchAudioFromElevenLabs,
-} from "@/utils/fetchAudio/fetchFromDistribution";
 import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 const Dashboard = () => {
@@ -50,7 +46,7 @@ const Dashboard = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 6;
+  const pageSize = 23;
 
   const {
     // shared states
