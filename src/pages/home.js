@@ -22,6 +22,7 @@ import {
   getDoc,
   addDoc,
 } from "firebase/firestore";
+const db = getFirestore(app);
 
 import { defaultState } from "../store/shared_default_values";
 import {
@@ -38,28 +39,9 @@ function Home() {
   const firestore = getFirestore(app);
   const {
     // shared states
-    setOgScriptWordsArray,
-    setOriginalScriptString,
-    setTransformedWords,
-    setVoiceId,
-    setVoiceName,
-    setVoicePreviewFilename,
-    setAdLength,
-    setChosenMusic,
-    setMusicVol,
-    setPreviewFileName,
-    setBackgroundMusicFilename,
-    setGeneratedVoiceUrl,
-    setModelId,
-    setAdGenerationMethod,
     setSpotId,
     spotId,
     // advanced script to ad states
-    setNavigationStack,
-    setSectionsArray,
-    setNumSectionsIdentified,
-    setSectionHistoryArray,
-    setStitchedAudioPyroHistoryItemId,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
@@ -231,6 +213,10 @@ function Home() {
     },
   ];
 
+  const handleDiscard = async () => {
+    router.push("/dashboard");
+  };
+
   return (
     <div
       style={{
@@ -338,10 +324,11 @@ function Home() {
             <div style={{ marginBottom: "20px" }}>
               <Link href="/dashboard" passHref>
                 <button
+                  onClick={handleDiscard}
                   style={{
-                    backgroundColor: "#eb631c",
-                    color: "white",
-                    border: "1px solid #eb631c",
+                    backgroundColor: "transparent", // Set background to transparent
+                    color: "red", // Set text color to red
+                    border: "1px solid red", // Set border color to red
                     width: "100%",
                     padding: "10px 20px",
                     fontSize: "16px",
@@ -351,6 +338,10 @@ function Home() {
                     margin: "4px 2px",
                     transitionDuration: "0.4s",
                     borderRadius: "12px",
+                    hover: {
+                      backgroundColor: "red", // Red background on hover
+                      color: "white", // White text on hover
+                    },
                   }}
                 >
                   Discard
