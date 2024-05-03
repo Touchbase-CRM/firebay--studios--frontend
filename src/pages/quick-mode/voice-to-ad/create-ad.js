@@ -301,17 +301,13 @@ function CreateAd() {
     }
   };
 
-  const handleSaveState = () => {
+  const saveAudioUploads = async (bucketName, objectKey, audioBlob) => {
     try {
-      const bucketName = "workingdir--storage";
-      const objectKey = `save--files/${v2aQuickUploadedFile.name}`;
-
       // Convert Blob to Base64 to send as JSON
       const reader = new FileReader();
-      reader.readAsDataURL(v2aQuickGeneratedAudioBlob);
+      reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
         const base64data = reader.result;
-
         // Strip off the MIME type: data:audio/mpeg;base64,
         const base64WithoutPrefix = base64data.split(",")[1];
 
@@ -338,11 +334,19 @@ function CreateAd() {
     } catch (error) {
       console.error("Error preparing the audio file for upload:", error);
     }
+  };
+
+  const handleSaveState = () => {
+    saveAudioUploads(
+      "workingdir--storage",
+      `save--files/${v2aQuickUploadedFile.name}`,
+      v2aQuickGeneratedAudioBlob
+    );
 
     createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
-      mode: "quick-script-to-ad",
+      mode: "quick-voice-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
       sharedStates: saveSharedStates,
     });
