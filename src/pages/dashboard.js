@@ -1,4 +1,4 @@
-import { Button, Table, Container, Row, Col } from "react-bootstrap";
+import { Button, Table, Container, Row, Col, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState, useEffect } from "react";
@@ -31,6 +31,7 @@ import {
 import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
   const [adName, setAdName] = useState("");
@@ -94,6 +95,7 @@ const Dashboard = () => {
     }
 
     const fetchSpots = async () => {
+      setIsLoading(true); // Set loading to true when the fetching starts
       try {
         const spotsQuery = query(
           collection(db, "spots_meta_data"),
@@ -104,13 +106,13 @@ const Dashboard = () => {
           const data = doc.data();
           return {
             id: doc.id,
-            spotName: data.spotName || "-", // Show '-' if spotName is null or undefined
+            spotName: data.spotName || "-",
             created: data.created
               ? data.created.toDate().toLocaleString()
-              : "-", // Show '-' if created date is null
+              : "-",
             lastDownloaded: data.lastDownloaded
               ? data.lastDownloaded.toDate().toLocaleString()
-              : "Never", // Show 'Never' if lastDownloaded is null
+              : "Never",
           };
         });
         setSpots(fetchedSpots);
@@ -121,6 +123,8 @@ const Dashboard = () => {
           text: error.message,
           icon: "error",
         });
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching is done or if an error occurs
       }
     };
 
@@ -552,12 +556,6 @@ const Dashboard = () => {
         // Update local state to remove the deleted spot
         const updatedSpots = spots.filter((spot) => spot.id !== spotId);
         setSpots(updatedSpots);
-
-        Swal.fire(
-          "Deleted!",
-          "The spot and its associated data have been deleted.",
-          "success"
-        );
       }
     } catch (error) {
       console.error("Failed to delete spot and associated data:", error);
@@ -578,52 +576,63 @@ const Dashboard = () => {
         minHeight: "100vh",
       }}
     >
-      <Row
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "1rem",
-        }}
-      >
-        <Col xs={12}>
-          <Button
-            variant="warning"
+      {/* Render loading indicator when isLoading is true */}
+      {isLoading ? (
+        <Row className="justify-content-center">
+          <Col xs={12} className="text-center">
+            <Spinner animation="border" role="status">
+              <span className="sr-only">Loading...</span>
+            </Spinner>
+          </Col>
+        </Row>
+      ) : (
+        <>
+          <Row
             style={{
-              backgroundColor: "#eb631c",
-              borderColor: "#eb631c",
-              color: "white",
-              alignSelf: "flex-start",
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "1rem",
             }}
-            onClick={handleCreateAd}
           >
-            Create a new Spot
-          </Button>
-        </Col>
-      </Row>
+            <Col xs={12}>
+              <Button
+                variant="warning"
+                style={{
+                  backgroundColor: "#eb631c",
+                  borderColor: "#eb631c",
+                  color: "white",
+                  alignSelf: "flex-start",
+                }}
+                onClick={handleCreateAd}
+              >
+                Create a new Spot
+              </Button>
+            </Col>
+          </Row>
 
-      <Row>
-        <Col xs={12}>
-          <Table striped bordered hover>
-            <thead
-              style={{
-                backgroundColor: "#e4e4e4",
-              }}
-            >
-              <tr>
-                <th>Spot Name</th>
-                <th>Created</th>
-                {/* <th>Last Downloaded</th> */}
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedSpots.map((spot, index) => (
-                <tr key={index}>
-                  <td>{spot.spotName || "-"}</td>
-                  <td>{spot.created || "-"}</td>
-                  {/* <td>{spot.lastDownloaded || "Never"}</td> */}
-                  <td>
-                    {/* <Button
+          <Row>
+            <Col xs={12}>
+              <Table striped bordered hover>
+                <thead
+                  style={{
+                    backgroundColor: "#e4e4e4",
+                  }}
+                >
+                  <tr>
+                    <th>Spot Name</th>
+                    <th>Created</th>
+                    {/* <th>Last Downloaded</th> */}
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedSpots.map((spot, index) => (
+                    <tr key={index}>
+                      <td>{spot.spotName || "-"}</td>
+                      <td>{spot.created || "-"}</td>
+                      {/* <td>{spot.lastDownloaded || "Never"}</td> */}
+                      <td>
+                        {/* <Button
                       variant="link"
                       onClick={handleDownloadClick}
                       title="Download Spot"
@@ -633,121 +642,126 @@ const Dashboard = () => {
                         style={{ color: "black" }}
                       ></i>
                     </Button> */}
-                    <Button
-                      variant="link"
-                      onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
-                      title="Duplicate Spot"
-                    >
-                      <i className="bi bi-files" style={{ color: "black" }}></i>
-                    </Button>
-                    <Button
-                      variant="link"
-                      onClick={() => handleRenameSpot(spot.id)}
-                      title="Rename Spot"
-                    >
-                      <i
-                        className="bi bi-input-cursor-text"
-                        style={{ color: "black" }}
-                      ></i>
-                    </Button>
-                    <Button
-                      variant="link"
-                      onClick={() => handleEditSpot(spot.id)}
-                      title="Edit Spot"
-                    >
-                      <i
-                        className="bi bi-pencil-square"
-                        style={{ color: "black" }}
-                      ></i>
-                    </Button>
-                    <Button
-                      variant="link"
-                      onClick={() => handleDeleteSpot(spot.id)}
-                      title="Delete Spot"
-                    >
-                      <i
-                        className="bi bi-trash-fill"
-                        style={{ color: "red" }}
-                      ></i>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Col>
-      </Row>
+                        <Button
+                          variant="link"
+                          onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
+                          title="Duplicate Spot"
+                        >
+                          <i
+                            className="bi bi-files"
+                            style={{ color: "black" }}
+                          ></i>
+                        </Button>
+                        <Button
+                          variant="link"
+                          onClick={() => handleRenameSpot(spot.id)}
+                          title="Rename Spot"
+                        >
+                          <i
+                            className="bi bi-input-cursor-text"
+                            style={{ color: "black" }}
+                          ></i>
+                        </Button>
+                        <Button
+                          variant="link"
+                          onClick={() => handleEditSpot(spot.id)}
+                          title="Edit Spot"
+                        >
+                          <i
+                            className="bi bi-pencil-square"
+                            style={{ color: "black" }}
+                          ></i>
+                        </Button>
+                        <Button
+                          variant="link"
+                          onClick={() => handleDeleteSpot(spot.id)}
+                          title="Delete Spot"
+                        >
+                          <i
+                            className="bi bi-trash-fill"
+                            style={{ color: "red" }}
+                          ></i>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
 
-      <Row>
-        <Col xs={12} className="text-right">
-          <div style={{ marginTop: "20px" }}>
-            <Button
-              variant="outline-secondary"
-              onClick={handlePreviousTableContent}
-              disabled={currentTableIndex === 0}
-            >
-              {"<"}
-            </Button>{" "}
-            <Button
-              variant="outline-secondary"
-              onClick={handleNextTableContent}
-              disabled={currentTableIndex + pageSize >= spots.length}
-            >
-              {">"}
-            </Button>
-          </div>
-        </Col>
-      </Row>
-      <GenericModal
-        show={showCopyModal}
-        onHide={() => setShowCopyModal(false)}
-        title="Copy Spot"
-        onSave={handleSaveCopy}
-        closeButtonLabel="Cancel"
-        saveButtonLabel="Copy"
-      >
-        <input
-          type="text"
-          value={newCopySpotName}
-          onChange={(e) => setNewCopySpotName(e.target.value)}
-          className="form-control"
-          placeholder="Enter the new Spot name"
-        />
-      </GenericModal>
+          <Row>
+            <Col xs={12} className="text-right">
+              <div style={{ marginTop: "20px" }}>
+                <Button
+                  variant="outline-secondary"
+                  onClick={handlePreviousTableContent}
+                  disabled={currentTableIndex === 0}
+                >
+                  {"<"}
+                </Button>{" "}
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleNextTableContent}
+                  disabled={currentTableIndex + pageSize >= spots.length}
+                >
+                  {">"}
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          <GenericModal
+            show={showCopyModal}
+            onHide={() => setShowCopyModal(false)}
+            title="Copy Spot"
+            onSave={handleSaveCopy}
+            closeButtonLabel="Cancel"
+            saveButtonLabel="Copy"
+          >
+            <input
+              type="text"
+              value={newCopySpotName}
+              onChange={(e) => setNewCopySpotName(e.target.value)}
+              className="form-control"
+              placeholder="Enter the new Spot name"
+            />
+          </GenericModal>
 
-      <GenericModal
-        show={showRenameModal}
-        onHide={handleCloseRenameModal}
-        title="Rename Spot"
-        onSave={updateSpotName}
-        closeButtonLabel="Cancel"
-        saveButtonLabel="Save"
-      >
-        <input
-          type="text"
-          value={newSpotName}
-          onChange={(e) => setNewSpotName(e.target.value)}
-          className="form-control"
-          placeholder="Enter the new Spot name"
-        />
-      </GenericModal>
+          <GenericModal
+            show={showRenameModal}
+            onHide={handleCloseRenameModal}
+            title="Rename Spot"
+            onSave={updateSpotName}
+            closeButtonLabel="Cancel"
+            saveButtonLabel="Save"
+          >
+            <input
+              type="text"
+              value={newSpotName}
+              onChange={(e) => setNewSpotName(e.target.value)}
+              className="form-control"
+              placeholder="Enter the new Spot name"
+            />
+          </GenericModal>
 
-      <GenericModal
-        show={showCreateAdModal}
-        onHide={handleCloseModal}
-        title="Enter Spot Name"
-        onSave={handleNextOnCreateAd}
-        closeButtonLabel="Discard"
-        saveButtonLabel="Next"
-      >
-        <input
-          type="text"
-          value={adName}
-          onChange={handleAdNameChange}
-          className="form-control"
-          placeholder="Type the Spot name here"
-        />
-      </GenericModal>
+          <GenericModal
+            show={showCreateAdModal}
+            onHide={handleCloseModal}
+            title="Enter Spot Name"
+            onSave={handleNextOnCreateAd}
+            closeButtonLabel="Discard"
+            saveButtonLabel="Next"
+          >
+            <input
+              type="text"
+              value={adName}
+              onChange={handleAdNameChange}
+              className="form-control"
+              placeholder="Type the Spot name here"
+            />
+          </GenericModal>
+        </>
+      )}
     </Container>
   );
 };
