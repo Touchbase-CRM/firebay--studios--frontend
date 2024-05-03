@@ -320,6 +320,20 @@ const Dashboard = () => {
     });
   }
 
+  async function createBlobFromUrl(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+      const blob = await response.blob(); // Converts the response body into a Blob
+      return blob;
+    } catch (error) {
+      console.error("Error fetching the audio file:", error);
+      return null;
+    }
+  }
+
   function updateQuickV2AState(data) {
     return new Promise(async (resolve) => {
       // Synchronous state updates
@@ -346,10 +360,14 @@ const Dashboard = () => {
       setV2aQuickAudioDuration(
         data.featureSpecificStates.v2aQuickAudioDuration
       );
-      const tmpAudioUrl = await fetchUploadedAudio(
+      const tmpV2aUploadedAudioUrl = await fetchUploadedAudio(
         data.featureSpecificStates.v2aQuickUploadedFile.name
       );
-      setV2aUploadedAudioUrl(tmpAudioUrl);
+      setV2aUploadedAudioUrl(tmpV2aUploadedAudioUrl);
+      const tmpV2aQuickGeneratedAudioBlob = await createBlobFromUrl(
+        tmpV2aUploadedAudioUrl
+      );
+      setv2aQuickGeneratedAudioBlob(tmpV2aQuickGeneratedAudioBlob);
 
       // Resolve promise after all updates
       resolve();
