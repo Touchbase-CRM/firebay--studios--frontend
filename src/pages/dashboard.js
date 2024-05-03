@@ -11,6 +11,7 @@ import {
 } from "@/utils/dbReadWriteOps/deserializationUtils";
 import { Section } from "../dataStructures/section";
 import { getAuth } from "firebase/auth";
+import { NavBar } from "@/components/navBar";
 
 import app from "../firebase";
 import {
@@ -47,7 +48,7 @@ const Dashboard = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 23;
+  const pageSize = 20;
 
   const {
     // shared states
@@ -567,72 +568,101 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
+
+  const dropdownItems = [
+    {
+      text: "Logout",
+      handler: handleLogout,
+    },
+  ];
+
   return (
-    <Container
-      fluid
+    <div
       style={{
-        backgroundColor: "white",
-        padding: "20px",
+        backgroundColor: "#FFFFFF",
         minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* Render loading indicator when isLoading is true */}
-      {isLoading ? (
-        <Row className="justify-content-center">
-          <Col xs={12} className="text-center">
-            <Spinner animation="border" role="status">
-              <span className="sr-only">Loading...</span>
-            </Spinner>
-          </Col>
-        </Row>
-      ) : (
-        <>
-          <Row
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "1rem",
-            }}
-          >
-            <Col xs={12}>
-              <Button
-                variant="warning"
-                style={{
-                  backgroundColor: "#eb631c",
-                  borderColor: "#eb631c",
-                  color: "white",
-                  alignSelf: "flex-start",
-                }}
-                onClick={handleCreateAd}
-              >
-                Create a new Spot
-              </Button>
+      <NavBar links={[]} dropdownItems={dropdownItems} />
+
+      <Container
+        fluid
+        style={{
+          backgroundColor: "white",
+          padding: "20px",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Render loading indicator when isLoading is true */}
+        {isLoading ? (
+          <Row className="justify-content-center">
+            <Col xs={12} className="text-center">
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
             </Col>
           </Row>
-
-          <Row>
-            <Col xs={12}>
-              <Table striped bordered hover>
-                <thead
+        ) : (
+          <>
+            <Row
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: "1rem",
+              }}
+            >
+              <Col xs={12}>
+                <Button
+                  variant="warning"
                   style={{
-                    backgroundColor: "#e4e4e4",
+                    backgroundColor: "#eb631c",
+                    borderColor: "#eb631c",
+                    color: "white",
+                    alignSelf: "flex-start",
                   }}
+                  onClick={handleCreateAd}
                 >
-                  <tr>
-                    <th>Spot Name</th>
-                    <th>Created</th>
-                    {/* <th>Last Downloaded</th> */}
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedSpots.map((spot, index) => (
-                    <tr key={index}>
-                      <td>{spot.spotName || "-"}</td>
-                      <td>{spot.created || "-"}</td>
-                      {/* <td>{spot.lastDownloaded || "Never"}</td> */}
-                      <td>
-                        {/* <Button
+                  Create a new Spot
+                </Button>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col xs={12}>
+                <Table striped bordered hover>
+                  <thead
+                    style={{
+                      backgroundColor: "#e4e4e4",
+                    }}
+                  >
+                    <tr>
+                      <th>Spot Name</th>
+                      <th>Created</th>
+                      {/* <th>Last Downloaded</th> */}
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedSpots.map((spot, index) => (
+                      <tr key={index}>
+                        <td>{spot.spotName || "-"}</td>
+                        <td>{spot.created || "-"}</td>
+                        {/* <td>{spot.lastDownloaded || "Never"}</td> */}
+                        <td>
+                          {/* <Button
                       variant="link"
                       onClick={handleDownloadClick}
                       title="Download Spot"
@@ -642,127 +672,128 @@ const Dashboard = () => {
                         style={{ color: "black" }}
                       ></i>
                     </Button> */}
-                        <Button
-                          variant="link"
-                          onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
-                          title="Duplicate Spot"
-                        >
-                          <i
-                            className="bi bi-files"
-                            style={{ color: "black" }}
-                          ></i>
-                        </Button>
-                        <Button
-                          variant="link"
-                          onClick={() => handleRenameSpot(spot.id)}
-                          title="Rename Spot"
-                        >
-                          <i
-                            className="bi bi-input-cursor-text"
-                            style={{ color: "black" }}
-                          ></i>
-                        </Button>
-                        <Button
-                          variant="link"
-                          onClick={() => handleEditSpot(spot.id)}
-                          title="Edit Spot"
-                        >
-                          <i
-                            className="bi bi-pencil-square"
-                            style={{ color: "black" }}
-                          ></i>
-                        </Button>
-                        <Button
-                          variant="link"
-                          onClick={() => handleDeleteSpot(spot.id)}
-                          title="Delete Spot"
-                        >
-                          <i
-                            className="bi bi-trash-fill"
-                            style={{ color: "red" }}
-                          ></i>
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Col>
-          </Row>
+                          <Button
+                            variant="link"
+                            onClick={() => handleCopyClick(spot.id)} // Pass the spot.id correctly
+                            title="Duplicate Spot"
+                          >
+                            <i
+                              className="bi bi-files"
+                              style={{ color: "black" }}
+                            ></i>
+                          </Button>
+                          <Button
+                            variant="link"
+                            onClick={() => handleRenameSpot(spot.id)}
+                            title="Rename Spot"
+                          >
+                            <i
+                              className="bi bi-input-cursor-text"
+                              style={{ color: "black" }}
+                            ></i>
+                          </Button>
+                          <Button
+                            variant="link"
+                            onClick={() => handleEditSpot(spot.id)}
+                            title="Edit Spot"
+                          >
+                            <i
+                              className="bi bi-pencil-square"
+                              style={{ color: "black" }}
+                            ></i>
+                          </Button>
+                          <Button
+                            variant="link"
+                            onClick={() => handleDeleteSpot(spot.id)}
+                            title="Delete Spot"
+                          >
+                            <i
+                              className="bi bi-trash-fill"
+                              style={{ color: "red" }}
+                            ></i>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Col>
+            </Row>
 
-          <Row>
-            <Col xs={12} className="text-right">
-              <div style={{ marginTop: "20px" }}>
-                <Button
-                  variant="outline-secondary"
-                  onClick={handlePreviousTableContent}
-                  disabled={currentTableIndex === 0}
-                >
-                  {"<"}
-                </Button>{" "}
-                <Button
-                  variant="outline-secondary"
-                  onClick={handleNextTableContent}
-                  disabled={currentTableIndex + pageSize >= spots.length}
-                >
-                  {">"}
-                </Button>
-              </div>
-            </Col>
-          </Row>
-          <GenericModal
-            show={showCopyModal}
-            onHide={() => setShowCopyModal(false)}
-            title="Copy Spot"
-            onSave={handleSaveCopy}
-            closeButtonLabel="Cancel"
-            saveButtonLabel="Copy"
-          >
-            <input
-              type="text"
-              value={newCopySpotName}
-              onChange={(e) => setNewCopySpotName(e.target.value)}
-              className="form-control"
-              placeholder="Enter the new Spot name"
-            />
-          </GenericModal>
+            <Row>
+              <Col xs={12} className="text-right">
+                <div style={{ marginTop: "20px" }}>
+                  <Button
+                    variant="outline-secondary"
+                    onClick={handlePreviousTableContent}
+                    disabled={currentTableIndex === 0}
+                  >
+                    {"<"}
+                  </Button>{" "}
+                  <Button
+                    variant="outline-secondary"
+                    onClick={handleNextTableContent}
+                    disabled={currentTableIndex + pageSize >= spots.length}
+                  >
+                    {">"}
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+            <GenericModal
+              show={showCopyModal}
+              onHide={() => setShowCopyModal(false)}
+              title="Copy Spot"
+              onSave={handleSaveCopy}
+              closeButtonLabel="Cancel"
+              saveButtonLabel="Copy"
+            >
+              <input
+                type="text"
+                value={newCopySpotName}
+                onChange={(e) => setNewCopySpotName(e.target.value)}
+                className="form-control"
+                placeholder="Enter the new Spot name"
+              />
+            </GenericModal>
 
-          <GenericModal
-            show={showRenameModal}
-            onHide={handleCloseRenameModal}
-            title="Rename Spot"
-            onSave={updateSpotName}
-            closeButtonLabel="Cancel"
-            saveButtonLabel="Save"
-          >
-            <input
-              type="text"
-              value={newSpotName}
-              onChange={(e) => setNewSpotName(e.target.value)}
-              className="form-control"
-              placeholder="Enter the new Spot name"
-            />
-          </GenericModal>
+            <GenericModal
+              show={showRenameModal}
+              onHide={handleCloseRenameModal}
+              title="Rename Spot"
+              onSave={updateSpotName}
+              closeButtonLabel="Cancel"
+              saveButtonLabel="Save"
+            >
+              <input
+                type="text"
+                value={newSpotName}
+                onChange={(e) => setNewSpotName(e.target.value)}
+                className="form-control"
+                placeholder="Enter the new Spot name"
+              />
+            </GenericModal>
 
-          <GenericModal
-            show={showCreateAdModal}
-            onHide={handleCloseModal}
-            title="Enter Spot Name"
-            onSave={handleNextOnCreateAd}
-            closeButtonLabel="Discard"
-            saveButtonLabel="Next"
-          >
-            <input
-              type="text"
-              value={adName}
-              onChange={handleAdNameChange}
-              className="form-control"
-              placeholder="Type the Spot name here"
-            />
-          </GenericModal>
-        </>
-      )}
-    </Container>
+            <GenericModal
+              show={showCreateAdModal}
+              onHide={handleCloseModal}
+              title="Enter Spot Name"
+              onSave={handleNextOnCreateAd}
+              closeButtonLabel="Discard"
+              saveButtonLabel="Next"
+            >
+              <input
+                type="text"
+                value={adName}
+                onChange={handleAdNameChange}
+                className="form-control"
+                placeholder="Type the Spot name here"
+              />
+            </GenericModal>
+          </>
+        )}
+      </Container>
+    </div>
   );
 };
 
