@@ -345,7 +345,7 @@ const DownloadPage = () => {
                 }}
                 onClick={handleNewAd}
               >
-                Home
+                Dashboard
               </button>
             </div>
           </Card.Body>
