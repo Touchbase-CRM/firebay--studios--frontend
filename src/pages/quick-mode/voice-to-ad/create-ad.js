@@ -302,6 +302,43 @@ function CreateAd() {
   };
 
   const handleSaveState = () => {
+    try {
+      const bucketName = "workingdir--storage";
+      const objectKey = `save--files/${v2aQuickUploadedFile.name}`;
+
+      // Convert Blob to Base64 to send as JSON
+      const reader = new FileReader();
+      reader.readAsDataURL(v2aQuickGeneratedAudioBlob);
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+
+        // Strip off the MIME type: data:audio/mpeg;base64,
+        const base64WithoutPrefix = base64data.split(",")[1];
+
+        const response = await fetch("/api/S3/uploadAudio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            file: base64WithoutPrefix,
+            bucketName: bucketName,
+            objectName: objectKey,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("File uploaded successfully");
+        } else {
+          console.error("Failed to upload file:", data.message);
+        }
+      };
+    } catch (error) {
+      console.error("Error preparing the audio file for upload:", error);
+    }
+
     createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,
