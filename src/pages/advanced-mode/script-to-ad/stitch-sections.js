@@ -255,12 +255,8 @@ function StitchSections() {
       { historyItemId: stitchedAudioPyroHistoryItemId },
       spotId
     )
-      .then(() =>
-        console.log("History item ID saved successfully to Firestore")
-      )
-      .catch((error) =>
-        console.error("Error saving document to Firestore:", error)
-      );
+      .then(() => console.log("History item ID saved successfully."))
+      .catch((error) => console.error("Error saving document.:", error));
   };
 
   const cancelLoading = () => {

@@ -51,7 +51,7 @@ const writeSpotMetaDataToFirestore = async ({
     const documentId = await writeToFirestore("spots_meta_data", data, spotId);
     return documentId;
   } catch (error) {
-    console.error("Error writing spot meta data to Firestore:", error);
+    console.error("Error writing spot meta data to db:", error);
     throw error; // Rethrow the error for upstream handling
   }
 };
@@ -79,10 +79,9 @@ const writeSpotStatesToFirestore = async (
 
     // Write to Firestore using the abstracted function
     const documentId = await writeToFirestore("ads", documentData, docId);
-    console.log("Document written with ID:", documentId);
     return documentId; // Returning the document ID
   } catch (error) {
-    console.error("Error writing document to Firestore:", error);
+    console.error("Error writing document to db:", error);
     throw error; // Rethrow the error for upstream handling
   }
 };

@@ -272,8 +272,6 @@ function CreateAd() {
       // voiceId and modelId need to be defined or selected by the user in your UI
       const modelId = "eleven_multilingual_sts_v2"; // @TODO: Replace with the desired model ID if we need to use a different model.
 
-      console.log("my blob ", v2aQuickGeneratedAudioBlob);
-
       // Call your API function with the necessary parameters
       const result = await elevenlabsSTS(
         v2aQuickGeneratedAudioBlob,
