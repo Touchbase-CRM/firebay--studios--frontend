@@ -76,6 +76,10 @@ const Dashboard = () => {
     setSectionHistoryArray,
     setHistoryItemId,
     setStitchedAudioPyroHistoryItemId,
+    setV2aUploadedAudioUrl,
+    setV2aQuickUploadedFile,
+    setv2aQuickGeneratedAudioBlob,
+    setV2aQuickAudioDuration,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -300,6 +304,41 @@ const Dashboard = () => {
       setHistoryItemId(data.featureSpecificStates.historyItemId);
 
       // Asynchronous state updates: None for now
+
+      // Resolve promise after all updates
+      resolve();
+    });
+  }
+
+  function updateQuickV2AState(data) {
+    return new Promise(async (resolve) => {
+      // Synchronous state updates
+      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+      setOriginalScriptString(data.sharedStates.originalScriptString);
+      setTransformedWords(data.sharedStates.transformedWords);
+      setVoiceId(data.sharedStates.voiceId);
+      setVoiceName(data.sharedStates.voiceName);
+      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+      setAdLength(data.sharedStates.adLength);
+      setChosenMusic(data.sharedStates.chosenMusic);
+      setMusicVol(data.sharedStates.musicVol);
+      setPreviewFileName(data.sharedStates.previewFileName);
+      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+      setModelId(data.sharedStates.modelId);
+      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+      setSpotId(data.sharedStates.spotId);
+      setHistoryItemId(data.featureSpecificStates.historyItemId);
+
+      // Asynchronous state updates:
+      setV2aUploadedAudioUrl(data.featureSpecificStates.v2aUploadedAudioUrl);
+      setV2aQuickUploadedFile(data.featureSpecificStates.v2aQuickUploadedFile);
+      setv2aQuickGeneratedAudioBlob(
+        data.featureSpecificStates.v2aQuickGeneratedAudioBlob
+      );
+      setV2aQuickAudioDuration(
+        data.featureSpecificStates.v2aQuickAudioDuration
+      );
 
       // Resolve promise after all updates
       resolve();

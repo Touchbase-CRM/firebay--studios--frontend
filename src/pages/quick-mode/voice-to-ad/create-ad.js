@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { NavBar } from "@/components/navBar";
 import { useRouter } from "next/router";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 import useUserInputsStore from "../../../store/userInputs";
 
@@ -43,6 +44,8 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
+    // shared states
+    spotId,
     voiceId,
     setVoiceId,
     voiceName,
@@ -58,6 +61,7 @@ function CreateAd() {
     modelId,
     setModelId,
     setAdGenerationMethod,
+    // V2a states
     v2aUploadedAudioUrl,
     setV2aUploadedAudioUrl,
     v2aQuickUploadedFile,
@@ -67,6 +71,24 @@ function CreateAd() {
     v2aQuickAudioDuration,
     setV2aQuickAudioDuration,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    historyItemId,
+    v2aUploadedAudioUrl,
+    v2aQuickUploadedFile,
+    v2aQuickGeneratedAudioBlob,
+    v2aQuickAudioDuration,
+  };
+
+  const saveSharedStates = {
+    voiceId,
+    voiceName,
+    voicePreviewFilename,
+    adLength,
+    generatedVoiceUrl,
+    modelId,
+    spotId,
+  };
 
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -277,6 +299,16 @@ function CreateAd() {
     } finally {
       setIsGeneratingVoice(false);
     }
+  };
+
+  const handleSaveState = () => {
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      mode: "quick-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
   };
 
   const handleSubmit = (e) => {
@@ -594,25 +626,33 @@ function CreateAd() {
           {historyItemId && (
             <div
               style={{
-                // position: "absolute",
-                // bottom: "10px",
-                // left: "10px",
-                fontSize: "small",
-                fontWeight: "bold",
-                fontStyle: "italic",
+                display: "flex",
+                justifyContent: "space-between", // Ensures the buttons are on opposite sides
+                marginTop: "20px", // Adjusted margin for overall alignment
               }}
             >
+              {/* Next Button */}
               <Button
                 className="mt-3"
                 style={{
-                  marginRight: "10px",
-                  marginTop: "20px",
                   backgroundColor: "#EB631C",
                   borderColor: "#EB631C",
                 }}
                 onClick={handleSubmit}
               >
                 Next
+              </Button>
+              {/* Save Button */}
+              <Button
+                className="mt-3"
+                onClick={handleSaveState}
+                style={{
+                  backgroundColor: "white",
+                  borderColor: "#FDA942",
+                  color: "black",
+                }}
+              >
+                Save
               </Button>
             </div>
           )}
