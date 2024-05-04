@@ -315,6 +315,7 @@ function CreateAd() {
       () => setFormSubmitted(true),
       showAlert
     );
+    handleSaveState();
 
     if (!isValid) return;
   };
@@ -377,17 +378,6 @@ function CreateAd() {
   };
 
   const handleSaveState = () => {
-    // syncSectionHistoryArrayWithZustand(
-    //   currentSectionIndex,
-    //   localSectionHistoryObj
-    // );
-    // // can't wait for above function to finish so repeat it without saving to zustand.
-    // const tmpHistoryArray = addCurrentSectionHistoryToArray(
-    //   currentSectionIndex,
-    //   localSectionHistoryObj
-    // );
-    // saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
-
     createSpotInDb({
       spotName: null, // explicitly setting it as null for clarity, optional
       spotId: spotId,

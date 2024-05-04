@@ -437,6 +437,7 @@ const Dashboard = () => {
       const newAdRef = doc(db, "ads", newSpotMetaRef.id);
       await setDoc(newAdRef, {
         ...adSnap.data(),
+        spotId: newSpotMetaRef.id,
         spotName: newCopySpotName,
       });
 
