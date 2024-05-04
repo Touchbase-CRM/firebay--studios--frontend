@@ -362,6 +362,8 @@ function CreateAd() {
       );
       return;
     }
+
+    handleSaveState();
     // route to add_music page
     router.push("/add-music");
   };
