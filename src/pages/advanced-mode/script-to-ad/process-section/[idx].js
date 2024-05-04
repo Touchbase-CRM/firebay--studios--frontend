@@ -152,10 +152,6 @@ function ProcessSection() {
   const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
   const SECTOMILLISEC = 1000;
 
-  useEffect(() => {
-    handleSaveState();
-  }, []);
-
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();

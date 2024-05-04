@@ -236,7 +236,7 @@ const Dashboard = () => {
   async function manageAdvancedEditSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
     await updateAdvancedS2AState(data);
-    if (data.featureSpecificStates.sectionsArray.length > 0) {
+    if (data.featureSpecificStates.sectionsArray.length === 0) {
       router.push("/advanced-mode/script-to-ad/create-sections");
     } else {
       router.push("/advanced-mode/script-to-ad/process-section/0");
