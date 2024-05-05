@@ -351,6 +351,7 @@ function ProcessSection() {
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
+    setForceRenderKey(Math.random());
     setGeneratedVoiceUrl(
       baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
     );
