@@ -8,7 +8,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
 import useUserInputsStore from "../../../store/userInputs";
 
-import withAuth from "../../../hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../../../firebase";
 

@@ -13,7 +13,7 @@ import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 import useUserInputsStore from "../../../store/userInputs";
 
-import withAuth from "../../../hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../../../firebase";
 

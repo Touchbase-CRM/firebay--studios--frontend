@@ -19,7 +19,7 @@ import BackButton from "@/components/BackButton";
 import { PlayButton } from "@/components/buttons/playButton/play";
 
 import useUserInputsStore from "../../../../store/userInputs";
-import withAuth from "../../../../hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "../../../../firebase";
 

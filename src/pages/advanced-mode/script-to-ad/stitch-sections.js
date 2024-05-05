@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import useUserInputsStore from "../../../store/userInputs";
 import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
 import { getAuth } from "firebase/auth";
-import withAuth from "../../../hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
