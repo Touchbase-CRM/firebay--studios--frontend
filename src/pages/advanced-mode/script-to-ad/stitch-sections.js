@@ -18,7 +18,14 @@ import { EditPauseDurationModal } from "@/components/editPauseDurationModal/moda
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../../../components/Spinner";
 import { Stack } from "../../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../../utils/fetchFromDistribution";
+import {
+  fetchAudioFromPyroBackendDistribution,
+  fetchAudioFromElevenLabs,
+} from "@/utils/fetchAudio/fetchFromDistribution";
+import {
+  createSpotInDb,
+  writeToFirestore,
+} from "@/utils/dbReadWriteOps/serializationUtils";
 
 function StitchSections() {
   const auth = getAuth();
@@ -33,7 +40,22 @@ function StitchSections() {
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
     setStitchedAudioPyroHistoryItemId,
+    stitchedAudioPyroHistoryItemId,
+    spotId,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    sectionsArray,
+    stitchedAudioPyroHistoryItemId,
+    // navigationStack, // not needed
+  };
+
+  const saveSharedStates = {
+    spotId,
+    adLength,
+    generatedVoiceUrl,
+  };
+
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
@@ -47,7 +69,7 @@ function StitchSections() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
-  const [nowPlayingUrl, setNowPlayingUrl] = useState(false);
+  const [nowPlayingUrl, setNowPlayingUrl] = useState(false); // This is a bug; look at Jira for more details
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const musicGenWebServiceUrl =
@@ -104,7 +126,6 @@ function StitchSections() {
     };
   };
   const showEditPauseDurationModal = (sectionIndex) => {
-    console.log("Opening modal for section index:", sectionIndex);
     setCurrentEditingSectionIndex(sectionIndex);
     setEditPauseModalVisible(true);
   };
@@ -146,31 +167,26 @@ function StitchSections() {
     setLocalSectionsArray(newArray);
   };
 
-  const fetchAudioFromElevenLabs = (historyItemId) => {
-    fetch("/api/Elevenlabs/generate_voice_with_history_item_id", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ historyItemId }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch audio");
-        }
-        return response.blob(); // Handle the response as a blob
-      })
-      .then((blob) => {
-        const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
-        setAudioUrl(audioUrl);
-        setNowPlayingUrl(audioUrl);
-      })
-      .catch((err) => console.error(err));
+  const fetchAudioFromElevenLabsWrapper = async (historyItemId) => {
+    const audioUrl = await fetchAudioFromElevenLabs(historyItemId);
+    setAudioUrl(audioUrl);
+    setNowPlayingUrl(audioUrl);
+  };
+
+  const handleSaveState = () => {
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
   };
 
   const handleNext = (e) => {
     e.preventDefault();
     setGeneratedVoiceUrl(combinedVoiceoverUrl);
+    handleSaveState();
     router.push("/add-music");
   };
 
@@ -234,6 +250,13 @@ function StitchSections() {
       setPendingAdvertisement(false); // Set pending to false when API call completes
     }
     setSectionsArray(localSectionsArray);
+    await writeToFirestore(
+      "spots_meta_data",
+      { historyItemId: stitchedAudioPyroHistoryItemId },
+      spotId
+    )
+      .then(() => console.log("History item ID saved successfully."))
+      .catch((error) => console.error("Error saving document.:", error));
   };
 
   const cancelLoading = () => {
@@ -253,7 +276,7 @@ function StitchSections() {
       if (result.isConfirmed) {
         resetUserInputsStore();
 
-        router.push("/home");
+        router.push("/dashboard");
       }
     });
   };
@@ -300,7 +323,7 @@ function StitchSections() {
       setAudioUrl(audioUrl);
       setNowPlayingUrl(audioUrl);
     } else {
-      fetchAudioFromElevenLabs(historyItemId);
+      await fetchAudioFromElevenLabsWrapper(historyItemId);
     }
   };
 
@@ -325,6 +348,8 @@ function StitchSections() {
     localPushData("/advanced-mode/script-to-ad/stitch-sections");
     syncLocalStackWithGlobal();
 
+    handleSaveState();
+
     router.push(
       "/advanced-mode/script-to-ad/process-section/[idx]",
       `/advanced-mode/script-to-ad/process-section/${section.getIndex()}`
@@ -333,8 +358,8 @@ function StitchSections() {
 
   const links = [
     {
-      label: "Home",
-      url: "/home",
+      label: "Dashboard",
+      url: "/dashboard",
       isInternal: true,
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
@@ -654,60 +679,65 @@ function StitchSections() {
               seconds
             </div>
             <div style={{ flex: 1, textAlign: "center" }}>
-              {combinedVoiceoverUrl !== null ? (
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setForceRenderKey(Math.random().toString());
-                    setNowPlayingUrl(combinedVoiceoverUrl);
-                    setAudioTitle("Final Cut");
-                  }}
-                  style={{
-                    backgroundColor: "#eb631c", // Orange color
-                    borderColor: "#eb631c", // Orange border
-                    color: "white", // Ensuring text and icon are visible
-                    textDecoration: "none", // Removing any underline from the link variant
-                  }}
-                >
-                  <i
-                    class="bi bi-arrow-clockwise"
-                    style={{ verticalAlign: "middle" }}
-                  ></i>
-                  <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                    Replay Final Cut
-                  </span>
-                </Button>
-              ) : null}
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setForceRenderKey(Math.random().toString());
+                  setNowPlayingUrl(combinedVoiceoverUrl);
+                  setAudioTitle("Final Cut");
+                }}
+                style={{
+                  backgroundColor: "#eb631c", // Orange color
+                  borderColor: "#eb631c", // Orange border
+                  color: "white", // Ensuring text and icon are visible
+                  textDecoration: "none", // Removing any underline from the link variant
+                }}
+                disabled={!combinedVoiceoverUrl} // Disable button if combinedVoiceoverUrl is null
+              >
+                <i
+                  class="bi bi-arrow-clockwise"
+                  style={{ verticalAlign: "middle" }}
+                ></i>
+                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
+                  Replay Final Cut
+                </span>
+              </Button>
             </div>
           </div>
         </Card.Body>
       </Card>
 
-      {combinedVoiceoverUrl === null ? (
+      <div
+        style={{
+          display: "flex", // Enable flexbox
+          justifyContent: "space-between", // Space between the buttons
+          padding: "10px 20px", // Padding inside the card
+          margin: "20px 0 0", // Margin top for spacing from content
+        }}
+      >
         <Button
-          onClick={handleSubmit}
+          onClick={combinedVoiceoverUrl === null ? handleSubmit : handleNext}
           style={{
-            margin: "20px",
             width: "200px",
             backgroundColor: "#eb631c",
             borderColor: "#eb631c",
           }}
         >
-          Finalize
+          {combinedVoiceoverUrl === null ? "Finalize" : "Next"}
         </Button>
-      ) : (
         <Button
-          onClick={handleNext}
+          onClick={handleSaveState}
           style={{
-            margin: "20px",
             width: "200px",
-            backgroundColor: "#eb631c",
-            borderColor: "#eb631c",
+            backgroundColor: "white",
+            borderColor: "#FDA942",
+            color: "black",
           }}
         >
-          Next
+          Save
         </Button>
-      )}
+      </div>
+
       <div style={{ position: "relative", marginTop: "400px" }}>
         {nowPlayingUrl && (
           <SimpleAudioPlayer

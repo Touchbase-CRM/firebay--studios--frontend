@@ -58,7 +58,7 @@ const LoginPage = () => {
           });
 
           // If the user has an active subscription and verified email, redirect to the quick-script-to-ad/create-ad page
-          router.push("/home");
+          router.push("/dashboard");
         } catch (error) {
           Swal.fire({
             icon: "error",

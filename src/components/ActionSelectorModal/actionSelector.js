@@ -44,8 +44,31 @@ export const ActionSelectorModal = ({ show, onHide, title, buttonOptions }) => {
       </Modal.Header>
       <Modal.Body>
         <div className="d-grid gap-2" style={{ width: "100%" }}>
-          {buttonOptions.map((button, index) => (
-            <Link href={button.href} passHref key={index}>
+          {buttonOptions.map((button, index) =>
+            button.href ? (
+              <Link href={button.href} passHref key={index}>
+                <Button
+                  variant={button.variant}
+                  size="lg"
+                  onClick={() => {
+                    onHide();
+                    button.handler();
+                  }}
+                  style={{
+                    marginBottom: "10px",
+                    backgroundColor: button.backgroundColor,
+                    borderColor: button.borderColor,
+                    color: button.textColor,
+                    width: "100%",
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    padding: "15px 30px",
+                  }}
+                >
+                  {button.text}
+                </Button>
+              </Link>
+            ) : (
               <Button
                 variant={button.variant}
                 size="lg"
@@ -63,11 +86,12 @@ export const ActionSelectorModal = ({ show, onHide, title, buttonOptions }) => {
                   fontWeight: "600",
                   padding: "15px 30px",
                 }}
+                key={index}
               >
                 {button.text}
               </Button>
-            </Link>
-          ))}
+            )
+          )}
         </div>
       </Modal.Body>
     </Modal>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { GenericModal } from "@/components/foundationComponents/modal";
 import Swal from "sweetalert2";
 
 export const EditPauseDurationModal = ({
@@ -35,27 +35,19 @@ export const EditPauseDurationModal = ({
     const newValue = parseFloat(inputVal);
     if (!isNaN(newValue) && newValue >= 0 && newValue <= maxValue) {
       setValue(newValue);
-    } else if (newValue < 0) {
+    } else {
+      let errorTitle =
+        newValue < 0
+          ? "Pause duration cannot be negative."
+          : `Can't be more than ${maxValue} Sec`;
+      let errorMessage =
+        newValue < 0
+          ? "Value must be non-negative."
+          : "The value exceeds the maximum limit.";
       Swal.fire({
         icon: "error",
-        title:
-          "<span style='font-family: Arial, sans-serif; font-weight: 600;'>Invalid Input</span>",
-        html: "<span style='font-size: 16px;'>Pause duration cannot be negative.</span>",
-        customClass: {
-          popup: "swal-wide",
-        },
-        buttonsStyling: false,
-        confirmButtonText: "Ok",
-        confirmButtonColor: "#3085d6",
-        confirmButtonClass: "btn btn-primary",
-      });
-
-      setValue(initialValue);
-    } else if (newValue > maxValue) {
-      Swal.fire({
-        icon: "error",
-        title: `<span style='font-family: Arial, sans-serif; font-weight: 600;'>Can't be more than ${maxValue} Sec</span>`,
-        html: "<span style='font-size: 16px;'>You do not have that much time left in your spot for the pause length you have asked for.</span>",
+        title: `<span style='font-family: Arial, sans-serif; font-weight: 600;'>Invalid Input</span>`,
+        html: `<span style='font-size: 16px;'>${errorMessage}</span>`,
         buttonsStyling: false,
         confirmButtonText: "Ok",
         confirmButtonColor: "#3085d6",
@@ -73,68 +65,37 @@ export const EditPauseDurationModal = ({
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered>
-      <Modal.Header
-        closeButton
+    <GenericModal
+      show={show}
+      onHide={onHide}
+      title={`Pause should be less than ${maxValue} Sec`}
+      onSave={handleSave}
+      closeButtonLabel="Close"
+      saveButtonLabel="Save Changes"
+    >
+      <input
+        type="number"
+        value={value}
+        onChange={handleValueChange}
+        min="0"
+        max={maxValue}
+        step="0.1"
         style={{
-          backgroundColor: "#f8f9fa",
-          borderBottom: "1px solid #dee2e6",
+          display: "block",
+          width: "100%",
+          padding: "0.375rem 0.75rem",
+          fontSize: "1rem",
+          lineHeight: "1.5",
+          color: "#495057",
+          backgroundColor: "#fff",
+          backgroundClip: "padding-box",
+          border: "1px solid #ced4da",
+          borderRadius: "0.25rem",
+          transition:
+            "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+          marginBottom: "1rem",
         }}
-      >
-        <Modal.Title
-          style={{ color: "#495057", fontWeight: "500" }}
-        >{`Pause should be less than ${maxValue} Sec`}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <input
-          type="number"
-          value={value}
-          onChange={handleValueChange}
-          min="0"
-          max={maxValue}
-          step="0.1"
-          style={{
-            display: "block",
-            width: "100%", // Responsive width
-            padding: "0.375rem 0.75rem", // Bootstrap's default padding
-            fontSize: "1rem", // Larger, more readable text
-            lineHeight: "1.5", // Bootstrap's default line height
-            color: "#495057", // Darker text for better readability
-            backgroundColor: "#fff", // White background
-            backgroundClip: "padding-box",
-            border: "1px solid #ced4da", // Bootstrap's default border
-            borderRadius: "0.25rem", // Rounded corners
-            transition:
-              "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out", // Smooth transition on focus
-            marginBottom: "1rem", // Add some space below the input
-          }}
-        />
-      </Modal.Body>
-      <Modal.Footer
-        style={{ backgroundColor: "#f8f9fa", borderTop: "1px solid #dee2e6" }}
-      >
-        <Button
-          variant="secondary"
-          onClick={onHide}
-          style={{
-            fontWeight: "400",
-            backgroundColor: "#FDA942",
-            borderColor: "#FDA942",
-          }}
-        >
-          Close
-        </Button>
-        <Button
-          onClick={handleSave}
-          style={{
-            fontWeight: "400",
-            backgroundColor: "#eb631c",
-            borderColor: "#eb631c",
-          }}
-        >
-          Save Changes
-        </Button>
-      </Modal.Footer>
-    </Modal>
+      />
+    </GenericModal>
   );
 };

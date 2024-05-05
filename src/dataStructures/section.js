@@ -1,3 +1,8 @@
+import {
+  fetchAudioFromPyroBackendDistribution,
+  fetchAudioFromElevenLabs,
+} from "@/utils/fetchAudio/fetchFromDistribution";
+
 export class Section {
   constructor(
     index,
@@ -7,6 +12,7 @@ export class Section {
     sectionDurationSeconds = 0
   ) {
     this.index = index;
+    this.signature = "fsCustomClass";
     this.originalContent = originalContent;
     this.currentContent = currentContent;
     this.currentTransformations = {}; // transformed words with indexes
@@ -36,7 +42,7 @@ export class Section {
     );
 
     // Use setters for properties that have additional logic or consistency requirements
-    // cloned.setHistoryItemId(this.historyItemId);
+    cloned.signature = this.signature;
     cloned.setCurrentTransformations({ ...this.currentTransformations });
     cloned.setCurrentWords([...this.currentWords]);
     cloned.setGeneratedVoiceUrl(this.generatedVoiceUrl);
@@ -52,6 +58,52 @@ export class Section {
     cloned.setSectionDurationSeconds(this.sectionDurationSeconds);
 
     return cloned;
+  }
+
+  serialize() {
+    return {
+      index: this.index,
+      signature: this.signature,
+      originalContent: this.originalContent,
+      currentContent: this.currentContent,
+      historyItemId: this.historyItemId,
+      sectionDurationSeconds: this.sectionDurationSeconds,
+      endOfSectionPauseDurationSeconds: this.endOfSectionPauseDurationSeconds,
+      speechRate: this.speechRate,
+      modelId: this.modelId,
+      voiceId: this.voiceId,
+      voiceName: this.voiceName,
+      voicePreviewFilename: this.voicePreviewFilename,
+      dragonBreathEnhancement: this.dragonBreathEnhancement,
+      generatedVoiceUrl: this.generatedVoiceUrl,
+      currentTransformations: this.currentTransformations,
+      currentWords: this.currentWords,
+    };
+  }
+
+  static deserialize(data) {
+    const section = new Section(
+      data.index,
+      data.originalContent,
+      data.currentContent,
+      data.historyItemId,
+      data.sectionDurationSeconds
+    );
+
+    section.setEndOfSectionPauseDurationSeconds(
+      data.endOfSectionPauseDurationSeconds
+    );
+    section.setSpeechRate(data.speechRate);
+    section.setModelId(data.modelId);
+    section.setVoiceId(data.voiceId);
+    section.setVoiceName(data.voiceName);
+    section.setVoicePreviewFilename(data.voicePreviewFilename);
+    section.setDragonBreathEnhancement(data.dragonBreathEnhancement);
+    section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
+    section.setCurrentTransformations(data.currentTransformations);
+    section.setCurrentWords(data.currentWords);
+
+    return section;
   }
 
   //setter for currentWords
@@ -208,5 +260,28 @@ export class Section {
   // Setter for section duration in seconds
   setSectionDurationSeconds(newSectionDurationSeconds) {
     this.sectionDurationSeconds = newSectionDurationSeconds;
+  }
+
+  // Method to update audio URL when the blob url is expired.
+  async updateAudioUrl(estimatedProcessingTime = 0, maxRetries = 3) {
+    if (!this.historyItemId) {
+      console.log("History item ID is not set.");
+      return;
+    }
+    try {
+      let audioUrl;
+      if (this.historyItemId.startsWith("pyro_")) {
+        audioUrl = await fetchAudioFromPyroBackendDistribution(
+          this.historyItemId,
+          estimatedProcessingTime,
+          maxRetries
+        );
+      } else {
+        audioUrl = await fetchAudioFromElevenLabs(this.historyItemId);
+      }
+      this.setGeneratedVoiceUrl(audioUrl);
+    } catch (error) {
+      console.error("Failed to update audio URL:", error.message);
+    }
   }
 }

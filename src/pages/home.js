@@ -1,5 +1,4 @@
-// import { Navbar, Nav, Button, Card } from "react-bootstrap";
-import { Card, Modal, Button } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
 import { NavBar } from "@/components/navBar";
 import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
 import Link from "next/link";
@@ -21,16 +20,35 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  addDoc,
 } from "firebase/firestore";
+const db = getFirestore(app);
+
+import { defaultState } from "../store/shared_default_values";
+import {
+  advancedScriptToAdDefaultValues,
+  AdvancedScriptToAdSetters,
+} from "@/store/features/core/advanced/script-to-ad";
+import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
+import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function Home() {
   const auth = getAuth();
   const router = useRouter();
   const firestore = getFirestore(app);
-  const { reset: resetUserInputsStore } = useUserInputsStore();
+  const {
+    // shared states
+    setSpotId,
+    spotId,
+    // advanced script to ad states
+    reset: resetUserInputsStore,
+  } = useUserInputsStore();
   const [monthlyDownloads, setMonthlyDownloads] = useState(0);
   const [quickModeModalShow, setQuickModeModalShow] = useState(false);
   const [notifications, setNotifications] = useState([]);
+
+  const { spotName } = router.query;
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -70,24 +88,6 @@ function Home() {
 
     fetchMonthlyDownloads();
   }, []);
-
-  // Function to display notifications
-  function displayNotification(title, message, id) {
-    Swal.fire({
-      title: title,
-      html: message,
-      icon: "info",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Close",
-      cancelButtonText: "Keep Open",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteNotification(id);
-      }
-    });
-  }
 
   const deleteNotification = (notificationId) => {
     const docRef = doc(firestore, "notifications", notificationId);
@@ -154,11 +154,46 @@ function Home() {
   const handleQuickModeModalOpen = () => setQuickModeModalShow(true);
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
+  const saveQuickScriptToAd = async (spotName) => {
+    const tmpSpotId = await createSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      mode: "quick-script-to-ad",
+      modeSpecificStates: quickScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+
+  const saveQuickVoiceToAd = async (spotName) => {
+    const tmpSpotId = await createSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      mode: "quick-voice-to-ad",
+      modeSpecificStates: quickVoiceToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+  const saveAdvancedScriptToAd = async (spotName) => {
+    const tmpSpotId = await createSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      spotId: null,
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: advancedScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+
   const buttonOptions = [
     {
       text: "Script to Ad",
-      handler: handleQuickModeModalClose,
-      href: "/quick-mode/script-to-ad/create-ad",
+      handler: async () => {
+        await saveQuickScriptToAd(spotName);
+        handleQuickModeModalClose();
+        router.push("/quick-mode/script-to-ad/create-ad");
+      },
       variant: "success",
       backgroundColor: "#eb631c",
       borderColor: "#eb631c",
@@ -166,14 +201,21 @@ function Home() {
     },
     {
       text: "Voice to Ad",
-      handler: handleQuickModeModalClose,
-      href: "/quick-mode/voice-to-ad/create-ad",
+      handler: async () => {
+        await saveQuickVoiceToAd(spotName);
+        handleQuickModeModalClose();
+        router.push("/quick-mode/voice-to-ad/create-ad");
+      },
       variant: "primary",
       backgroundColor: "white",
       borderColor: "#FDA942",
       textColor: "black",
     },
   ];
+
+  const handleDiscard = async () => {
+    router.push("/dashboard");
+  };
 
   return (
     <div
@@ -256,12 +298,37 @@ function Home() {
             />
 
             <div style={{ marginBottom: "20px" }}>
-              <Link href="/advanced-mode/script-to-ad/create-sections" passHref>
+              <button
+                onClick={async () => {
+                  await saveAdvancedScriptToAd(spotName);
+                  router.push("/advanced-mode/script-to-ad/create-sections");
+                }}
+                style={{
+                  backgroundColor: "#eb631c",
+                  color: "white",
+                  border: "1px solid #eb631c",
+                  width: "100%",
+                  padding: "10px 20px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  margin: "4px 2px",
+                  transitionDuration: "0.4s",
+                  borderRadius: "12px",
+                }}
+              >
+                Advanced Ad Generation
+              </button>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Link href="/dashboard" passHref>
                 <button
+                  onClick={handleDiscard}
                   style={{
-                    backgroundColor: "#eb631c",
-                    color: "white",
-                    border: "1px solid #eb631c",
+                    backgroundColor: "transparent", // Set background to transparent
+                    color: "red", // Set text color to red
+                    border: "1px solid red", // Set border color to red
                     width: "100%",
                     padding: "10px 20px",
                     fontSize: "16px",
@@ -271,9 +338,13 @@ function Home() {
                     margin: "4px 2px",
                     transitionDuration: "0.4s",
                     borderRadius: "12px",
+                    hover: {
+                      backgroundColor: "red", // Red background on hover
+                      color: "white", // White text on hover
+                    },
                   }}
                 >
-                  Advanced Ad Generation
+                  Discard
                 </button>
               </Link>
             </div>

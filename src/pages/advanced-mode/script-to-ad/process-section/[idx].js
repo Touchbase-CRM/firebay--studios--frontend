@@ -38,7 +38,8 @@ import {
 } from "firebase/firestore";
 import _ from "lodash";
 import { Stack } from "../../../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "../../../../utils/fetchFromDistribution";
+import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetchAudio/fetchFromDistribution";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -53,6 +54,7 @@ function ProcessSection() {
 
   // Zustand store hooks
   const {
+    spotId,
     sectionsArray,
     setSectionsArray,
     sectionHistoryArray,
@@ -62,6 +64,18 @@ function ProcessSection() {
     s2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    sectionsArray,
+    sectionHistoryArray,
+    numSectionsIdentified,
+    s2aAdvancedFreeStyleStatus,
+  };
+
+  const saveSharedStates = {
+    spotId,
+    adLength,
+  };
 
   const { idx } = router.query;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
@@ -76,6 +90,7 @@ function ProcessSection() {
   });
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
@@ -336,6 +351,7 @@ function ProcessSection() {
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
+    setForceRenderKey(Math.random());
     setGeneratedVoiceUrl(
       baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
     );
@@ -453,10 +469,10 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-      setAllowDownload(false);
-      setShowAudioPlayer(true);
+      // setAllowDownload(false);
+      // setShowAudioPlayer(true);
 
-      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(
         baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
       );
@@ -483,13 +499,22 @@ function ProcessSection() {
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
-  const syncSectionHistoryArray = (index, newSectionHistoryObj) => {
+
+  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
     const currentArray = useUserInputsStore.getState().sectionHistoryArray;
     const updatedArray = [
       ...currentArray.slice(0, index),
       newSectionHistoryObj,
       ...currentArray.slice(index + 1),
     ];
+    return updatedArray;
+  };
+
+  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
+    const updatedArray = addCurrentSectionHistoryToArray(
+      index,
+      newSectionHistoryObj
+    );
     setSectionHistoryArray(updatedArray);
   };
 
@@ -508,7 +533,10 @@ function ProcessSection() {
       voiceId: localCurrentSectionObj.getVoiceId(),
     });
     // sync the local history with global.
-    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
@@ -522,10 +550,13 @@ function ProcessSection() {
       // load the next section
       let lastInUrl = localPopData();
       syncLocalStackWithGlobal();
+      handleSaveState();
+
       router.push(lastInUrl);
     } else {
       localSectionsArray[index] = localCurrentSectionObj;
       setSectionsArray(localSectionsArray);
+      handleSaveState();
 
       if (currentSectionIndex >= sectionsArray.length - 1) {
         router.push("/advanced-mode/script-to-ad/stitch-sections");
@@ -647,6 +678,7 @@ function ProcessSection() {
           localCurrentSectionObj.getSpeechRate(),
           true
         );
+
         // Repeated code
         audioUrl = result.audioUrl;
         localHistoryItemId = result.localHistoryItemId;
@@ -678,6 +710,19 @@ function ProcessSection() {
       });
     } catch (error) {
       console.error("Error generating voice:", error);
+      if (error.name === "NetworkError") {
+        // Handle network errors specifically
+        console.error("Check your network or API endpoint:", error);
+      } else if (error.message.includes("pyro_history_item_id")) {
+        // Handle missing ID errors specifically
+        console.error(
+          "API response missing required 'pyro_history_item_id':",
+          error
+        );
+      } else {
+        // Handle all other errors
+        console.error("Processing error:", error);
+      }
     } finally {
       setIsGeneratingVoice(false);
     }
@@ -705,7 +750,10 @@ function ProcessSection() {
     updateLocalSectionHistoryObj({
       [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
     });
-    syncSectionHistoryArray(currentSectionIndex, localSectionHistoryObj);
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
     localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
     setSectionsArray(localSectionsArray);
 
@@ -714,6 +762,7 @@ function ProcessSection() {
       `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
     );
     syncLocalStackWithGlobal();
+    handleSaveState();
     // move to the new url
     if (currentSectionIdx > 0) {
       router.push(
@@ -743,10 +792,31 @@ function ProcessSection() {
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
 
+  const handleSaveState = () => {
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    const tmpHistoryArray = addCurrentSectionHistoryToArray(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
+
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
+
   const links = [
     {
-      label: "Home",
-      url: "/home",
+      label: "Dashboard",
+      url: "/dashboard",
       isInternal: true,
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
@@ -1089,7 +1159,7 @@ function ProcessSection() {
           <div
             style={{
               display: "flex", // Enable flexbox
-              justifyContent: "space-between", // Space between items
+              justifyContent: "flex-start", // Align items to the start of the container
               alignItems: "center", // Align items vertically
               bottom: "10px",
               left: "10px",
@@ -1102,7 +1172,7 @@ function ProcessSection() {
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px", // Keep for right margin
+                marginRight: "auto", // Push all subsequent items to the right
                 marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
@@ -1111,40 +1181,67 @@ function ProcessSection() {
             >
               {"Next"}
             </Button>
+            {/* Save Button */}
+            <Button
+              onClick={handleSaveState}
+              style={{
+                marginRight: "10px", // Space between Save and History
+                marginTop: "20px",
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+              }}
+            >
+              <span
+                style={{
+                  verticalAlign: "middle",
+                  marginLeft: "8px",
+                  color: "black",
+                }}
+              >
+                Save
+              </span>
+            </Button>
 
-            {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-              localSectionHistoryObj &&
-              localSectionHistoryObj[currentSectionIndex] !== null && (
-                <>
-                  <Button
-                    onClick={showOffcanvas}
-                    style={{
-                      marginRight: "0px", // Adjusted for consistency
-                      marginTop: "20px",
-                      backgroundColor: "white",
-
-                      borderColor: "#FDA942",
-                    }}
-                  >
-                    <span
-                      style={{
-                        verticalAlign: "middle",
-                        marginLeft: "8px",
-                        color: "black",
-                      }}
-                    >
-                      History
-                    </span>
-                  </Button>
-                  <HistoryCanvas
-                    show={offcanvasVisible}
-                    handleClose={hideOffcanvas}
-                    localSectionHistoryObj={localSectionHistoryObj}
-                    playAudioUrl={playAudioUrl}
-                    changeCurrentSectionObj={changeCurrentSectionObj}
-                  />
-                </>
-              )}
+            {/* Always render History Button but conditionally disable it */}
+            <Button
+              onClick={showOffcanvas}
+              disabled={
+                !(
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                  localSectionHistoryObj &&
+                  localSectionHistoryObj[currentSectionIndex] !== null
+                )
+              }
+              style={{
+                marginRight: "0px", // No right margin, to stick to the canvas trigger
+                marginTop: "20px",
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+                opacity:
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                  localSectionHistoryObj &&
+                  localSectionHistoryObj[currentSectionIndex] !== null
+                    ? "1"
+                    : "0.5",
+              }}
+            >
+              <span
+                style={{
+                  verticalAlign: "middle",
+                  marginLeft: "8px",
+                  color: "black",
+                }}
+              >
+                History
+              </span>
+            </Button>
+            <HistoryCanvas
+              show={offcanvasVisible}
+              handleClose={hideOffcanvas}
+              localSectionHistoryObj={localSectionHistoryObj}
+              playAudioUrl={playAudioUrl}
+              changeCurrentSectionObj={changeCurrentSectionObj}
+            />
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

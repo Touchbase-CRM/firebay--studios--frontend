@@ -25,6 +25,8 @@ import {
   where,
 } from "firebase/firestore";
 
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+
 function CreateAd() {
   const posthog = usePostHog();
   const auth = getAuth();
@@ -34,6 +36,7 @@ function CreateAd() {
 
   // Zustand store hooks
   const {
+    spotId,
     ogScriptWordsArray, //holds the original script words as an array of strings.
     setOgScriptWordsArray,
     originalScriptString, //holds the original script as a single string enabling user to add or remove new words. This does not contain any transformations.
@@ -56,6 +59,23 @@ function CreateAd() {
     setModelId,
     setAdGenerationMethod,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    historyItemId,
+  };
+
+  const saveSharedStates = {
+    ogScriptWordsArray,
+    originalScriptString,
+    transformedWords,
+    voiceId,
+    voiceName,
+    voicePreviewFilename,
+    adLength,
+    generatedVoiceUrl,
+    modelId,
+    spotId,
+  };
 
   // const [showExamples, setShowExamples] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
@@ -295,6 +315,7 @@ function CreateAd() {
       () => setFormSubmitted(true),
       showAlert
     );
+    handleSaveState();
 
     if (!isValid) return;
   };
@@ -356,10 +377,20 @@ function CreateAd() {
     setIsGeneratingVoice(false);
   };
 
+  const handleSaveState = () => {
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      mode: "quick-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
+
   const links = [
     {
-      label: "Home",
-      url: "/home",
+      label: "Dashboard",
+      url: "/dashboard",
       isInternal: true,
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
@@ -575,19 +606,15 @@ function CreateAd() {
           </Card>
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
+              display: "flex",
+              justifyContent: "space-between", // Ensures the buttons are on opposite sides
+              marginTop: "20px", // Adjusted margin for overall alignment
             }}
           >
+            {/* Next Button */}
             <Button
               className="mt-3"
               style={{
-                marginRight: "10px",
-                marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
               }}
@@ -595,7 +622,20 @@ function CreateAd() {
             >
               Next
             </Button>
+            {/* Save Button */}
+            <Button
+              className="mt-3"
+              onClick={handleSaveState}
+              style={{
+                backgroundColor: "white",
+                borderColor: "#FDA942",
+                color: "black",
+              }}
+            >
+              Save
+            </Button>
           </div>
+
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
             <SimpleAudioPlayer
@@ -679,4 +719,3 @@ function CreateAd() {
   );
 }
 export default withAuth(CreateAd);
-// These restrictions are temporary. Need to figure out a better data model.

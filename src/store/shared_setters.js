@@ -11,45 +11,23 @@ export class UserInputMethods {
     this.setVoiceName = this.setVoiceName.bind(this);
     this.setVoicePreviewFilename = this.setVoicePreviewFilename.bind(this);
     this.setAdLength = this.setAdLength.bind(this);
-    this.setAdSecondsConsumed = this.setAdSecondsConsumed.bind(this);
     this.setChosenMusic = this.setChosenMusic.bind(this);
     this.setMusicVol = this.setMusicVol.bind(this);
     this.setPreviewFileName = this.setPreviewFileName.bind(this);
     this.setBackgroundMusicFilename =
       this.setBackgroundMusicFilename.bind(this);
     this.setGeneratedVoiceUrl = this.setGeneratedVoiceUrl.bind(this);
-    this.setHistoryItemId = this.setHistoryItemId.bind(this);
     this.setModelId = this.setModelId.bind(this);
-    this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
-    this.setSectionsArray = this.setSectionsArray.bind(this);
-    this.setStitchedAudioPyroHistoryItemId =
-      this.setStitchedAudioPyroHistoryItemId.bind(this);
-    this.setNavigationStack = this.setNavigationStack.bind(this);
-    this.setSectionHistoryArray = this.setSectionHistoryArray.bind(this);
     this.setAdGenerationMethod = this.setAdGenerationMethod.bind(this);
+    this.setSpotId = this.setSpotId.bind(this);
+  }
+
+  setSpotId(spotId) {
+    this.set({ spotId });
   }
 
   setAdGenerationMethod(adGenerationMethod) {
     this.set({ adGenerationMethod });
-  }
-  setSectionHistoryArray(sectionHistoryArray) {
-    this.set({ sectionHistoryArray });
-  }
-
-  setNavigationStack(navigationStack) {
-    this.set({ navigationStack });
-  }
-
-  setStitchedAudioPyroHistoryItemId(stitchedAudioPyroHistoryItemId) {
-    this.set({ stitchedAudioPyroHistoryItemId });
-  }
-
-  setSectionsArray(sectionsArray) {
-    this.set({ sectionsArray });
-  }
-
-  setNumSectionsIdentified(numSectionsIdentified) {
-    this.set({ numSectionsIdentified });
   }
 
   setOgScriptWordsArray(ogScriptWordsArray) {
@@ -80,10 +58,6 @@ export class UserInputMethods {
     this.set({ adLength });
   }
 
-  setAdSecondsConsumed(adSecondsConsumed) {
-    this.set({ adSecondsConsumed });
-  }
-
   setChosenMusic(chosenMusic) {
     this.set({ chosenMusic });
   }
@@ -102,10 +76,6 @@ export class UserInputMethods {
 
   setGeneratedVoiceUrl(generatedVoiceUrl) {
     this.set({ generatedVoiceUrl });
-  }
-
-  setHistoryItemId(historyItemId) {
-    this.set({ historyItemId });
   }
 
   setModelId(modelId) {

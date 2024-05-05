@@ -53,7 +53,7 @@ const TrialLoginPage = () => {
       signInWithEmailAndPassword(auth, predefinedEmail, predefinedPassword)
         .then(async (userCredential) => {
           // Logic after successful login
-          router.push("/home");
+          router.push("/dashboard");
         })
         .catch((error) => {
           // Handle login errors

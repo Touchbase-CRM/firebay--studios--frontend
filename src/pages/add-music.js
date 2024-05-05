@@ -31,6 +31,7 @@ import {
 } from "firebase/firestore";
 import app from "../firebase";
 import { Stack } from "../dataStructures/stack";
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 const db = getFirestore(app);
 
@@ -52,7 +53,23 @@ function AddMusic() {
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
     adGenerationMethod,
+    spotId,
   } = useUserInputsStore();
+
+  const saveFeatureSpecificStates = {
+    stitchedAudioPyroHistoryItemId,
+    historyItemId,
+  };
+
+  const saveSharedStates = {
+    chosenMusic,
+    previewFileName,
+    backgroundMusicFilename,
+    musicVol,
+    adGenerationMethod,
+    spotId,
+    adLength,
+  };
 
   const baseMusicPreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/music--previews--low--vol/";
@@ -98,6 +115,7 @@ function AddMusic() {
     // save the current url in the stack
     localPushData(`/advanced-mode/script-to-ad/stitch-sections`);
     syncLocalStackWithGlobal();
+    handleSaveState();
     // move to the new url
     if (sectionsArray.length > 0) {
       router.push("/advanced-mode/script-to-ad/stitch-sections");
@@ -261,6 +279,7 @@ function AddMusic() {
   };
   const handleSkipMusic = () => {
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
+    handleSaveState();
     // Redirect to the download page with the generatedVoiceUrl
     router.push({
       pathname: "/download",
@@ -313,7 +332,7 @@ function AddMusic() {
         responseType: "arraybuffer",
         cancelToken: cancelTokenSourceRef.current.token, // Using the token from useRef
       })
-      .then((response) => {
+      .then(async (response) => {
         console.log("Audio data received");
 
         const audioBlob = new Blob([response.data], { type: "audio/mp3" });
@@ -339,6 +358,7 @@ function AddMusic() {
       })
       .finally(() => {
         setPendingAdvertisement(false); // Set pending to false when API call completes
+        handleSaveState();
       });
   };
 
@@ -353,10 +373,32 @@ function AddMusic() {
         console.error("Logout Error:", error);
       });
   };
+
+  const getMode = () => {
+    if (adGenerationMethod === "script-to-ad") {
+      return historyItemId ? "advanced-script-to-ad" : "quick-script-to-ad";
+    }
+
+    if (adGenerationMethod === "voice-to-ad") {
+      return "quick-voice-to-ad";
+    }
+  };
+
+  const handleSaveState = () => {
+    const mode = getMode();
+    createSpotInDb({
+      spotName: null, // explicitly setting it as null for clarity, optional
+      spotId: spotId,
+      mode: mode,
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
+
   const links = [
     {
-      label: "Home",
-      url: "/home",
+      label: "Dashboard",
+      url: "/dashboard",
       isInternal: true,
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
@@ -443,130 +485,143 @@ function AddMusic() {
 
       <Row>
         <Col md={6} className="mx-auto">
-          <Card
-            className="p-4"
-            style={{
-              marginTop: "70px",
-              marginBottom: "140px",
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              position: "relative",
-            }}
-          >
-            <div
+          <div style={{ position: "relative" }}>
+            <Card
+              className="p-4"
               style={{
-                position: "absolute", // Absolutely position the BackButton
-                top: "10px", // Adjust as needed
-                left: "10px", // Adjust as needed
+                marginTop: "70px",
+                marginBottom: "20px",
+                borderRadius: "1rem",
+                borderColor: "#eb631c",
+                color: "black",
+                position: "relative",
               }}
             >
-              <BackButton
-                width="30px"
-                height="30px"
-                backgroundColor="#eb631c"
-                onClick={handleGoBack} // Pass the onClick method directly
-              />
-            </div>
-            <h2
-              className="mb-4"
-              style={{ marginBottom: "20px", marginTop: "30px" }}
-            >
-              Add Background Music
-            </h2>
-            <Form onSubmit={handleSubmit}>
-              {musicChoices.length === 0 ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Form.Select
-                    aria-label="Music selection"
-                    disabled
-                    style={{ color: "black" }}
-                  >
-                    <option>Loading music choices...</option>
-                  </Form.Select>
-                  <BootstrapSpinner
-                    animation="border"
-                    style={{ marginLeft: "10px" }}
-                  />
-                </div>
-              ) : (
-                <Form.Select
-                  aria-label="Music selection"
-                  value={chosenMusic}
-                  onChange={handleMusicChange}
-                  style={{ color: "black" }}
-                >
-                  {musicChoices.map((musicOption, index) => (
-                    <option key={index} value={musicOption}>
-                      {musicOption}
-                    </option>
-                  ))}
-                </Form.Select>
-              )}
-
-              {
-                <div style={{ marginTop: "20px" }}>
-                  <label htmlFor="volumeControl" className="form-label">
-                    Music Volume Control
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#eb631c",
-                    }}
-                  >
-                    <input
-                      type="range"
-                      className="form-range"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      id="volumeControl"
-                      value={musicVol}
-                      onChange={(e) => setTempVolume(e.target.value)} // Update temporary volume
-                      onMouseUp={() => handleVolumeChange(tempVolume)} // Apply changes on mouse up
-                      onTouchEnd={handleVolumeChange} // Similarly for touch devices
-                    />
-                    <div
-                      style={{
-                        backgroundColor: "black",
-                        color: "white",
-                        padding: "2px 5px",
-                        marginLeft: "10px",
-                        borderRadius: "10px",
-                        fontSize: "0.9em",
-                      }}
-                    >
-                      {volumePercentage}%
-                    </div>
-                  </div>
-                </div>
-              }
-
-              <Button
-                type="submit"
-                className="mt-3"
-                style={{ backgroundColor: "#eb631c", borderColor: "#eb631c" }}
-              >
-                Submit
-              </Button>
-              <Button
-                // variant="danger"
-                onClick={handleSkipMusic}
+              <div
                 style={{
-                  position: "absolute",
-                  bottom: "20px",
-                  right: "20px",
-                  backgroundColor: "#FDA942",
-                  borderColor: "#FDA942",
+                  position: "absolute", // Absolutely position the BackButton
+                  top: "10px", // Adjust as needed
+                  left: "10px", // Adjust as needed
                 }}
               >
-                Skip Music
-              </Button>
-            </Form>
-          </Card>
+                <BackButton
+                  width="30px"
+                  height="30px"
+                  backgroundColor="#eb631c"
+                  onClick={handleGoBack} // Pass the onClick method directly
+                />
+              </div>
+              <h2
+                className="mb-4"
+                style={{ marginBottom: "20px", marginTop: "30px" }}
+              >
+                Add Background Music
+              </h2>
+              <Form onSubmit={handleSubmit}>
+                {musicChoices.length === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Music selection"
+                      disabled
+                      style={{ color: "black" }}
+                    >
+                      <option>Loading music choices...</option>
+                    </Form.Select>
+                    <BootstrapSpinner
+                      animation="border"
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </div>
+                ) : (
+                  <Form.Select
+                    aria-label="Music selection"
+                    value={chosenMusic}
+                    onChange={handleMusicChange}
+                    style={{ color: "black" }}
+                  >
+                    {musicChoices.map((musicOption, index) => (
+                      <option key={index} value={musicOption}>
+                        {musicOption}
+                      </option>
+                    ))}
+                  </Form.Select>
+                )}
 
+                {
+                  <div style={{ marginTop: "20px" }}>
+                    <label htmlFor="volumeControl" className="form-label">
+                      Music Volume Control
+                    </label>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#eb631c",
+                      }}
+                    >
+                      <input
+                        type="range"
+                        className="form-range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        id="volumeControl"
+                        value={musicVol}
+                        onChange={(e) => setTempVolume(e.target.value)} // Update temporary volume
+                        onMouseUp={() => handleVolumeChange(tempVolume)} // Apply changes on mouse up
+                        onTouchEnd={handleVolumeChange} // Similarly for touch devices
+                      />
+                      <div
+                        style={{
+                          backgroundColor: "black",
+                          color: "white",
+                          padding: "2px 5px",
+                          marginLeft: "10px",
+                          borderRadius: "10px",
+                          fontSize: "0.9em",
+                        }}
+                      >
+                        {volumePercentage}%
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <Button
+                  type="submit"
+                  className="mt-3"
+                  style={{ backgroundColor: "#eb631c", borderColor: "#eb631c" }}
+                >
+                  Submit
+                </Button>
+                <Button
+                  // variant="danger"
+                  onClick={handleSkipMusic}
+                  style={{
+                    position: "absolute",
+                    bottom: "20px",
+                    right: "20px",
+                    backgroundColor: "#FDA942",
+                    borderColor: "#FDA942",
+                  }}
+                >
+                  Skip Music
+                </Button>
+              </Form>
+            </Card>
+            <div style={{ textAlign: "right" }}>
+              <Button
+                onClick={handleSaveState}
+                style={{
+                  backgroundColor: "white",
+                  borderColor: "#FDA942",
+                  color: "black",
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
           <div>
             <SimpleAudioPlayer
               audioTitle={chosenMusic}
