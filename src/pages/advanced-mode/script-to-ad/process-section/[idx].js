@@ -469,10 +469,10 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-      setAllowDownload(false);
-      setShowAudioPlayer(true);
+      // setAllowDownload(false);
+      // setShowAudioPlayer(true);
 
-      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(
         baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
       );
