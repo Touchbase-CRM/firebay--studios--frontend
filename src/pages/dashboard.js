@@ -12,6 +12,7 @@ import {
 import { Section } from "../dataStructures/section";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/navBar";
+import withAuth from "../hocs/withAuth";
 
 import app from "../firebase";
 import {
@@ -805,4 +806,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard);
