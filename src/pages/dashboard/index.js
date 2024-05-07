@@ -1,3 +1,4 @@
+// Related path: src/pages/index.js
 import { Button, Table, Container, Row, Col, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GenericModal } from "@/components/foundationComponents/modal";
