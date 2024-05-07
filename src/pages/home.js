@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 
 import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "@/firebase";
 import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
 import useUserInputsStore from "../store/userInputs";

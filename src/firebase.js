@@ -1,3 +1,4 @@
+//Relative path: src/firebase.js
 // Import the functions you need from the SDKs you are using
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";

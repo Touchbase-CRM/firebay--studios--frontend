@@ -29,7 +29,7 @@ import {
   collection,
   where,
 } from "firebase/firestore";
-import app from "../firebase";
+import app from "@/firebase";
 import { Stack } from "../dataStructures/stack";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 

@@ -6,7 +6,7 @@ import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import { getSubscriptionStatus } from "../stripe_proxy_sdk";
-import app from "../firebase";
+import app from "@/firebase";
 
 const auth = getAuth();
 

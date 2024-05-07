@@ -10,7 +10,7 @@ import {
   createUserWithEmailAndPassword,
   // sendEmailVerification,
 } from "firebase/auth";
-import app from "../firebase";
+import app from "@/firebase";
 
 import Spinner from "../components/Spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";

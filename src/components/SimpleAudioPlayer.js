@@ -4,7 +4,7 @@ import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
-import app from "../firebase";
+import app from "@/firebase";
 
 export default function SimpleAudioPlayer({
   audioTitle,
