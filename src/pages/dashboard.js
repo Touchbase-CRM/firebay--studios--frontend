@@ -9,7 +9,7 @@ import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/dbReadWriteOps/deserializationUtils";
-import { Section } from "../dataStructures/section";
+import { Section } from "@/dataStructures/section";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/navBar";
 import withAuth from "@/hocs/withAuth";
