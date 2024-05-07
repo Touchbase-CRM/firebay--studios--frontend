@@ -17,7 +17,7 @@ import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
-import useUserInputsStore from "../store/userInputs";
+import useUserInputsStore from "@/store/userInputs";
 import withAuth from "@/hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
 import {

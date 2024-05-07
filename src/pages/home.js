@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
-import useUserInputsStore from "../store/userInputs";
+import useUserInputsStore from "@/store/userInputs";
 import React, { useState, useEffect, useRef } from "react";
 import {
   getFirestore,

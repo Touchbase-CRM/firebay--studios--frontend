@@ -4,7 +4,7 @@ import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import useUserInputsStore from "../store/userInputs";
+import useUserInputsStore from "@/store/userInputs";
 import {
   deserializeAndLoadModeData,
   readFromFirestore,
