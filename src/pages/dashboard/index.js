@@ -5,12 +5,10 @@ import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-// import useUserInputsStore from "@/store/userInputs";
 import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/dbReadWriteOps/deserializationUtils";
-// import { Section } from "@/dataStructures/section";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/navBar";
 import withAuth from "@/hocs/withAuth";
@@ -30,8 +28,6 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-
-import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 import {
   updateAdvancedS2AState,
@@ -57,38 +53,6 @@ const Dashboard = () => {
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
   const pageSize = 20;
-
-  //   const {
-  //     // shared states
-  //     setOgScriptWordsArray,
-  //     setOriginalScriptString,
-  //     setTransformedWords,
-  //     setVoiceId,
-  //     setVoiceName,
-  //     setVoicePreviewFilename,
-  //     setAdLength,
-  //     setChosenMusic,
-  //     setMusicVol,
-  //     setPreviewFileName,
-  //     setBackgroundMusicFilename,
-  //     setGeneratedVoiceUrl,
-  //     setModelId,
-  //     setAdGenerationMethod,
-  //     setSpotId,
-  //     spotId,
-  //     // advanced script to ad states
-  //     setNavigationStack,
-  //     setSectionsArray,
-  //     setNumSectionsIdentified,
-  //     setSectionHistoryArray,
-  //     setHistoryItemId,
-  //     setStitchedAudioPyroHistoryItemId,
-  //     setV2aUploadedAudioUrl,
-  //     setV2aQuickUploadedFile,
-  //     setv2aQuickGeneratedAudioBlob,
-  //     setV2aQuickAudioDuration,
-  //     reset: resetUserInputsStore,
-  //   } = useUserInputsStore();
 
   useEffect(() => {
     // Slice the spots array to get only the current page items
