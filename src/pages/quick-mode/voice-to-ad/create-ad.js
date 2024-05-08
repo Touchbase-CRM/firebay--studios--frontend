@@ -26,6 +26,7 @@ import withAuth from "@/hocs/withAuth";
 import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploaded-audio";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import useUserInputsStore from "@/store/user-inputs";
@@ -687,17 +688,14 @@ function CreateAd() {
                 Next
               </Button>
               {/* Save Button */}
-              <Button
-                className="mt-3"
+              <SecondaryActionButton
+                width="60px"
+                height="40px"
+                initialText="Save"
+                clickedText="Saved!"
+                borderColor="#FDA942"
                 onClick={handleSaveState}
-                style={{
-                  backgroundColor: "white",
-                  borderColor: "#FDA942",
-                  color: "black",
-                }}
-              >
-                Save
-              </Button>
+              />
             </div>
           )}
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

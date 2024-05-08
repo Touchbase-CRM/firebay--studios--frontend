@@ -39,6 +39,7 @@ import { Stack } from "@/data-structures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { HistoryCanvas } from "./components/history-canvas";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -1181,29 +1182,21 @@ function ProcessSection() {
               {"Next"}
             </Button>
             {/* Save Button */}
-            <Button
+            <SecondaryActionButton
               onClick={handleSaveState}
-              style={{
-                marginRight: "10px", // Space between Save and History
-                marginTop: "20px",
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-              }}
-            >
-              <span
-                style={{
-                  verticalAlign: "middle",
-                  marginLeft: "8px",
-                  color: "black",
-                }}
-              >
-                Save
-              </span>
-            </Button>
+              initialText="Save"
+              clickedText="Saved!"
+              duration={1000}
+              marginRight="10px"
+              marginTop="20px"
+            />
 
-            {/* Always render History Button but conditionally disable it */}
-            <Button
+            {/* History Button */}
+            <SecondaryActionButton
               onClick={showOffcanvas}
+              initialText="History"
+              clickedText="History!"
+              duration={1000}
               disabled={
                 !(
                   localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
@@ -1211,29 +1204,16 @@ function ProcessSection() {
                   localSectionHistoryObj[currentSectionIndex] !== null
                 )
               }
-              style={{
-                marginRight: "0px", // No right margin, to stick to the canvas trigger
-                marginTop: "20px",
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-                opacity:
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                  localSectionHistoryObj &&
-                  localSectionHistoryObj[currentSectionIndex] !== null
-                    ? "1"
-                    : "0.5",
-              }}
-            >
-              <span
-                style={{
-                  verticalAlign: "middle",
-                  marginLeft: "8px",
-                  color: "black",
-                }}
-              >
-                History
-              </span>
-            </Button>
+              opacity={
+                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                localSectionHistoryObj &&
+                localSectionHistoryObj[currentSectionIndex] !== null
+                  ? "1"
+                  : "0.5"
+              }
+              marginRight="0px"
+              marginTop="20px"
+            />
             <HistoryCanvas
               show={offcanvasVisible}
               handleClose={hideOffcanvas}

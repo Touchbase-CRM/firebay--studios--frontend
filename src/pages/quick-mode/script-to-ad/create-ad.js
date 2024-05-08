@@ -715,5 +715,4 @@ function CreateAd() {
     </div>
   );
 }
-// export default withAuth(CreateAd);
-export default CreateAd;
+export default withAuth(CreateAd);

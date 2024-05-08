@@ -15,6 +15,7 @@ import Spinner from "@/components/spinner/spinner";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
 import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import withAuth from "@/hocs/withAuth";
 import { Stack } from "@/data-structures/stack";
@@ -728,17 +729,15 @@ function StitchSections() {
         >
           {combinedVoiceoverUrl === null ? "Finalize" : "Next"}
         </Button>
-        <Button
+        {/* Save Button */}
+        <SecondaryActionButton
+          width="60px"
+          height="40px"
+          initialText="Save"
+          clickedText="Saved!"
+          borderColor="#FDA942"
           onClick={handleSaveState}
-          style={{
-            width: "200px",
-            backgroundColor: "white",
-            borderColor: "#FDA942",
-            color: "black",
-          }}
-        >
-          Save
-        </Button>
+        />
       </div>
 
       <div style={{ position: "relative", marginTop: "400px" }}>
