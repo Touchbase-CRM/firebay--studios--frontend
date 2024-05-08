@@ -1,16 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
-import { NavBar } from "@/components/foundation-components/nav-bar";
-import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-
 import "bootstrap-icons/font/bootstrap-icons.css";
-import SimpleAudioPlayer from "../../../components/simple-audio-player";
-import useUserInputsStore from "../../../store/user-inputs";
-
-import withAuth from "@/hocs/withAuth";
+import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
-import app from "../../../firebase";
+import app from "@/firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -25,7 +18,13 @@ import {
   where,
 } from "firebase/firestore";
 
-import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
+import useUserInputsStore from "@/store/user-inputs";
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import withAuth from "@/hocs/withAuth";
+
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 
 function CreateAd() {
   const posthog = usePostHog();

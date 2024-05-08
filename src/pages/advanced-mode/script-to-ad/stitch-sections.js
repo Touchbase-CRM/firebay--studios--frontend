@@ -1,31 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
-import useUserInputsStore from "../../../store/user-inputs";
-import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import { getAuth } from "firebase/auth";
-import withAuth from "@/hocs/withAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
-import { usePostHog } from "posthog-js/react";
 
+import { usePostHog } from "posthog-js/react";
 import { Card, Button, Table } from "react-bootstrap";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import Spinner from "@/components/spinner/spinner";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
 import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
 
-import "bootstrap-icons/font/bootstrap-icons.css";
-import Spinner from "../../../components/spinner/spinner";
-import { Stack } from "../../../data-structures/stack";
+import withAuth from "@/hocs/withAuth";
+import { Stack } from "@/data-structures/stack";
+
+import useUserInputsStore from "@/store/user-inputs";
+
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
-} from "@/utils/fetch-audio/fetchFromDistribution";
+} from "@/utils/fetch-audio/fetch-from-distribution";
 import {
   createSpotInDb,
   writeToFirestore,
-} from "@/utils/db-read-write-ops/serializationUtils";
+} from "@/utils/db-read-write-ops/serialization-utils";
 
 function StitchSections() {
   const auth = getAuth();

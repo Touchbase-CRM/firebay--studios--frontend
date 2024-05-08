@@ -8,18 +8,19 @@ import {
   Table,
   Offcanvas,
 } from "react-bootstrap";
-import { NavBar } from "@/components/foundation-components/nav-bar";
-import { AdvancedModeStarterAlert } from "@/components/advanced-mode-starter-alert";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import { useRouter } from "next/router";
-
-import useUserInputsStore from "../../../store/user-inputs";
-import { Section } from "../../../data-structures/section";
-
-import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
 import Alert from "react-bootstrap/Alert";
+
+import "bootstrap-icons/font/bootstrap-icons.css";
+import { useRouter } from "next/router";
+
+import { NavBar } from "@/components/foundation-components/nav-bar";
+import { AdvancedModeStarterAlert } from "@/components/advanced-mode-starter-alert";
+
+import useUserInputsStore from "@/store/user-inputs";
+import { Section } from "@/data-structures/section";
+import withAuth from "@/hocs/withAuth";
 
 function CreateSections() {
   const auth = getAuth();

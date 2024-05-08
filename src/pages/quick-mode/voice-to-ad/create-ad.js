@@ -20,7 +20,7 @@ import {
 
 import { usePostHog } from "posthog-js/react";
 import { elevenlabsSTS } from "@/middleware/speech-to-speech";
-import { useFileUploader } from "@/hooks/fileUpload/useFileUploader";
+import { useFileUploader } from "@/hooks/file-upload/use-file-uploader";
 import withAuth from "@/hocs/withAuth";
 
 import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploaded-audio";
