@@ -120,6 +120,30 @@ export const createSpotInDb = async ({
 }) => {
   const userId = auth.currentUser.uid;
 
+  // Assert that exactly one of spotName or spotId is provided
+  if ((spotName && spotId) || (!spotName && !spotId)) {
+    throw new Error(
+      "Either spotName or spotId must be provided, but not both."
+    );
+  }
+
+  let savedSpotId = spotId;
+
+  // Write spot metadata first
+  if (spotName) {
+    // Only run when creating a new spot
+    savedSpotId = await writeSpotMetaDataToFirestore({
+      spotName,
+      spotId: null, // New spot, so no existing spotId
+      mode,
+      created: new Date(),
+      lastDownloaded: null,
+    });
+  }
+
+  // Update the spotId in sharedStates
+  sharedStates.spotId = savedSpotId;
+
   const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
   const serializedSharedStates = serializeProperties(sharedStates);
 
@@ -129,25 +153,8 @@ export const createSpotInDb = async ({
     sharedStates: serializedSharedStates,
   };
 
-  // Assert that exactly one of spotName or spotId is provided
-  if ((spotName && spotId) || (!spotName && !spotId)) {
-    throw new Error(
-      "Either spotName or spotId must be provided, but not both."
-    );
-  }
+  // Write main spot data
+  const finalSpotId = await writeSpotStatesToFirestore(data, null, savedSpotId);
 
-  const savedSpotId = await writeSpotStatesToFirestore(data, spotName, spotId);
-
-  if (spotName) {
-    // only run when creating a new spot
-    await writeSpotMetaDataToFirestore({
-      spotName,
-      spotId: savedSpotId,
-      mode: mode,
-      created: new Date(),
-      historyItemId: null,
-      lastDownloaded: null,
-    });
-  }
-  return savedSpotId;
+  return finalSpotId;
 };
