@@ -16,7 +16,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import { AdvancedModeStarterAlert } from "@/components/advanced-mode-starter-alert";
+import { SectioningTutorial } from "./components/tutorial/alert";
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
@@ -251,7 +251,7 @@ function CreateSections() {
                       <Offcanvas.Title>Tutorial</Offcanvas.Title>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
-                      <AdvancedModeStarterAlert />
+                      <SectioningTutorial />
                     </Offcanvas.Body>
                   </Offcanvas>
                 </>
