@@ -1,3 +1,4 @@
+// Relative path: src/pages/add-music.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -7,7 +8,7 @@ import {
   Button,
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
-import { NavBar } from "@/components/nav-bar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { useRouter } from "next/router";
@@ -17,7 +18,7 @@ import Spinner from "../components/spinner/spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/simple-audio-player";
 import BackButton from "@/components/back-button";
-import useUserInputsStore from "@/store/userInputs";
+import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
 import {
@@ -30,7 +31,7 @@ import {
   where,
 } from "firebase/firestore";
 import app from "@/firebase";
-import { Stack } from "../dataStructures/stack";
+import { Stack } from "../data-structures/stack";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
 const db = getFirestore(app);

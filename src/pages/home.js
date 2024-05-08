@@ -1,5 +1,6 @@
+// Relative path: src/pages/home.js
 import { Card, Button } from "react-bootstrap";
-import { NavBar } from "@/components/nav-bar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import { ActionSelectorModal } from "@/components/action-selector-modal/actionSelector";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -9,7 +10,7 @@ import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { useRouter } from "next/router";
 import { getPortalUrl } from "../stripe_proxy_sdk";
-import useUserInputsStore from "@/store/userInputs";
+import useUserInputsStore from "@/store/user-inputs";
 import React, { useState, useEffect, useRef } from "react";
 import {
   getFirestore,
@@ -24,7 +25,7 @@ import {
 } from "firebase/firestore";
 const db = getFirestore(app);
 
-import { defaultState } from "../store/shared_default_values";
+import { defaultState } from "../store/shared-default-values";
 import {
   advancedScriptToAdDefaultValues,
   AdvancedScriptToAdSetters,

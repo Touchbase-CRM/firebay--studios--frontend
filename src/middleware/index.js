@@ -1,3 +1,3 @@
 // relative path: src/services/index.js
 export * from "./tts";
-export * from "./speechToSpeech";
+export * from "./speech-to-speech";

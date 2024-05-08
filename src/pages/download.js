@@ -15,7 +15,7 @@ import withAuth from "@/hocs/withAuth";
 
 import { usePostHog } from "posthog-js/react";
 import SimpleAudioPlayer from "../components/simple-audio-player";
-import useUserInputsStore from "@/store/userInputs";
+import useUserInputsStore from "@/store/user-inputs";
 
 const DownloadPage = () => {
   const posthog = usePostHog();

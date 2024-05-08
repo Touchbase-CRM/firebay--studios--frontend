@@ -1,6 +1,6 @@
-// Related path: src/utils.js
-import useUserInputsStore from "@/store/userInputs";
-import { Section } from "@/dataStructures/section";
+// Related path: src/pages/dashboard/utils/update-state.js
+import useUserInputsStore from "@/store/user-inputs";
+import { Section } from "@/data-structures/section";
 import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 const {

@@ -1,5 +1,5 @@
-// src/store/features/core/advanced/script-to-ad/default_values.js
-import { Stack } from "../../../../../dataStructures/stack";
+// src/store/features/core/advanced/script-to-ad/default-values.js
+import { Stack } from "@/data-structures/stack";
 
 export const advancedScriptToAdDefaultValues = {
   s2aAdvancedFreeStyleStatus: false,

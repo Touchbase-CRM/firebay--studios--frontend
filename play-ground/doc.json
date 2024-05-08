@@ -1,0 +1,145 @@
+{
+    "spotName": "candidate_ad",
+    "featureSpecificStates": {
+        "s2aAdvancedFreeStyleStatus": false,
+        "navigationStack": "[]",
+        "sectionsArray": [
+            {
+                "dragonBreathEnhancement": false,
+                "voiceName": "Charley",
+                "index": 0,
+                "signature": "fsCustomClass",
+                "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+                "endOfSectionPauseDurationSeconds": 0.2,
+                "currentContent": "vee",
+                "speechRate": "Normal",
+                "originalCharCount": 3,
+                "originalContent": "vee",
+                "voicePreviewFilename": "male/charley.mp3",
+                "currentWords": [
+                    "vee"
+                ],
+                "modelId": "eleven_multilingual_v2",
+                "sectionDurationSeconds": 0.862,
+                "historyItemId": "8V394CJ7OoV9v95ucORX",
+                "currentCharCount": 3,
+                "currentTransformations": {},
+                "generatedVoiceUrl": "blob:http://localhost:3000/e3d4999b-f39e-4d6d-a1d7-e3fefc9ab862"
+            },
+            {
+                "dragonBreathEnhancement": false,
+                "voiceName": "Charley",
+                "index": 1,
+                "signature": "fsCustomClass",
+                "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+                "endOfSectionPauseDurationSeconds": 0.2,
+                "currentContent": "lk",
+                "speechRate": "Normal",
+                "originalCharCount": 2,
+                "originalContent": "lk",
+                "voicePreviewFilename": "male/charley.mp3",
+                "currentWords": [
+                    "lk"
+                ],
+                "modelId": "eleven_multilingual_v2",
+                "sectionDurationSeconds": 0.653063,
+                "historyItemId": "yHcpyiK1xCfXEiNfx9fc",
+                "currentCharCount": 2,
+                "currentTransformations": {},
+                "generatedVoiceUrl": "blob:http://localhost:3000/2988c790-7e09-446f-86c3-737daf42c4fa"
+            }
+        ],
+        "numSectionsIdentified": 2,
+        "sectionHistoryArray": [
+            {
+                "YAb7JGFKWjs2SqWEjfip": {
+                    "dragonBreathEnhancement": false,
+                    "voiceName": "Charley",
+                    "index": 0,
+                    "signature": "fsCustomClass",
+                    "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+                    "endOfSectionPauseDurationSeconds": 0.2,
+                    "currentContent": "vee",
+                    "speechRate": "Normal",
+                    "originalCharCount": 3,
+                    "originalContent": "vee",
+                    "voicePreviewFilename": "male/charley.mp3",
+                    "currentWords": [
+                        "vee"
+                    ],
+                    "modelId": "eleven_multilingual_v2",
+                    "sectionDurationSeconds": 0.679125,
+                    "historyItemId": "YAb7JGFKWjs2SqWEjfip",
+                    "currentCharCount": 3,
+                    "currentTransformations": {},
+                    "generatedVoiceUrl": "blob:http://localhost:3000/eab72e49-6eef-4e54-96a9-6a065edf93a7"
+                },
+                "8V394CJ7OoV9v95ucORX": {
+                    "dragonBreathEnhancement": false,
+                    "voiceName": "Charley",
+                    "index": 0,
+                    "signature": "fsCustomClass",
+                    "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+                    "endOfSectionPauseDurationSeconds": 0.2,
+                    "currentContent": "vee",
+                    "speechRate": "Normal",
+                    "originalCharCount": 3,
+                    "originalContent": "vee",
+                    "voicePreviewFilename": "male/charley.mp3",
+                    "currentWords": [
+                        "vee"
+                    ],
+                    "modelId": "eleven_multilingual_v2",
+                    "sectionDurationSeconds": 0.862,
+                    "historyItemId": "8V394CJ7OoV9v95ucORX",
+                    "currentCharCount": 3,
+                    "currentTransformations": {},
+                    "generatedVoiceUrl": "blob:http://localhost:3000/e3d4999b-f39e-4d6d-a1d7-e3fefc9ab862"
+                }
+            },
+            {
+                "yHcpyiK1xCfXEiNfx9fc": {
+                    "dragonBreathEnhancement": false,
+                    "voiceName": "Charley",
+                    "index": 1,
+                    "signature": "fsCustomClass",
+                    "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+                    "endOfSectionPauseDurationSeconds": 0.2,
+                    "currentContent": "lk",
+                    "speechRate": "Normal",
+                    "originalCharCount": 2,
+                    "originalContent": "lk",
+                    "voicePreviewFilename": "male/charley.mp3",
+                    "currentWords": [
+                        "lk"
+                    ],
+                    "modelId": "eleven_multilingual_v2",
+                    "sectionDurationSeconds": 0.653063,
+                    "historyItemId": "yHcpyiK1xCfXEiNfx9fc",
+                    "currentCharCount": 2,
+                    "currentTransformations": {},
+                    "generatedVoiceUrl": "blob:http://localhost:3000/2988c790-7e09-446f-86c3-737daf42c4fa"
+                }
+            }
+        ],
+        "stitchedAudioPyroHistoryItemId": "pyro_f7202b3"
+    },
+    "sharedStates": {
+        "voiceName": "Charley",
+        "voiceId": "6wLJ4Wm2OxvAvetEUBCS",
+        "musicVol": 0.1,
+        "chosenMusic": "Rock: Electro Sport",
+        "backgroundMusicFilename": "Electro Sport_Rock.mp3",
+        "originalScriptString": "",
+        "adLength": "30",
+        "voicePreviewFilename": "male/charley.mp3",
+        "ogScriptWordsArray": [],
+        "spotId": "gwzFKrDgypQW4HxvBK77",
+        "adGenerationMethod": "",
+        "modelId": "eleven_multilingual_v2",
+        "previewFileName": "preview_Electro Sport_Rock.mp3",
+        "historyItemId": "",
+        "transformedWords": {},
+        "generatedVoiceUrl": ""
+    }
+}

@@ -9,7 +9,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import app from "../../firebase"; // Update the import path as necessary
-import { Section } from "../../dataStructures/section";
+import { Section } from "../../data-structures/section";
 
 const isSerializedCustomClass = (obj) =>
   typeof obj === "object" &&

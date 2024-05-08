@@ -1,21 +1,12 @@
-// relative path: src/pages/speech_style_transfer.js
+// relative path: src/pages/quick-mode/voice-to-ad/create-ad.js
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
-import { elevenlabsSTS } from "@/middleware/speechToSpeech";
-import SimpleAudioPlayer from "../../../components/simple-audio-player";
-import { useFileUploader } from "@/hooks/fileUpload/useFileUploader";
-import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploadedAudio";
 import Swal from "sweetalert2";
 import { AudioRecorder } from "react-audio-voice-recorder";
-import { NavBar } from "@/components/nav-bar";
 import { useRouter } from "next/router";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 
-import useUserInputsStore from "../../../store/userInputs";
-
-import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../../../firebase";
+import app from "@/firebase";
 
 import {
   getFirestore,
@@ -28,6 +19,16 @@ import {
 } from "firebase/firestore";
 
 import { usePostHog } from "posthog-js/react";
+import { elevenlabsSTS } from "@/middleware/speech-to-speech";
+import { useFileUploader } from "@/hooks/fileUpload/useFileUploader";
+import withAuth from "@/hocs/withAuth";
+
+import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploaded-audio";
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import { NavBar } from "@/components/foundation-components/nav-bar";
+
+import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import useUserInputsStore from "@/store/user-inputs";
 
 async function getAudioDuration(blob) {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();

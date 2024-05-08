@@ -1,3 +1,4 @@
+// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -27,14 +28,14 @@ import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-import { NavBar } from "@/components/nav-bar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 
-import useUserInputsStore from "@/store/userInputs";
+import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/withAuth";
-import { Stack } from "@/dataStructures/stack";
+import { Stack } from "@/data-structures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetchAudio/fetchFromDistribution";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 import { HistoryCanvas } from "./components/history-canvas";

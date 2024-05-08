@@ -1,7 +1,7 @@
-// Relative path: src/store/userInputs.js
+// Relative path: src/store/user-inputs.js
 import { create } from "zustand";
-import { defaultState } from "./shared_default_values";
-import { UserInputMethods } from "./shared_setters";
+import { defaultState } from "./shared-default-values";
+import { UserInputMethods } from "./shared-setters";
 
 import {
   quickVoiceToAdDefaultValues,

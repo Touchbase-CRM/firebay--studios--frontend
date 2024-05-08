@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
-import { NavBar } from "@/components/nav-bar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import { useRouter } from "next/router";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SimpleAudioPlayer from "../../../components/simple-audio-player";
-import useUserInputsStore from "../../../store/userInputs";
+import useUserInputsStore from "../../../store/user-inputs";
 
 import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";

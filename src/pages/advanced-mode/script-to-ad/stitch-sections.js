@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import useUserInputsStore from "../../../store/userInputs";
+import useUserInputsStore from "../../../store/user-inputs";
 import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import { getAuth } from "firebase/auth";
 import withAuth from "@/hocs/withAuth";
@@ -10,14 +10,14 @@ import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
 
 import { Card, Button, Table } from "react-bootstrap";
-import { NavBar } from "@/components/nav-bar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
 import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Spinner from "../../../components/spinner/spinner";
-import { Stack } from "../../../dataStructures/stack";
+import { Stack } from "../../../data-structures/stack";
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
