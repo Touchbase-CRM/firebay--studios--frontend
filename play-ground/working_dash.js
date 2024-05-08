@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import useUserInputsStore from "@/store/user-inputs";
-import { deserializeAndLoadModeData } from "@/utils/dbReadWriteOps/deserializationUtils";
+import { deserializeAndLoadModeData } from "@/utils/db-read-write-ops/deserialization-utils";
 import { Section } from "../dataStructures/section";
 
 const Dashboard = () => {

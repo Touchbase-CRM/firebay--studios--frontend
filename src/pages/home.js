@@ -9,7 +9,7 @@ import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { useRouter } from "next/router";
-import { getPortalUrl } from "../stripe_proxy_sdk";
+import { getPortalUrl } from "../stripe-proxy-sdk";
 import useUserInputsStore from "@/store/user-inputs";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -32,7 +32,7 @@ import {
 } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
 
 function Home() {
   const auth = getAuth();

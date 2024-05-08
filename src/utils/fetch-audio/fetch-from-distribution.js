@@ -1,4 +1,4 @@
-import { fetchResourceFromS3 } from "./fetchResourceFromS3";
+import { fetchResourceFromS3 } from "./fetch-resource-from-s3";
 
 export async function fetchAudioFromPyroBackendDistribution(
   pyroHistoryItemId,

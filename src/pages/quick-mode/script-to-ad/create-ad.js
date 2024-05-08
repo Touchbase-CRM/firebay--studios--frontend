@@ -25,7 +25,7 @@ import {
   where,
 } from "firebase/firestore";
 
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
 
 function CreateAd() {
   const posthog = usePostHog();

@@ -36,8 +36,8 @@ import { PlayButton } from "@/components/buttons/play-button/play";
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/withAuth";
 import { Stack } from "@/data-structures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetchAudio/fetchFromDistribution";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetchFromDistribution";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
 import { HistoryCanvas } from "./components/history-canvas";
 
 function ProcessSection() {

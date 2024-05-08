@@ -1,7 +1,7 @@
 // Related path: src/pages/dashboard/utils/update-state.js
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
-import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
+import { fetchResourceFromS3 } from "@/utils/fetch-audio/fetchResourceFromS3";
 
 const {
   setOgScriptWordsArray,

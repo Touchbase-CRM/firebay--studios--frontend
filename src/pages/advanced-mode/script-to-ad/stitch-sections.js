@@ -21,11 +21,11 @@ import { Stack } from "../../../data-structures/stack";
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
-} from "@/utils/fetchAudio/fetchFromDistribution";
+} from "@/utils/fetch-audio/fetchFromDistribution";
 import {
   createSpotInDb,
   writeToFirestore,
-} from "@/utils/dbReadWriteOps/serializationUtils";
+} from "@/utils/db-read-write-ops/serializationUtils";
 
 function StitchSections() {
   const auth = getAuth();

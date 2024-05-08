@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import {
   deserializeAndLoadModeData,
   readFromFirestore,
-} from "@/utils/dbReadWriteOps/deserializationUtils";
+} from "@/utils/db-read-write-ops/deserialization-utils";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/withAuth";
