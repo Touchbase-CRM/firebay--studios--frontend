@@ -1,7 +1,7 @@
 // Relative path: src/pages/home.js
 import { Card, Button } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import { ActionSelectorModal } from "@/components/action-selector-modal/actionSelector";
+import { ActionSelectorModal } from "@/components/action-selector-modal/action-selector";
 import Link from "next/link";
 import Swal from "sweetalert2";
 

@@ -30,7 +30,7 @@ import Swal from "sweetalert2";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
-import BackButton from "@/components/back-button";
+import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 
 import useUserInputsStore from "@/store/user-inputs";

@@ -25,6 +25,7 @@ import withAuth from "@/hocs/withAuth";
 
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function CreateAd() {
   const posthog = usePostHog();
@@ -622,17 +623,14 @@ function CreateAd() {
               Next
             </Button>
             {/* Save Button */}
-            <Button
-              className="mt-3"
+            <SecondaryActionButton
+              width="60px"
+              height="40px"
+              initialText="Save"
+              clickedText="Saved!"
+              borderColor="#FDA942"
               onClick={handleSaveState}
-              style={{
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-                color: "black",
-              }}
-            >
-              Save
-            </Button>
+            />
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
@@ -717,4 +715,5 @@ function CreateAd() {
     </div>
   );
 }
-export default withAuth(CreateAd);
+// export default withAuth(CreateAd);
+export default CreateAd;

@@ -17,7 +17,7 @@ import axios from "axios";
 import Spinner from "../components/spinner/spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/simple-audio-player";
-import BackButton from "@/components/back-button";
+import BackButton from "@/components/buttons/back-button";
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/withAuth";
 import { usePostHog } from "posthog-js/react";
