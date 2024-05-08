@@ -14,7 +14,7 @@ import { NavBar } from "@/components/foundation-components/nav-bar";
 import Spinner from "@/components/spinner/spinner";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
-import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
+import { EditPauseDurationModal } from "./components/edit-pause-duration-modal/modal";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import withAuth from "@/hocs/with-auth";
