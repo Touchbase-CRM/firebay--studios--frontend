@@ -21,7 +21,7 @@ import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import useUserInputsStore from "@/store/user-inputs";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { usePostHog } from "posthog-js/react";
 import {
   getFirestore,
@@ -615,8 +615,6 @@ function AddMusic() {
             <div style={{ textAlign: "right" }}>
               {/* Save Button */}
               <SecondaryActionButton
-                width="60px"
-                height="40px"
                 initialText="Save"
                 clickedText="Saved!"
                 borderColor="#FDA942"

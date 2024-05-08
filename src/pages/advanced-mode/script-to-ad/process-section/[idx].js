@@ -34,7 +34,7 @@ import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 
 import useUserInputsStore from "@/store/user-inputs";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";

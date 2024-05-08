@@ -21,7 +21,7 @@ import {
 import useUserInputsStore from "@/store/user-inputs";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
@@ -624,8 +624,6 @@ function CreateAd() {
             </Button>
             {/* Save Button */}
             <SecondaryActionButton
-              width="60px"
-              height="40px"
               initialText="Save"
               clickedText="Saved!"
               borderColor="#FDA942"

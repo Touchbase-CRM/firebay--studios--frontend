@@ -9,7 +9,7 @@ import {
 } from "@/utils/db-read-write-ops/deserialization-utils";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import app from "@/firebase";
 import {
   getFirestore,

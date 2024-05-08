@@ -5,7 +5,7 @@ import { ActionSelectorModal } from "@/components/action-selector-modal/action-s
 import Link from "next/link";
 import Swal from "sweetalert2";
 
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { useRouter } from "next/router";

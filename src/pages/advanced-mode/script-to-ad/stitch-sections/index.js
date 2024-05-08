@@ -17,7 +17,7 @@ import { EditButton } from "@/components/buttons/edit-button/edit";
 import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 
 import useUserInputsStore from "@/store/user-inputs";
@@ -731,8 +731,6 @@ function StitchSections() {
         </Button>
         {/* Save Button */}
         <SecondaryActionButton
-          width="60px"
-          height="40px"
           initialText="Save"
           clickedText="Saved!"
           borderColor="#FDA942"

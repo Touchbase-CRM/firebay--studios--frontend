@@ -20,7 +20,7 @@ import { AdvancedModeStarterAlert } from "@/components/advanced-mode-starter-ale
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 
 function CreateSections() {
   const auth = getAuth();

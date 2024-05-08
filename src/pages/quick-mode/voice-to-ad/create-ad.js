@@ -21,7 +21,7 @@ import {
 import { usePostHog } from "posthog-js/react";
 import { elevenlabsSTS } from "@/middleware/speech-to-speech";
 import { useFileUploader } from "@/hooks/file-upload/use-file-uploader";
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 
 import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploaded-audio";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
@@ -689,8 +689,6 @@ function CreateAd() {
               </Button>
               {/* Save Button */}
               <SecondaryActionButton
-                width="60px"
-                height="40px"
                 initialText="Save"
                 clickedText="Saved!"
                 borderColor="#FDA942"
