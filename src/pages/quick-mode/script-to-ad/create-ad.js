@@ -20,7 +20,7 @@ import {
 
 import useUserInputsStore from "@/store/user-inputs";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import withAuth from "@/hocs/with-auth";
 
 import SimpleAudioPlayer from "@/components/simple-audio-player";
@@ -378,8 +378,7 @@ function CreateAd() {
   };
 
   const handleSaveState = () => {
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "quick-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,

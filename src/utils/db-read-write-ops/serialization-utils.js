@@ -111,54 +111,6 @@ const serializeProperties = (dataObject) => {
   return dataObject;
 };
 
-export const createSpotInDb = async ({
-  spotName = null, // used when creating a new spot
-  spotId = null, // used when updating an existing spot
-  mode,
-  modeSpecificStates,
-  sharedStates,
-}) => {
-  const userId = auth.currentUser.uid;
-
-  // Assert that exactly one of spotName or spotId is provided
-  if ((spotName && spotId) || (!spotName && !spotId)) {
-    throw new Error(
-      "Either spotName or spotId must be provided, but not both."
-    );
-  }
-
-  let savedSpotId = spotId;
-
-  // Write spot metadata first
-  if (spotName) {
-    // Only run when creating a new spot
-    savedSpotId = await writeSpotMetaDataToFirestore({
-      spotName,
-      spotId: null, // New spot, so no existing spotId
-      mode,
-      created: new Date(),
-      lastDownloaded: null,
-    });
-  }
-
-  // Update the spotId in sharedStates
-  sharedStates.spotId = savedSpotId;
-
-  const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
-  const serializedSharedStates = serializeProperties(sharedStates);
-
-  const data = {
-    userId,
-    featureSpecificStates: serializedModeSpecificStates,
-    sharedStates: serializedSharedStates,
-  };
-
-  // Write main spot data
-  const finalSpotId = await writeSpotStatesToFirestore(data, null, savedSpotId);
-
-  return finalSpotId;
-};
-
 const serializeAndWriteSpotStates = async ({
   userId,
   modeSpecificStates,

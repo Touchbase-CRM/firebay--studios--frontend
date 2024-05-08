@@ -27,7 +27,7 @@ import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import useUserInputsStore from "@/store/user-inputs";
 
 import { ViewUploadedAudio } from "./components/view-uploaded-audio/uploaded-audio";
@@ -346,8 +346,7 @@ function CreateAd() {
       v2aQuickGeneratedAudioBlob
     );
 
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "quick-voice-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,

@@ -37,7 +37,7 @@ import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
-import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { HistoryCanvas } from "./components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
@@ -804,8 +804,7 @@ function ProcessSection() {
     );
     saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
 
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,

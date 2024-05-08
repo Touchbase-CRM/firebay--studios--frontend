@@ -26,7 +26,7 @@ import {
   fetchAudioFromElevenLabs,
 } from "@/utils/fetch-audio/fetch-from-distribution";
 import {
-  createSpotInDb,
+  updateExistingSpotInDb,
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
 
@@ -179,8 +179,7 @@ function StitchSections() {
   };
 
   const handleSaveState = () => {
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,

@@ -32,7 +32,7 @@ import {
 } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
-import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 function Home() {
   const auth = getAuth();
@@ -156,9 +156,8 @@ function Home() {
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
   const saveQuickScriptToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "quick-script-to-ad",
       modeSpecificStates: quickScriptToAdDefaultValues,
       sharedStates: defaultState,
@@ -167,9 +166,8 @@ function Home() {
   };
 
   const saveQuickVoiceToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "quick-voice-to-ad",
       modeSpecificStates: quickVoiceToAdDefaultValues,
       sharedStates: defaultState,
@@ -177,9 +175,8 @@ function Home() {
     setSpotId(tmpSpotId);
   };
   const saveAdvancedScriptToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "advanced-script-to-ad",
       modeSpecificStates: advancedScriptToAdDefaultValues,
       sharedStates: defaultState,
