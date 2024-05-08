@@ -10,13 +10,13 @@ import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
 
 import { Card, Button, Table } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
-import { PlayButton } from "@/components/buttons/playButton/play";
-import { EditButton } from "@/components/buttons/editButton/edit";
-import { EditPauseDurationModal } from "@/components/editPauseDurationModal/modal";
+import { NavBar } from "@/components/nav-bar";
+import { PlayButton } from "@/components/buttons/play-button/play";
+import { EditButton } from "@/components/buttons/edit-button/edit";
+import { EditPauseDurationModal } from "@/components/edit-pause-duration-modal/modal";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Spinner from "../../../components/Spinner";
+import Spinner from "../../../components/spinner/spinner";
 import { Stack } from "../../../dataStructures/stack";
 import {
   fetchAudioFromPyroBackendDistribution,

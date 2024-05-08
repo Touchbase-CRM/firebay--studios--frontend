@@ -4,10 +4,10 @@ import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
 import { elevenlabsSTS } from "@/middleware/speechToSpeech";
 import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import { useFileUploader } from "@/hooks/fileUpload/useFileUploader";
-import { ViewUploadedAudio } from "@/components/viewUploadedAudio/uploadedAudio";
+import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploadedAudio";
 import Swal from "sweetalert2";
 import { AudioRecorder } from "react-audio-voice-recorder";
-import { NavBar } from "@/components/navBar";
+import { NavBar } from "@/components/nav-bar";
 import { useRouter } from "next/router";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
 

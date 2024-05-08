@@ -1,6 +1,6 @@
 // Related path: src/pages/dashboard/components/spots-manager.js
 import React from "react";
-import { GenericModal } from "@/components/foundationComponents/modal";
+import { GenericModal } from "@/components/foundation-components/modal";
 
 const ManageSpotTableActions = ({
   showCopyModal,

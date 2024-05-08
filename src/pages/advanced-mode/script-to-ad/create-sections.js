@@ -8,8 +8,8 @@ import {
   Table,
   Offcanvas,
 } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
-import { AdvancedModeStarterAlert } from "@/components/AdvancedModeStarterAlert";
+import { NavBar } from "@/components/nav-bar";
+import { AdvancedModeStarterAlert } from "@/components/advanced-mode-starter-alert";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 

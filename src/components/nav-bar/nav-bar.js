@@ -1,6 +1,6 @@
 import React from "react";
 import { Navbar, Nav, Button } from "react-bootstrap";
-import CustomDropdown from "../CustomDropdown"; // Ensure the path is correct
+import CustomDropdown from "./custom-dropdown"; // Ensure the path is correct
 import { useRouter } from "next/router";
 
 export const NavBar = ({ links, dropdownItems, logoutHandler }) => {

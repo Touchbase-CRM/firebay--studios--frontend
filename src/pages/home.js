@@ -1,6 +1,6 @@
 import { Card, Button } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
-import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
+import { NavBar } from "@/components/nav-bar";
+import { ActionSelectorModal } from "@/components/action-selector-modal/actionSelector";
 import Link from "next/link";
 import Swal from "sweetalert2";
 

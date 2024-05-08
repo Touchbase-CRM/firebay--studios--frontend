@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GenericModal } from "@/components/foundationComponents/modal";
+import { GenericModal } from "@/components/foundation-components/modal";
 import Swal from "sweetalert2";
 
 export const EditPauseDurationModal = ({

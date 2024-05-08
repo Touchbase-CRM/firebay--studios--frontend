@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Offcanvas, Accordion } from "react-bootstrap";
-import { CodeBlock } from "./codeBlock";
+import { CodeBlock } from "./code-block";
 
 export const HistoryCanvas = ({
   show,

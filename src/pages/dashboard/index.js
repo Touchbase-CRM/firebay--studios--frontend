@@ -8,7 +8,7 @@ import {
   readFromFirestore,
 } from "@/utils/dbReadWriteOps/deserializationUtils";
 import { getAuth } from "firebase/auth";
-import { NavBar } from "@/components/navBar";
+import { NavBar } from "@/components/nav-bar";
 import withAuth from "@/hocs/withAuth";
 import app from "@/firebase";
 import {

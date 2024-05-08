@@ -12,7 +12,7 @@ import {
 } from "firebase/auth";
 import app from "@/firebase";
 
-import Spinner from "../components/Spinner";
+import Spinner from "../components/spinner/spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { getCheckoutUrl } from "../stripe_proxy_sdk";
 

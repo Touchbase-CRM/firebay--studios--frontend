@@ -7,16 +7,16 @@ import {
   Button,
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
+import { NavBar } from "@/components/nav-bar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
-import Spinner from "../components/Spinner";
+import Spinner from "../components/spinner/spinner";
 import Swal from "sweetalert2";
 import SimpleAudioPlayer from "../components/simple-audio-player";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/back-button";
 import useUserInputsStore from "@/store/userInputs";
 import withAuth from "@/hocs/withAuth";
 import { usePostHog } from "posthog-js/react";

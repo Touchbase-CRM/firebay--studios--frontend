@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { CopyBox } from "./copyBox";
+import { CopyBox } from "./copy-box";
 export const AdvancedModeStarterAlert = () => {
   return (
     <Alert

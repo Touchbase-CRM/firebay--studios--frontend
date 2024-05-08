@@ -1,2 +1,2 @@
 // components/navBar/index.js
-export * from "./navBar";
+export * from "./nav-bar";

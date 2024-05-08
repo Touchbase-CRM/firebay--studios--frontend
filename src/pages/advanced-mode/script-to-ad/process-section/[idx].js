@@ -27,17 +27,17 @@ import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-import { NavBar } from "@/components/navBar";
+import { NavBar } from "@/components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
-import BackButton from "@/components/BackButton";
-import { PlayButton } from "@/components/buttons/playButton/play";
+import BackButton from "@/components/back-button";
+import { PlayButton } from "@/components/buttons/play-button/play";
 
 import useUserInputsStore from "@/store/userInputs";
 import withAuth from "@/hocs/withAuth";
 import { Stack } from "@/dataStructures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetchAudio/fetchFromDistribution";
 import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
-import { HistoryCanvas } from "./components/historyCanvas";
+import { HistoryCanvas } from "./components/history-canvas";
 
 function ProcessSection() {
   const posthog = usePostHog();
