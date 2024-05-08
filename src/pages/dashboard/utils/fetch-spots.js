@@ -1,12 +1,6 @@
 // Related path: src/pages/dashboard/utils/fetchSpots.js
 import Swal from "sweetalert2";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export async function fetchSpots(db, userId, setSpots, setIsLoading) {
   setIsLoading(true);
@@ -21,13 +15,25 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
       return {
         id: doc.id,
         spotName: data.spotName || "-",
-        created: data.created ? data.created.toDate().toLocaleString() : "-",
+        created: data.created ? data.created.toDate() : null,
+        createdFormatted: data.created
+          ? data.created.toDate().toLocaleString()
+          : "-",
         lastDownloaded: data.lastDownloaded
           ? data.lastDownloaded.toDate().toLocaleString()
           : "Never",
       };
     });
-    setSpots(fetchedSpots);
+
+    // Sort by created date (latest to earliest)
+    fetchedSpots.sort((a, b) => (b.created ? b.created - a.created : 0));
+
+    setSpots(
+      fetchedSpots.map((spot) => ({
+        ...spot,
+        created: spot.createdFormatted,
+      }))
+    );
   } catch (error) {
     console.error("Error fetching spots:", error);
     Swal.fire({
