@@ -9,6 +9,8 @@ import {
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
+
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { useRouter } from "next/router";
@@ -611,16 +613,15 @@ function AddMusic() {
               </Form>
             </Card>
             <div style={{ textAlign: "right" }}>
-              <Button
+              {/* Save Button */}
+              <SecondaryActionButton
+                width="60px"
+                height="40px"
+                initialText="Save"
+                clickedText="Saved!"
+                borderColor="#FDA942"
                 onClick={handleSaveState}
-                style={{
-                  backgroundColor: "white",
-                  borderColor: "#FDA942",
-                  color: "black",
-                }}
-              >
-                Save
-              </Button>
+              />
             </div>
           </div>
           <div>
