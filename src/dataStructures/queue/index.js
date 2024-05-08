@@ -1,4 +1,4 @@
-// src/dataStructures/queue.js
+// Relative path: src/dataStructures/queue/index.js
 export class Queue {
   constructor() {
     this.items = [];

@@ -1,3 +1,4 @@
+// Relative path: src/dataStructures/stack/index.js
 export class Stack {
   constructor(items = []) {
     this.items = items;
