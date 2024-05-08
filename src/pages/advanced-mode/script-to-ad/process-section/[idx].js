@@ -18,14 +18,14 @@ import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
 import BackButton from "@/components/BackButton";
 import { PlayButton } from "@/components/buttons/playButton/play";
 
-import useUserInputsStore from "../../../../store/userInputs";
+import useUserInputsStore from "@/store/userInputs";
 import withAuth from "@/hocs/withAuth";
 import { getAuth } from "firebase/auth";
-import app from "../../../../firebase";
+import app from "@/firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
-import { HistoryCanvas } from "@/features/readHistory";
+import { HistoryCanvas } from "./components/historyCanvas";
 
 import {
   getFirestore,
