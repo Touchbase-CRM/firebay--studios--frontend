@@ -32,7 +32,7 @@ import {
 } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
-import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 function Home() {
   const auth = getAuth();

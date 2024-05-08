@@ -27,7 +27,7 @@ import { ViewUploadedAudio } from "@/components/view-uploaded-audio/uploaded-aud
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 
-import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import useUserInputsStore from "@/store/user-inputs";
 
 async function getAudioDuration(blob) {

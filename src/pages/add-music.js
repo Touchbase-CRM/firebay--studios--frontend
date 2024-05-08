@@ -32,7 +32,7 @@ import {
 } from "firebase/firestore";
 import app from "@/firebase";
 import { Stack } from "../data-structures/stack";
-import { createSpotInDb } from "@/utils/db-read-write-ops/serializationUtils";
+import { createSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 const db = getFirestore(app);
 

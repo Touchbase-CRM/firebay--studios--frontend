@@ -2,7 +2,7 @@
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
-} from "@/utils/fetch-audio/fetchFromDistribution";
+} from "@/utils/fetch-audio/fetch-from-distribution";
 
 export class Section {
   constructor(
