@@ -2,7 +2,7 @@
 import React from "react";
 import { GenericModal } from "@/components/foundationComponents/modal";
 
-const SpotsManagerModal = ({
+const ManageSpotTableActions = ({
   showCopyModal,
   showRenameModal,
   newSpotName,
@@ -10,7 +10,6 @@ const SpotsManagerModal = ({
   showCreateAdModal,
   adName,
   setAdName,
-  setShowCreateAdModal,
   handleNextOnCreateAd,
   setShowCopyModal,
   newCopySpotName,
@@ -75,4 +74,4 @@ const SpotsManagerModal = ({
   );
 };
 
-export default SpotsManagerModal;
+export default ManageSpotTableActions;

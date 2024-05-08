@@ -28,8 +28,9 @@ import {
   updateQuickS2AState,
   updateQuickV2AState,
 } from "./utils/update-state";
-import SpotTable from "./components/spot-table";
-import SpotsManagerModal from "./components/spots-manager";
+import SpotTable from "./components/spots-table";
+import ManageSpotTableActions from "./components/manage-spots-table-actions";
+import { fetchSpots } from "./utils/fetch-spots";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,38 +51,6 @@ const Dashboard = () => {
   const db = getFirestore(app);
   const pageSize = 20;
 
-  const fetchSpots = async () => {
-    setIsLoading(true);
-    try {
-      const spotsQuery = query(
-        collection(db, "spots_meta_data"),
-        where("userId", "==", currentUser.uid)
-      );
-      const querySnapshot = await getDocs(spotsQuery);
-      const fetchedSpots = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          spotName: data.spotName || "-",
-          created: data.created ? data.created.toDate().toLocaleString() : "-",
-          lastDownloaded: data.lastDownloaded
-            ? data.lastDownloaded.toDate().toLocaleString()
-            : "Never",
-        };
-      });
-      setSpots(fetchedSpots);
-    } catch (error) {
-      console.error("Error fetching spots:", error);
-      Swal.fire({
-        title: "Error fetching spots!",
-        text: error.message,
-        icon: "error",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     setPaginatedSpots(
       spots.slice(currentTableIndex, currentTableIndex + pageSize)
@@ -89,7 +58,7 @@ const Dashboard = () => {
   }, [spots, currentTableIndex]);
 
   useEffect(() => {
-    if (currentUser) fetchSpots();
+    if (currentUser) fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
   }, [currentUser]);
 
   const checkSpotNameExists = async (spotName) => {
@@ -105,10 +74,6 @@ const Dashboard = () => {
   const handleCloseModal = () => {
     setShowCreateAdModal(false);
     setAdName("");
-  };
-
-  const handleAdNameChange = (event) => {
-    setAdName(event.target.value);
   };
 
   const handleNextOnCreateAd = async () => {
@@ -417,7 +382,7 @@ const Dashboard = () => {
               pageSize={pageSize}
               totalSpots={spots.length}
             />
-            <SpotsManagerModal
+            <ManageSpotTableActions
               showCopyModal={showCopyModal}
               showRenameModal={showRenameModal}
               newSpotName={newSpotName}
