@@ -5,12 +5,12 @@ import { GenericModal } from "@/components/foundationComponents/modal";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import useUserInputsStore from "@/store/userInputs";
+// import useUserInputsStore from "@/store/userInputs";
 import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/dbReadWriteOps/deserializationUtils";
-import { Section } from "@/dataStructures/section";
+// import { Section } from "@/dataStructures/section";
 import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/navBar";
 import withAuth from "@/hocs/withAuth";
@@ -33,6 +33,12 @@ import {
 
 import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
+import {
+  updateAdvancedS2AState,
+  updateQuickS2AState,
+  updateQuickV2AState,
+} from "./utils/update-state";
+
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
@@ -52,37 +58,37 @@ const Dashboard = () => {
   const db = getFirestore(app);
   const pageSize = 20;
 
-  const {
-    // shared states
-    setOgScriptWordsArray,
-    setOriginalScriptString,
-    setTransformedWords,
-    setVoiceId,
-    setVoiceName,
-    setVoicePreviewFilename,
-    setAdLength,
-    setChosenMusic,
-    setMusicVol,
-    setPreviewFileName,
-    setBackgroundMusicFilename,
-    setGeneratedVoiceUrl,
-    setModelId,
-    setAdGenerationMethod,
-    setSpotId,
-    spotId,
-    // advanced script to ad states
-    setNavigationStack,
-    setSectionsArray,
-    setNumSectionsIdentified,
-    setSectionHistoryArray,
-    setHistoryItemId,
-    setStitchedAudioPyroHistoryItemId,
-    setV2aUploadedAudioUrl,
-    setV2aQuickUploadedFile,
-    setv2aQuickGeneratedAudioBlob,
-    setV2aQuickAudioDuration,
-    reset: resetUserInputsStore,
-  } = useUserInputsStore();
+  //   const {
+  //     // shared states
+  //     setOgScriptWordsArray,
+  //     setOriginalScriptString,
+  //     setTransformedWords,
+  //     setVoiceId,
+  //     setVoiceName,
+  //     setVoicePreviewFilename,
+  //     setAdLength,
+  //     setChosenMusic,
+  //     setMusicVol,
+  //     setPreviewFileName,
+  //     setBackgroundMusicFilename,
+  //     setGeneratedVoiceUrl,
+  //     setModelId,
+  //     setAdGenerationMethod,
+  //     setSpotId,
+  //     spotId,
+  //     // advanced script to ad states
+  //     setNavigationStack,
+  //     setSectionsArray,
+  //     setNumSectionsIdentified,
+  //     setSectionHistoryArray,
+  //     setHistoryItemId,
+  //     setStitchedAudioPyroHistoryItemId,
+  //     setV2aUploadedAudioUrl,
+  //     setV2aQuickUploadedFile,
+  //     setv2aQuickGeneratedAudioBlob,
+  //     setV2aQuickAudioDuration,
+  //     reset: resetUserInputsStore,
+  //   } = useUserInputsStore();
 
   useEffect(() => {
     // Slice the spots array to get only the current page items
@@ -179,40 +185,40 @@ const Dashboard = () => {
     });
   };
 
-  const deserializeSectionsArray = async (serializedSections) => {
-    const sections = await Promise.all(
-      serializedSections.map(async (serializedSection) => {
-        const section = Section.deserialize(serializedSection);
-        await section.updateAudioUrl(0, 3); // Assuming you pass 0 for estimatedProcessingTime and 3 for maxRetries
-        return section;
-      })
-    );
-    return sections;
-  };
+  //   const deserializeSectionsArray = async (serializedSections) => {
+  //     const sections = await Promise.all(
+  //       serializedSections.map(async (serializedSection) => {
+  //         const section = Section.deserialize(serializedSection);
+  //         await section.updateAudioUrl(0, 3); // Assuming you pass 0 for estimatedProcessingTime and 3 for maxRetries
+  //         return section;
+  //       })
+  //     );
+  //     return sections;
+  //   };
 
-  const deserializeSectionHistoryArray = async (sectionHistoryArray) => {
-    const updatedSectionHistoryArray = await Promise.all(
-      sectionHistoryArray.map(async (section) => {
-        const transformedSection = new Map();
-        for (const key in section) {
-          const deserializedSection = Section.deserialize(section[key]);
-          await deserializedSection.updateAudioUrl(0, 3); // Using default values for demonstration
-          transformedSection.set(key, deserializedSection);
-        }
-        return transformedSection;
-      })
-    );
-    return updatedSectionHistoryArray;
-  };
+  //   const deserializeSectionHistoryArray = async (sectionHistoryArray) => {
+  //     const updatedSectionHistoryArray = await Promise.all(
+  //       sectionHistoryArray.map(async (section) => {
+  //         const transformedSection = new Map();
+  //         for (const key in section) {
+  //           const deserializedSection = Section.deserialize(section[key]);
+  //           await deserializedSection.updateAudioUrl(0, 3); // Using default values for demonstration
+  //           transformedSection.set(key, deserializedSection);
+  //         }
+  //         return transformedSection;
+  //       })
+  //     );
+  //     return updatedSectionHistoryArray;
+  //   };
 
-  const fetchUploadedAudio = async (fileName) => {
-    const response = await fetchResourceFromS3(
-      "workingdir--storage",
-      `save--files/${fileName}`,
-      0
-    );
-    return response;
-  };
+  //   const fetchUploadedAudio = async (fileName) => {
+  //     const response = await fetchResourceFromS3(
+  //       "workingdir--storage",
+  //       `save--files/${fileName}`,
+  //       0
+  //     );
+  //     return response;
+  //   };
 
   async function handleEditSpot(spotId) {
     try {
@@ -257,129 +263,129 @@ const Dashboard = () => {
     router.push("/quick-mode/voice-to-ad/create-ad");
   }
 
-  function updateAdvancedS2AState(data) {
-    return new Promise(async (resolve) => {
-      // Synchronous state updates
-      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
-      setOriginalScriptString(data.sharedStates.originalScriptString);
-      setTransformedWords(data.sharedStates.transformedWords);
-      setVoiceId(data.sharedStates.voiceId);
-      setVoiceName(data.sharedStates.voiceName);
-      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
-      setAdLength(data.sharedStates.adLength);
-      setChosenMusic(data.sharedStates.chosenMusic);
-      setMusicVol(data.sharedStates.musicVol);
-      setPreviewFileName(data.sharedStates.previewFileName);
-      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
-      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
-      setModelId(data.sharedStates.modelId);
-      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
-      setSpotId(data.sharedStates.spotId);
-      setNumSectionsIdentified(
-        data.featureSpecificStates.numSectionsIdentified
-      );
-      setStitchedAudioPyroHistoryItemId(
-        data.featureSpecificStates.stitchedAudioPyroHistoryItemId
-      );
+  //   function updateAdvancedS2AState(data) {
+  //     return new Promise(async (resolve) => {
+  //       // Synchronous state updates
+  //       setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+  //       setOriginalScriptString(data.sharedStates.originalScriptString);
+  //       setTransformedWords(data.sharedStates.transformedWords);
+  //       setVoiceId(data.sharedStates.voiceId);
+  //       setVoiceName(data.sharedStates.voiceName);
+  //       setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+  //       setAdLength(data.sharedStates.adLength);
+  //       setChosenMusic(data.sharedStates.chosenMusic);
+  //       setMusicVol(data.sharedStates.musicVol);
+  //       setPreviewFileName(data.sharedStates.previewFileName);
+  //       setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+  //       setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+  //       setModelId(data.sharedStates.modelId);
+  //       setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+  //       setSpotId(data.sharedStates.spotId);
+  //       setNumSectionsIdentified(
+  //         data.featureSpecificStates.numSectionsIdentified
+  //       );
+  //       setStitchedAudioPyroHistoryItemId(
+  //         data.featureSpecificStates.stitchedAudioPyroHistoryItemId
+  //       );
 
-      // Asynchronous state updates
-      try {
-        const tmparr = await deserializeSectionsArray(
-          data.featureSpecificStates.sectionsArray
-        );
-        setSectionsArray(tmparr);
-        const tmpHistoryArray = await deserializeSectionHistoryArray(
-          data.featureSpecificStates.sectionHistoryArray
-        );
-        setSectionHistoryArray(tmpHistoryArray);
-        resolve(); // Resolve the promise after all async updates are done
-      } catch (error) {
-        console.error("Error updating state:", error);
-        resolve(); // Resolve the promise also on error to not hang the promise
-      }
-    });
-  }
+  //       // Asynchronous state updates
+  //       try {
+  //         const tmparr = await deserializeSectionsArray(
+  //           data.featureSpecificStates.sectionsArray
+  //         );
+  //         setSectionsArray(tmparr);
+  //         const tmpHistoryArray = await deserializeSectionHistoryArray(
+  //           data.featureSpecificStates.sectionHistoryArray
+  //         );
+  //         setSectionHistoryArray(tmpHistoryArray);
+  //         resolve(); // Resolve the promise after all async updates are done
+  //       } catch (error) {
+  //         console.error("Error updating state:", error);
+  //         resolve(); // Resolve the promise also on error to not hang the promise
+  //       }
+  //     });
+  //   }
 
-  function updateQuickS2AState(data) {
-    return new Promise(async (resolve) => {
-      // Synchronous state updates
-      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
-      setOriginalScriptString(data.sharedStates.originalScriptString);
-      setTransformedWords(data.sharedStates.transformedWords);
-      setVoiceId(data.sharedStates.voiceId);
-      setVoiceName(data.sharedStates.voiceName);
-      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
-      setAdLength(data.sharedStates.adLength);
-      setChosenMusic(data.sharedStates.chosenMusic);
-      setMusicVol(data.sharedStates.musicVol);
-      setPreviewFileName(data.sharedStates.previewFileName);
-      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
-      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
-      setModelId(data.sharedStates.modelId);
-      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
-      setSpotId(data.sharedStates.spotId);
-      setHistoryItemId(data.featureSpecificStates.historyItemId);
+  //   function updateQuickS2AState(data) {
+  //     return new Promise(async (resolve) => {
+  //       // Synchronous state updates
+  //       setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+  //       setOriginalScriptString(data.sharedStates.originalScriptString);
+  //       setTransformedWords(data.sharedStates.transformedWords);
+  //       setVoiceId(data.sharedStates.voiceId);
+  //       setVoiceName(data.sharedStates.voiceName);
+  //       setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+  //       setAdLength(data.sharedStates.adLength);
+  //       setChosenMusic(data.sharedStates.chosenMusic);
+  //       setMusicVol(data.sharedStates.musicVol);
+  //       setPreviewFileName(data.sharedStates.previewFileName);
+  //       setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+  //       setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+  //       setModelId(data.sharedStates.modelId);
+  //       setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+  //       setSpotId(data.sharedStates.spotId);
+  //       setHistoryItemId(data.featureSpecificStates.historyItemId);
 
-      // Asynchronous state updates: None for now
+  //       // Asynchronous state updates: None for now
 
-      // Resolve promise after all updates
-      resolve();
-    });
-  }
+  //       // Resolve promise after all updates
+  //       resolve();
+  //     });
+  //   }
 
-  async function createBlobFromUrl(url) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
-      const blob = await response.blob(); // Converts the response body into a Blob
-      return blob;
-    } catch (error) {
-      console.error("Error fetching the audio file:", error);
-      return null;
-    }
-  }
+  //   async function createBlobFromUrl(url) {
+  //     try {
+  //       const response = await fetch(url);
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok.");
+  //       }
+  //       const blob = await response.blob(); // Converts the response body into a Blob
+  //       return blob;
+  //     } catch (error) {
+  //       console.error("Error fetching the audio file:", error);
+  //       return null;
+  //     }
+  //   }
 
-  function updateQuickV2AState(data) {
-    return new Promise(async (resolve) => {
-      // Synchronous state updates
-      setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
-      setOriginalScriptString(data.sharedStates.originalScriptString);
-      setTransformedWords(data.sharedStates.transformedWords);
-      setVoiceId(data.sharedStates.voiceId);
-      setVoiceName(data.sharedStates.voiceName);
-      setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
-      setAdLength(data.sharedStates.adLength);
-      setChosenMusic(data.sharedStates.chosenMusic);
-      setMusicVol(data.sharedStates.musicVol);
-      setPreviewFileName(data.sharedStates.previewFileName);
-      setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
-      setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
-      setModelId(data.sharedStates.modelId);
-      setAdGenerationMethod(data.sharedStates.adGenerationMethod);
-      setSpotId(data.sharedStates.spotId);
-      setHistoryItemId(data.featureSpecificStates.historyItemId);
+  //   function updateQuickV2AState(data) {
+  //     return new Promise(async (resolve) => {
+  //       // Synchronous state updates
+  //       setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
+  //       setOriginalScriptString(data.sharedStates.originalScriptString);
+  //       setTransformedWords(data.sharedStates.transformedWords);
+  //       setVoiceId(data.sharedStates.voiceId);
+  //       setVoiceName(data.sharedStates.voiceName);
+  //       setVoicePreviewFilename(data.sharedStates.voicePreviewFilename);
+  //       setAdLength(data.sharedStates.adLength);
+  //       setChosenMusic(data.sharedStates.chosenMusic);
+  //       setMusicVol(data.sharedStates.musicVol);
+  //       setPreviewFileName(data.sharedStates.previewFileName);
+  //       setBackgroundMusicFilename(data.sharedStates.backgroundMusicFilename);
+  //       setGeneratedVoiceUrl(data.sharedStates.generatedVoiceUrl);
+  //       setModelId(data.sharedStates.modelId);
+  //       setAdGenerationMethod(data.sharedStates.adGenerationMethod);
+  //       setSpotId(data.sharedStates.spotId);
+  //       setHistoryItemId(data.featureSpecificStates.historyItemId);
 
-      // Asynchronous state updates:
-      setV2aUploadedAudioUrl(data.featureSpecificStates.v2aUploadedAudioUrl);
-      setV2aQuickUploadedFile(data.featureSpecificStates.v2aQuickUploadedFile);
-      setV2aQuickAudioDuration(
-        data.featureSpecificStates.v2aQuickAudioDuration
-      );
-      const tmpV2aUploadedAudioUrl = await fetchUploadedAudio(
-        data.featureSpecificStates.v2aQuickUploadedFile.name
-      );
-      setV2aUploadedAudioUrl(tmpV2aUploadedAudioUrl);
-      const tmpV2aQuickGeneratedAudioBlob = await createBlobFromUrl(
-        tmpV2aUploadedAudioUrl
-      );
-      setv2aQuickGeneratedAudioBlob(tmpV2aQuickGeneratedAudioBlob);
+  //       // Asynchronous state updates:
+  //       setV2aUploadedAudioUrl(data.featureSpecificStates.v2aUploadedAudioUrl);
+  //       setV2aQuickUploadedFile(data.featureSpecificStates.v2aQuickUploadedFile);
+  //       setV2aQuickAudioDuration(
+  //         data.featureSpecificStates.v2aQuickAudioDuration
+  //       );
+  //       const tmpV2aUploadedAudioUrl = await fetchUploadedAudio(
+  //         data.featureSpecificStates.v2aQuickUploadedFile.name
+  //       );
+  //       setV2aUploadedAudioUrl(tmpV2aUploadedAudioUrl);
+  //       const tmpV2aQuickGeneratedAudioBlob = await createBlobFromUrl(
+  //         tmpV2aUploadedAudioUrl
+  //       );
+  //       setv2aQuickGeneratedAudioBlob(tmpV2aQuickGeneratedAudioBlob);
 
-      // Resolve promise after all updates
-      resolve();
-    });
-  }
+  //       // Resolve promise after all updates
+  //       resolve();
+  //     });
+  //   }
 
   const handleCreateAd = () => {
     setShowCreateAdModal(true);
