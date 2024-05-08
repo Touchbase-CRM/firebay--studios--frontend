@@ -158,3 +158,77 @@ export const createSpotInDb = async ({
 
   return finalSpotId;
 };
+
+const serializeAndWriteSpotStates = async ({
+  userId,
+  modeSpecificStates,
+  sharedStates,
+  spotId,
+}) => {
+  const serializedModeSpecificStates = serializeProperties(modeSpecificStates);
+  const serializedSharedStates = serializeProperties(sharedStates);
+
+  const data = {
+    userId,
+    featureSpecificStates: serializedModeSpecificStates,
+    sharedStates: serializedSharedStates,
+  };
+
+  // Write main spot data
+  const finalSpotId = await writeSpotStatesToFirestore(data, null, spotId);
+
+  return finalSpotId;
+};
+
+export const createNewSpotInDb = async ({
+  spotName,
+  mode,
+  modeSpecificStates,
+  sharedStates,
+}) => {
+  const userId = auth.currentUser.uid;
+
+  // Write spot metadata first and obtain the spotId
+  const savedSpotId = await writeSpotMetaDataToFirestore({
+    spotName,
+    spotId: null, // New spot, so no existing spotId
+    mode,
+    created: new Date(),
+    lastDownloaded: null,
+  });
+
+  // Update the spotId in sharedStates
+  sharedStates.spotId = savedSpotId;
+
+  // Serialize and write spot states
+  const finalSpotId = await serializeAndWriteSpotStates({
+    userId,
+    modeSpecificStates,
+    sharedStates,
+    spotId: savedSpotId,
+  });
+
+  return finalSpotId;
+};
+
+export const updateExistingSpotInDb = async ({
+  spotId,
+  modeSpecificStates,
+  sharedStates,
+}) => {
+  const userId = auth.currentUser.uid;
+
+  if (!spotId) {
+    throw new Error("spotId must be provided when updating an existing spot.");
+  }
+
+  // Serialize and write spot states without modifying spotId in sharedStates
+  const finalSpotId = await serializeAndWriteSpotStates({
+    userId,
+    modeSpecificStates,
+    sharedStates,
+    spotId,
+  });
+
+  return finalSpotId;
+};
