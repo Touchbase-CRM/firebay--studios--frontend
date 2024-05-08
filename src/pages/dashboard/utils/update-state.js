@@ -1,6 +1,7 @@
 // Related path: src/utils.js
 import useUserInputsStore from "@/store/userInputs";
 import { Section } from "@/dataStructures/section";
+import { fetchResourceFromS3 } from "@/utils/fetchAudio/fetchResourceFromS3";
 
 const {
   setOgScriptWordsArray,
@@ -95,7 +96,7 @@ export function updateQuickS2AState(data) {
   });
 }
 
-export function updateQuickV2AState(data, fetchUploadedAudio) {
+export function updateQuickV2AState(data) {
   return new Promise(async (resolve) => {
     // Synchronous state updates
     setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
@@ -174,3 +175,12 @@ function createBlobFromUrl(url) {
     }
   });
 }
+
+const fetchUploadedAudio = async (fileName) => {
+  const response = await fetchResourceFromS3(
+    "workingdir--storage",
+    `save--files/${fileName}`,
+    0
+  );
+  return response;
+};
