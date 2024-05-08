@@ -469,8 +469,6 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-      // setAllowDownload(false);
-      // setShowAudioPlayer(true);
 
       // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(
@@ -793,6 +791,10 @@ function ProcessSection() {
   };
 
   const handleSaveState = () => {
+    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
     syncSectionHistoryArrayWithZustand(
       currentSectionIndex,
       localSectionHistoryObj
