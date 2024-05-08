@@ -241,15 +241,23 @@ const Dashboard = () => {
         id: newSpotMetaRef.id,
         spotName: newCopySpotName,
         created: now.toLocaleString(),
+        createdRaw: now,
         lastDownloaded: "Never",
       };
 
-      setSpots([...spots, newSpot]);
+      // Ensure all spots have `createdRaw` and sort by created date
+      const updatedSpots = [
+        ...spots.map((spot) => ({
+          ...spot,
+          createdRaw: new Date(spot.createdRaw || spot.created),
+        })),
+        newSpot,
+      ].sort((a, b) => (b.createdRaw ? b.createdRaw - a.createdRaw : 0));
+
+      setSpots(updatedSpots);
+
       setPaginatedSpots(
-        [...spots, newSpot].slice(
-          currentTableIndex,
-          currentTableIndex + pageSize
-        )
+        updatedSpots.slice(currentTableIndex, currentTableIndex + pageSize)
       );
       setShowCopyModal(false);
       Swal.fire("Success", "Spot copied successfully!", "success");

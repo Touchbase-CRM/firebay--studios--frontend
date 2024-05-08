@@ -1,6 +1,12 @@
 // Related path: src/pages/dashboard/utils/fetchSpots.js
 import Swal from "sweetalert2";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 export async function fetchSpots(db, userId, setSpots, setIsLoading) {
   setIsLoading(true);
@@ -12,13 +18,12 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
     const querySnapshot = await getDocs(spotsQuery);
     const fetchedSpots = querySnapshot.docs.map((doc) => {
       const data = doc.data();
+      const createdDate = data.created ? data.created.toDate() : null;
       return {
         id: doc.id,
         spotName: data.spotName || "-",
-        created: data.created ? data.created.toDate() : null,
-        createdFormatted: data.created
-          ? data.created.toDate().toLocaleString()
-          : "-",
+        createdRaw: createdDate,
+        created: createdDate ? createdDate.toLocaleString() : "-",
         lastDownloaded: data.lastDownloaded
           ? data.lastDownloaded.toDate().toLocaleString()
           : "Never",
@@ -26,14 +31,11 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
     });
 
     // Sort by created date (latest to earliest)
-    fetchedSpots.sort((a, b) => (b.created ? b.created - a.created : 0));
-
-    setSpots(
-      fetchedSpots.map((spot) => ({
-        ...spot,
-        created: spot.createdFormatted,
-      }))
+    fetchedSpots.sort((a, b) =>
+      b.createdRaw ? b.createdRaw - a.createdRaw : 0
     );
+
+    setSpots(fetchedSpots);
   } catch (error) {
     console.error("Error fetching spots:", error);
     Swal.fire({
