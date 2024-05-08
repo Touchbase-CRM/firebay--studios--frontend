@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import useUserInputsStore from "../../../store/userInputs";
-import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import { getAuth } from "firebase/auth";
 import withAuth from "@/hocs/withAuth";
 import { useRouter } from "next/router";

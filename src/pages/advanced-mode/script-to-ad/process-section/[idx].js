@@ -14,7 +14,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
-import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/BackButton";
 import { PlayButton } from "@/components/buttons/playButton/play";
 

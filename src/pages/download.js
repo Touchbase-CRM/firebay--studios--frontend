@@ -14,7 +14,7 @@ import app from "@/firebase";
 import withAuth from "@/hocs/withAuth";
 
 import { usePostHog } from "posthog-js/react";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../components/simple-audio-player";
 import useUserInputsStore from "@/store/userInputs";
 
 const DownloadPage = () => {

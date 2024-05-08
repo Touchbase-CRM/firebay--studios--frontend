@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
 import { elevenlabsSTS } from "@/middleware/speechToSpeech";
-import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import { useFileUploader } from "@/hooks/fileUpload/useFileUploader";
 import { ViewUploadedAudio } from "@/components/viewUploadedAudio/uploadedAudio";
 import Swal from "sweetalert2";

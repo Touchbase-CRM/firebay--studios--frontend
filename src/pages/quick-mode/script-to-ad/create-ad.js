@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
-import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../../../components/simple-audio-player";
 import useUserInputsStore from "../../../store/userInputs";
 
 import withAuth from "@/hocs/withAuth";

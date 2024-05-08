@@ -15,7 +15,7 @@ import { getAuth } from "firebase/auth";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import Swal from "sweetalert2";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
+import SimpleAudioPlayer from "../components/simple-audio-player";
 import BackButton from "@/components/BackButton";
 import useUserInputsStore from "@/store/userInputs";
 import withAuth from "@/hocs/withAuth";
