@@ -16,7 +16,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import { SectioningTutorial } from "./components/tutorial/alert";
+import { SectioningTutorial } from "@/_pages/advanced-mode/script-to-ad/create-sections/components/tutorial/alert";
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";

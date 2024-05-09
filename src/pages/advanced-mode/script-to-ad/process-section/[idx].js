@@ -38,7 +38,7 @@ import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
-import { HistoryCanvas } from "./components/history-canvas";
+import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function ProcessSection() {
