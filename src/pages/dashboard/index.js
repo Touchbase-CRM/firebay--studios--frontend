@@ -97,7 +97,7 @@ const Dashboard = () => {
     }
 
     router.push({
-      pathname: "/home",
+      pathname: "/options",
       query: { spotName: adName },
     });
   };
