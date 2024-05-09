@@ -1,8 +1,8 @@
 import React from "react";
 import { Button, Offcanvas, Accordion } from "react-bootstrap";
-import { CodeBlock } from "./code-block";
+import CodeBlock from "./code-block";
 
-export const HistoryCanvas = ({
+const HistoryCanvas = ({
   show,
   handleClose,
   localSectionHistoryObj,
@@ -104,3 +104,5 @@ export const HistoryCanvas = ({
     </Offcanvas>
   );
 };
+
+export default HistoryCanvas;

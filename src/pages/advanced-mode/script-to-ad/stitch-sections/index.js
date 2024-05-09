@@ -30,7 +30,7 @@ import {
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
 
-import { EditPauseDurationModal } from "./components/edit-pause-duration-modal/modal";
+import EditPauseDurationModal from "./components/edit-pause-duration-modal/modal";
 
 function StitchSections() {
   const auth = getAuth();

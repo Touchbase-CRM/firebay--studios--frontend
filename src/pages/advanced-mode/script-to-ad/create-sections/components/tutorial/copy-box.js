@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
-export const CopyBox = ({ text }) => {
+const CopyBox = ({ text }) => {
   const [hasCopied, setHasCopied] = useState(false);
 
   const copyToClipboard = () => {
@@ -71,3 +71,4 @@ export const CopyBox = ({ text }) => {
     </div>
   );
 };
+export default CopyBox;

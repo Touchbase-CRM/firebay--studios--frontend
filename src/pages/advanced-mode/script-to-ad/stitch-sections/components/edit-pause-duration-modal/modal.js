@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { GenericModal } from "@/components/foundation-components/modal";
 import Swal from "sweetalert2";
 
-export const EditPauseDurationModal = ({
+const EditPauseDurationModal = ({
   show,
   onHide,
   initialValue,
@@ -99,3 +99,5 @@ export const EditPauseDurationModal = ({
     </GenericModal>
   );
 };
+
+export default EditPauseDurationModal;

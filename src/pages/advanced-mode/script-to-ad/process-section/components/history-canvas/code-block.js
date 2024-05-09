@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Clipboard, ClipboardFill } from "react-bootstrap-icons";
 
-export const CodeBlock = ({ code, title }) => {
+const CodeBlock = ({ code, title }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const copyToClipboard = (text) => {
@@ -52,3 +52,4 @@ export const CodeBlock = ({ code, title }) => {
     </Card>
   );
 };
+export default CodeBlock;

@@ -1,7 +1,7 @@
 // Relative path: src/components/viewUploadedAudio/uploadedAudio.js
 import React from "react";
 
-export const ViewUploadedAudio = ({
+const ViewUploadedAudio = ({
   fileName,
   fileLength,
   fileSize,
@@ -68,3 +68,5 @@ export const ViewUploadedAudio = ({
     </div>
   );
 };
+
+export default ViewUploadedAudio;

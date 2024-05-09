@@ -23,11 +23,8 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import {
-  updateAdvancedS2AState,
-  updateQuickS2AState,
-  updateQuickV2AState,
-} from "./utils/update-state";
+import { updateQuickS2AState, updateQuickV2AState } from "./utils/update-state";
+import updateAdvancedS2AState from "./utils/update-state";
 import SpotTable from "./components/spots-table";
 import ManageSpotTableActions from "./components/manage-spots-table-actions";
 import { fetchSpots } from "./utils/fetch-spots";

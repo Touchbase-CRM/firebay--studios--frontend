@@ -8,7 +8,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-export async function fetchSpots(db, userId, setSpots, setIsLoading) {
+async function fetchSpots(db, userId, setSpots, setIsLoading) {
   setIsLoading(true);
   try {
     const spotsQuery = query(
@@ -47,3 +47,5 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
     setIsLoading(false);
   }
 }
+
+export default fetchSpots;

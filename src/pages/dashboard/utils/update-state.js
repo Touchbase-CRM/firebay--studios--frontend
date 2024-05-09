@@ -30,7 +30,7 @@ const {
   setV2aQuickAudioDuration,
 } = useUserInputsStore.getState();
 
-export function updateAdvancedS2AState(data) {
+function updateAdvancedS2AState(data) {
   return new Promise(async (resolve) => {
     // Synchronous state updates
     setOgScriptWordsArray(data.sharedStates.ogScriptWordsArray);
@@ -184,3 +184,5 @@ const fetchUploadedAudio = async (fileName) => {
   );
   return response;
 };
+
+export default updateAdvancedS2AState;

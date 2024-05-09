@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { CopyBox } from "./copy-box";
-export const SectioningTutorial = () => {
+import CopyBox from "./copy-box";
+const SectioningTutorial = () => {
   return (
     <Alert
       variant="info"
@@ -63,3 +63,4 @@ export const SectioningTutorial = () => {
     </Alert>
   );
 };
+export default SectioningTutorial;
