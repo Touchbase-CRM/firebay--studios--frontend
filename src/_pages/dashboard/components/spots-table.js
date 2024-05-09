@@ -1,6 +1,5 @@
-// Related path: src/pages/dashboard/components/SpotTable.js
 import React from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Row, Col } from "react-bootstrap";
 
 const SpotTable = ({
   spots,
@@ -9,6 +8,7 @@ const SpotTable = ({
   setCurrentTableIndex,
   pageSize,
   totalSpots,
+  totalDownloads,
 }) => {
   const handleNextPage = () => {
     if (currentTableIndex + pageSize < totalSpots) {
@@ -82,22 +82,37 @@ const SpotTable = ({
         </tbody>
       </Table>
 
-      <div className="text-right">
-        <Button
-          variant="outline-secondary"
-          onClick={handlePreviousPage}
-          disabled={currentTableIndex === 0}
-        >
-          {"<"}
-        </Button>{" "}
-        <Button
-          variant="outline-secondary"
-          onClick={handleNextPage}
-          disabled={currentTableIndex + pageSize >= totalSpots}
-        >
-          {">"}
-        </Button>
-      </div>
+      <Row className="align-items-center mt-3">
+        <Col xs="auto">
+          <Button
+            variant="outline-secondary"
+            onClick={handlePreviousPage}
+            disabled={currentTableIndex === 0}
+          >
+            {"<"}
+          </Button>{" "}
+          <Button
+            variant="outline-secondary"
+            onClick={handleNextPage}
+            disabled={currentTableIndex + pageSize >= totalSpots}
+          >
+            {">"}
+          </Button>
+        </Col>
+        <Col className="text-right">
+          {totalDownloads !== null && (
+            <p
+              style={{
+                fontWeight: "bold",
+                textAlign: "right",
+                marginRight: "0px",
+              }}
+            >
+              Total Downloads: {totalDownloads}
+            </p>
+          )}
+        </Col>
+      </Row>
     </div>
   );
 };

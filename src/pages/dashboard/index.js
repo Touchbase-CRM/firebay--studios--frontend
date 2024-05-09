@@ -7,9 +7,10 @@ import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/db-read-write-ops/deserialization-utils";
-import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
+
+import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import {
   getFirestore,
@@ -23,6 +24,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
+
 import {
   updateAdvancedS2AState,
   updateQuickS2AState,
@@ -39,6 +41,7 @@ const Dashboard = () => {
   const [adName, setAdName] = useState("");
   const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
+  const [totalDownloads, setTotalDownloads] = useState(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [selectedSpotId, setSelectedSpotId] = useState("");
@@ -58,7 +61,24 @@ const Dashboard = () => {
   }, [spots, currentTableIndex]);
 
   useEffect(() => {
-    if (currentUser) fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
+    const fetchDownloads = async () => {
+      try {
+        const downloads = await readFromFirestore(
+          "uid_to_org",
+          currentUser.uid,
+          "monthly_downloads"
+        );
+        setTotalDownloads(downloads !== undefined ? downloads : null);
+      } catch (error) {
+        setTotalDownloads(null);
+        console.error("Error fetching downloads:", error);
+      }
+    };
+
+    if (currentUser) {
+      fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
+      fetchDownloads();
+    }
   }, [currentUser]);
 
   const checkSpotNameExists = async (spotName) => {
@@ -97,8 +117,8 @@ const Dashboard = () => {
     }
 
     router.push({
-      pathname: "/home",
-      query: { spotName: adName },
+      pathname: "/options/mode",
+      query: { spotName: adName, option: "mode" },
     });
   };
 
@@ -389,6 +409,7 @@ const Dashboard = () => {
               setCurrentTableIndex={setCurrentTableIndex}
               pageSize={pageSize}
               totalSpots={spots.length}
+              totalDownloads={totalDownloads}
             />
             <ManageSpotTableActions
               showCopyModal={showCopyModal}
@@ -406,6 +427,7 @@ const Dashboard = () => {
               handleCloseModal={handleCloseModal}
               updateSpotName={updateSpotName}
               handleSaveCopy={() => handleSaveCopy(copySpotId)}
+              setShowRenameModal={setShowRenameModal}
             />
           </>
         )}

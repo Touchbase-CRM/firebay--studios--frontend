@@ -17,6 +17,7 @@ const ManageSpotTableActions = ({
   handleCloseModal,
   updateSpotName,
   handleSaveCopy,
+  setShowRenameModal,
 }) => {
   return (
     <>
@@ -39,7 +40,10 @@ const ManageSpotTableActions = ({
 
       <GenericModal
         show={showRenameModal}
-        onHide={() => setNewSpotName("")}
+        onHide={() => {
+          setShowRenameModal(false);
+          setNewSpotName("");
+        }}
         title="Rename Spot"
         onSave={updateSpotName}
         closeButtonLabel="Cancel"
