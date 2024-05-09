@@ -8,11 +8,30 @@ const OptionsPage = () => {
   const { option } = router.query;
 
   const handleBackClick = () => {
-    router.push("/dashboard");
+    if (option === "mode") {
+      router.push("/dashboard");
+    } else if (option === "quick") {
+      router.push("/options-dev/mode");
+    }
   };
 
   const handleCardClick = (path) => {
     console.log(`${path} clicked!`);
+  };
+
+  const handleQuickOption = () => {
+    router.push("/options-dev/quick");
+  };
+
+  const handleAdvancedOption = () => {
+    router.push("/advanced-mode/script-to-ad/create-sections");
+  };
+
+  const handleQuickScriptToAd = () => {
+    router.push("/quick-mode/script-to-ad/create-ad");
+  };
+  const handleQuickVoiceToAd = () => {
+    router.push("/quick-mode/voice-to-ad/create-ad");
   };
 
   let cards = [];
@@ -27,7 +46,7 @@ const OptionsPage = () => {
           title: "Quick ad",
           description: "Simply create your ad in seconds. Best for explorers",
           link: "#",
-          onLinkClick: () => router.push("/options-dev/quick"),
+          onLinkClick: () => handleQuickOption(),
         },
         {
           icon: "bi-lightbulb-fill",
@@ -35,7 +54,7 @@ const OptionsPage = () => {
           description:
             "Create your audio ad with more precision. Best for ad agencies and production teams.",
           link: "#",
-          onLinkClick: () => handleCardClick("Advanced ad"),
+          onLinkClick: () => handleAdvancedOption(),
         },
       ];
       break;
@@ -47,15 +66,15 @@ const OptionsPage = () => {
           title: "Script to Ad",
           description:
             "Transform your script into an ad instantly with our powerful tool.",
-          link: "#",
-          onLinkClick: () => handleCardClick("Script to Ad"),
+          link: "/quick-mode/script-to-ad/create-ad",
+          onLinkClick: () => handleQuickScriptToAd(),
         },
         {
           icon: "bi-mic-fill",
           title: "Voice to Ad",
           description: "Create a voice ad quickly using our advanced tools.",
-          link: "#",
-          onLinkClick: () => handleCardClick("Voice to Ad"),
+          link: "/quick-mode/voice-to-ad/create-ad",
+          onLinkClick: () => handleQuickVoiceToAd(),
         },
       ];
       break;
