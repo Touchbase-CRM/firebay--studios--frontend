@@ -10,12 +10,12 @@ import { Card, Navbar, Nav, Button } from "react-bootstrap";
 
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../context/auth";
-import app from "../firebase";
-import withAuth from "@/hocs/withAuth";
+import app from "@/firebase";
+import withAuth from "@/hocs/with-auth";
 
 import { usePostHog } from "posthog-js/react";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import useUserInputsStore from "../store/userInputs";
+import SimpleAudioPlayer from "../components/simple-audio-player";
+import useUserInputsStore from "@/store/user-inputs";
 
 const DownloadPage = () => {
   const posthog = usePostHog();

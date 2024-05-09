@@ -1,0 +1,8 @@
+can you get rid of all the three drop down menus here and just have one called Voice which will have the options of Alex, Jez, Liam, Myra, Zoe on the jsx should be mapped to the following strings.
+Alex: "6wLJ4Wm2OxvAvetEUBCS"
+Jez: "WA9uLg4JEEGnvosWUUIc"
+Liam: "TX3LPaxmHKxFdv7VOQHJ"
+Myra: "gGqsateSZjogPUDNb6hx"
+Zoe:"cBijDV6IOSWp9c8dA7Xn"
+
+Then, when you hit submit, it should pass script, and voice data to the add_music.js page.

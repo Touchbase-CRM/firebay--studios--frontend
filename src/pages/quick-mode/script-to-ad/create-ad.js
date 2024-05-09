@@ -1,16 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, Button, Spinner } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
-import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-
 import "bootstrap-icons/font/bootstrap-icons.css";
-import SimpleAudioPlayer from "../../../components/SimpleAudioPlayer";
-import useUserInputsStore from "../../../store/userInputs";
-
-import withAuth from "@/hocs/withAuth";
+import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
-import app from "../../../firebase";
+import app from "@/firebase";
 
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
@@ -25,7 +18,14 @@ import {
   where,
 } from "firebase/firestore";
 
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import useUserInputsStore from "@/store/user-inputs";
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import withAuth from "@/hocs/with-auth";
+
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import { NavBar } from "@/components/foundation-components/nav-bar";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function CreateAd() {
   const posthog = usePostHog();
@@ -378,8 +378,7 @@ function CreateAd() {
   };
 
   const handleSaveState = () => {
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "quick-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
@@ -623,17 +622,12 @@ function CreateAd() {
               Next
             </Button>
             {/* Save Button */}
-            <Button
-              className="mt-3"
+            <SecondaryActionButton
+              initialText="Save"
+              clickedText="Saved!"
+              borderColor="#FDA942"
               onClick={handleSaveState}
-              style={{
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-                color: "black",
-              }}
-            >
-              Save
-            </Button>
+            />
           </div>
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}

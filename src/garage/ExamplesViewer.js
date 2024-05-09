@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Offcanvas, Container } from "react-bootstrap";
 import { getFirestore, collection, doc, getDocs } from "firebase/firestore"; // Importing new Firestore methods
 import "bootstrap-icons/font/bootstrap-icons.css";
-import app from "../firebase"; // Ensure this points to the updated firebase.js file
+import app from "@/firebase"; // Ensure this points to the updated firebase.js file
 
 const db = getFirestore(app); // Initialize Firestore with Firebase app
 

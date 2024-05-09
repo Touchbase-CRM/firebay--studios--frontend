@@ -4,9 +4,9 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "@/firebase";
 
 import {
   getFirestore,

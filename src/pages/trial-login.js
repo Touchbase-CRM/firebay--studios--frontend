@@ -7,7 +7,7 @@ import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
-import { stripeTrialAuthenticator } from "../stripe_proxy_sdk";
+import { stripeTrialAuthenticator } from "../stripe-proxy-sdk";
 import { usePostHog } from "posthog-js/react";
 
 const TrialLoginPage = () => {

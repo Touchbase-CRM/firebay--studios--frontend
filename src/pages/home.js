@@ -1,15 +1,16 @@
+// Relative path: src/pages/home.js
 import { Card, Button } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
-import { ActionSelectorModal } from "@/components/ActionSelectorModal/actionSelector";
+import { NavBar } from "@/components/foundation-components/nav-bar";
+import { ActionSelectorModal } from "@/components/action-selector-modal/action-selector";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
-import withAuth from "@/hocs/withAuth";
+import withAuth from "@/hocs/with-auth";
 import { getAuth } from "firebase/auth";
-import app from "../firebase";
+import app from "@/firebase";
 import { useRouter } from "next/router";
-import { getPortalUrl } from "../stripe_proxy_sdk";
-import useUserInputsStore from "../store/userInputs";
+import { getPortalUrl } from "../stripe-proxy-sdk";
+import useUserInputsStore from "@/store/user-inputs";
 import React, { useState, useEffect, useRef } from "react";
 import {
   getFirestore,
@@ -24,14 +25,14 @@ import {
 } from "firebase/firestore";
 const db = getFirestore(app);
 
-import { defaultState } from "../store/shared_default_values";
+import { defaultState } from "../store/shared-default-values";
 import {
   advancedScriptToAdDefaultValues,
   AdvancedScriptToAdSetters,
 } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "../store/features/core/quick/script-to-ad";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 function Home() {
   const auth = getAuth();
@@ -155,9 +156,8 @@ function Home() {
   const handleQuickModeModalClose = () => setQuickModeModalShow(false);
 
   const saveQuickScriptToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "quick-script-to-ad",
       modeSpecificStates: quickScriptToAdDefaultValues,
       sharedStates: defaultState,
@@ -166,9 +166,8 @@ function Home() {
   };
 
   const saveQuickVoiceToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "quick-voice-to-ad",
       modeSpecificStates: quickVoiceToAdDefaultValues,
       sharedStates: defaultState,
@@ -176,9 +175,8 @@ function Home() {
     setSpotId(tmpSpotId);
   };
   const saveAdvancedScriptToAd = async (spotName) => {
-    const tmpSpotId = await createSpotInDb({
+    const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
-      spotId: null,
       mode: "advanced-script-to-ad",
       modeSpecificStates: advancedScriptToAdDefaultValues,
       sharedStates: defaultState,

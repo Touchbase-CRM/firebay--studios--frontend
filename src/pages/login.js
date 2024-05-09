@@ -6,13 +6,13 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import app from "../firebase";
+import app from "@/firebase";
 
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
-import { getSubscriptionStatus } from "../stripe_proxy_sdk";
+import { getSubscriptionStatus } from "../stripe-proxy-sdk";
 import { usePostHog } from "posthog-js/react";
 
 const LoginPage = () => {

@@ -1,3 +1,4 @@
+// Relative path: src/pages/add-music.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -7,18 +8,20 @@ import {
   Button,
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
+import { NavBar } from "@/components/foundation-components/nav-bar";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
+
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
-import Spinner from "../components/Spinner";
+import Spinner from "../components/spinner/spinner";
 import Swal from "sweetalert2";
-import SimpleAudioPlayer from "../components/SimpleAudioPlayer";
-import BackButton from "@/components/BackButton";
-import useUserInputsStore from "../store/userInputs";
-import withAuth from "@/hocs/withAuth";
+import SimpleAudioPlayer from "../components/simple-audio-player";
+import BackButton from "@/components/buttons/back-button";
+import useUserInputsStore from "@/store/user-inputs";
+import withAuth from "@/hocs/with-auth";
 import { usePostHog } from "posthog-js/react";
 import {
   getFirestore,
@@ -29,9 +32,9 @@ import {
   collection,
   where,
 } from "firebase/firestore";
-import app from "../firebase";
-import { Stack } from "../dataStructures/stack";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import app from "@/firebase";
+import { Stack } from "../data-structures/stack";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 const db = getFirestore(app);
 
@@ -386,8 +389,7 @@ function AddMusic() {
 
   const handleSaveState = () => {
     const mode = getMode();
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: mode,
       modeSpecificStates: saveFeatureSpecificStates,
@@ -610,16 +612,13 @@ function AddMusic() {
               </Form>
             </Card>
             <div style={{ textAlign: "right" }}>
-              <Button
+              {/* Save Button */}
+              <SecondaryActionButton
+                initialText="Save"
+                clickedText="Saved!"
+                borderColor="#FDA942"
                 onClick={handleSaveState}
-                style={{
-                  backgroundColor: "white",
-                  borderColor: "#FDA942",
-                  color: "black",
-                }}
-              >
-                Save
-              </Button>
+              />
             </div>
           </div>
           <div>

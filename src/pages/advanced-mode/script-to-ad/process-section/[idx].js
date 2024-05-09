@@ -1,3 +1,4 @@
+// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -9,24 +10,8 @@ import {
   ProgressBar,
   Alert,
 } from "react-bootstrap";
-import { NavBar } from "@/components/navBar";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
-
-import SimpleAudioPlayer from "../../../../components/SimpleAudioPlayer";
-import BackButton from "@/components/BackButton";
-import { PlayButton } from "@/components/buttons/playButton/play";
-
-import useUserInputsStore from "../../../../store/userInputs";
-import withAuth from "@/hocs/withAuth";
-import { getAuth } from "firebase/auth";
-import app from "../../../../firebase";
-
-import { usePostHog } from "posthog-js/react";
-import Swal from "sweetalert2";
-import { HistoryCanvas } from "@/features/readHistory";
-
 import {
   getFirestore,
   doc,
@@ -37,9 +22,24 @@ import {
   where,
 } from "firebase/firestore";
 import _ from "lodash";
-import { Stack } from "../../../../dataStructures/stack";
-import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetchAudio/fetchFromDistribution";
-import { createSpotInDb } from "@/utils/dbReadWriteOps/serializationUtils";
+import { getAuth } from "firebase/auth";
+import app from "@/firebase";
+import { usePostHog } from "posthog-js/react";
+import Swal from "sweetalert2";
+
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+import { NavBar } from "@/components/foundation-components/nav-bar";
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import BackButton from "@/components/buttons/back-button";
+import { PlayButton } from "@/components/buttons/play-button/play";
+
+import useUserInputsStore from "@/store/user-inputs";
+import withAuth from "@/hocs/with-auth";
+import { Stack } from "@/data-structures/stack";
+import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
+import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -469,8 +469,6 @@ function ProcessSection() {
         metadata.newVoicePreviewFilename
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-      // setAllowDownload(false);
-      // setShowAudioPlayer(true);
 
       // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(
@@ -793,6 +791,10 @@ function ProcessSection() {
   };
 
   const handleSaveState = () => {
+    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
     syncSectionHistoryArrayWithZustand(
       currentSectionIndex,
       localSectionHistoryObj
@@ -804,8 +806,7 @@ function ProcessSection() {
     );
     saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
 
-    createSpotInDb({
-      spotName: null, // explicitly setting it as null for clarity, optional
+    updateExistingSpotInDb({
       spotId: spotId,
       mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
@@ -1182,29 +1183,21 @@ function ProcessSection() {
               {"Next"}
             </Button>
             {/* Save Button */}
-            <Button
+            <SecondaryActionButton
               onClick={handleSaveState}
-              style={{
-                marginRight: "10px", // Space between Save and History
-                marginTop: "20px",
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-              }}
-            >
-              <span
-                style={{
-                  verticalAlign: "middle",
-                  marginLeft: "8px",
-                  color: "black",
-                }}
-              >
-                Save
-              </span>
-            </Button>
+              initialText="Save"
+              clickedText="Saved!"
+              duration={1000}
+              marginRight="10px"
+              marginTop="20px"
+            />
 
-            {/* Always render History Button but conditionally disable it */}
-            <Button
+            {/* History Button */}
+            <SecondaryActionButton
               onClick={showOffcanvas}
+              initialText="History"
+              clickedText="History!"
+              duration={1000}
               disabled={
                 !(
                   localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
@@ -1212,29 +1205,16 @@ function ProcessSection() {
                   localSectionHistoryObj[currentSectionIndex] !== null
                 )
               }
-              style={{
-                marginRight: "0px", // No right margin, to stick to the canvas trigger
-                marginTop: "20px",
-                backgroundColor: "white",
-                borderColor: "#FDA942",
-                opacity:
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                  localSectionHistoryObj &&
-                  localSectionHistoryObj[currentSectionIndex] !== null
-                    ? "1"
-                    : "0.5",
-              }}
-            >
-              <span
-                style={{
-                  verticalAlign: "middle",
-                  marginLeft: "8px",
-                  color: "black",
-                }}
-              >
-                History
-              </span>
-            </Button>
+              opacity={
+                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                localSectionHistoryObj &&
+                localSectionHistoryObj[currentSectionIndex] !== null
+                  ? "1"
+                  : "0.5"
+              }
+              marginRight="0px"
+              marginTop="20px"
+            />
             <HistoryCanvas
               show={offcanvasVisible}
               handleClose={hideOffcanvas}
