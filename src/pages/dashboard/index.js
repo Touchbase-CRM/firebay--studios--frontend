@@ -97,8 +97,8 @@ const Dashboard = () => {
     }
 
     router.push({
-      pathname: "/options",
-      query: { spotName: adName },
+      pathname: "/options/mode",
+      query: { spotName: adName, option: "mode" },
     });
   };
 

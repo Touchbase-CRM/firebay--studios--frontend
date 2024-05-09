@@ -1,36 +1,120 @@
-// Relative path: ./src/pages/options-dev/[option].js
-import React from "react";
-import { useRouter } from "next/router";
+// Relative path: ./src/pages/options/[option].js
 import ActionCard from "@/_pages/options/components/action-card";
+
+import withAuth from "@/hocs/with-auth";
+import { getAuth } from "firebase/auth";
+import app from "@/firebase";
+import { useRouter } from "next/router";
+import { getPortalUrl } from "../../stripe-proxy-sdk";
+import useUserInputsStore from "@/store/user-inputs";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  getDoc,
+  addDoc,
+} from "firebase/firestore";
+const db = getFirestore(app);
+
+import { defaultState } from "@/store/shared-default-values";
+import {
+  advancedScriptToAdDefaultValues,
+  AdvancedScriptToAdSetters,
+} from "@/store/features/core/advanced/script-to-ad";
+import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
+import { quickScriptToAdDefaultValues } from "@/store/features/core/quick/script-to-ad";
+import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 const OptionsPage = () => {
   const router = useRouter();
-  const { option } = router.query;
+  const { spotName, option } = router.query;
+  const firestore = getFirestore(app);
+  console.log("The option I got are ", option, spotName);
+
+  const {
+    // shared states
+    setSpotId,
+    spotId,
+    // advanced script to ad states
+    reset: resetUserInputsStore,
+  } = useUserInputsStore();
+
+  const [monthlyDownloads, setMonthlyDownloads] = useState(0);
+  const [quickModeModalShow, setQuickModeModalShow] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  const saveQuickScriptToAd = async (spotName) => {
+    const tmpSpotId = await createNewSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      mode: "quick-script-to-ad",
+      modeSpecificStates: quickScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+
+  const saveQuickVoiceToAd = async (spotName) => {
+    const tmpSpotId = await createNewSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      mode: "quick-voice-to-ad",
+      modeSpecificStates: quickVoiceToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+  const saveAdvancedScriptToAd = async (spotName) => {
+    const tmpSpotId = await createNewSpotInDb({
+      spotName: spotName, // explicitly setting it as null for clarity, optional
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: advancedScriptToAdDefaultValues,
+      sharedStates: defaultState,
+    });
+    setSpotId(tmpSpotId);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
 
   const handleBackClick = () => {
     if (option === "mode") {
       router.push("/dashboard");
     } else if (option === "quick") {
-      router.push("/options-dev/mode");
+      router.push("/options/mode");
     }
   };
 
-  const handleCardClick = (path) => {
-    console.log(`${path} clicked!`);
-  };
-
   const handleQuickOption = () => {
-    router.push("/options-dev/quick");
+    router.push({
+      pathname: "/options/quick",
+      query: { spotName: spotName, option: "quick" },
+    });
   };
 
-  const handleAdvancedOption = () => {
+  const handleAdvancedOption = async () => {
+    await saveAdvancedScriptToAd(spotName);
     router.push("/advanced-mode/script-to-ad/create-sections");
   };
 
-  const handleQuickScriptToAd = () => {
+  const handleQuickScriptToAd = async () => {
+    await saveQuickScriptToAd(spotName);
     router.push("/quick-mode/script-to-ad/create-ad");
   };
-  const handleQuickVoiceToAd = () => {
+  const handleQuickVoiceToAd = async () => {
+    await saveQuickVoiceToAd(spotName);
     router.push("/quick-mode/voice-to-ad/create-ad");
   };
 
