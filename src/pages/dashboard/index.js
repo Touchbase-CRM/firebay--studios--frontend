@@ -62,12 +62,24 @@ const Dashboard = () => {
   }, [spots, currentTableIndex]);
 
   useEffect(() => {
-    if (currentUser) fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
     const fetchDownloads = async () => {
-      const downloads = await fetchDownloadsTotal(db, currentUser.uid);
-      setTotalDownloads(downloads);
+      try {
+        const downloads = await readFromFirestore(
+          "uid_to_org",
+          currentUser.uid,
+          "monthly_downloads"
+        );
+        setTotalDownloads(downloads !== undefined ? downloads : null);
+      } catch (error) {
+        setTotalDownloads(null);
+        console.error("Error fetching downloads:", error);
+      }
     };
-    fetchDownloads();
+
+    if (currentUser) {
+      fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
+      fetchDownloads();
+    }
   }, [currentUser]);
 
   const checkSpotNameExists = async (spotName) => {

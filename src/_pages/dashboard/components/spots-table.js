@@ -100,7 +100,7 @@ const SpotTable = ({
           </Button>
         </Col>
         <Col className="text-right">
-          {totalDownloads && (
+          {totalDownloads !== null && (
             <p
               style={{
                 fontWeight: "bold",
