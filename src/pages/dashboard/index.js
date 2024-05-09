@@ -427,6 +427,7 @@ const Dashboard = () => {
               handleCloseModal={handleCloseModal}
               updateSpotName={updateSpotName}
               handleSaveCopy={() => handleSaveCopy(copySpotId)}
+              setShowRenameModal={setShowRenameModal}
             />
           </>
         )}
