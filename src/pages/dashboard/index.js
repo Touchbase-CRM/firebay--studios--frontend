@@ -33,7 +33,6 @@ import {
 import SpotTable from "@/_pages/dashboard/components/spots-table";
 import ManageSpotTableActions from "@/_pages/dashboard/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/dashboard/utils/fetch-spots";
-import { fetchDownloadsTotal } from "@/_pages/dashboard/utils/fetch-downloads-total";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
