@@ -3,7 +3,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const ActionCard = ({ icon, title, description, link, onLinkClick }) => {
+const ActionCard = ({
+  icon,
+  title,
+  description,
+  link,
+  onLinkClick,
+  linkLabel,
+}) => {
   const cardStyles = {
     width: "346px",
     height: "296px",
@@ -68,7 +75,7 @@ const ActionCard = ({ icon, title, description, link, onLinkClick }) => {
           onLinkClick();
         }}
       >
-        Get Started &rarr;
+        {linkLabel} &rarr;
       </a>
     </div>
   );
@@ -80,6 +87,11 @@ ActionCard.propTypes = {
   description: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   onLinkClick: PropTypes.func.isRequired,
+  linkLabel: PropTypes.string,
+};
+
+ActionCard.defaultProps = {
+  linkLabel: "Get Started",
 };
 
 export default ActionCard;
