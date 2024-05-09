@@ -1,6 +1,6 @@
 // Relative path: ./src/pages/options/[option].js
 import ActionCard from "@/_pages/options/components/action-card";
-
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
@@ -31,10 +31,10 @@ import { quickScriptToAdDefaultValues } from "@/store/features/core/quick/script
 import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 
 const OptionsPage = () => {
+  const auth = getAuth();
   const router = useRouter();
   const { spotName, option } = router.query;
   const firestore = getFirestore(app);
-  console.log("The option I got are ", option, spotName);
 
   const {
     // shared states
@@ -117,6 +117,12 @@ const OptionsPage = () => {
     await saveQuickVoiceToAd(spotName);
     router.push("/quick-mode/voice-to-ad/create-ad");
   };
+  const dropdownItems = [
+    {
+      text: "Logout",
+      handler: handleLogout,
+    },
+  ];
 
   let cards = [];
   let heading = "";
@@ -171,62 +177,72 @@ const OptionsPage = () => {
   return (
     <div
       style={{
+        backgroundColor: "#FFFFFF",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        backgroundColor: "#FFFFFF",
       }}
     >
+      <NavBar links={[]} dropdownItems={dropdownItems} />
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "center",
+          height: "100vh",
+          backgroundColor: "#FFFFFF",
         }}
       >
-        <h2
-          style={{
-            fontSize: "1.5em",
-            fontWeight: "bold",
-            textAlign: "left",
-            marginBottom: "30px",
-          }}
-        >
-          {heading}
-        </h2>
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
             justifyContent: "center",
-            gap: "20px",
-            marginBottom: "20px",
           }}
         >
-          {cards.map((card, index) => (
-            <ActionCard
-              key={index}
-              icon={card.icon}
-              title={card.title}
-              description={card.description}
-              link={card.link}
-              onLinkClick={card.onLinkClick}
-            />
-          ))}
-        </div>
-        <div
-          style={{
-            fontSize: "1em",
-            color: "#008080",
-            textDecoration: "underline",
-            cursor: "pointer",
-            marginTop: "10px",
-          }}
-          onClick={handleBackClick}
-        >
-          Back
+          <h2
+            style={{
+              fontSize: "1.5em",
+              fontWeight: "bold",
+              textAlign: "left",
+              marginBottom: "30px",
+            }}
+          >
+            {heading}
+          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "20px",
+              marginBottom: "20px",
+            }}
+          >
+            {cards.map((card, index) => (
+              <ActionCard
+                key={index}
+                icon={card.icon}
+                title={card.title}
+                description={card.description}
+                link={card.link}
+                onLinkClick={card.onLinkClick}
+              />
+            ))}
+          </div>
+          <div
+            style={{
+              fontSize: "1em",
+              color: "#008080",
+              textDecoration: "underline",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+            onClick={handleBackClick}
+          >
+            Back
+          </div>
         </div>
       </div>
     </div>
