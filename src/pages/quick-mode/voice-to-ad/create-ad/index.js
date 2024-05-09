@@ -30,7 +30,7 @@ import { SecondaryActionButton } from "@/components/buttons/secondary-action-but
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import useUserInputsStore from "@/store/user-inputs";
 
-import { ViewUploadedAudio } from "./components/view-uploaded-audio/uploaded-audio";
+import { ViewUploadedAudio } from "@/_pages/quick-mode/voice-to-ad/create-ad/components/view-uploaded-audio/uploaded-audio";
 
 async function getAudioDuration(blob) {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();

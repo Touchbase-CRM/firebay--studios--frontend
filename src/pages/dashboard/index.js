@@ -27,10 +27,10 @@ import {
   updateAdvancedS2AState,
   updateQuickS2AState,
   updateQuickV2AState,
-} from "./utils/update-state";
-import SpotTable from "./components/spots-table";
-import ManageSpotTableActions from "./components/manage-spots-table-actions";
-import { fetchSpots } from "./utils/fetch-spots";
+} from "@/_pages/dashboard/utils/update-state";
+import SpotTable from "@/_pages/dashboard/components/spots-table";
+import ManageSpotTableActions from "@/_pages/dashboard/components/manage-spots-table-actions";
+import { fetchSpots } from "@/_pages/dashboard/utils/fetch-spots";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
