@@ -8,6 +8,7 @@ const SpotTable = ({
   setCurrentTableIndex,
   pageSize,
   totalSpots,
+  totalDownloads,
 }) => {
   const handleNextPage = () => {
     if (currentTableIndex + pageSize < totalSpots) {
@@ -99,15 +100,17 @@ const SpotTable = ({
           </Button>
         </Col>
         <Col className="text-right">
-          <p
-            style={{
-              fontWeight: "bold",
-              textAlign: "right",
-              marginRight: "0px",
-            }}
-          >
-            Total Downloads: 24
-          </p>
+          {totalDownloads && (
+            <p
+              style={{
+                fontWeight: "bold",
+                textAlign: "right",
+                marginRight: "0px",
+              }}
+            >
+              Total Downloads: {totalDownloads}
+            </p>
+          )}
         </Col>
       </Row>
     </div>

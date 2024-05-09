@@ -7,9 +7,10 @@ import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/db-read-write-ops/deserialization-utils";
-import { getAuth } from "firebase/auth";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
+
+import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import {
   getFirestore,
@@ -23,6 +24,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
+
 import {
   updateAdvancedS2AState,
   updateQuickS2AState,
@@ -31,6 +33,7 @@ import {
 import SpotTable from "@/_pages/dashboard/components/spots-table";
 import ManageSpotTableActions from "@/_pages/dashboard/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/dashboard/utils/fetch-spots";
+import { fetchDownloadsTotal } from "@/_pages/dashboard/utils/fetch-downloads-total";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +42,7 @@ const Dashboard = () => {
   const [adName, setAdName] = useState("");
   const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
+  const [totalDownloads, setTotalDownloads] = useState(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [selectedSpotId, setSelectedSpotId] = useState("");
@@ -59,6 +63,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (currentUser) fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
+    const fetchDownloads = async () => {
+      const downloads = await fetchDownloadsTotal(db, currentUser.uid);
+      setTotalDownloads(downloads);
+    };
+    fetchDownloads();
   }, [currentUser]);
 
   const checkSpotNameExists = async (spotName) => {
@@ -389,6 +398,7 @@ const Dashboard = () => {
               setCurrentTableIndex={setCurrentTableIndex}
               pageSize={pageSize}
               totalSpots={spots.length}
+              totalDownloads={totalDownloads}
             />
             <ManageSpotTableActions
               showCopyModal={showCopyModal}
