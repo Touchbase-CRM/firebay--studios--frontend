@@ -1,4 +1,3 @@
-// components/action-card.js
 import React from "react";
 import PropTypes from "prop-types";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -72,7 +71,7 @@ const ActionCard = ({
         onMouseOut={(e) => (e.target.style.textDecoration = "none")}
         onClick={(e) => {
           e.preventDefault();
-          onLinkClick();
+          onLinkClick(e);
         }}
       >
         {linkLabel} &rarr;
