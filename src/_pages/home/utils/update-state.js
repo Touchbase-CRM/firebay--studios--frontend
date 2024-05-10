@@ -1,4 +1,4 @@
-// Related path: src/pages/dashboard/utils/update-state.js
+// Related path: src/pages/home/utils/update-state.js
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
 import { fetchResourceFromS3 } from "@/utils/fetch-audio/fetch-resource-from-s3";

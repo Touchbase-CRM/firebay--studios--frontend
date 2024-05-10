@@ -1,4 +1,4 @@
-// Related path: src/pages/dashboard/utils/fetchSpots.js
+// Related path: src/pages/home/utils/fetchSpots.js
 import Swal from "sweetalert2";
 import {
   getFirestore,

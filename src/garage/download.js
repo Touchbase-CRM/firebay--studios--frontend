@@ -72,7 +72,7 @@ const DownloadPage = () => {
 
   const handleNewAd = () => {
     reset();
-    router.push("/dashboard");
+    router.push("/home");
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }
@@ -345,7 +345,7 @@ const DownloadPage = () => {
                 }}
                 onClick={handleNewAd}
               >
-                Dashboard
+                Home
               </button>
             </div>
           </Card.Body>

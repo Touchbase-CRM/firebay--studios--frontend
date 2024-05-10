@@ -67,7 +67,7 @@ const OptionsPage = () => {
 
   const handleBackClick = () => {
     if (option === "mode") {
-      router.push("/dashboard");
+      router.push("/home");
     } else if (option === "quick") {
       router.push("/options/mode");
     }

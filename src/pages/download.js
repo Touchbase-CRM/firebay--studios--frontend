@@ -76,7 +76,7 @@ const DownloadManager = () => {
 
   const handleNewAd = () => {
     reset();
-    router.push("/dashboard");
+    router.push("/home");
     if (generatedVoiceUrl) {
       URL.revokeObjectURL(generatedVoiceUrl);
     }

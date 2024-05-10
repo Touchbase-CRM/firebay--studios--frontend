@@ -1,4 +1,4 @@
-// Related path: src/pages/dashboard/components/spots-manager.js
+// Related path: src/pages/home/components/spots-manager.js
 import React from "react";
 import { GenericModal } from "@/components/foundation-components/modal";
 

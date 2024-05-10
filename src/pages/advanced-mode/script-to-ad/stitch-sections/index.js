@@ -280,7 +280,7 @@ function StitchSections() {
       if (result.isConfirmed) {
         resetUserInputsStore();
 
-        router.push("/dashboard");
+        router.push("/home");
       }
     });
   };
@@ -362,8 +362,8 @@ function StitchSections() {
 
   const links = [
     {
-      label: "Dashboard",
-      url: "/dashboard",
+      label: "Home",
+      url: "/home",
       isInternal: true,
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling

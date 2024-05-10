@@ -1,4 +1,4 @@
-// Related path: src/pages/dashboard/index.js
+// Related path: src/pages/home/index.js
 import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -29,12 +29,12 @@ import {
   updateAdvancedS2AState,
   updateQuickS2AState,
   updateQuickV2AState,
-} from "@/_pages/dashboard/utils/update-state";
-import SpotTable from "@/_pages/dashboard/components/spots-table";
-import ManageSpotTableActions from "@/_pages/dashboard/components/manage-spots-table-actions";
-import { fetchSpots } from "@/_pages/dashboard/utils/fetch-spots";
+} from "@/_pages/home/utils/update-state";
+import SpotTable from "@/_pages/home/components/spots-table";
+import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
+import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 
-const Dashboard = () => {
+const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
@@ -436,4 +436,4 @@ const Dashboard = () => {
   );
 };
 
-export default withAuth(Dashboard);
+export default withAuth(Home);
