@@ -1,9 +1,15 @@
-// components/action-card.js
 import React from "react";
 import PropTypes from "prop-types";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const ActionCard = ({ icon, title, description, link, onLinkClick }) => {
+const ActionCard = ({
+  icon,
+  title,
+  description,
+  link,
+  onLinkClick,
+  linkLabel,
+}) => {
   const cardStyles = {
     width: "346px",
     height: "296px",
@@ -38,10 +44,18 @@ const ActionCard = ({ icon, title, description, link, onLinkClick }) => {
     color: "#000000",
   };
 
-  const linkStyles = {
+  const linkContainerStyles = {
+    display: "flex",
+    alignItems: "center",
     fontSize: "1em",
+    fontWeight: "bold",
     color: "#000000",
     textDecoration: "none",
+  };
+
+  const arrowIconStyles = {
+    marginLeft: "5px",
+    fontSize: "1em",
     fontWeight: "bold",
   };
 
@@ -58,17 +72,18 @@ const ActionCard = ({ icon, title, description, link, onLinkClick }) => {
       <p style={descriptionStyles}>{description}</p>
       <a
         href={link}
-        style={linkStyles}
+        style={linkContainerStyles}
         onMouseOver={(e) =>
           (e.target.style.textDecoration = linkHoverStyles.textDecoration)
         }
         onMouseOut={(e) => (e.target.style.textDecoration = "none")}
         onClick={(e) => {
           e.preventDefault();
-          onLinkClick();
+          onLinkClick(e);
         }}
       >
-        Get Started &rarr;
+        {linkLabel}
+        <i className="bi bi-chevron-right" style={arrowIconStyles} />
       </a>
     </div>
   );
@@ -80,6 +95,11 @@ ActionCard.propTypes = {
   description: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   onLinkClick: PropTypes.func.isRequired,
+  linkLabel: PropTypes.string,
+};
+
+ActionCard.defaultProps = {
+  linkLabel: "Get Started",
 };
 
 export default ActionCard;
