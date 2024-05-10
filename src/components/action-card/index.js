@@ -44,10 +44,18 @@ const ActionCard = ({
     color: "#000000",
   };
 
-  const linkStyles = {
+  const linkContainerStyles = {
+    display: "flex",
+    alignItems: "center",
     fontSize: "1em",
+    fontWeight: "bold",
     color: "#000000",
     textDecoration: "none",
+  };
+
+  const arrowIconStyles = {
+    marginLeft: "5px",
+    fontSize: "1em",
     fontWeight: "bold",
   };
 
@@ -64,7 +72,7 @@ const ActionCard = ({
       <p style={descriptionStyles}>{description}</p>
       <a
         href={link}
-        style={linkStyles}
+        style={linkContainerStyles}
         onMouseOver={(e) =>
           (e.target.style.textDecoration = linkHoverStyles.textDecoration)
         }
@@ -74,7 +82,8 @@ const ActionCard = ({
           onLinkClick(e);
         }}
       >
-        {linkLabel} &rarr;
+        {linkLabel}
+        <i className="bi bi-chevron-right" style={arrowIconStyles} />
       </a>
     </div>
   );
