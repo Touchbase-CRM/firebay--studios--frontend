@@ -1,31 +1,14 @@
 // Relative path: ./src/pages/options/[option].js
-import ActionCard from "@/_pages/options/components/action-card";
+import ActionCard from "@/components/action-card";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
 import { getAuth } from "firebase/auth";
-import app from "@/firebase";
 import { useRouter } from "next/router";
-import { getPortalUrl } from "../../stripe-proxy-sdk";
 import useUserInputsStore from "@/store/user-inputs";
-import React, { useState, useEffect, useRef } from "react";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  getDoc,
-  addDoc,
-} from "firebase/firestore";
-const db = getFirestore(app);
+import React from "react";
 
 import { defaultState } from "@/store/shared-default-values";
-import {
-  advancedScriptToAdDefaultValues,
-  AdvancedScriptToAdSetters,
-} from "@/store/features/core/advanced/script-to-ad";
+import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
 import { quickVoiceToAdDefaultValues } from "@/store/features/core/quick/voice-to-ad";
 import { quickScriptToAdDefaultValues } from "@/store/features/core/quick/script-to-ad";
 import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
@@ -34,19 +17,12 @@ const OptionsPage = () => {
   const auth = getAuth();
   const router = useRouter();
   const { spotName, option } = router.query;
-  const firestore = getFirestore(app);
 
   const {
     // shared states
     setSpotId,
-    spotId,
     // advanced script to ad states
-    reset: resetUserInputsStore,
   } = useUserInputsStore();
-
-  const [monthlyDownloads, setMonthlyDownloads] = useState(0);
-  const [quickModeModalShow, setQuickModeModalShow] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
   const saveQuickScriptToAd = async (spotName) => {
     const tmpSpotId = await createNewSpotInDb({
@@ -249,4 +225,4 @@ const OptionsPage = () => {
   );
 };
 
-export default OptionsPage;
+export default withAuth(OptionsPage);

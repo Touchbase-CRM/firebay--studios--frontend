@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import ActionCard from "@/_pages/options/components/action-card";
+import ActionCard from "@/components/action-card";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -191,4 +191,4 @@ const DownloadManager = () => {
   );
 };
 
-export default DownloadManager;
+export default withAuth(DownloadManager);
