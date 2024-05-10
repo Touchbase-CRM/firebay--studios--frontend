@@ -17,7 +17,8 @@ import app from "@/firebase";
 import withAuth from "@/hocs/with-auth";
 
 import { usePostHog } from "posthog-js/react";
-import SimpleAudioPlayer from "../components/simple-audio-player";
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import { NavBar } from "@/components/foundation-components/nav-bar";
 import useUserInputsStore from "@/store/user-inputs";
 
 const DownloadManager = () => {
@@ -100,80 +101,88 @@ const DownloadManager = () => {
   const handleBackClick = () => {
     router.push("/add-music");
   };
-
-  const handleQuickAdClick = () => {
-    console.log("Quick Ad clicked!");
-  };
-
-  const handleAdvancedAdClick = () => {
-    console.log("Advanced Ad clicked!");
-  };
+  const dropdownItems = [
+    {
+      text: "Logout",
+      handler: handleLogout,
+    },
+  ];
 
   return (
     <div
       style={{
+        backgroundColor: "#FFFFFF",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        backgroundColor: "#FFFFFF",
       }}
     >
+      <NavBar links={[]} dropdownItems={dropdownItems} />
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "center",
+          height: "100vh",
+          backgroundColor: "#FFFFFF",
         }}
       >
-        <h2
-          style={{
-            fontSize: "1.5em",
-            fontWeight: "bold",
-            textAlign: "left",
-            marginBottom: "30px",
-          }}
-        >
-          What would you like to do?
-        </h2>
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
             justifyContent: "center",
-            gap: "20px",
-            marginBottom: "20px",
           }}
         >
-          <ActionCard
-            icon="bi bi-download"
-            title="Download your ad"
-            description="When you download, it will count as a credit."
-            link="#"
-            onLinkClick={handleDownloadClick}
-            linkLabel={isDownloading ? "Downloading..." : "Download"}
-          />
-          <ActionCard
-            icon="bi bi-house"
-            title="Home"
-            description="By clicking here, you will be brought back to the home page with your recent projects."
-            link="#"
-            onLinkClick={handleNewAd}
-            linkLabel="Home"
-          />
-        </div>
-        <div
-          style={{
-            fontSize: "1em",
-            color: "#008080",
-            textDecoration: "underline",
-            cursor: "pointer",
-            marginTop: "10px",
-          }}
-          onClick={handleBackClick}
-        >
-          Back
+          <h2
+            style={{
+              fontSize: "1.5em",
+              fontWeight: "bold",
+              textAlign: "left",
+              marginBottom: "30px",
+            }}
+          >
+            What would you like to do?
+          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "20px",
+              marginBottom: "20px",
+            }}
+          >
+            <ActionCard
+              icon="bi bi-download"
+              title="Download your ad"
+              description="When you download, it will count as a credit."
+              link="#"
+              onLinkClick={handleDownloadClick}
+              linkLabel={isDownloading ? "Downloading..." : "Download"}
+            />
+            <ActionCard
+              icon="bi bi-house"
+              title="Home"
+              description="By clicking here, you will be brought back to the home page with your recent projects."
+              link="#"
+              onLinkClick={handleNewAd}
+              linkLabel="Home"
+            />
+          </div>
+          <div
+            style={{
+              fontSize: "1em",
+              color: "#008080",
+              textDecoration: "underline",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+            onClick={handleBackClick}
+          >
+            Back
+          </div>
         </div>
       </div>
     </div>
