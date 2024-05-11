@@ -5,15 +5,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import app from "@/firebase";
+import { getCurrentTimestamp } from "@/utils/time/current-timestamp";
+import useUserInputsStore from "@/store/user-inputs";
 
 export default function SimpleAudioPlayer({
   audioTitle,
   audioSrc,
-  downloadFileName = "pyro--voice",
   forceRender = 0,
   autoplay = false,
   allowDownload = false,
 }) {
+  const { spotName } = useUserInputsStore();
+
+  const downloadFileName = `${spotName}-${getCurrentTimestamp()}.mp3`;
+
   // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
     if (!allowDownload) {
