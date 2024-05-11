@@ -9,6 +9,7 @@ import app from "@/firebase";
 export default function SimpleAudioPlayer({
   audioTitle,
   audioSrc,
+  downloadFileName = "pyro--voice",
   forceRender = 0,
   autoplay = false,
   allowDownload = false,
@@ -58,7 +59,7 @@ export default function SimpleAudioPlayer({
               {allowDownload && (
                 <a
                   href={audioSrc}
-                  download
+                  download={downloadFileName}
                   className="btn btn-link"
                   title="Download"
                   style={{
