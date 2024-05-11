@@ -33,8 +33,11 @@ import {
 import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
+import useUserInputsStore from "@/store/user-inputs";
 
 const Home = () => {
+  const { setSpotName } = useUserInputsStore();
+
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
@@ -145,6 +148,7 @@ const Home = () => {
 
   async function manageAdvancedEditSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.spotName);
     await updateAdvancedS2AState(data);
     if (data.featureSpecificStates.sectionsArray.length === 0) {
       router.push("/advanced-mode/script-to-ad/create-sections");
@@ -155,12 +159,14 @@ const Home = () => {
 
   async function manageQuickScriptToAdSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.spotName);
     await updateQuickS2AState(data);
     router.push("/quick-mode/script-to-ad/create-ad");
   }
 
   async function manageQuickVoiceToAdSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.spotName);
     await updateQuickV2AState(data);
     router.push("/quick-mode/voice-to-ad/create-ad");
   }

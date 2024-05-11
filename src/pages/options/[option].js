@@ -21,6 +21,7 @@ const OptionsPage = () => {
   const {
     // shared states
     setSpotId,
+    setSpotName,
     // advanced script to ad states
   } = useUserInputsStore();
 
@@ -32,6 +33,7 @@ const OptionsPage = () => {
       sharedStates: defaultState,
     });
     setSpotId(tmpSpotId);
+    setSpotName(spotName);
   };
 
   const saveQuickVoiceToAd = async (spotName) => {
@@ -42,6 +44,7 @@ const OptionsPage = () => {
       sharedStates: defaultState,
     });
     setSpotId(tmpSpotId);
+    setSpotName(spotName);
   };
   const saveAdvancedScriptToAd = async (spotName) => {
     const tmpSpotId = await createNewSpotInDb({
@@ -51,6 +54,7 @@ const OptionsPage = () => {
       sharedStates: defaultState,
     });
     setSpotId(tmpSpotId);
+    setSpotName(spotName);
   };
 
   const handleLogout = () => {

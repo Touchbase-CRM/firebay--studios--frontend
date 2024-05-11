@@ -21,8 +21,8 @@ const DownloadManager = () => {
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [fileName, setFileName] = useState("");
-  const { reset, generatedVoiceUrl, spotId } = useUserInputsStore();
+  const { reset, generatedVoiceUrl, spotName } = useUserInputsStore();
+  const [downloadName, setDownloadName] = useState(spotName);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -72,15 +72,14 @@ const DownloadManager = () => {
     const link = document.createElement("a");
 
     link.href = audioUrl;
-    const defaultName = spotId + "--" + timeStamp + ".mp3";
-    link.download = fileName || defaultName;
+    link.download = downloadName;
     link.click();
 
     setIsDownloading(false);
   };
 
   const handleSaveFileName = () => {
-    if (!fileName) {
+    if (!downloadName) {
       alert("Please enter a name for your download.");
       return;
     }
@@ -140,8 +139,8 @@ const DownloadManager = () => {
         <input
           type="text"
           placeholder="Enter file name"
-          value={fileName}
-          onChange={(e) => setFileName(e.target.value)}
+          value={downloadName}
+          onChange={(e) => setDownloadName(e.target.value)}
           className="form-control"
         />
       </GenericModal>
