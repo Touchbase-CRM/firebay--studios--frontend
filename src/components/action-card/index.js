@@ -13,8 +13,8 @@ const ActionCard = ({
   const cardStyles = {
     width: "346px",
     height: "296px",
-    backgroundColor: "#FFA500",
-    color: "#000000",
+    backgroundColor: "#EB621D",
+    color: "#FFFFFF",
     borderRadius: "8px",
     display: "flex",
     flexDirection: "column",
@@ -26,7 +26,7 @@ const ActionCard = ({
 
   const iconStyles = {
     fontSize: "30px",
-    color: "#000000",
+    color: "#FFFFFF",
   };
 
   const titleStyles = {
@@ -34,14 +34,14 @@ const ActionCard = ({
     fontSize: "1.5em",
     fontWeight: "bold",
     textAlign: "left",
-    color: "#000000",
+    color: "#FFFFFF",
   };
 
   const descriptionStyles = {
     margin: "15px 0",
     fontSize: "1em",
     textAlign: "left",
-    color: "#000000",
+    color: "#FFFFFF",
   };
 
   const linkContainerStyles = {
@@ -49,7 +49,7 @@ const ActionCard = ({
     alignItems: "center",
     fontSize: "1em",
     fontWeight: "bold",
-    color: "#000000",
+    color: "#FFFFFF",
     textDecoration: "none",
   };
 
@@ -100,6 +100,7 @@ ActionCard.propTypes = {
 
 ActionCard.defaultProps = {
   linkLabel: "Get Started",
+  color: "#FFFFFF",
 };
 
 export default ActionCard;
