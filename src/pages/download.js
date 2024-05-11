@@ -4,6 +4,7 @@ import ActionCard from "@/components/action-card";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { GenericModal } from "@/components/foundation-components/modal";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { usePostHog } from "posthog-js/react";
@@ -19,7 +20,9 @@ const DownloadManager = () => {
   const { audioUrl } = router.query;
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
-  const { reset, generatedVoiceUrl } = useUserInputsStore();
+  const [showModal, setShowModal] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const { reset, generatedVoiceUrl, spotId } = useUserInputsStore();
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -48,9 +51,10 @@ const DownloadManager = () => {
     }
 
     setIsDownloading(true);
+    const timeStamp = new Date().toISOString();
 
     posthog.capture("download-download-button-clicked", {
-      date: new Date().toISOString(),
+      date: timeStamp,
       userId: user.uid,
     });
 
@@ -65,13 +69,22 @@ const DownloadManager = () => {
         });
       }
     }
-
     const link = document.createElement("a");
+
     link.href = audioUrl;
-    link.download = "generated_ad.mp3";
+    const defaultName = spotId + "--" + timeStamp + ".mp3";
+    link.download = fileName || defaultName;
     link.click();
 
     setIsDownloading(false);
+  };
+
+  const handleSaveFileName = () => {
+    if (!fileName) {
+      alert("Please enter a name for your download.");
+      return;
+    }
+    handleDownload();
   };
 
   const handleNewAd = () => {
@@ -92,7 +105,7 @@ const DownloadManager = () => {
     if (isDownloading) {
       e.preventDefault();
     } else {
-      handleDownload();
+      setShowModal(true); // This will show the modal to input the file name
     }
   };
 
@@ -117,6 +130,21 @@ const DownloadManager = () => {
       }}
     >
       <NavBar links={[]} dropdownItems={dropdownItems} />
+      <GenericModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        title="Enter File Name"
+        saveButtonLabel="Download"
+        onSave={handleSaveFileName}
+      >
+        <input
+          type="text"
+          placeholder="Enter file name"
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
+          className="form-control"
+        />
+      </GenericModal>
       <div
         style={{
           display: "flex",

@@ -1,3 +1,4 @@
+// Relative path: src/components/foundation-components/modal/modal.js
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
