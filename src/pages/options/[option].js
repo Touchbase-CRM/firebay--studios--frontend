@@ -110,7 +110,7 @@ const OptionsPage = () => {
         {
           icon: "bi-lightning-fill",
           title: "Quick ad",
-          description: "Simply create your ad in seconds. Best for explorers",
+          description: "Simply create your ad in seconds. Best for explorers.",
           link: "#",
           onLinkClick: () => handleQuickOption(),
         },
