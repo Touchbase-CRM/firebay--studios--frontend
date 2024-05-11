@@ -26,6 +26,7 @@ const OptionsPage = () => {
   } = useUserInputsStore();
 
   const saveQuickScriptToAd = async (spotName) => {
+    defaultState.spotName = spotName;
     const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       mode: "quick-script-to-ad",
@@ -37,6 +38,7 @@ const OptionsPage = () => {
   };
 
   const saveQuickVoiceToAd = async (spotName) => {
+    defaultState.spotName = spotName;
     const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       mode: "quick-voice-to-ad",
@@ -47,6 +49,7 @@ const OptionsPage = () => {
     setSpotName(spotName);
   };
   const saveAdvancedScriptToAd = async (spotName) => {
+    defaultState.spotName = spotName;
     const tmpSpotId = await createNewSpotInDb({
       spotName: spotName, // explicitly setting it as null for clarity, optional
       mode: "advanced-script-to-ad",

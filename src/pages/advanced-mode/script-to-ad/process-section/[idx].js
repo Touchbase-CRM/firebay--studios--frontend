@@ -55,6 +55,7 @@ function ProcessSection() {
   // Zustand store hooks
   const {
     spotId,
+    spotName,
     sectionsArray,
     setSectionsArray,
     sectionHistoryArray,
@@ -1229,6 +1230,13 @@ function ProcessSection() {
             {showAudioPlayer && (
               <SimpleAudioPlayer
                 audioSrc={generatedVoiceUrl}
+                downloadFileName={
+                  spotName +
+                  "-section-" +
+                  currentSectionIndex +
+                  "-" +
+                  Date.now()
+                }
                 audioTitle={localCurrentSectionObj.getVoiceName()}
                 allowDownload={allowDownload}
                 autoplay={true}
