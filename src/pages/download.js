@@ -13,6 +13,8 @@ import { useAuth } from "../context/auth";
 import app from "@/firebase";
 import withAuth from "@/hocs/with-auth";
 import useUserInputsStore from "@/store/user-inputs";
+import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
+import { set } from "lodash";
 
 const DownloadManager = () => {
   const posthog = usePostHog();
@@ -22,7 +24,9 @@ const DownloadManager = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { reset, generatedVoiceUrl, spotName } = useUserInputsStore();
-  const [downloadName, setDownloadName] = useState(spotName);
+  const [downloadName, setDownloadName] = useState(
+    spotName + "-" + captureCurrentTimestamp()
+  );
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -83,7 +87,9 @@ const DownloadManager = () => {
       alert("Please enter a name for your download.");
       return;
     }
-    handleDownload();
+    handleDownload(); // Initiates the download process
+    setShowModal(false); // Closes the modal immediately after download starts
+    setDownloadName(spotName + "-" + captureCurrentTimestamp());
   };
 
   const handleNewAd = () => {
