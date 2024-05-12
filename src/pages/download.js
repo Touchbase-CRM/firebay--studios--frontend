@@ -1,3 +1,5 @@
+// Relative path: src/pages/download.js
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import ActionCard from "@/components/action-card";
@@ -13,8 +15,8 @@ import { useAuth } from "../context/auth";
 import app from "@/firebase";
 import withAuth from "@/hocs/with-auth";
 import useUserInputsStore from "@/store/user-inputs";
-import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
-import { set } from "lodash";
+import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
+import { captureCurrentTimestamp } from "@/utils/time/current-timestamp.js";
 
 const DownloadManager = () => {
   const posthog = usePostHog();
@@ -23,11 +25,11 @@ const DownloadManager = () => {
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { reset, generatedVoiceUrl, spotName } = useUserInputsStore();
-  const [downloadName, setDownloadName] = useState(
-    spotName + "-" + captureCurrentTimestamp()
+  const { reset, generatedVoiceUrl, spotName, spotId } = useUserInputsStore();
+  const [capturedTimestamp, setCapturedTimestamp] = useState(
+    captureCurrentTimestamp()
   );
-
+  const [fileName, setFileName] = useState("");
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
@@ -46,6 +48,13 @@ const DownloadManager = () => {
       window.onpopstate = null;
     };
   }, [router]);
+
+  useEffect(() => {
+    // Set default file name when modal is shown
+    if (showModal) {
+      setFileName(spotName + "-" + capturedTimestamp);
+    }
+  }, [showModal, spotName, capturedTimestamp]);
 
   const handleDownload = async () => {
     if (!audioUrl) {
@@ -73,23 +82,33 @@ const DownloadManager = () => {
         });
       }
     }
+
     const link = document.createElement("a");
-
     link.href = audioUrl;
-    link.download = downloadName;
-    link.click();
+    link.download = fileName; // Use the fileName state here
 
+    appendToFirestoreArray({
+      collectionName: "spots_meta_data",
+      docId: spotId,
+      fieldName: "downloadLogs",
+      newValue: {
+        downloadFileName: fileName,
+        downloadTime: capturedTimestamp,
+      },
+    });
+
+    link.click();
     setIsDownloading(false);
   };
 
   const handleSaveFileName = () => {
-    if (!downloadName) {
+    if (!capturedTimestamp) {
       alert("Please enter a name for your download.");
       return;
     }
     handleDownload(); // Initiates the download process
     setShowModal(false); // Closes the modal immediately after download starts
-    setDownloadName(spotName + "-" + captureCurrentTimestamp());
+    setCapturedTimestamp(spotName + "-" + captureCurrentTimestamp());
   };
 
   const handleNewAd = () => {
@@ -145,8 +164,8 @@ const DownloadManager = () => {
         <input
           type="text"
           placeholder="Enter file name"
-          value={downloadName}
-          onChange={(e) => setDownloadName(e.target.value)}
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
           className="form-control"
         />
       </GenericModal>
