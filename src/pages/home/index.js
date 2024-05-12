@@ -33,8 +33,10 @@ import {
 import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
+import useUserInputsStore from "@/store/user-inputs";
 
 const Home = () => {
+  const { setSpotName } = useUserInputsStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
