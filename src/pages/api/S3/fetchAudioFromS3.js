@@ -1,6 +1,7 @@
 // pages/api/fetchAudio.js
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getCurrentTimestamp } from "@/utils/time/current-timestamp";
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
     const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: objectName,
-      ResponseContentDisposition: 'attachment; filename="pyro_download.mp3"',
+      ResponseContentDisposition: `attachment; filename="${getCurrentTimestamp()}.mp3"`,
     });
 
     const signedUrl = await getSignedUrl(s3Client, command, {

@@ -1,10 +1,18 @@
 export function getCurrentTimestamp() {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, "0");
-  const day = now.getDate().toString().padStart(2, "0");
-  const hours = now.getHours().toString().padStart(2, "0");
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-  const seconds = now.getSeconds().toString().padStart(2, "0");
-  return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
+  const options = {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+  };
+
+  // Replace slashes, commas, spaces, and colons with hyphens
+  return now
+    .toLocaleString("en-US", options)
+    .replace(/[\/\s,:]/g, "-") // Use a regex to target slashes, spaces, commas, and colons
+    .replace(/-+/g, "-"); // Collapse multiple consecutive hyphens into one
 }

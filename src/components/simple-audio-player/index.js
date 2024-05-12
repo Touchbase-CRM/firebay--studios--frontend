@@ -6,7 +6,6 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import app from "@/firebase";
 import { getCurrentTimestamp } from "@/utils/time/current-timestamp";
-import useUserInputsStore from "@/store/user-inputs";
 
 export default function SimpleAudioPlayer({
   audioTitle,
@@ -15,9 +14,7 @@ export default function SimpleAudioPlayer({
   autoplay = false,
   allowDownload = false,
 }) {
-  const { spotName } = useUserInputsStore();
-
-  const downloadFileName = `${spotName}-${getCurrentTimestamp()}.mp3`;
+  const downloadFileName = `${getCurrentTimestamp()}.mp3`;
 
   // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
