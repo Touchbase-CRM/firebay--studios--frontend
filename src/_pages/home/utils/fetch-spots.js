@@ -35,7 +35,6 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
     fetchedSpots.sort((a, b) =>
       b.createdRaw ? b.createdRaw - a.createdRaw : 0
     );
-    console.log("Fetched spots:", fetchedSpots);
 
     setSpots(fetchedSpots);
   } catch (error) {
