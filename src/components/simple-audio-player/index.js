@@ -14,7 +14,8 @@ export default function SimpleAudioPlayer({
   autoplay = false,
   allowDownload = false,
 }) {
-  const downloadFileName = `${generatePyroOrderIdFromTimestamp()}.mp3`;
+  let gMoney = "I'm a global variable!";
+  const downloadFileName = `${gMoney}.mp3`;
 
   // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
