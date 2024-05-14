@@ -1,6 +1,8 @@
 // Related path: src/pages/home/components/spots-manager.js
 import React from "react";
 import { GenericModal } from "@/components/foundation-components/modal";
+import { DownloadLogsModal } from "./download-logs-modal";
+import { useState } from "react";
 
 const ManageSpotTableActions = ({
   showCopyModal,
@@ -18,9 +20,27 @@ const ManageSpotTableActions = ({
   updateSpotName,
   handleSaveCopy,
   setShowRenameModal,
+  showDownloadLogsModal,
+  setShowDownloadLogsModal,
 }) => {
+  const logs = [
+    {
+      downloadFileName: "file1.mp3",
+      downloadTime: "2024-05-14T10:00:00Z",
+    },
+    {
+      downloadFileName: "file2.mp3",
+      downloadTime: "2024-05-14T11:00:00Z",
+    },
+  ];
   return (
     <>
+      <DownloadLogsModal
+        show={showDownloadLogsModal}
+        handleClose={() => setShowDownloadLogsModal(false)}
+        downloadLogs={logs}
+      />
+
       <GenericModal
         show={showCopyModal}
         onHide={() => setShowCopyModal(false)}
@@ -60,7 +80,7 @@ const ManageSpotTableActions = ({
 
       <GenericModal
         show={showCreateAdModal}
-        onHide={handleCloseModal}
+        onHide={() => setShowCreateAdModal(false)}
         title="Enter Spot Name"
         onSave={handleNextOnCreateAd}
         closeButtonLabel="Discard"

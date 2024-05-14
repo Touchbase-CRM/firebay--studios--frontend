@@ -50,6 +50,8 @@ const Home = () => {
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [newCopySpotName, setNewCopySpotName] = useState("");
   const [copySpotId, setCopySpotId] = useState("");
+  const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
+
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -171,6 +173,9 @@ const Home = () => {
   }
 
   const handleSpotActions = {
+    downloadHistory: (spotId) => {
+      setShowDownloadLogsModal(true);
+    },
     copy: (spotId) => {
       setCopySpotId(spotId);
       setShowCopyModal(true);
@@ -431,6 +436,8 @@ const Home = () => {
               updateSpotName={updateSpotName}
               handleSaveCopy={() => handleSaveCopy(copySpotId)}
               setShowRenameModal={setShowRenameModal}
+              showDownloadLogsModal={showDownloadLogsModal}
+              setShowDownloadLogsModal={setShowDownloadLogsModal}
             />
           </>
         )}
