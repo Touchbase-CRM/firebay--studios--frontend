@@ -45,7 +45,7 @@ const SpotTable = ({
                 <Button
                   variant="link"
                   onClick={() => handleSpotActions.downloadHistory(spot.id)}
-                  title="Download History"
+                  title="Download Logs"
                 >
                   <i
                     className="bi bi-clock-history"
