@@ -10,10 +10,6 @@ export default async function handler(req, res) {
 
   const { bucketName, objectName } = req.body;
 
-  console.log("Request body:", req.body); // Log the entire request body
-  console.log("Received bucket name:", bucketName);
-  console.log("Received object name:", objectName);
-
   // Create an S3 client (server-side)
   const s3Client = new S3Client({
     region: "us-east-2",
