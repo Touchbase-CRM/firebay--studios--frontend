@@ -27,6 +27,7 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
         lastDownloaded: data.lastDownloaded
           ? data.lastDownloaded.toDate().toLocaleString()
           : "Never",
+        downloadLogs: data.downloadLogs || [],
       };
     });
 
@@ -34,6 +35,7 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
     fetchedSpots.sort((a, b) =>
       b.createdRaw ? b.createdRaw - a.createdRaw : 0
     );
+    console.log("Fetched spots:", fetchedSpots);
 
     setSpots(fetchedSpots);
   } catch (error) {

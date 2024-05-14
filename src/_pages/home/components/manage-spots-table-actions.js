@@ -22,6 +22,7 @@ const ManageSpotTableActions = ({
   setShowRenameModal,
   showDownloadLogsModal,
   setShowDownloadLogsModal,
+  downloadLogs,
 }) => {
   const logs = [
     {
@@ -33,12 +34,13 @@ const ManageSpotTableActions = ({
       downloadTime: "2024-05-14T11:00:00Z",
     },
   ];
+  console.log("downloadLogs at manage-spots table actions", downloadLogs);
   return (
     <>
       <DownloadLogsModal
         show={showDownloadLogsModal}
         handleClose={() => setShowDownloadLogsModal(false)}
-        downloadLogs={logs}
+        downloadLogs={downloadLogs}
       />
 
       <GenericModal
