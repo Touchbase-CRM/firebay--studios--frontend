@@ -7,6 +7,7 @@ import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import app from "@/firebase";
 import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
 import useUserInputsStore from "@/store/user-inputs";
+import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
 
 export default function SimpleAudioPlayer({
   audioTitle,
@@ -15,9 +16,10 @@ export default function SimpleAudioPlayer({
   autoplay = false,
   allowDownload = false,
 }) {
-  const { spotName } = useUserInputsStore();
+  const { spotName, spotId } = useUserInputsStore();
+  const capturedTimestamp = captureCurrentTimestamp();
 
-  const downloadFileName = `${spotName}--${captureCurrentTimestamp()}.mp3`;
+  const downloadFileName = `${spotName}--${capturedTimestamp}.mp3`;
 
   // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
@@ -32,6 +34,15 @@ export default function SimpleAudioPlayer({
 
     if (user) {
       const uid = user.uid;
+      appendToFirestoreArray({
+        collectionName: "spots_meta_data",
+        docId: spotId,
+        fieldName: "downloadLogs",
+        newValue: {
+          downloadFileName: downloadFileName,
+          downloadTime: capturedTimestamp,
+        },
+      });
       const docRef = doc(firestore, "uid_to_org", uid);
       const docSnap = await getDoc(docRef);
 

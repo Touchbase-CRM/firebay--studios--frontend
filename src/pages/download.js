@@ -52,7 +52,7 @@ const DownloadManager = () => {
   useEffect(() => {
     // Set default file name when modal is shown
     if (showModal) {
-      setFileName(spotName + "-" + capturedTimestamp);
+      setFileName(spotName + "--" + capturedTimestamp);
     }
   }, [showModal, spotName, capturedTimestamp]);
 
