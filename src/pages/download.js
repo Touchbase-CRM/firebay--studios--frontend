@@ -92,7 +92,7 @@ const DownloadManager = () => {
       docId: spotId,
       fieldName: "downloadLogs",
       newValue: {
-        downloadFileName: fileName,
+        downloadFileName: fileName + ".mp3",
         downloadTime: capturedTimestamp,
       },
     });
