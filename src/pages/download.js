@@ -108,7 +108,7 @@ const DownloadManager = () => {
     }
     handleDownload(); // Initiates the download process
     setShowModal(false); // Closes the modal immediately after download starts
-    setCapturedTimestamp(spotName + "-" + captureCurrentTimestamp());
+    setCapturedTimestamp(captureCurrentTimestamp());
   };
 
   const handleNewAd = () => {

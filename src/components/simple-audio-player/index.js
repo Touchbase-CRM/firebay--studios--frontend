@@ -5,7 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import app from "@/firebase";
-import { generatePyroOrderIdFromTimestamp } from "@/utils/time/current-timestamp";
+import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
+import useUserInputsStore from "@/store/user-inputs";
 
 export default function SimpleAudioPlayer({
   audioTitle,
@@ -14,8 +15,9 @@ export default function SimpleAudioPlayer({
   autoplay = false,
   allowDownload = false,
 }) {
-  let gMoney = "I'm a global variable!";
-  const downloadFileName = `${gMoney}.mp3`;
+  const { spotName } = useUserInputsStore();
+
+  const downloadFileName = `${spotName}--${captureCurrentTimestamp()}.mp3`;
 
   // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
