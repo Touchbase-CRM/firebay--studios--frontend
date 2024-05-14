@@ -261,6 +261,7 @@ const Home = () => {
         ...spotSnap.data(),
         spotName: newCopySpotName,
         created: now,
+        downloadLogs: [], // Set downloadLogs to an empty array
       });
 
       const newAdRef = doc(db, "ads", newSpotMetaRef.id);
@@ -278,6 +279,7 @@ const Home = () => {
         spotName: newCopySpotName,
         created: now.toLocaleString(),
         createdRaw: now,
+        downloadLogs: [], // Initialize downloadLogs as an empty array
       };
 
       // Ensure all spots have `createdRaw` and sort by created date

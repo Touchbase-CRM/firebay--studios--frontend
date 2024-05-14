@@ -1,4 +1,3 @@
-// Relative path: src/_pages/home/components/download-logs-table.js
 import React from "react";
 import { Table, Card } from "react-bootstrap";
 
@@ -16,47 +15,37 @@ const DownloadLogsTable = ({ downloadLogs }) => {
         style={{ boxShadow: "0 4px 8px rgba(0,0,0,0.1)", borderRadius: "1rem" }}
       >
         <Card.Body style={{ padding: "2rem" }}>
-          <Table striped bordered hover responsive>
-            <thead style={{ backgroundColor: "#eb631c", color: "#ffffff" }}>
-              <tr>
-                <th style={{ padding: "1rem", textAlign: "center" }}>
-                  Download File Name
-                </th>
-                <th style={{ padding: "1rem", textAlign: "center" }}>
-                  Download Time
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {downloadLogs.map((log, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff",
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "1rem",
-                      textAlign: "center",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {log.downloadFileName}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1rem",
-                      textAlign: "center",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {new Date(log.downloadTime).toLocaleString()}
-                  </td>
+          <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+            <Table striped bordered hover responsive>
+              <thead style={{ backgroundColor: "#eb631c", color: "#ffffff" }}>
+                <tr>
+                  <th style={{ padding: "1rem", textAlign: "left" }}>
+                    Download File Name
+                  </th>
+                  <th style={{ padding: "1rem", textAlign: "left" }}>
+                    Download Time
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {downloadLogs.map((log, index) => (
+                  <tr
+                    key={index}
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff",
+                    }}
+                  >
+                    <td style={{ padding: "1rem", textAlign: "left" }}>
+                      {log.downloadFileName}
+                    </td>
+                    <td style={{ padding: "1rem", textAlign: "left" }}>
+                      {new Date(log.downloadTime).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </Card.Body>
       </Card>
     </div>
