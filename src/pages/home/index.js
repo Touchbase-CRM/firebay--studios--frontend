@@ -172,23 +172,15 @@ const Home = () => {
     await updateQuickV2AState(data);
     router.push("/quick-mode/voice-to-ad/create-ad");
   }
-  function handleDownloadHistoryLog(spotId) {
-    // Find the spot by the given spotId
-    console.log("Received spotId at fetch-spots", spotId);
+  function findDownloadLogs(spotId) {
     const spot = spots.find((spot) => spot.id === spotId);
-    console.log("spot at fetch-spots", spot);
-
-    // If the spot is found, retrieve the download logs, otherwise use an empty array
     const logs = spot ? spot.downloadLogs : [];
     setDownloadLogs(logs);
-
-    // Log the retrieved download logs
-    console.log("downloadLogs at fetch-spots", logs);
   }
 
   const handleSpotActions = {
     downloadHistory: (spotId) => {
-      handleDownloadHistoryLog(spotId);
+      findDownloadLogs(spotId);
       setShowDownloadLogsModal(true);
     },
     copy: (spotId) => {

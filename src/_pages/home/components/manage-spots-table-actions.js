@@ -2,7 +2,6 @@
 import React from "react";
 import { GenericModal } from "@/components/foundation-components/modal";
 import { DownloadLogsModal } from "./download-logs-modal";
-import { useState } from "react";
 
 const ManageSpotTableActions = ({
   showCopyModal,
@@ -24,17 +23,6 @@ const ManageSpotTableActions = ({
   setShowDownloadLogsModal,
   downloadLogs,
 }) => {
-  const logs = [
-    {
-      downloadFileName: "file1.mp3",
-      downloadTime: "2024-05-14T10:00:00Z",
-    },
-    {
-      downloadFileName: "file2.mp3",
-      downloadTime: "2024-05-14T11:00:00Z",
-    },
-  ];
-  console.log("downloadLogs at manage-spots table actions", downloadLogs);
   return (
     <>
       <DownloadLogsModal
