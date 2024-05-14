@@ -7,6 +7,9 @@ export async function fetchAudioFromPyroBackendDistribution(
   const objectName = `primary--distribution/${pyroHistoryItemId}`;
   const retryInterval = 15000; // Interval between retries if needed
 
+  // Wait for the estimated processing time before sending the first request
+  await new Promise((resolve) => setTimeout(resolve, estimatedProcessingTime));
+
   let attempts = 0;
   while (attempts < maxRetries) {
     try {
@@ -18,7 +21,6 @@ export async function fetchAudioFromPyroBackendDistribution(
         body: JSON.stringify({
           bucketName: bucketName,
           objectName: objectName,
-          estimatedProcessingTime: estimatedProcessingTime,
         }),
       });
 

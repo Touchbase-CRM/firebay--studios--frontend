@@ -150,7 +150,7 @@ function ProcessSection() {
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-  const ADDITIONALWAITTIME = 5000; // 5 seconds; Experimentally determined.
+  const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined.
   const SECTOMILLISEC = 1000;
 
   const syncStackAfterNavigation = () => {
