@@ -13,7 +13,11 @@ export const DownloadLogsModal = ({ show, handleClose, downloadLogs }) => {
         <DownloadLogsTable downloadLogs={downloadLogs} />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button
+          variant="secondary"
+          onClick={handleClose}
+          style={{ backgroundColor: "#FDA942", borderColor: "#FDA942" }}
+        >
           Close
         </Button>
       </Modal.Footer>
