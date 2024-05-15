@@ -122,7 +122,7 @@ const SpotTable = ({
                 marginRight: "0px",
               }}
             >
-              Total downloads in current billing period: {totalDownloads}
+              Total downloads this month: {totalDownloads}
             </p>
           )}
         </Col>
