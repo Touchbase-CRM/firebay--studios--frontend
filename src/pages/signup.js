@@ -91,77 +91,75 @@ const SignupPage = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
 
-    console.log("Sign Up initiated");
+    setIsLoading(true); // Start loading
+    setStatusMessage("Creating your Pyro account...");
+
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Passwords do not match",
+        text: "Please make sure your passwords match.",
+      });
+      setIsLoading(false); // Stop loading
+      return;
+    }
     const validUser = isEmployee
       ? await validateEmployeeStatus(email)
       : await validateInvoiceNumber(invoiceNumber);
-    console.log(validUser);
+    if (!validUser) {
+      setIsLoading(false); // Stop loading
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const batch = writeBatch(db);
+      const uidToOrgRef = doc(db, "uid_to_org", user.uid);
+      batch.set(uidToOrgRef, {
+        work_email: email,
+        monthly_downloads: -1,
+        unit_price: 0,
+      });
+
+      await batch.commit();
+
+      const userDocRef = doc(db, "customers", user.uid);
+      const subscriptionsRef = collection(userDocRef, "subscriptions");
+      const newSubscriptionRef = doc(subscriptionsRef);
+
+      batch.set(newSubscriptionRef, {
+        status: "active",
+      });
+
+      await batch.commit();
+      setStatusMessage("Your Pyro account has been created.");
+
+      // Redirect to another page or perform further actions here
+      router.push("/login"); // Example redirection after successful signup
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        Swal.fire({
+          icon: "error",
+          title: "Email Already in Use",
+          text: "The email address is already in use by another account.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Signup Failed",
+          text: error.message,
+        });
+      }
+      console.error("Signup error", error);
+      setIsLoading(false); // Stop loading
+    }
   };
-
-  // const handleSignUp = async (event) => {
-  //   event.preventDefault();
-
-  //   console.log("Sign Up initiated");
-
-  //   if (password !== confirmPassword) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Passwords do not match",
-  //       text: "Please make sure your passwords match.",
-  //     });
-  //     setIsLoading(false); // Stop loading
-  //     return;
-  //   }
-
-  //   try {
-  //     const userCredential = await createUserWithEmailAndPassword(
-  //       auth,
-  //       email,
-  //       password
-  //     );
-  //     const user = userCredential.user;
-
-  //     const batch = writeBatch(db);
-  //     const uidToOrgRef = doc(db, "uid_to_org", user.uid);
-  //     batch.set(uidToOrgRef, {
-  //       work_email: email,
-  //       monthly_downloads: -1,
-  //       unit_price: 299,
-  //     });
-
-  //     await batch.commit();
-
-  //     const userDocRef = doc(db, "customers", user.uid);
-  //     const subscriptionsRef = collection(userDocRef, "subscriptions");
-  //     const newSubscriptionRef = doc(subscriptionsRef);
-
-  //     batch.set(newSubscriptionRef, {
-  //       status: "active",
-  //     });
-
-  //     await batch.commit();
-  //     setStatusMessage("Your Pyro account has been created.");
-
-  //     // Redirect to another page or perform further actions here
-  //     router.push("/login"); // Example redirection after successful signup
-  //   } catch (error) {
-  //     if (error.code === "auth/email-already-in-use") {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Email Already in Use",
-  //         text: "The email address is already in use by another account.",
-  //       });
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Signup Failed",
-  //         text: error.message,
-  //       });
-  //     }
-  //     console.error("Signup error", error);
-  //     setIsLoading(false); // Stop loading
-  //   }
-  // };
 
   return (
     <Container
