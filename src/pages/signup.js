@@ -6,6 +6,7 @@ import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   // sendEmailVerification,
 } from "firebase/auth";
 import Spinner from "../components/spinner/spinner";
@@ -103,6 +104,7 @@ const SignupPage = () => {
       setIsLoading(false); // Stop loading
       return;
     }
+
     const validUser = isEmployee
       ? await validateEmployeeStatus(email)
       : await validateInvoiceNumber(invoiceNumber);
@@ -112,6 +114,7 @@ const SignupPage = () => {
     }
 
     try {
+      // Directly attempt to create the user account
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -127,8 +130,6 @@ const SignupPage = () => {
         unit_price: 0,
       });
 
-      await batch.commit();
-
       const userDocRef = doc(db, "customers", user.uid);
       const subscriptionsRef = collection(userDocRef, "subscriptions");
       const newSubscriptionRef = doc(subscriptionsRef);
@@ -138,11 +139,13 @@ const SignupPage = () => {
       });
 
       await batch.commit();
+
       setStatusMessage("Your Pyro account has been created.");
 
       // Redirect to another page or perform further actions here
       router.push("/login"); // Example redirection after successful signup
     } catch (error) {
+      console.error("Signup error", error);
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
           icon: "error",
@@ -156,7 +159,6 @@ const SignupPage = () => {
           text: error.message,
         });
       }
-      console.error("Signup error", error);
       setIsLoading(false); // Stop loading
     }
   };
