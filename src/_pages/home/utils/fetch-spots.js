@@ -27,6 +27,7 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
         lastDownloaded: data.lastDownloaded
           ? data.lastDownloaded.toDate().toLocaleString()
           : "Never",
+        downloadLogs: data.downloadLogs || [],
       };
     });
 

@@ -1,6 +1,6 @@
 // pages/api/fetchAudio.js
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { generatePyroOrderIdFromTimestamp } from "@/utils/time/current-timestamp";
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -20,21 +20,57 @@ export default async function handler(req, res) {
   });
 
   try {
-    // Generate a signed URL for secure, temporary access to the object
+    // Create a command to get the object from S3
     const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: objectName,
-      ResponseContentDisposition: 'attachment; filename="pyro_download.mp3"',
     });
 
-    const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 86400, // URL expires in 24 hours
+    // Fetch the object from S3
+    const s3Response = await s3Client.send(command);
+
+    // Check if the response has a body stream
+    if (!s3Response.Body) {
+      throw new Error("S3 response does not contain a body stream");
+    }
+
+    console.log(
+      `Successfully fetched object ${objectName} from bucket ${bucketName}`
+    );
+
+    // Set headers for the response to the client
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${generatePyroOrderIdFromTimestamp()}.mp3"`
+    );
+
+    // Stream the response data directly to the client
+    s3Response.Body.pipe(res);
+
+    // Log when the streaming is finished
+    s3Response.Body.on("end", () => {
+      console.log(
+        `Streaming of ${objectName} to client completed successfully`
+      );
     });
 
-    // Return the signed URL to the client
-    return res.status(200).json({ url: signedUrl });
+    // Handle stream errors
+    s3Response.Body.on("error", (streamError) => {
+      console.error(`Error during streaming ${objectName}:`, streamError);
+      res.status(500).json({
+        message: "Error during streaming",
+        error: streamError.message,
+      });
+    });
   } catch (error) {
-    console.error("Error fetching audio from S3:", error);
-    return res.status(500).json({ message: "Failed to fetch audio from S3" });
+    console.error(
+      `Error fetching object ${objectName} from bucket ${bucketName}:`,
+      error
+    );
+    return res.status(500).json({
+      message: `Failed to fetch audio ${objectName} from S3`,
+      error: error.message,
+    });
   }
 }

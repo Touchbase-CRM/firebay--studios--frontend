@@ -1,5 +1,3 @@
-import { fetchResourceFromS3 } from "./fetch-resource-from-s3";
-
 export async function fetchAudioFromPyroBackendDistribution(
   pyroHistoryItemId,
   estimatedProcessingTime = 60000,
@@ -9,16 +7,31 @@ export async function fetchAudioFromPyroBackendDistribution(
   const objectName = `primary--distribution/${pyroHistoryItemId}`;
   const retryInterval = 15000; // Interval between retries if needed
 
+  // Wait for the estimated processing time before sending the first request
+  await new Promise((resolve) => setTimeout(resolve, estimatedProcessingTime));
+
   let attempts = 0;
   while (attempts < maxRetries) {
     try {
-      // Use the abstracted function to fetch the audio file
-      const audioUrl = await fetchResourceFromS3(
-        bucketName,
-        objectName,
-        estimatedProcessingTime
-      );
-      return audioUrl;
+      const response = await fetch("/api/S3/fetchAudioFromS3", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bucketName: bucketName,
+          objectName: objectName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch audio");
+      }
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob); // Create a URL for the blob
+
+      return audioUrl; // Return the URL for further processing if needed
     } catch (error) {
       console.error(`Attempt #${attempts + 1} failed:`, error.message);
       attempts++;

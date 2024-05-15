@@ -20,6 +20,10 @@ export class UserInputMethods {
     this.setModelId = this.setModelId.bind(this);
     this.setAdGenerationMethod = this.setAdGenerationMethod.bind(this);
     this.setSpotId = this.setSpotId.bind(this);
+    this.setSpotName = this.setSpotName.bind(this);
+  }
+  setSpotName(spotName) {
+    this.set({ spotName });
   }
 
   setSpotId(spotId) {

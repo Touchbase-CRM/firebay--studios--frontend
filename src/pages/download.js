@@ -1,9 +1,12 @@
+// Relative path: src/pages/download.js
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import ActionCard from "@/components/action-card";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { GenericModal } from "@/components/foundation-components/modal";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { usePostHog } from "posthog-js/react";
@@ -12,6 +15,8 @@ import { useAuth } from "../context/auth";
 import app from "@/firebase";
 import withAuth from "@/hocs/with-auth";
 import useUserInputsStore from "@/store/user-inputs";
+import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
+import { captureCurrentTimestamp } from "@/utils/time/current-timestamp.js";
 
 const DownloadManager = () => {
   const posthog = usePostHog();
@@ -19,8 +24,12 @@ const DownloadManager = () => {
   const { audioUrl } = router.query;
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
-  const { reset, generatedVoiceUrl } = useUserInputsStore();
-
+  const [showModal, setShowModal] = useState(false);
+  const { reset, generatedVoiceUrl, spotName, spotId } = useUserInputsStore();
+  const [capturedTimestamp, setCapturedTimestamp] = useState(
+    captureCurrentTimestamp()
+  );
+  const [fileName, setFileName] = useState("");
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
@@ -40,6 +49,13 @@ const DownloadManager = () => {
     };
   }, [router]);
 
+  useEffect(() => {
+    // Set default file name when modal is shown
+    if (showModal) {
+      setFileName(spotName + "--" + capturedTimestamp);
+    }
+  }, [showModal, spotName, capturedTimestamp]);
+
   const handleDownload = async () => {
     if (!audioUrl) {
       alert("Audio URL is missing.");
@@ -48,9 +64,10 @@ const DownloadManager = () => {
     }
 
     setIsDownloading(true);
+    const timeStamp = new Date().toISOString();
 
     posthog.capture("download-download-button-clicked", {
-      date: new Date().toISOString(),
+      date: timeStamp,
       userId: user.uid,
     });
 
@@ -68,10 +85,30 @@ const DownloadManager = () => {
 
     const link = document.createElement("a");
     link.href = audioUrl;
-    link.download = "generated_ad.mp3";
-    link.click();
+    link.download = fileName; // Use the fileName state here
 
+    appendToFirestoreArray({
+      collectionName: "spots_meta_data",
+      docId: spotId,
+      fieldName: "downloadLogs",
+      newValue: {
+        downloadFileName: fileName + ".mp3",
+        downloadTime: capturedTimestamp,
+      },
+    });
+
+    link.click();
     setIsDownloading(false);
+  };
+
+  const handleSaveFileName = () => {
+    if (!capturedTimestamp) {
+      alert("Please enter a name for your download.");
+      return;
+    }
+    handleDownload(); // Initiates the download process
+    setShowModal(false); // Closes the modal immediately after download starts
+    setCapturedTimestamp(captureCurrentTimestamp());
   };
 
   const handleNewAd = () => {
@@ -92,7 +129,7 @@ const DownloadManager = () => {
     if (isDownloading) {
       e.preventDefault();
     } else {
-      handleDownload();
+      setShowModal(true); // This will show the modal to input the file name
     }
   };
 
@@ -117,6 +154,21 @@ const DownloadManager = () => {
       }}
     >
       <NavBar links={[]} dropdownItems={dropdownItems} />
+      <GenericModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        title="Enter File Name"
+        saveButtonLabel="Download"
+        onSave={handleSaveFileName}
+      >
+        <input
+          type="text"
+          placeholder="Enter file name"
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
+          className="form-control"
+        />
+      </GenericModal>
       <div
         style={{
           display: "flex",

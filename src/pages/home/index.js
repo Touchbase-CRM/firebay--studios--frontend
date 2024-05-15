@@ -33,8 +33,10 @@ import {
 import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
+import useUserInputsStore from "@/store/user-inputs";
 
 const Home = () => {
+  const { setSpotName } = useUserInputsStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
@@ -42,12 +44,16 @@ const Home = () => {
   const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
   const [totalDownloads, setTotalDownloads] = useState(null);
+  const [unitPrice, setUnitPrice] = useState(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [selectedSpotId, setSelectedSpotId] = useState("");
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [newCopySpotName, setNewCopySpotName] = useState("");
   const [copySpotId, setCopySpotId] = useState("");
+  const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
+  const [downloadLogs, setDownloadLogs] = useState([]);
+
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -63,14 +69,15 @@ const Home = () => {
   useEffect(() => {
     const fetchDownloads = async () => {
       try {
-        const downloads = await readFromFirestore(
-          "uid_to_org",
-          currentUser.uid,
-          "monthly_downloads"
-        );
+        const data = await readFromFirestore("uid_to_org", currentUser.uid);
+
+        const downloads = data?.monthly_downloads;
+        const unitPrice = data?.unit_price;
         setTotalDownloads(downloads !== undefined ? downloads : null);
+        setUnitPrice(unitPrice !== undefined ? unitPrice : null);
       } catch (error) {
         setTotalDownloads(null);
+        setUnitPrice(null);
         console.error("Error fetching downloads:", error);
       }
     };
@@ -145,6 +152,7 @@ const Home = () => {
 
   async function manageAdvancedEditSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.sharedStates.spotName);
     await updateAdvancedS2AState(data);
     if (data.featureSpecificStates.sectionsArray.length === 0) {
       router.push("/advanced-mode/script-to-ad/create-sections");
@@ -155,17 +163,28 @@ const Home = () => {
 
   async function manageQuickScriptToAdSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.sharedStates.spotName);
     await updateQuickS2AState(data);
     router.push("/quick-mode/script-to-ad/create-ad");
   }
 
   async function manageQuickVoiceToAdSpot(spotId) {
     const data = await deserializeAndLoadModeData({ spotId });
+    setSpotName(data.sharedStates.spotName);
     await updateQuickV2AState(data);
     router.push("/quick-mode/voice-to-ad/create-ad");
   }
+  function findDownloadLogs(spotId) {
+    const spot = spots.find((spot) => spot.id === spotId);
+    const logs = spot ? spot.downloadLogs : [];
+    setDownloadLogs(logs);
+  }
 
   const handleSpotActions = {
+    downloadHistory: (spotId) => {
+      findDownloadLogs(spotId);
+      setShowDownloadLogsModal(true);
+    },
     copy: (spotId) => {
       setCopySpotId(spotId);
       setShowCopyModal(true);
@@ -244,7 +263,7 @@ const Home = () => {
         ...spotSnap.data(),
         spotName: newCopySpotName,
         created: now,
-        lastDownloaded: null,
+        downloadLogs: [], // Set downloadLogs to an empty array
       });
 
       const newAdRef = doc(db, "ads", newSpotMetaRef.id);
@@ -253,8 +272,8 @@ const Home = () => {
         sharedStates: {
           ...adSnap.data().sharedStates,
           spotId: newSpotMetaRef.id,
+          spotName: newCopySpotName,
         },
-        spotName: newCopySpotName,
       });
 
       const newSpot = {
@@ -262,7 +281,7 @@ const Home = () => {
         spotName: newCopySpotName,
         created: now.toLocaleString(),
         createdRaw: now,
-        lastDownloaded: "Never",
+        downloadLogs: [], // Initialize downloadLogs as an empty array
       };
 
       // Ensure all spots have `createdRaw` and sort by created date
@@ -319,8 +338,7 @@ const Home = () => {
       const adRef = doc(db, "ads", selectedSpotId);
 
       await updateDoc(spotRef, { spotName: newSpotName });
-      await updateDoc(adRef, { spotName: newSpotName });
-
+      await updateDoc(adRef, { "sharedStates.spotName": newSpotName });
       const updatedSpots = spots.map((spot) =>
         spot.id === selectedSpotId ? { ...spot, spotName: newSpotName } : spot
       );
@@ -428,6 +446,10 @@ const Home = () => {
               updateSpotName={updateSpotName}
               handleSaveCopy={() => handleSaveCopy(copySpotId)}
               setShowRenameModal={setShowRenameModal}
+              showDownloadLogsModal={showDownloadLogsModal}
+              setShowDownloadLogsModal={setShowDownloadLogsModal}
+              downloadLogs={downloadLogs}
+              unitPrice={unitPrice}
             />
           </>
         )}

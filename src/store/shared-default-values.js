@@ -16,6 +16,7 @@ export const defaultState = {
   modelId: "eleven_multilingual_v2",
   adGenerationMethod: "",
   spotId: "",
+  spotName: "",
 };
 
 export default defaultState;

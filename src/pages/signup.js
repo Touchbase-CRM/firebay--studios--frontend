@@ -1,18 +1,24 @@
 import Swal from "sweetalert2";
 import Image from "next/image";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-
-import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  writeBatch,
+  collection,
+  set,
+} from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   // sendEmailVerification,
 } from "firebase/auth";
-
 import Spinner from "../components/spinner/spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { checkIfExistsInFirestore } from "@/utils/db-read-write-ops/deserialization-utils";
 
 // Initialize Firebase services
 const db = getFirestore();
@@ -23,9 +29,9 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  // const [organization, setOrganization] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [isEmployee, setIsEmployee] = useState(false);
   const [error, setError] = useState("");
-  // const [verificationUser, setVerificationUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -43,31 +49,56 @@ const SignupPage = () => {
     setConfirmPassword(event.target.value);
   };
 
+  const handleInvoiceNumberChange = (event) => {
+    setInvoiceNumber(event.target.value);
+  };
+
+  const handleEmployeeCheck = (event) => {
+    setIsEmployee(event.target.checked);
+    if (event.target.checked) {
+      setInvoiceNumber("");
+    }
+  };
+
+  async function validateInvoiceNumber(invoiceNumber) {
+    const response = await fetch("/api/Stripe/check-invoice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ invoiceNumber }),
+    });
+
+    const data = await response.json();
+    if (data.valid) {
+      return true;
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Invoice Number",
+        text: "Please make sure you have entered the correct invoice number.",
+      });
+      return false;
+    }
+  }
+
+  async function validateEmployeeStatus(email) {
+    const validEmployee = await checkIfExistsInFirestore("internal", email);
+    if (validEmployee) {
+      return validEmployee;
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Employee Email",
+        text: "Please make sure you have entered the correct email address.",
+      });
+      return false;
+    }
+  }
+
   const handleSignUp = async (event) => {
     event.preventDefault();
 
-    // SweetAlert confirmation dialog before starting the signup process
-    const paymentConfirmation = await Swal.fire({
-      title: "Payment Confirmation",
-      text: "The credentials you set up here won't be effective until you have made a payment. Please close this window and contact our head of sales at gcahill@firebaystudios.com if you have not gone through the payment process already.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, I have made the payment",
-      cancelButtonText: "No, I have not made the payment yet",
-    });
-
-    if (!paymentConfirmation.isConfirmed) {
-      Swal.fire(
-        "Signup Aborted",
-        "Please complete the payment process to create an account.",
-        "info"
-      );
-      return; // Abort the signup process
-    }
-
-    // Proceed with the signup process
     setIsLoading(true); // Start loading
     setStatusMessage("Creating your Pyro account...");
 
@@ -81,7 +112,16 @@ const SignupPage = () => {
       return;
     }
 
+    const validUser = isEmployee
+      ? await validateEmployeeStatus(email)
+      : await validateInvoiceNumber(invoiceNumber);
+    if (!validUser) {
+      setIsLoading(false); // Stop loading
+      return;
+    }
+
     try {
+      // Directly attempt to create the user account
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -93,16 +133,29 @@ const SignupPage = () => {
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
         work_email: email,
-        credit_allowance: 1000,
-        credit_left: 1000,
+        monthly_downloads: -1,
+        unit_price: 0,
+      });
+
+      // Ensure the parent document in 'customers' is created with a dummy field to avoid ghost docs
+      const userDocRef = doc(db, "customers", user.uid);
+      batch.set(userDocRef, { email: email });
+
+      // Create the subcollection 'subscriptions'
+      const subscriptionsRef = collection(userDocRef, "subscriptions");
+      const newSubscriptionRef = doc(subscriptionsRef);
+      batch.set(newSubscriptionRef, {
+        status: "active",
       });
 
       await batch.commit();
+
       setStatusMessage("Your Pyro account has been created.");
 
       // Redirect to another page or perform further actions here
       router.push("/login"); // Example redirection after successful signup
     } catch (error) {
+      console.error("Signup error", error);
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
           icon: "error",
@@ -116,14 +169,9 @@ const SignupPage = () => {
           text: error.message,
         });
       }
-      console.error("Signup error", error);
       setIsLoading(false); // Stop loading
     }
   };
-
-  // const handleContinue = () => {
-  //   router.push("/verification");
-  // };
 
   return (
     <Container
@@ -160,21 +208,19 @@ const SignupPage = () => {
             <Card
               className="my-5 mx-1 p-4"
               style={{
-                // backgroundColor: "#1a1a1a",
                 borderColor: "#eb631c",
-
                 borderRadius: "1rem",
                 color: "black",
-                position: "relative", // Add this for positioning the step indicator
+                position: "relative",
               }}
             >
               {/* Step indicator */}
               <div
                 style={{
                   position: "absolute",
-                  top: "10px", // Adjust as needed
-                  left: "10px", // Adjust as needed
-                  fontSize: "small", // Small font size
+                  top: "10px",
+                  left: "10px",
+                  fontSize: "small",
                 }}
               >
                 Step 1 of 2
@@ -189,23 +235,23 @@ const SignupPage = () => {
               <h2 className="text-center mb-4">Pyro Sign Up</h2>
               <p className="text-center mb-5">Let's get you started!</p>
 
-              <Form.Group controlId="workEmail" className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={{
-                    borderColor: "#e4e4e4",
-                    backgroundColor: "#e4e4e4",
-                    color: "black",
-                  }}
-                />
-              </Form.Group>
-
               <Form>
+                <Form.Group controlId="workEmail" className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={{
+                      borderColor: "#e4e4e4",
+                      backgroundColor: "#e4e4e4",
+                      color: "black",
+                    }}
+                  />
+                </Form.Group>
+
                 <Form.Group controlId="password" className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
@@ -240,7 +286,33 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                {/* Added the sentence with hyperlinks */}
+                <Form.Group controlId="invoiceNumber" className="mb-3">
+                  <Form.Label>Payment Invoice Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="B51DB03D-0002"
+                    value={invoiceNumber}
+                    onChange={handleInvoiceNumberChange}
+                    pattern="[A-Z0-9]{8}-[0-9]{4}"
+                    disabled={isEmployee}
+                    required={!isEmployee}
+                    style={{
+                      borderColor: "#e4e4e4",
+                      backgroundColor: isEmployee ? "#e9ecef" : "#e4e4e4",
+                      color: "black",
+                    }}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="isEmployee" className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="I am a Firebay Studios Employee"
+                    checked={isEmployee}
+                    onChange={handleEmployeeCheck}
+                  />
+                </Form.Group>
+
                 <div className="my-3 text-left" style={{ fontSize: "small" }}>
                   By clicking the Sign Up button below, you agree to our&nbsp;
                   <a
@@ -307,7 +379,7 @@ const SignupPage = () => {
                   </a>
                 </p>
               </div>
-              {/* Add the secondary branding at the bottom right corner */}
+
               <div
                 style={{
                   position: "absolute",
@@ -327,4 +399,5 @@ const SignupPage = () => {
     </Container>
   );
 };
+
 export default SignupPage;
