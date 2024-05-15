@@ -336,7 +336,7 @@ const Home = () => {
       const adRef = doc(db, "ads", selectedSpotId);
 
       await updateDoc(spotRef, { spotName: newSpotName });
-      await updateDoc(adRef, { spotName: newSpotName }); // Update the spot name in the ads collection in sharedStates
+      await updateDoc(adRef, { "sharedStates.spotName": newSpotName }); // Update the spot name in the ads collection in sharedStates
 
       const updatedSpots = spots.map((spot) =>
         spot.id === selectedSpotId ? { ...spot, spotName: newSpotName } : spot
