@@ -22,6 +22,7 @@ const ManageSpotTableActions = ({
   showDownloadLogsModal,
   setShowDownloadLogsModal,
   downloadLogs,
+  unitPrice,
 }) => {
   return (
     <>
@@ -29,6 +30,7 @@ const ManageSpotTableActions = ({
         show={showDownloadLogsModal}
         handleClose={() => setShowDownloadLogsModal(false)}
         downloadLogs={downloadLogs}
+        unitPrice={unitPrice}
       />
 
       <GenericModal

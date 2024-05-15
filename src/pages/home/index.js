@@ -44,6 +44,7 @@ const Home = () => {
   const [currentTableIndex, setCurrentTableIndex] = useState(0);
   const [paginatedSpots, setPaginatedSpots] = useState([]);
   const [totalDownloads, setTotalDownloads] = useState(null);
+  const [unitPrice, setUnitPrice] = useState(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [selectedSpotId, setSelectedSpotId] = useState("");
@@ -68,14 +69,15 @@ const Home = () => {
   useEffect(() => {
     const fetchDownloads = async () => {
       try {
-        const downloads = await readFromFirestore(
-          "uid_to_org",
-          currentUser.uid,
-          "monthly_downloads"
-        );
+        const data = await readFromFirestore("uid_to_org", currentUser.uid);
+
+        const downloads = data?.monthly_downloads;
+        const unitPrice = data?.unit_price;
         setTotalDownloads(downloads !== undefined ? downloads : null);
+        setUnitPrice(unitPrice !== undefined ? unitPrice : null);
       } catch (error) {
         setTotalDownloads(null);
+        setUnitPrice(null);
         console.error("Error fetching downloads:", error);
       }
     };
@@ -447,6 +449,7 @@ const Home = () => {
               showDownloadLogsModal={showDownloadLogsModal}
               setShowDownloadLogsModal={setShowDownloadLogsModal}
               downloadLogs={downloadLogs}
+              unitPrice={unitPrice}
             />
           </>
         )}

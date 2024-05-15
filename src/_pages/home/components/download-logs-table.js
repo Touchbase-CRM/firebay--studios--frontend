@@ -1,7 +1,7 @@
 import React from "react";
 import { Table, Card } from "react-bootstrap";
 
-const DownloadLogsTable = ({ downloadLogs }) => {
+const DownloadLogsTable = ({ downloadLogs, unitPrice }) => {
   return (
     <div
       style={{
@@ -45,7 +45,7 @@ const DownloadLogsTable = ({ downloadLogs }) => {
                       {new Date(log.downloadTime).toLocaleString()}
                     </td>
                     <td style={{ padding: "1rem", textAlign: "left" }}>
-                      {"$299.00"}
+                      {`${"$" + unitPrice + ".00"}`}
                     </td>
                   </tr>
                 ))}
@@ -59,7 +59,7 @@ const DownloadLogsTable = ({ downloadLogs }) => {
                     Total Charges:
                   </td>
                   <td style={{ textAlign: "left", padding: "1rem" }}>
-                    {"$" + downloadLogs.length * 299 + ".00"}
+                    {"$" + downloadLogs.length * unitPrice + ".00"}
                   </td>
                 </tr>
               </tfoot>
