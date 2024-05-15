@@ -137,10 +137,13 @@ const SignupPage = () => {
         unit_price: 0,
       });
 
+      // Ensure the parent document in 'customers' is created with a dummy field to avoid ghost docs
       const userDocRef = doc(db, "customers", user.uid);
+      batch.set(userDocRef, { email: email });
+
+      // Create the subcollection 'subscriptions'
       const subscriptionsRef = collection(userDocRef, "subscriptions");
       const newSubscriptionRef = doc(subscriptionsRef);
-
       batch.set(newSubscriptionRef, {
         status: "active",
       });
