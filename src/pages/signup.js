@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import Spinner from "../components/spinner/spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { checkIfExistsInFirestore } from "@/utils/db-read-write-ops/deserialization-utils";
 
 // Initialize Firebase services
 const db = getFirestore();
@@ -51,7 +52,7 @@ const SignupPage = () => {
     }
   };
 
-  async function checkInvoice(invoiceNumber) {
+  async function validateInvoiceNumber(invoiceNumber) {
     const response = await fetch("/api/Stripe/check-invoice", {
       method: "POST",
       headers: {
@@ -62,9 +63,28 @@ const SignupPage = () => {
 
     const data = await response.json();
     if (data.valid) {
-      console.log("Invoice is valid:", data.invoice);
+      return true;
     } else {
-      console.log("Invoice is invalid:", data.error);
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Invoice Number",
+        text: "Please make sure you have entered the correct invoice number.",
+      });
+      return false;
+    }
+  }
+
+  async function validateEmployeeStatus(email) {
+    const validEmployee = await checkIfExistsInFirestore("internal", email);
+    if (validEmployee) {
+      return validEmployee;
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Employee Email",
+        text: "Please make sure you have entered the correct email address.",
+      });
+      return false;
     }
   }
 
@@ -72,7 +92,10 @@ const SignupPage = () => {
     event.preventDefault();
 
     console.log("Sign Up initiated");
-    await checkInvoice(invoiceNumber);
+    const validUser = isEmployee
+      ? await validateEmployeeStatus(email)
+      : await validateInvoiceNumber(invoiceNumber);
+    console.log(validUser);
   };
 
   // const handleSignUp = async (event) => {

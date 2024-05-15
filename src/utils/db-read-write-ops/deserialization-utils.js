@@ -92,6 +92,38 @@ export const readFromFirestore = async (
   }
 };
 
+export const checkIfExistsInFirestore = async (
+  collectionName,
+  docId = null,
+  fieldName = null
+) => {
+  const db = getFirestore(app);
+
+  try {
+    if (docId) {
+      const docRef = doc(db, collectionName, docId);
+      const docSnapshot = await getDoc(docRef);
+      if (!docSnapshot.exists()) {
+        return false;
+      }
+      if (fieldName) {
+        return fieldName in docSnapshot.data();
+      }
+      return true;
+    } else {
+      const collectionRef = collection(db, collectionName);
+      const collectionSnapshot = await getDocs(collectionRef);
+      return !collectionSnapshot.empty;
+    }
+  } catch (error) {
+    console.error(
+      `Error checking existence in Firestore (${collectionName}):`,
+      error
+    );
+    throw error;
+  }
+};
+
 export const deserializeAndLoadModeData = async ({
   spotName = null,
   spotId = null,
