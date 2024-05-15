@@ -2,7 +2,14 @@ import Swal from "sweetalert2";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { getFirestore, doc, getDoc, writeBatch } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  writeBatch,
+  collection,
+  set,
+} from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
