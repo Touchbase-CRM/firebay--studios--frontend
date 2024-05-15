@@ -20,10 +20,10 @@ const DownloadLogsTable = ({ downloadLogs }) => {
               <thead style={{ backgroundColor: "#eb631c", color: "#ffffff" }}>
                 <tr>
                   <th style={{ padding: "1rem", textAlign: "left" }}>
-                    Download File Name
+                    Downloaded File Name
                   </th>
                   <th style={{ padding: "1rem", textAlign: "left" }}>
-                    Download Time
+                    Time Stamp
                   </th>
                 </tr>
               </thead>
