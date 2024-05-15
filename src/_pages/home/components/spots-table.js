@@ -46,12 +46,16 @@ const SpotTable = ({
                   variant="link"
                   onClick={() => handleSpotActions.downloadHistory(spot.id)}
                   title="Download Logs"
+                  disabled={spot.downloadLogs.length === 0}
                 >
                   <i
                     className="bi bi-clock-history"
-                    style={{ color: "black" }}
+                    style={{
+                      color: spot.downloadLogs.length > 0 ? "black" : "gray",
+                    }}
                   ></i>
                 </Button>
+
                 <Button
                   variant="link"
                   onClick={() => handleSpotActions.copy(spot.id)}
