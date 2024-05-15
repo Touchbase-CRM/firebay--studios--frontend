@@ -33,8 +33,6 @@ const SpotTable = ({
           <tr>
             <th>Spot Name</th>
             <th>Created</th>
-            <th>Qty.</th>
-            <th>Charges</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -43,8 +41,6 @@ const SpotTable = ({
             <tr key={index}>
               <td>{spot.spotName || "-"}</td>
               <td>{spot.created || "-"}</td>
-              <td>{spot.downloadLogs.length || "0"}</td>
-              <td>{"$" + spot.downloadLogs.length * 299 + ".00" || "-"}</td>
               <td>
                 <Button
                   variant="link"

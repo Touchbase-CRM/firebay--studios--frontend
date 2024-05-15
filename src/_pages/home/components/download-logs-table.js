@@ -25,6 +25,9 @@ const DownloadLogsTable = ({ downloadLogs }) => {
                   <th style={{ padding: "1rem", textAlign: "left" }}>
                     Time Stamp
                   </th>
+                  <th style={{ padding: "1rem", textAlign: "left" }}>
+                    Charges
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -41,9 +44,25 @@ const DownloadLogsTable = ({ downloadLogs }) => {
                     <td style={{ padding: "1rem", textAlign: "left" }}>
                       {new Date(log.downloadTime).toLocaleString()}
                     </td>
+                    <td style={{ padding: "1rem", textAlign: "left" }}>
+                      {"$299.00"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td
+                    colSpan="2"
+                    style={{ textAlign: "right", padding: "1rem" }}
+                  >
+                    Total Charges:
+                  </td>
+                  <td style={{ textAlign: "left", padding: "1rem" }}>
+                    {"$" + downloadLogs.length * 299 + ".00"}
+                  </td>
+                </tr>
+              </tfoot>
             </Table>
           </div>
         </Card.Body>
