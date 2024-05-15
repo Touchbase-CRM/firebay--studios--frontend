@@ -11,6 +11,7 @@ const ManageSpotTableActions = ({
   showCreateAdModal,
   adName,
   setAdName,
+  setShowCreateAdModal,
   handleNextOnCreateAd,
   setShowCopyModal,
   newCopySpotName,
