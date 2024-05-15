@@ -93,8 +93,18 @@ const SignupPage = () => {
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
         work_email: email,
-        credit_allowance: 1000,
-        credit_left: 1000,
+        monthly_downloads: -1,
+        unit_price: 299,
+      });
+
+      await batch.commit();
+
+      const userDocRef = doc(db, "customers", user.uid);
+      const subscriptionsRef = collection(userDocRef, "subscriptions");
+      const newSubscriptionRef = doc(subscriptionsRef);
+
+      batch.set(newSubscriptionRef, {
+        status: "active",
       });
 
       await batch.commit();
