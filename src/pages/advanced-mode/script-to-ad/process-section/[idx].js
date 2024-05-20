@@ -527,10 +527,12 @@ function ProcessSection() {
       );
       return;
     }
-    posthog.capture("process-section-next-button-clicked", {
-      dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
-      voiceId: localCurrentSectionObj.getVoiceId(),
-    });
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("process-section-next-button-clicked", {
+        dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
+        voiceId: localCurrentSectionObj.getVoiceId(),
+      });
+    }
     // sync the local history with global.
     syncSectionHistoryArrayWithZustand(
       currentSectionIndex,
