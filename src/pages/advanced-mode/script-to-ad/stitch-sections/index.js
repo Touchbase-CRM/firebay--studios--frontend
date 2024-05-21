@@ -200,12 +200,14 @@ function StitchSections() {
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
 
-    posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
-      userId: userId, // Capture the Firebase user ID
-      script: sectionsArray
-        .map((section) => section.getCurrentContent())
-        .join(". "),
-    });
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
+        userId: userId, // Capture the Firebase user ID
+        script: sectionsArray
+          .map((section) => section.getCurrentContent())
+          .join(". "),
+      });
+    }
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
     const historyItemIds = sectionsArray.map((section) =>

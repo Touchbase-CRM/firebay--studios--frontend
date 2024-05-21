@@ -40,12 +40,14 @@ const TrialLoginPage = () => {
         });
         return;
       }
-      posthog.identify("trial-login-user-clicked-login", {
-        email: email,
-      });
-      posthog.capture("trial-login-user-clicked-login", {
-        email: email,
-      });
+      if (process.env.NODE_ENV !== "development") {
+        posthog.identify("trial-login-user-clicked-login", {
+          email: email,
+        });
+        posthog.capture("trial-login-user-clicked-login", {
+          email: email,
+        });
+      }
 
       // Proceed with the login process if the trial is true
       const predefinedEmail = process.env.NEXT_PUBLIC_PYRO_GUEST_EMAIL;

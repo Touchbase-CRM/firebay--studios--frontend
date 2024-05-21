@@ -49,11 +49,13 @@ const DownloadPage = () => {
   const handleDownload = async () => {
     setIsDownloading(true); // Set downloading state to true
 
-    posthog.capture("download-download-button-clicked", {
-      date: new Date().toISOString(),
-      userId: user.uid,
-      // Additional properties can be added here if needed
-    });
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("download-download-button-clicked", {
+        date: new Date().toISOString(),
+        userId: user.uid,
+        // Additional properties can be added here if needed
+      });
+    }
 
     // Ensure user is logged in
     if (user && user.uid) {
