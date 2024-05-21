@@ -301,6 +301,7 @@ function AddMusic() {
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("add-music-submit-button-clicked", {
         userId: userId, // Capture the Firebase user ID
+        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous", // Capture the user's email
         music_choice: backgroundMusicFilename,
         history_item_id: historyItemId
           ? historyItemId

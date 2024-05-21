@@ -41,9 +41,9 @@ const TrialLoginPage = () => {
         return;
       }
       if (process.env.NODE_ENV !== "development") {
-        posthog.identify("trial-login-user-clicked-login", {
-          email: email,
-        });
+        // posthog.identify("trial-login-user-clicked-login", {
+        //   email: email,
+        // });
         posthog.capture("trial-login-user-clicked-login", {
           email: email,
         });

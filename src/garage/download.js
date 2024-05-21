@@ -23,8 +23,14 @@ const DownloadPage = () => {
   const { audioUrl } = router.query; //we need two urls for with music and without music
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false); // Track download state
-  const { reset, generatedVoiceUrl, sectionsArray, adGenerationMethod } =
-    useUserInputsStore();
+  const {
+    reset,
+    generatedVoiceUrl,
+    sectionsArray,
+    adGenerationMethod,
+    historyItemId,
+    stitchedAudioPyroHistoryItemId,
+  } = useUserInputsStore();
 
   useEffect(() => {
     // prevent back button
@@ -53,6 +59,13 @@ const DownloadPage = () => {
       posthog.capture("download-download-button-clicked", {
         date: new Date().toISOString(),
         userId: user.uid,
+        userEmail: user ? user.email : "anonymous",
+        script: sectionsArray
+          .map((section) => section.getCurrentContent())
+          .join(". "),
+        historyItemId: historyItemId
+          ? historyItemId
+          : stitchedAudioPyroHistoryItemId,
         // Additional properties can be added here if needed
       });
     }
@@ -100,6 +113,7 @@ const DownloadPage = () => {
     posthog.capture("download-change-music-clicked", {
       date: new Date().toISOString(),
       userId: user.uid,
+      userEmail: user ? user.email : "anonymous",
       // Additional properties can be added here if needed
     });
 
@@ -117,11 +131,6 @@ const DownloadPage = () => {
   // };
 
   const handleChangeScriptOrVoice = () => {
-    posthog.capture("download-change-script-or-voice-clicked", {
-      date: new Date().toISOString(),
-      userId: user.uid,
-      // Additional properties can be added here if needed
-    });
     // Additional logic can be executed here before redirecting
     const redirectUrl =
       adGenerationMethod === "voice-to-ad"

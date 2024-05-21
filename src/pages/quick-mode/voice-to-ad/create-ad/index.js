@@ -294,6 +294,9 @@ function CreateAd() {
             "quick-mode--voice-to-ad--create-ad-voice-generated",
             {
               userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+              userEmail: auth.currentUser
+                ? auth.currentUser.email
+                : "anonymous",
               voiceId: voiceId,
               historyItemId: localHistoryItemId,
             }

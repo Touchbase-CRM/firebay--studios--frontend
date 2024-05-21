@@ -203,6 +203,7 @@ function StitchSections() {
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
         userId: userId, // Capture the Firebase user ID
+        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous", // Capture the Firebase user email
         script: sectionsArray
           .map((section) => section.getCurrentContent())
           .join(". "),
