@@ -366,11 +366,14 @@ function CreateAd() {
       setHistoryItemId(localHistoryItemId);
       setGeneratedVoiceUrl(audioUrl);
 
-      posthog.capture("create-ad-voice-generated", {
-        userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
-        voiceId: voiceId,
-        finalScript: finalScript,
-      });
+      if (process.env.NODE_ENV !== "development") {
+        posthog.capture("create-ad-voice-generated", {
+          userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+          userEmail: auth.currentUser ? auth.currentUser.email : "anonymous",
+          voiceId: voiceId,
+          finalScript: finalScript,
+        });
+      }
     } catch (err) {
       console.error(err);
     }

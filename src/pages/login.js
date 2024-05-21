@@ -53,9 +53,11 @@ const LoginPage = () => {
           //   });
           //   return;
           // }
-          posthog.identify("login-user-clicked-login", {
-            email: email,
-          });
+          // if (process.env.NODE_ENV !== "development") {
+          //   posthog.identify("login-user-clicked-login", {
+          //     email: email,
+          //   });
+          // }
 
           // If the user has an active subscription and verified email, redirect to the quick-script-to-ad/create-ad page
           router.push("/home");

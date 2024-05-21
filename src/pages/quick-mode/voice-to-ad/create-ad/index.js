@@ -289,11 +289,19 @@ function CreateAd() {
         setShowAudioPlayer(true); // Show the audio player with the new generated voice
         setAudioTitle(voiceName);
         setAudioAutoPlay(true);
-        posthog.capture("quick-mode--voice-to-ad--create-ad-voice-generated", {
-          userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
-          voiceId: voiceId,
-          historyItemId: localHistoryItemId,
-        });
+        if (process.env.NODE_ENV !== "development") {
+          posthog.capture(
+            "quick-mode--voice-to-ad--create-ad-voice-generated",
+            {
+              userId: auth.currentUser ? auth.currentUser.uid : "anonymous",
+              userEmail: auth.currentUser
+                ? auth.currentUser.email
+                : "anonymous",
+              voiceId: voiceId,
+              historyItemId: localHistoryItemId,
+            }
+          );
+        }
       } else {
         console.error("API did not return an audio URL.");
       }

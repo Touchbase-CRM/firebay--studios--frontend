@@ -527,10 +527,7 @@ function ProcessSection() {
       );
       return;
     }
-    posthog.capture("process-section-next-button-clicked", {
-      dragonsBreathMode: localCurrentSectionObj.getDragonBreathEnhancement(),
-      voiceId: localCurrentSectionObj.getVoiceId(),
-    });
+
     // sync the local history with global.
     syncSectionHistoryArrayWithZustand(
       currentSectionIndex,
@@ -598,6 +595,15 @@ function ProcessSection() {
     talkSpeed,
     legalDisclaimer
   ) {
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("process-section-custom-preprocess-used", {
+        userId: auth.currentUser.uid,
+        userEmail: auth.currentUser.email,
+        dragonsBreathMode: dragonsBreathMode,
+        speechRate: talkSpeed,
+        voiceId: localCurrentSectionObj.getVoiceId(),
+      });
+    }
     try {
       const pyroHistoryItemId = await preprocessVoiceover({
         script,
@@ -788,6 +794,13 @@ function ProcessSection() {
   };
 
   const changeCurrentSectionObj = (newSectionObj) => {
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("process-section-history-read-used", {
+        userId: auth.currentUser.uid,
+        userEmail: auth.currentUser.email,
+        sectionId: idx,
+      });
+    }
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
 

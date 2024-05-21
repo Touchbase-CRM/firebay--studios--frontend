@@ -69,6 +69,7 @@ const DownloadManager = () => {
     posthog.capture("download-download-button-clicked", {
       date: timeStamp,
       userId: user.uid,
+      userEmail: user.email,
     });
 
     if (user && user.uid) {
