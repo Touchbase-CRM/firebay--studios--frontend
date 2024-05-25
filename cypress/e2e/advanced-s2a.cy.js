@@ -1,13 +1,13 @@
 describe("Next.js App Workflow", () => {
-  beforeEach(() => {
-    // Log in before each test
+  before(() => {
+    // Log in before all tests
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
     cy.get('input[type="password"]').type(Cypress.env("user_password"));
     cy.get("button").contains("Login").click();
   });
 
-  it("should navigate to the home page and edit cypress--adv--s2a spot", () => {
+  it("should navigate to the home page, edit cypress--adv--s2a spot, and generate voice with enhancements", () => {
     // Navigate to home page
     cy.visit("http://localhost:3000/home");
 
@@ -33,16 +33,28 @@ describe("Next.js App Workflow", () => {
       .then((src) => {
         // Verify that the audio src is a blob URL
         expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-
-        // Download the audio file
-        cy.get('a[title="Download"]')
-          .should("have.attr", "href", src)
-          .then((href) => {
-            // Log the download link
-            cy.log("Download link:", href);
-
-            // You can add further steps here to download or verify the file
-          });
       });
+
+    // Enable the "Dragon's Breath" checkbox
+    cy.get('input[type="checkbox"][id="dragonBreathEnhancementSwitch"]').check({
+      force: true,
+    });
+
+    // Click the "Generate Voice" button again
+    cy.get("button").contains("Generate Voice").click();
+
+    // Wait for the new audio player to appear
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the new audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Click the "History" button
+    cy.contains("span", "History").click();
+
+    // Verify that the "Read 2" button exists
+    cy.get("button.accordion-button").contains("Read 2").should("exist");
   });
 });
