@@ -449,7 +449,11 @@ function StitchSections() {
         flexDirection: "column",
       }}
     >
-      <NavBar links={links} logoutHandler={handleLogout} />
+      <NavBar
+        links={links}
+        logoutHandler={handleLogout}
+        saveHandler={handleSaveState}
+      />
 
       <Card
         style={{

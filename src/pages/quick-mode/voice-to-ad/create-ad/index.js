@@ -444,7 +444,11 @@ function CreateAd() {
         flexDirection: "column",
       }}
     >
-      <NavBar links={links} logoutHandler={handleLogout} />
+      <NavBar
+        links={links}
+        logoutHandler={handleLogout}
+        saveHandler={handleSaveState}
+      />
       <Row>
         <Col md={10} className="mx-auto">
           <Card

@@ -3,10 +3,18 @@ import { Navbar, Nav, Button } from "react-bootstrap";
 import CustomDropdown from "./custom-dropdown"; // Ensure the path is correct
 import { useRouter } from "next/router";
 
-export const NavBar = ({ links, dropdownItems, logoutHandler }) => {
+export const NavBar = ({
+  links,
+  dropdownItems,
+  logoutHandler,
+  saveHandler = null,
+}) => {
   const router = useRouter();
 
   const navigate = (url) => {
+    if (saveHandler) {
+      saveHandler();
+    }
     router.push(url);
   };
 

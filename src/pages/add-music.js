@@ -486,7 +486,11 @@ function AddMusic() {
         flexDirection: "column",
       }}
     >
-      <NavBar links={links} logoutHandler={handleLogout} />
+      <NavBar
+        links={links}
+        logoutHandler={handleLogout}
+        saveHandler={handleSaveState}
+      />
 
       <Row>
         <Col md={6} className="mx-auto">
