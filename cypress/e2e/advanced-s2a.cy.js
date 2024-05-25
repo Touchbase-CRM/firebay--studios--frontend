@@ -1,13 +1,14 @@
 describe("Next.js App Workflow", () => {
-  before(() => {
-    // Log in before all tests
+  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, and generate voice with enhancements", () => {
+    // Log in to the application
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
     cy.get('input[type="password"]').type(Cypress.env("user_password"));
     cy.get("button").contains("Login").click();
-  });
 
-  it("should navigate to the home page, edit cypress--adv--s2a spot, and generate voice with enhancements", () => {
+    // Ensure the login was successful
+    cy.url().should("not.include", "/login");
+
     // Navigate to home page
     cy.visit("http://localhost:3000/home");
 
@@ -50,6 +51,9 @@ describe("Next.js App Workflow", () => {
         // Verify that the new audio src is a blob URL
         expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
       });
+
+    // Wait for some time to ensure the second audio generation is complete
+    cy.wait(5000); // Adjust the wait time as necessary
 
     // Click the "History" button
     cy.contains("span", "History").click();
