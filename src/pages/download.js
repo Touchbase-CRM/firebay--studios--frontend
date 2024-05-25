@@ -86,7 +86,7 @@ const DownloadManager = () => {
 
     const link = document.createElement("a");
     link.href = audioUrl;
-    link.download = fileName; // Use the fileName state here
+    link.download = fileName + ".mp3"; // Use the fileName state here
 
     appendToFirestoreArray({
       collectionName: "spots_meta_data",
