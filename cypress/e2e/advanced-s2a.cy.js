@@ -9,9 +9,6 @@ describe("Next.js App Workflow", () => {
     // Ensure the login was successful
     cy.url().should("not.include", "/login");
 
-    // Navigate to home page
-    cy.visit("http://localhost:3000/home");
-
     // Click the edit button for the cypress--adv--s2a spot
     cy.get("td")
       .contains("cypress--adv--s2a")
