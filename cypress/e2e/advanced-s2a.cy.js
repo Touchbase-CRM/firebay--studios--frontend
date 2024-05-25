@@ -23,5 +23,26 @@ describe("Next.js App Workflow", () => {
       "eq",
       "http://localhost:3000/advanced-mode/script-to-ad/process-section/0"
     );
+
+    // Click the "Generate Voice" button
+    cy.get("button").contains("Generate Voice").click();
+
+    // Wait for the audio player to appear
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+
+        // Download the audio file
+        cy.get('a[title="Download"]')
+          .should("have.attr", "href", src)
+          .then((href) => {
+            // Log the download link
+            cy.log("Download link:", href);
+
+            // You can add further steps here to download or verify the file
+          });
+      });
   });
 });
