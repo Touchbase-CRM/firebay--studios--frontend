@@ -50,7 +50,7 @@ describe("Next.js App Workflow", () => {
       });
 
     // Wait for some time to ensure the second audio generation is complete
-    cy.wait(5000); // Adjust the wait time as necessary
+    cy.wait(30000); // Adjust the wait time as necessary
 
     // Click the "Next" button
     cy.get("button.btn.btn-primary").contains("Next").click();
@@ -64,24 +64,24 @@ describe("Next.js App Workflow", () => {
       "http://localhost:3000/advanced-mode/script-to-ad/process-section/1"
     );
 
-    // // Wait for the page to load
-    // cy.get('select[aria-label="Speech rate select"]').should("be.visible");
+    // Wait for the page to load
+    cy.get('select[aria-label="Speech rate select"]').should("be.visible");
 
-    // // Select a different speech rate (2X)
-    // cy.get('select[aria-label="Speech rate select"]').select("2X");
+    // Select a different speech rate (2X)
+    cy.get('select[aria-label="Speech rate select"]').select("2X");
 
-    // // Click the "Generate Voice" button
-    // cy.get("button").contains("Generate Voice").click();
+    // Click the "Generate Voice" button
+    cy.get("button").contains("Generate Voice").click();
 
-    // // Wait for the new audio player to appear
-    // cy.get('div[role="group"] audio')
-    //   .should("have.attr", "src")
-    //   .then((src) => {
-    //     // Verify that the new audio src is a blob URL
-    //     expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-    //   });
+    // Wait for the new audio player to appear
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the new audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
 
-    // // Wait for some time to ensure the second audio generation is complete
-    // cy.wait(5000); // Adjust the wait time as necessary
+    // Wait for some time to ensure the second audio generation is complete
+    cy.wait(5000); // Adjust the wait time as necessary
   });
 });
