@@ -11,7 +11,8 @@ module.exports = defineConfig({
     user_email: "kjayamanna@firebaystudios.com",
     user_password: "pasindu123",
   },
-
+  viewportWidth: 2000,
+  viewportHeight: 2000,
   component: {
     devServer: {
       framework: "next",
