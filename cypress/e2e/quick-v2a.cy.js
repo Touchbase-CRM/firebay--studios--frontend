@@ -126,5 +126,53 @@ describe("Create quick v2a spot workflow", () => {
           })
           .should("exist");
       });
+
+    // Click the "Generate Voice" button
+    cy.get("button").contains("Generate Voice").click();
+
+    // Wait for the output to process
+    cy.wait(20000);
+
+    // Verify that there is a new blob audio player
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Click the "Next" button
+    cy.get("button")
+      .filter(".mt-3.btn.btn-primary")
+      .filter((index, button) => {
+        return (
+          button.style.backgroundColor === "rgb(235, 99, 28)" &&
+          button.style.borderColor === "rgb(235, 99, 28)" &&
+          button.textContent.trim() === "Next"
+        );
+      })
+      .click();
+    // Click the "Next" button to navigate to the add music page
+    cy.get("button.btn.btn-primary").contains("Next").click();
+
+    // Verify that it navigates to the correct URL
+    cy.url().should("eq", "http://localhost:3000/add-music");
+
+    // Click the "Submit" button
+    cy.get("button[type='submit']").contains("Submit").click();
+
+    // Wait for the output to process
+    cy.wait(20000);
+
+    // Verify that there is a new blob audio player
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Verify that the "Now playing:" text appears
+    cy.get("span").contains("Now playing:").should("be.visible");
   });
 });
