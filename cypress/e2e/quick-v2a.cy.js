@@ -1,5 +1,5 @@
 describe("Create quick v2a spot workflow", () => {
-  it("should log in, navigate to the home page, edit cypress--quick--v2a spot, generate voice with enhancements, finalize, add music, and return home", () => {
+  it("should log in, navigate to the home page, edit cypress--quick--v2a spot, generate voice with enhancements, finalize, add music, and reach download page", () => {
     // Log in to the application
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));

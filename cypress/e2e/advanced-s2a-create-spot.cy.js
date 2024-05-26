@@ -1,5 +1,5 @@
-describe("Edit advanced spot workflow", () => {
-  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, add music, and return home", () => {
+describe("Create advanced s2a spot workflow", () => {
+  it("should log in, navigate to the home page, create cypress--adv--s2a spot and return home", () => {
     // Log in to the application
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
@@ -56,18 +56,25 @@ describe("Edit advanced spot workflow", () => {
       })
       .click();
 
-    // Click the "Home" button
-    cy.get("a.nav-link")
-      .filter((index, link) => {
+    // Press the "Save" button
+    cy.get("button.btn.btn-primary")
+      .filter((index, button) => {
         return (
-          link.style.marginRight === "10px" &&
-          link.getAttribute("role") === "button" &&
-          link.getAttribute("tabindex") === "0" &&
-          link.getAttribute("href") === "#" &&
-          link.innerText.trim() === "Home"
+          button.style.width === "100px" &&
+          button.style.height === "40px" &&
+          button.style.backgroundColor === "white" &&
+          button.style.border === "1px solid rgb(253, 169, 66)" &&
+          button.style.color === "black" &&
+          button.style.display === "inline-flex" &&
+          button.style.justifyContent === "center" &&
+          button.style.alignItems === "center" &&
+          button.style.opacity === "1" &&
+          button.style.marginRight === "10px" &&
+          button.style.marginTop === "20px" &&
+          button.textContent.trim() === "Save"
         );
       })
-      .first()
       .click();
+    cy.wait(20000);
   });
 });

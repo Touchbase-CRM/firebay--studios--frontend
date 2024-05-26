@@ -1,4 +1,4 @@
-describe("Edit advanced spot workflow", () => {
+describe("Edit advanced s2a spot workflow", () => {
   it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, and add music", () => {
     // Log in to the application
     cy.visit("http://localhost:3000");
