@@ -1,5 +1,5 @@
 describe("Edit advanced spot workflow", () => {
-  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, and add music", () => {
+  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, add music, and return home", () => {
     // Log in to the application
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
@@ -38,5 +38,36 @@ describe("Edit advanced spot workflow", () => {
 
     // Verify navigation to the advanced mode page
     cy.url().should("include", "/advanced-mode/script-to-ad/create-sections");
+
+    // Enter "cypress//test" as the script in the textarea
+    cy.get(
+      'textarea[placeholder="Enter your script here (up to 441 characters)"]'
+    ).type("cypress//test");
+
+    // Click the "Next" button
+    cy.get("button")
+      .filter(".mt-3.btn.btn-primary")
+      .filter((index, button) => {
+        return (
+          button.style.backgroundColor === "rgb(235, 99, 28)" &&
+          button.style.borderColor === "rgb(235, 99, 28)" &&
+          button.textContent.trim() === "Next"
+        );
+      })
+      .click();
+
+    // Click the "Home" button
+    cy.get("a.nav-link")
+      .filter((index, link) => {
+        return (
+          link.style.marginRight === "10px" &&
+          link.getAttribute("role") === "button" &&
+          link.getAttribute("tabindex") === "0" &&
+          link.getAttribute("href") === "#" &&
+          link.innerText.trim() === "Home"
+        );
+      })
+      .first()
+      .click();
   });
 });
