@@ -25,6 +25,8 @@ describe("Edit advanced s2a spot workflow", () => {
     // Click the "Generate Voice" button
     cy.get("button").contains("Generate Voice").click();
 
+    cy.wait(2900); // Adjust the wait time as necessary
+
     // Wait for the audio player to appear
     cy.get('div[role="group"] audio')
       .should("have.attr", "src")
@@ -50,7 +52,7 @@ describe("Edit advanced s2a spot workflow", () => {
       });
 
     // Wait for some time to ensure the second audio generation is complete
-    cy.wait(30000); // Adjust the wait time as necessary
+    cy.wait(9000); // Adjust the wait time as necessary
 
     // Click the "Next" button
     cy.get("button.btn.btn-primary").contains("Next").click();
@@ -125,7 +127,7 @@ describe("Edit advanced s2a spot workflow", () => {
     cy.get("button[type='submit']").contains("Submit").click();
 
     // Wait for the output to process
-    cy.wait(20000);
+    cy.wait(5000);
 
     // Verify that there is a new blob audio player
     cy.get('div[role="group"] audio')

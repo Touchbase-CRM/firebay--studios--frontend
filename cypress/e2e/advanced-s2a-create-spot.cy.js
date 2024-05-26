@@ -75,6 +75,6 @@ describe("Create advanced s2a spot workflow", () => {
         );
       })
       .click();
-    cy.wait(20000);
+    cy.wait(3000);
   });
 });
