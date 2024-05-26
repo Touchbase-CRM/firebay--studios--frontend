@@ -62,7 +62,7 @@ describe("Create quick s2a spot workflow", () => {
     cy.get("button").contains("Generate Voice").click();
 
     // Wait for the output to process
-    cy.wait(20000);
+    cy.wait(7000);
 
     // Verify that there is a new blob audio player
     cy.get('div[role="group"] audio')
@@ -93,7 +93,7 @@ describe("Create quick s2a spot workflow", () => {
     cy.get("button[type='submit']").contains("Submit").click();
 
     // Wait for the output to process
-    cy.wait(20000);
+    cy.wait(7000);
 
     // Verify that there is a new blob audio player
     cy.get('div[role="group"] audio')
