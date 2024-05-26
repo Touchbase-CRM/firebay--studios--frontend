@@ -83,5 +83,27 @@ describe("Create quick 2a spot workflow", () => {
         );
       })
       .click();
+    // Click the "Next" button to navigate to the add music page
+    cy.get("button.btn.btn-primary").contains("Next").click();
+
+    // Verify that it navigates to the correct URL
+    cy.url().should("eq", "http://localhost:3000/add-music");
+
+    // Click the "Submit" button
+    cy.get("button[type='submit']").contains("Submit").click();
+
+    // Wait for the output to process
+    cy.wait(20000);
+
+    // Verify that there is a new blob audio player
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Verify that the "Now playing:" text appears
+    cy.get("span").contains("Now playing:").should("be.visible");
   });
 });
