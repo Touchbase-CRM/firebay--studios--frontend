@@ -1,5 +1,5 @@
-describe("Next.js App Workflow", () => {
-  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, and generate voice with enhancements", () => {
+describe("Edit advanced spot workflow", () => {
+  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, and add music", () => {
     // Log in to the application
     cy.visit("http://localhost:3000");
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
@@ -114,5 +114,28 @@ describe("Next.js App Workflow", () => {
 
     // Verify that the "Now playing: Final Cut" text appears
     cy.get("span").contains("Now playing: Final Cut").should("be.visible");
+
+    // Click the "Next" button to navigate to the add music page
+    cy.get("button.btn.btn-primary").contains("Next").click();
+
+    // Verify that it navigates to the correct URL
+    cy.url().should("eq", "http://localhost:3000/add-music");
+
+    // Click the "Submit" button
+    cy.get("button[type='submit']").contains("Submit").click();
+
+    // Wait for the output to process
+    cy.wait(20000);
+
+    // Verify that there is a new blob audio player
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Verify that the "Now playing:" text appears
+    cy.get("span").contains("Now playing:").should("be.visible");
   });
 });
