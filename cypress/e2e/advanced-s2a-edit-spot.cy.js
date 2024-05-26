@@ -83,5 +83,17 @@ describe("Next.js App Workflow", () => {
 
     // Wait for some time to ensure the second audio generation is complete
     cy.wait(5000); // Adjust the wait time as necessary
+
+    // Click the "Next" button
+    cy.get("button.btn.btn-primary").contains("Next").click();
+
+    // Wait for 30 seconds to ensure the transition happens
+    cy.wait(300);
+
+    // Verify that it navigates to the correct URL
+    cy.url().should(
+      "eq",
+      "http://localhost:3000/advanced-mode/script-to-ad/stitch-sections"
+    );
   });
 });
