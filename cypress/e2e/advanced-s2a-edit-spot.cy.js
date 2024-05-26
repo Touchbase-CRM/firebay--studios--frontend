@@ -55,7 +55,7 @@ describe("Next.js App Workflow", () => {
     // Click the "Next" button
     cy.get("button.btn.btn-primary").contains("Next").click();
 
-    // Wait for 30 seconds to ensure the transition happens
+    // Wait for the transition to happen
     cy.wait(300);
 
     // Verify that it navigates to the correct URL
@@ -87,7 +87,7 @@ describe("Next.js App Workflow", () => {
     // Click the "Next" button
     cy.get("button.btn.btn-primary").contains("Next").click();
 
-    // Wait for 30 seconds to ensure the transition happens
+    // Wait for the transition to happen
     cy.wait(300);
 
     // Verify that it navigates to the correct URL
@@ -95,5 +95,24 @@ describe("Next.js App Workflow", () => {
       "eq",
       "http://localhost:3000/advanced-mode/script-to-ad/stitch-sections"
     );
+
+    // Click the "Finalize" button
+    cy.get("button.btn.btn-primary").contains("Finalize").click();
+
+    // Wait for the audio player to appear with the finalized audio
+    cy.get('div[role="group"] audio')
+      .should("have.attr", "src")
+      .then((src) => {
+        // Verify that the finalized audio src is a blob URL
+        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
+      });
+
+    // Verify that the download link appears and has the correct URL
+    cy.get('a[title="Download"]')
+      .should("have.attr", "href")
+      .and("match", /^blob:http:\/\/localhost:3000\/.+/);
+
+    // Verify that the "Now playing: Final Cut" text appears
+    cy.get("span").contains("Now playing: Final Cut").should("be.visible");
   });
 });
