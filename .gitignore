@@ -47,3 +47,6 @@ firebay-6554f-b111dd680d1a.json
 # test pages
 src/pages/backdoor.js
 src/pages/backdoor
+
+#cypress 
+cypress/screenshots
