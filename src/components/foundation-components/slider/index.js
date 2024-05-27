@@ -32,8 +32,13 @@ const SliderComponent = ({
         cursor: "pointer",
         borderRadius: "50%",
         position: "relative",
-        top: `${parseInt(height) / 2 - 10}px`, // Adjust to align the circle properly
-        border: "2px solid white", // Add border to improve visibility if needed
+        top: `${parseInt(height) / 2 - 10}px`, // Adjust to align properly
+        border: "2px solid white",
+        transition: "transform 0.3s", // Add transition for animation
+      };
+
+      const thumbHoverStyle = {
+        transform: "scale(1.2)", // Scale up on hover
       };
 
       const styleElement = document.createElement("style");
@@ -51,11 +56,11 @@ const SliderComponent = ({
           border-radius: 5px;
           cursor: pointer;
         }
-
+  
         input[type='range']:focus {
           outline: none;
         }
-
+  
         input[type='range']::-webkit-slider-runnable-track {
           width: 100%;
           height: ${height};
@@ -63,7 +68,7 @@ const SliderComponent = ({
           border-radius: 5px;
           cursor: pointer;
         }
-
+  
         input[type='range']::-moz-range-track {
           width: 100%;
           height: ${height};
@@ -71,16 +76,28 @@ const SliderComponent = ({
           border-radius: 5px;
           cursor: pointer;
         }
-
+  
         input[type='range']::-webkit-slider-thumb {
           ${Object.entries(thumbStyle)
             .map(([key, value]) => `${key}: ${value};`)
             .join(" ")}
           margin-top: 0px; /* Offset for the thumb */
         }
-
+  
+        input[type='range']::-webkit-slider-thumb:hover {
+          ${Object.entries(thumbHoverStyle)
+            .map(([key, value]) => `${key}: ${value};`)
+            .join(" ")}
+        }
+  
         input[type='range']::-moz-range-thumb {
           ${Object.entries(thumbStyle)
+            .map(([key, value]) => `${key}: ${value};`)
+            .join(" ")}
+        }
+  
+        input[type='range']::-moz-range-thumb:hover {
+          ${Object.entries(thumbHoverStyle)
             .map(([key, value]) => `${key}: ${value};`)
             .join(" ")}
         }
