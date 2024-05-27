@@ -7,7 +7,7 @@ const SliderComponent = ({
   height = "10px",
   containerStyle = {},
   thumbColor = "#eb631c", // default thumb color
-  trackColor = "white", // default track color
+  trackColor = "#f0f0f0", // lighter default track color
   fillColor = "#eb631c", // default fill color
 }) => {
   const [value, setValue] = useState((min + max) / 2);
@@ -131,14 +131,14 @@ const styles = {
     appearance: "none",
     background: "transparent",
     outline: "none",
-    opacity: "0.7",
+    opacity: "1", // Set to 1 for full opacity
     transition: "opacity .2s",
     position: "relative",
   },
   sliderValue: {
     marginLeft: "10px",
     fontSize: "1.2em",
-    color: "#fff",
+    color: "#000", // Changed to black for better readability
   },
 };
 
