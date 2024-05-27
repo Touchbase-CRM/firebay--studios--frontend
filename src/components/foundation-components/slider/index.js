@@ -6,9 +6,9 @@ const SliderComponent = ({
   width = "100%",
   height = "10px",
   containerStyle = {},
-  thumbColor = "#4CAF50", // default thumb color
-  trackColor = "#ddd", // default track color
-  fillColor = "#4CAF50", // default fill color
+  thumbColor = "#eb631c", // default thumb color
+  trackColor = "white", // default track color
+  fillColor = "#eb631c", // default fill color
 }) => {
   const [value, setValue] = useState((min + max) / 2);
   const [tempValue, setTempValue] = useState(value);
@@ -26,12 +26,14 @@ const SliderComponent = ({
       const thumbStyle = {
         WebkitAppearance: "none",
         appearance: "none",
-        width: "25px",
-        height: "25px",
+        width: "20px",
+        height: "20px",
         background: thumbColor,
         cursor: "pointer",
         borderRadius: "50%",
-        marginTop: `-${parseInt(height) / 2 + 2}px`, // Adjust to align the circle properly
+        position: "relative",
+        top: `${parseInt(height) / 2 - 10}px`, // Adjust to align the circle properly
+        border: "2px solid white", // Add border to improve visibility if needed
       };
 
       const styleElement = document.createElement("style");
@@ -74,6 +76,7 @@ const SliderComponent = ({
           ${Object.entries(thumbStyle)
             .map(([key, value]) => `${key}: ${value};`)
             .join(" ")}
+          margin-top: 0px; /* Offset for the thumb */
         }
 
         input[type='range']::-moz-range-thumb {
