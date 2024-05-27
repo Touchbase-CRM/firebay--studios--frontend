@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SliderComponent = ({
   min = 0,
@@ -9,16 +10,39 @@ const SliderComponent = ({
   thumbColor = "#eb631c", // default thumb color
   trackColor = "#f0f0f0", // lighter default track color
   fillColor = "#eb631c", // default fill color
+  showPercentage = false, // flag for showing percentage
 }) => {
   const [value, setValue] = useState((min + max) / 2);
   const [tempValue, setTempValue] = useState(value);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const sliderRef = useRef(null);
+  const thumbRef = useRef(null);
 
   const handleMouseUp = () => {
     setValue(tempValue);
+    setShowTooltip(false);
+  };
+
+  const handleMouseDown = () => {
+    setShowTooltip(true);
   };
 
   const handleChange = (event) => {
     setTempValue(event.target.value);
+  };
+
+  const calculateThumbPosition = () => {
+    if (sliderRef.current) {
+      const slider = sliderRef.current;
+      const percent = (tempValue - min) / (max - min);
+      const thumbOffset = percent * slider.offsetWidth;
+      return thumbOffset - thumbRef.current.offsetWidth / 2;
+    }
+    return 0;
+  };
+
+  const formatTooltipValue = (value) => {
+    return showPercentage ? `${Math.round(value)}%` : value;
   };
 
   useEffect(() => {
@@ -122,18 +146,41 @@ const SliderComponent = ({
   }, [tempValue, fillColor, trackColor, min, max]);
 
   return (
-    <div style={{ ...styles.sliderContainer, width, ...containerStyle }}>
-      <input
-        type="range"
-        style={{ ...styles.slider, height }}
-        min={min}
-        max={max}
-        value={tempValue}
-        onChange={handleChange}
-        onMouseUp={handleMouseUp}
-        onTouchEnd={handleMouseUp}
-      />
-      <div style={styles.sliderValue}>{tempValue}</div>
+    <div
+      style={{ ...styles.sliderContainer, width, ...containerStyle }}
+      ref={sliderRef}
+    >
+      <OverlayTrigger
+        placement="top"
+        show={showTooltip}
+        overlay={
+          <Tooltip id="slider-tooltip">{formatTooltipValue(tempValue)}</Tooltip>
+        }
+        popperConfig={{
+          modifiers: [
+            {
+              name: "offset",
+              options: {
+                offset: [calculateThumbPosition(), 8], // Adjust as needed
+              },
+            },
+          ],
+        }}
+      >
+        <input
+          type="range"
+          ref={thumbRef}
+          style={{ ...styles.slider, height }}
+          min={min}
+          max={max}
+          value={tempValue}
+          onChange={handleChange}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchEnd={handleMouseUp}
+        />
+      </OverlayTrigger>
     </div>
   );
 };
@@ -142,6 +189,7 @@ const styles = {
   sliderContainer: {
     display: "flex",
     alignItems: "center",
+    position: "relative",
   },
   slider: {
     WebkitAppearance: "none",
@@ -151,11 +199,6 @@ const styles = {
     opacity: "1", // Set to 1 for full opacity
     transition: "opacity .2s",
     position: "relative",
-  },
-  sliderValue: {
-    marginLeft: "10px",
-    fontSize: "1.2em",
-    color: "#000", // Changed to black for better readability
   },
 };
 
