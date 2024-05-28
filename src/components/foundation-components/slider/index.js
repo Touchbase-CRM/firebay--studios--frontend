@@ -80,7 +80,7 @@ const SliderComponent = ({
         ((value - min) / (max - min)) * 100
       }%, ${trackColor} 100%);
           height: ${height};
-          border-radius: 5px;
+          border-radius: ${parseInt(height) / 2}px; // Rounded edges
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
@@ -92,7 +92,7 @@ const SliderComponent = ({
           width: 100%;
           height: ${height};
           background: transparent;
-          border-radius: 5px;
+          border-radius: ${parseInt(height) / 2}px; // Rounded edges
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
@@ -100,7 +100,7 @@ const SliderComponent = ({
           width: 100%;
           height: ${height};
           background: transparent;
-          border-radius: 5px;
+          border-radius: ${parseInt(height) / 2}px; // Rounded edges
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
