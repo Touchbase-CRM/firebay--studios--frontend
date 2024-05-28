@@ -291,6 +291,7 @@ function AddMusic() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setPendingAdvertisement(true); // Set pending before API call starts
+    setShowAudioPlayer(false);
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     cancelTokenSourceRef.current = axios.CancelToken.source();
