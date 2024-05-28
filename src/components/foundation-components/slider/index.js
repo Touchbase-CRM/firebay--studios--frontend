@@ -20,6 +20,10 @@ const SliderComponent = ({
   const sliderRef = useRef(null);
   const thumbRef = useRef(null);
 
+  useEffect(() => {
+    setTempValue(value);
+  }, [value]);
+
   const handleMouseUp = () => {
     onValueChange(tempValue);
     setShowTooltip(false);
@@ -30,7 +34,8 @@ const SliderComponent = ({
   };
 
   const handleChange = (event) => {
-    setTempValue(event.target.value);
+    const newValue = event.target.value;
+    setTempValue(newValue);
   };
 
   const calculateThumbPosition = () => {
