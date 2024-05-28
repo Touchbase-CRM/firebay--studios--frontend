@@ -11,6 +11,7 @@ const SliderComponent = ({
   trackColor = "#f0f0f0", // lighter default track color
   fillColor = "#eb631c", // default fill color
   showPercentage = false, // flag for showing percentage
+  disabled = false, // flag for disabling the slider
 }) => {
   const [value, setValue] = useState((min + max) / 2);
   const [tempValue, setTempValue] = useState(value);
@@ -53,7 +54,7 @@ const SliderComponent = ({
         width: "20px",
         height: "20px",
         background: thumbColor,
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
         borderRadius: "50%",
         position: "relative",
         top: `${parseInt(height) / 2 - 10}px`, // Adjust to align properly
@@ -61,9 +62,11 @@ const SliderComponent = ({
         transition: "transform 0.3s", // Add transition for animation
       };
 
-      const thumbHoverStyle = {
-        transform: "scale(1.2)", // Scale up on hover
-      };
+      const thumbHoverStyle = disabled
+        ? {}
+        : {
+            transform: "scale(1.2)", // Scale up on hover
+          };
 
       const styleElement = document.createElement("style");
       styleElement.innerHTML = `
@@ -78,7 +81,7 @@ const SliderComponent = ({
       }%, ${trackColor} 100%);
           height: ${height};
           border-radius: 5px;
-          cursor: pointer;
+          cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
         input[type='range']:focus {
@@ -90,7 +93,7 @@ const SliderComponent = ({
           height: ${height};
           background: transparent;
           border-radius: 5px;
-          cursor: pointer;
+          cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
         input[type='range']::-moz-range-track {
@@ -98,7 +101,7 @@ const SliderComponent = ({
           height: ${height};
           background: transparent;
           border-radius: 5px;
-          cursor: pointer;
+          cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
         input[type='range']::-webkit-slider-thumb {
@@ -132,7 +135,7 @@ const SliderComponent = ({
         document.head.removeChild(styleElement);
       };
     }
-  }, [thumbColor, trackColor, height, fillColor, value, min, max]);
+  }, [thumbColor, trackColor, height, fillColor, value, min, max, disabled]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -179,6 +182,7 @@ const SliderComponent = ({
           onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown}
           onTouchEnd={handleMouseUp}
+          disabled={disabled}
         />
       </OverlayTrigger>
     </div>
