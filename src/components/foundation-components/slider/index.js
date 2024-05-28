@@ -12,15 +12,16 @@ const SliderComponent = ({
   fillColor = "#eb631c", // default fill color
   showPercentage = false, // flag for showing percentage
   disabled = false, // flag for disabling the slider
+  value,
+  onValueChange, // handler for the final value change
 }) => {
-  const [value, setValue] = useState((min + max) / 2);
   const [tempValue, setTempValue] = useState(value);
   const [showTooltip, setShowTooltip] = useState(false);
   const sliderRef = useRef(null);
   const thumbRef = useRef(null);
 
   const handleMouseUp = () => {
-    setValue(tempValue);
+    onValueChange(tempValue);
     setShowTooltip(false);
   };
 
@@ -55,7 +56,7 @@ const SliderComponent = ({
         height: "20px",
         background: thumbColor,
         cursor: disabled ? "not-allowed" : "pointer",
-        borderRadius: "50%",
+        borderRadius: `${parseInt(height) / 2}px`, // Rounded edges
         position: "relative",
         top: `${parseInt(height) / 2 - 10}px`, // Adjust to align properly
         border: "2px solid white",

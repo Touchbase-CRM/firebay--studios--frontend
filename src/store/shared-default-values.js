@@ -11,7 +11,7 @@ export const defaultState = {
   chosenMusic: "Rock: Electro Sport",
   previewFileName: "preview_Electro Sport_Rock.mp3",
   backgroundMusicFilename: "Electro Sport_Rock.mp3",
-  musicVol: 0.1,
+  musicVol: 10,
   generatedVoiceUrl: "",
   modelId: "eleven_multilingual_v2",
   adGenerationMethod: "",

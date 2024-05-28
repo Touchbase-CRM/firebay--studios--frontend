@@ -9,6 +9,8 @@ import {
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import SliderComponent from "@/components/foundation-components/slider";
+
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -79,7 +81,6 @@ function AddMusic() {
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
-  const [tempVolume, setTempVolume] = useState(musicVol);
   const [localStack, setLocalStack] = useState(() => new Stack());
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
@@ -89,17 +90,13 @@ function AddMusic() {
 
   const posthog = usePostHog();
   const auth = getAuth();
-  const defaultVolume = 0.1; // 10%
+  const defaultVolume = 0; // 10%
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
   const audioStitchWebServiceUrl = process.env.NODE_ENV === "development"
   ? "http://localhost:8000"
   : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-
-  const [volumePercentage, setVolumePercentage] = useState(
-    Math.round(musicVol * 100)
-  );
 
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
@@ -136,7 +133,6 @@ function AddMusic() {
     if (previousChosenMusic.current !== chosenMusic) {
       // Reset volume only if the music choice has actually changed
       setMusicVol(defaultVolume);
-      setVolumePercentage(Math.round(defaultVolume * 100));
       setVolAdjustedMusicPreview(null);
 
       previousChosenMusic.current = chosenMusic; // Update the ref to the current music choice
@@ -207,32 +203,33 @@ function AddMusic() {
     });
   };
 
-  const handleVolumeChange = async (newVolume) => {
-    setMusicVol(newVolume);
-    setVolumePercentage(Math.round(newVolume * 100));
+  useEffect(() => {
+    const handleVolumeChange = async (newVolume) => {
+      try {
+        const response = await axios.post(
+          `${audioStitchWebServiceUrl}/music_preview_volume_change`,
+          {
+            music_vol: newVolume,
+            music_choice: previewFileName,
+            user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
+          },
+          {
+            responseType: "arraybuffer",
+          }
+        );
 
-    try {
-      const response = await axios.post(
-        `${audioStitchWebServiceUrl}/music_preview_volume_change`,
-        {
-          music_vol: newVolume,
-          music_choice: previewFileName,
-          user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
-        },
-        {
-          responseType: "arraybuffer",
+        if (response.data) {
+          const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          setVolAdjustedMusicPreview(audioUrl);
         }
-      );
-
-      if (response.data) {
-        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setVolAdjustedMusicPreview(audioUrl);
+      } catch (error) {
+        console.error("Error fetching updated music file:", error);
       }
-    } catch (error) {
-      console.error("Error fetching updated music file:", error);
-    }
-  };
+    };
+
+    handleVolumeChange(musicVol / 100);
+  }, [musicVol]);
 
   const fetchBackgroundMusicMetaData = async (musicChoice) => {
     try {
@@ -408,13 +405,6 @@ function AddMusic() {
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
     },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
   ];
 
   if (pendingAdvertisement) {
@@ -546,7 +536,7 @@ function AddMusic() {
                     aria-label="Music selection"
                     value={chosenMusic}
                     onChange={handleMusicChange}
-                    style={{ color: "black" }}
+                    style={{ color: "black", width: "100%" }}
                   >
                     {musicChoices.map((musicOption, index) => (
                       <option key={index} value={musicOption}>
@@ -557,42 +547,28 @@ function AddMusic() {
                 )}
 
                 {
-                  <div style={{ marginTop: "20px" }}>
+                  <div style={{ marginTop: "20px", marginBottom: "20px" }}>
                     <label htmlFor="volumeControl" className="form-label">
                       Music Volume Control
                     </label>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#eb631c",
+                    <SliderComponent
+                      min={0}
+                      max={100}
+                      value={musicVol}
+                      onValueChange={setMusicVol}
+                      thumbColor="#eb631c"
+                      trackColor="#f0f0f0"
+                      fillColor="#eb631c"
+                      showPercentage={true}
+                      disabled={false}
+                      width="70%"
+                      height="10px"
+                      containerStyle={{
+                        position: "absolute",
+                        top: "210px",
+                        left: "22px",
                       }}
-                    >
-                      <input
-                        type="range"
-                        className="form-range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        id="volumeControl"
-                        value={musicVol}
-                        onChange={(e) => setTempVolume(e.target.value)} // Update temporary volume
-                        onMouseUp={() => handleVolumeChange(tempVolume)} // Apply changes on mouse up
-                        onTouchEnd={handleVolumeChange} // Similarly for touch devices
-                      />
-                      <div
-                        style={{
-                          backgroundColor: "black",
-                          color: "white",
-                          padding: "2px 5px",
-                          marginLeft: "10px",
-                          borderRadius: "10px",
-                          fontSize: "0.9em",
-                        }}
-                      >
-                        {volumePercentage}%
-                      </div>
-                    </div>
+                    />
                   </div>
                 }
 
