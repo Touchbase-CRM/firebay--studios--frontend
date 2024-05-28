@@ -1,4 +1,3 @@
-// Relative path: src/pages/add-music.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -206,37 +205,30 @@ function AddMusic() {
     });
   };
 
-  useEffect(() => {
-    // return if musicVol === defaultVolume
-    if (musicVol === defaultVolume) return;
-    console.log("yo musicVol changed", musicVol);
-    const handleVolumeChange = async (newVolume) => {
-      try {
-        const response = await axios.post(
-          `${audioStitchWebServiceUrl}/music_preview_volume_change`,
-          {
-            music_vol: newVolume,
-            music_choice: previewFileName,
-            user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
-          },
-          {
-            responseType: "arraybuffer",
-          }
-        );
-
-        if (response.data) {
-          const audioBlob = new Blob([response.data], { type: "audio/mp3" });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          setVolAdjustedMusicPreview(audioUrl);
+  const handleVolumeChange = async (newVolume) => {
+    try {
+      const response = await axios.post(
+        `${audioStitchWebServiceUrl}/music_preview_volume_change`,
+        {
+          music_vol: newVolume,
+          music_choice: previewFileName,
+          user_id: auth.currentUser ? auth.currentUser.uid : "anonymous", // Assuming you want to send the user ID
+        },
+        {
+          responseType: "arraybuffer",
         }
-      } catch (error) {
-        console.error("Error fetching updated music file:", error);
-      }
-    };
-    setShowAudioPlayer(true);
+      );
 
-    handleVolumeChange(musicVol / 100);
-  }, [musicVol]);
+      if (response.data) {
+        const audioBlob = new Blob([response.data], { type: "audio/mp3" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setVolAdjustedMusicPreview(audioUrl);
+      }
+    } catch (error) {
+      console.error("Error fetching updated music file:", error);
+    }
+    setShowAudioPlayer(true);
+  };
 
   const fetchBackgroundMusicMetaData = async (musicChoice) => {
     try {
@@ -250,7 +242,7 @@ function AddMusic() {
       if (!querySnapshot.empty) {
         const musicFileData = querySnapshot.docs[0].data();
 
-        // have seperate fields for maintainability and bundled this read op for cost optimization
+        // have separate fields for maintainability and bundled this read op for cost optimization
         const backgroundMusicFilename =
           musicFileData.background_music_filename || "";
         const previewFilename = musicFileData.preview_filename || "";
@@ -285,6 +277,7 @@ function AddMusic() {
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
   };
+
   const handleSkipMusic = () => {
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     handleSaveState();
@@ -321,7 +314,7 @@ function AddMusic() {
         user_id: userId,
         music_choice: backgroundMusicFilename,
         ad_length: adLength,
-        music_vol: musicVol,
+        music_vol: musicVol / 100,
         pyro_history_item_id: stitchedAudioPyroHistoryItemId,
       };
     } else {
@@ -329,7 +322,7 @@ function AddMusic() {
         user_id: userId,
         music_choice: backgroundMusicFilename,
         ad_length: adLength,
-        music_vol: musicVol,
+        music_vol: musicVol / 100,
         history_item_id: historyItemId,
       };
     }
@@ -563,7 +556,10 @@ function AddMusic() {
                       min={0}
                       max={100}
                       value={musicVol}
-                      onValueChange={setMusicVol}
+                      onValueChange={(value) => {
+                        setMusicVol(value);
+                        handleVolumeChange(value / 100);
+                      }}
                       thumbColor="#eb631c"
                       trackColor="#f0f0f0"
                       fillColor="#eb631c"
