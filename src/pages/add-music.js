@@ -616,6 +616,7 @@ function AddMusic() {
                   volAdjustedMusicPreview ||
                   baseMusicPreviewsUrl + previewFileName
                 }
+                autoplay={true}
               />
             )}
           </div>
