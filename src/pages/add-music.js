@@ -37,6 +37,7 @@ import {
 import app from "@/firebase";
 import { Stack } from "../data-structures/stack";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { set } from "lodash";
 
 const db = getFirestore(app);
 
@@ -82,6 +83,8 @@ function AddMusic() {
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
   const [localStack, setLocalStack] = useState(() => new Stack());
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
   );
@@ -90,7 +93,7 @@ function AddMusic() {
 
   const posthog = usePostHog();
   const auth = getAuth();
-  const defaultVolume = 0; // 10%
+  const defaultVolume = 10; // 10%
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
@@ -204,6 +207,9 @@ function AddMusic() {
   };
 
   useEffect(() => {
+    // return if musicVol === defaultVolume
+    if (musicVol === defaultVolume) return;
+    console.log("yo musicVol changed", musicVol);
     const handleVolumeChange = async (newVolume) => {
       try {
         const response = await axios.post(
@@ -227,6 +233,7 @@ function AddMusic() {
         console.error("Error fetching updated music file:", error);
       }
     };
+    setShowAudioPlayer(true);
 
     handleVolumeChange(musicVol / 100);
   }, [musicVol]);
@@ -270,6 +277,7 @@ function AddMusic() {
 
   const handleMusicChange = async (e) => {
     const selectedMusic = e.target.value;
+    setShowAudioPlayer(true);
     setChosenMusic(selectedMusic);
 
     const { backgroundMusicFilename, previewFilename } =
@@ -605,13 +613,15 @@ function AddMusic() {
             </div>
           </div>
           <div>
-            <SimpleAudioPlayer
-              audioTitle={chosenMusic}
-              audioSrc={
-                volAdjustedMusicPreview ||
-                baseMusicPreviewsUrl + previewFileName
-              }
-            />
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioTitle={chosenMusic}
+                audioSrc={
+                  volAdjustedMusicPreview ||
+                  baseMusicPreviewsUrl + previewFileName
+                }
+              />
+            )}
           </div>
         </Col>
       </Row>
