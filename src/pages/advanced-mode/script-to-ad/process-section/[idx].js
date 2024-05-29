@@ -830,8 +830,8 @@ function ProcessSection() {
   };
 
   const handleIntonationChange = (value) => {
-    // localCurrentSectionObj.setIntonationConsistencyLevel(value);
-    console.log("Intonation Consistency Level:", value);
+    localCurrentSectionObj.setVoiceIntonationConsistency(value);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
   const links = [
