@@ -1035,7 +1035,9 @@ function ProcessSection() {
                 controlId="intonationConsistencyLevel"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label>Intonation Consistency Level</Form.Label>
+                <Form.Label style={{ marginBottom: "0px" }}>
+                  Intonation Consistency Level
+                </Form.Label>
                 <FireSlider
                   min={0}
                   max={100}
