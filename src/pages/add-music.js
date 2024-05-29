@@ -8,7 +8,7 @@ import {
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import SliderComponent from "@/components/foundation-components/slider";
+import FireSlider from "@/components/foundation-components/slider";
 
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
@@ -553,7 +553,7 @@ function AddMusic() {
                     <label htmlFor="volumeControl" className="form-label">
                       Music Volume Control
                     </label>
-                    <SliderComponent
+                    <FireSlider
                       min={0}
                       max={100}
                       value={musicVol}

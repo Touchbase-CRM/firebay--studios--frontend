@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
-const SliderComponent = ({
+const FireSlider = ({
   min = 0,
   max = 100,
   width = "100%",
@@ -212,4 +212,4 @@ const styles = {
   },
 };
 
-export default SliderComponent;
+export default FireSlider;

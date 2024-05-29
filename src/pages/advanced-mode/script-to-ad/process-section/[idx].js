@@ -29,6 +29,7 @@ import Swal from "sweetalert2";
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import FireSlider from "@/components/foundation-components/slider";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
@@ -828,6 +829,11 @@ function ProcessSection() {
     });
   };
 
+  const handleIntonationChange = (value) => {
+    // localCurrentSectionObj.setIntonationConsistencyLevel(value);
+    console.log("Intonation Consistency Level:", value);
+  };
+
   const links = [
     {
       label: "Home",
@@ -1028,6 +1034,27 @@ function ProcessSection() {
                     </Alert>
                   ) : null}
                 </Form.Group>
+                {/* Intonation Consistency Level */}
+                <FireSlider
+                  min={0}
+                  max={100}
+                  value={5}
+                  onValueChange={(value) => {
+                    handleIntonationChange(value);
+                  }}
+                  thumbColor="#eb631c"
+                  trackColor="#f0f0f0"
+                  fillColor="#eb631c"
+                  showPercentage={true}
+                  disabled={false}
+                  width="70%"
+                  height="10px"
+                  containerStyle={{
+                    position: "absolute",
+                    top: "210px",
+                    left: "22px",
+                  }}
+                />
                 {/* Speech Rate Dropdown Menu */}
                 <Form.Group
                   controlId="speechRate"
@@ -1326,4 +1353,5 @@ function ProcessSection() {
     </div>
   );
 }
-export default withAuth(ProcessSection);
+// export default withAuth(ProcessSection);
+export default ProcessSection;
