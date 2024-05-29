@@ -443,6 +443,7 @@ function ProcessSection() {
           newVoiceId: docData.elevenlabs_id,
           newVoicePreviewFilename: docData.voice_preview_filename,
           newVoiceModelId: docData.model_id,
+          newVoiceIntonationConsistency: docData.stability * 100,
         };
       } else {
         console.log("No matching documents found for voice:", voiceName);
@@ -457,18 +458,23 @@ function ProcessSection() {
   const handleVoiceChange = async (e) => {
     const selectedVoiceName = e.target.value;
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
+    console.log("meta data", metadata);
 
     if (
       metadata &&
       metadata.newVoiceId &&
       metadata.newVoicePreviewFilename &&
-      metadata.newVoiceModelId
+      metadata.newVoiceModelId &&
+      metadata.newVoiceIntonationConsistency
     ) {
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
       localCurrentSectionObj.setVoiceName(selectedVoiceName);
       localCurrentSectionObj.setVoicePreviewFilename(
         metadata.newVoicePreviewFilename
+      );
+      localCurrentSectionObj.setVoiceIntonationConsistency(
+        metadata.newVoiceIntonationConsistency
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
 
@@ -669,7 +675,8 @@ function ProcessSection() {
         const result = await generateVoiceWithElevenLabsAPI(
           mostUptodateSection,
           localCurrentSectionObj.getModelId(),
-          localCurrentSectionObj.getVoiceId()
+          localCurrentSectionObj.getVoiceId(),
+          localCurrentSectionObj.getVoiceIntonationConsistency()
         );
         // Repeated code
         audioUrl = result.audioUrl;
@@ -1041,7 +1048,7 @@ function ProcessSection() {
                 <FireSlider
                   min={0}
                   max={100}
-                  value={5}
+                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
                   onValueChange={(value) => {
                     handleIntonationChange(value);
                   }}

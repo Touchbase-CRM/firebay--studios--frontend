@@ -30,7 +30,7 @@ export class Section {
     this.voicePreviewFilename = "male/charley.mp3";
     this.dragonBreathEnhancement = false;
     this.generatedVoiceUrl = "";
-    this.voiceIntonationConsistency = 0;
+    this.intonationConsistencyLevel = 0;
   }
 
   clone() {

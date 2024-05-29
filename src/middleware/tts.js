@@ -1,5 +1,17 @@
-export async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
+export async function generateVoiceWithElevenLabsAPI(
+  script,
+  modelId,
+  voiceId,
+  voiceIntonationConsistency
+) {
   try {
+    console.log(
+      "Received parameters: ",
+      script,
+      modelId,
+      voiceId,
+      voiceIntonationConsistency
+    );
     const response = await fetch(
       "/api/Elevenlabs/generate_voice_with_voice_id",
       {
@@ -7,7 +19,12 @@ export async function generateVoiceWithElevenLabsAPI(script, modelId, voiceId) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ script, modelId, voiceId }),
+        body: JSON.stringify({
+          script,
+          modelId,
+          voiceId,
+          voiceIntonationConsistency,
+        }),
       }
     );
 
