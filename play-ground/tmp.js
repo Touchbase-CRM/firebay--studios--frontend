@@ -1,18 +1,29 @@
-async function checkInvoice(invoiceId) {
-  const response = await fetch("/api/check-invoice", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ invoiceId }),
-  });
+import React from "react";
+import FireSlider from "@/components/foundation-components/slider";
+import { useState, useEffect, useRef } from "react";
 
-  const data = await response.json();
-  if (data.valid) {
-    console.log("Invoice is valid:", data.invoice);
-  } else {
-    console.log("Invoice is invalid:", data.error);
-  }
-}
+const ParentComponent = () => {
+  const [musicVolume, setMusicVolume] = useState(50);
 
-// Example usage
+  return (
+    <div>
+      <FireSlider
+        min={0}
+        max={100}
+        value={musicVolume}
+        onValueChange={setMusicVolume}
+        thumbColor="#eb631c"
+        trackColor="#f0f0f0"
+        fillColor="#eb631c"
+        showPercentage={false}
+        disabled={false}
+        width="50%"
+        height="20px"
+        containerStyle={{ position: "absolute", top: "700px", left: "500px" }}
+      />
+      <div>Selected Value: {musicVolume}</div>
+    </div>
+  );
+};
+
+export default ParentComponent;
