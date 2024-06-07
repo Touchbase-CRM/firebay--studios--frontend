@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     });
 
     const response = await axios.post(
-      `https://api.elevenlabs.io/v1/speech-to-speech/${fields.voice_id}`,
+      `https://api.elevenlabs.io/v1/speech-to-speech/${fields.voice_id}?output_format=mp3_44100_192`,
       formData,
       {
         headers: {
