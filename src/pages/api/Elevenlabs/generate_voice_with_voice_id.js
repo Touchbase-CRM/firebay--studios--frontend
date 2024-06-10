@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     try {
       const options = {
         method: "post",
-        url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+        url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_192`,
         headers: {
           "xi-api-key": process.env.ELEVEN_LABS_API_KEY, // Keep sensitive data server-side
           "Content-Type": "application/json",
