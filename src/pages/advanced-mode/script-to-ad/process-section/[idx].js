@@ -1047,7 +1047,7 @@ function ProcessSection() {
                 controlId="intonationConsistencyLevel"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label style={{ marginBottom: "0px" }}>
+                <Form.Label style={{ marginBottom: "15px" }}>
                   Intonation Consistency Level
                 </Form.Label>
                 <FireSlider
@@ -1067,6 +1067,8 @@ function ProcessSection() {
                   containerStyle={{
                     marginTop: "10px",
                   }}
+                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
+                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
                 />
               </Form.Group>
               <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>

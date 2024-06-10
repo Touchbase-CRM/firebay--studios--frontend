@@ -14,6 +14,8 @@ const FireSlider = ({
   disabled = false, // flag for disabling the slider
   value,
   onValueChange, // handler for the final value change
+  leftInfoMessage = "Left info message", // default left info message
+  rightInfoMessage = "Right info message", // default right info message
 }) => {
   const [tempValue, setTempValue] = useState(value);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -159,6 +161,22 @@ const FireSlider = ({
       style={{ ...styles.sliderContainer, width, ...containerStyle }}
       ref={sliderRef}
     >
+      <div style={styles.leftInfoIconContainer}>
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="left-tooltip">{leftInfoMessage}</Tooltip>}
+        >
+          <i className="bi bi-info-circle" style={styles.infoIcon}></i>
+        </OverlayTrigger>
+      </div>
+      <div style={styles.rightInfoIconContainer}>
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="right-tooltip">{rightInfoMessage}</Tooltip>}
+        >
+          <i className="bi bi-info-circle" style={styles.infoIcon}></i>
+        </OverlayTrigger>
+      </div>
       <OverlayTrigger
         placement="top"
         show={showTooltip}
@@ -198,8 +216,19 @@ const FireSlider = ({
 const styles = {
   sliderContainer: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     position: "relative",
+  },
+  leftInfoIconContainer: {
+    position: "absolute",
+    left: "0px",
+    top: "-25px", // Adjust this value to position it above the slider
+  },
+  rightInfoIconContainer: {
+    position: "absolute",
+    right: "0px",
+    top: "-25px", // Adjust this value to position it above the slider
   },
   slider: {
     WebkitAppearance: "none",
@@ -209,6 +238,10 @@ const styles = {
     opacity: "1", // Set to 1 for full opacity
     transition: "opacity .2s",
     position: "relative",
+    width: "100%",
+  },
+  infoIcon: {
+    cursor: "pointer",
   },
 };
 
