@@ -51,7 +51,7 @@ const FireSlider = ({
   };
 
   const formatTooltipValue = (value) => {
-    return showPercentage ? `${Math.round(value)}%` : value;
+    return showPercentage ? `${Math.ceil(value)}%` : value;
   };
 
   useEffect(() => {
@@ -223,12 +223,12 @@ const styles = {
   leftInfoIconContainer: {
     position: "absolute",
     left: "0px",
-    top: "-25px", // Adjust this value to position it above the slider
+    top: "-30px", // Adjust this value to position it above the slider
   },
   rightInfoIconContainer: {
     position: "absolute",
     right: "0px",
-    top: "-25px", // Adjust this value to position it above the slider
+    top: "-30px", // Adjust this value to position it above the slider
   },
   slider: {
     WebkitAppearance: "none",

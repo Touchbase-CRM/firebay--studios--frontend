@@ -9,11 +9,8 @@ import {
 } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
-
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
@@ -288,8 +285,7 @@ function AddMusic() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setPendingAdvertisement(true); // Set pending before API call starts
     setShowAudioPlayer(false);
 
@@ -518,7 +514,7 @@ function AddMusic() {
               >
                 Add Background Music
               </h2>
-              <Form onSubmit={handleSubmit}>
+              <Form>
                 {musicChoices.length === 0 ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Form.Select
@@ -548,44 +544,47 @@ function AddMusic() {
                   </Form.Select>
                 )}
 
-                {
-                  <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-                    <label htmlFor="volumeControl" className="form-label">
-                      Music Volume Control
-                    </label>
-                    <FireSlider
-                      min={0}
-                      max={100}
-                      value={musicVol}
-                      onValueChange={(value) => {
-                        setMusicVol(value);
-                        handleVolumeChange(value / 100);
-                      }}
-                      thumbColor="#eb631c"
-                      trackColor="#f0f0f0"
-                      fillColor="#eb631c"
-                      showPercentage={true}
-                      disabled={false}
-                      width="70%"
-                      height="10px"
-                      containerStyle={{
-                        position: "absolute",
-                        top: "210px",
-                        left: "22px",
-                      }}
-                    />
-                  </div>
-                }
+                <div style={{ marginTop: "20px", marginBottom: "30px" }}>
+                  <label htmlFor="volumeControl" className="form-label">
+                    Music Volume Control
+                  </label>
+                  <FireSlider
+                    min={0}
+                    max={100}
+                    value={musicVol}
+                    onValueChange={(value) => {
+                      setMusicVol(value);
+                      handleVolumeChange(value / 100);
+                    }}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    disabled={false}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{
+                      position: "absolute",
+                      top: "225px",
+                      left: "22px",
+                    }}
+                    leftInfoMessage="Low"
+                    rightInfoMessage="High"
+                  />
+                </div>
 
                 <Button
-                  type="submit"
+                  onClick={handleSubmit}
                   className="mt-3"
-                  style={{ backgroundColor: "#eb631c", borderColor: "#eb631c" }}
+                  style={{
+                    backgroundColor: "#eb631c",
+                    borderColor: "#eb631c",
+                    marginTop: "20px",
+                  }}
                 >
                   Submit
                 </Button>
                 <Button
-                  // variant="danger"
                   onClick={handleSkipMusic}
                   style={{
                     position: "absolute",
@@ -627,4 +626,5 @@ function AddMusic() {
   );
 }
 
-export default withAuth(AddMusic);
+// export default withAuth(AddMusic);
+export default AddMusic;

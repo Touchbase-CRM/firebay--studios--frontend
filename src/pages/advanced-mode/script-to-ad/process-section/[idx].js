@@ -1015,7 +1015,7 @@ function ProcessSection() {
                   Intonation Consistency Level
                 </Form.Label>
                 <FireSlider
-                  min={0}
+                  min={1}
                   max={100}
                   value={localCurrentSectionObj.getVoiceIntonationConsistency()}
                   onValueChange={(value) => {
