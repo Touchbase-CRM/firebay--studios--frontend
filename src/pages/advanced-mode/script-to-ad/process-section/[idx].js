@@ -90,7 +90,6 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
   });
-  console.log("localCurrentSectionObj", localCurrentSectionObj);
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
@@ -409,11 +408,10 @@ function ProcessSection() {
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
 
     if (
-      metadata &&
-      metadata.newVoiceId &&
-      metadata.newVoicePreviewFilename &&
-      metadata.newVoiceModelId &&
-      metadata.newVoiceIntonationConsistency
+      metadata?.newVoiceId != null &&
+      metadata?.newVoicePreviewFilename != null &&
+      metadata?.newVoiceModelId != null &&
+      metadata?.newVoiceIntonationConsistency != null
     ) {
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
