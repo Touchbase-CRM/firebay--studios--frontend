@@ -90,6 +90,7 @@ function ProcessSection() {
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
   });
+  console.log("localCurrentSectionObj", localCurrentSectionObj);
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
 
@@ -406,7 +407,6 @@ function ProcessSection() {
   const handleVoiceChange = async (e) => {
     const selectedVoiceName = e.target.value;
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
-    console.log("meta data", metadata);
 
     if (
       metadata &&

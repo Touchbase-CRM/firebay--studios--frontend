@@ -86,6 +86,7 @@ export class Section {
   }
 
   static deserialize(data) {
+    console.log("Deserializing section data:", data);
     const section = new Section(
       data.index,
       data.originalContent,
@@ -102,7 +103,7 @@ export class Section {
     section.setVoiceId(data.voiceId);
     section.setVoiceName(data.voiceName);
     section.setVoicePreviewFilename(data.voicePreviewFilename);
-    section.setVoiceIntonationConsistency(data.voiceIntonationConsistency);
+    section.setVoiceIntonationConsistency(data.intonationConsistencyLevel);
     section.setDragonBreathEnhancement(data.dragonBreathEnhancement);
     section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
     section.setCurrentTransformations(data.currentTransformations);
