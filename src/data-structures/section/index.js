@@ -30,6 +30,7 @@ export class Section {
     this.voicePreviewFilename = "male/charley.mp3";
     this.dragonBreathEnhancement = false;
     this.generatedVoiceUrl = "";
+    this.intonationConsistencyLevel = 0;
   }
 
   clone() {
@@ -57,6 +58,7 @@ export class Section {
       this.endOfSectionPauseDurationSeconds
     );
     cloned.setSectionDurationSeconds(this.sectionDurationSeconds);
+    cloned.setVoiceIntonationConsistency(this.intonationConsistencyLevel);
 
     return cloned;
   }
@@ -75,6 +77,7 @@ export class Section {
       voiceId: this.voiceId,
       voiceName: this.voiceName,
       voicePreviewFilename: this.voicePreviewFilename,
+      voiceIntonationConsistency: this.intonationConsistencyLevel,
       dragonBreathEnhancement: this.dragonBreathEnhancement,
       generatedVoiceUrl: this.generatedVoiceUrl,
       currentTransformations: this.currentTransformations,
@@ -99,12 +102,22 @@ export class Section {
     section.setVoiceId(data.voiceId);
     section.setVoiceName(data.voiceName);
     section.setVoicePreviewFilename(data.voicePreviewFilename);
+    section.setVoiceIntonationConsistency(data.intonationConsistencyLevel);
     section.setDragonBreathEnhancement(data.dragonBreathEnhancement);
     section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
     section.setCurrentTransformations(data.currentTransformations);
     section.setCurrentWords(data.currentWords);
 
     return section;
+  }
+
+  //setter for intonation consistency level
+  setVoiceIntonationConsistency(newIntonationConsistencyLevel) {
+    this.intonationConsistencyLevel = newIntonationConsistencyLevel;
+  }
+  //getter for intonation consistency level
+  getVoiceIntonationConsistency() {
+    return this.intonationConsistencyLevel;
   }
 
   //setter for currentWords

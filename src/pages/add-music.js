@@ -1,4 +1,3 @@
-// Relative path: src/pages/add-music.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -9,10 +8,9 @@ import {
   Spinner as BootstrapSpinner,
 } from "react-bootstrap";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import FireSlider from "@/components/foundation-components/slider";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
@@ -35,6 +33,7 @@ import {
 import app from "@/firebase";
 import { Stack } from "../data-structures/stack";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { set } from "lodash";
 
 const db = getFirestore(app);
 
@@ -79,8 +78,9 @@ function AddMusic() {
   const [musicChoices, setMusicChoices] = useState([]); // not included in zustand
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
-  const [tempVolume, setTempVolume] = useState(musicVol);
   const [localStack, setLocalStack] = useState(() => new Stack());
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
   );
@@ -89,17 +89,13 @@ function AddMusic() {
 
   const posthog = usePostHog();
   const auth = getAuth();
-  const defaultVolume = 0.1; // 10%
+  const defaultVolume = 10; // 10%
   const previousChosenMusic = useRef(chosenMusic);
 
   // prettier-ignore
   const audioStitchWebServiceUrl = process.env.NODE_ENV === "development"
   ? "http://localhost:8000"
   : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
-
-  const [volumePercentage, setVolumePercentage] = useState(
-    Math.round(musicVol * 100)
-  );
 
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
@@ -136,7 +132,6 @@ function AddMusic() {
     if (previousChosenMusic.current !== chosenMusic) {
       // Reset volume only if the music choice has actually changed
       setMusicVol(defaultVolume);
-      setVolumePercentage(Math.round(defaultVolume * 100));
       setVolAdjustedMusicPreview(null);
 
       previousChosenMusic.current = chosenMusic; // Update the ref to the current music choice
@@ -208,9 +203,6 @@ function AddMusic() {
   };
 
   const handleVolumeChange = async (newVolume) => {
-    setMusicVol(newVolume);
-    setVolumePercentage(Math.round(newVolume * 100));
-
     try {
       const response = await axios.post(
         `${audioStitchWebServiceUrl}/music_preview_volume_change`,
@@ -232,6 +224,7 @@ function AddMusic() {
     } catch (error) {
       console.error("Error fetching updated music file:", error);
     }
+    setShowAudioPlayer(true);
   };
 
   const fetchBackgroundMusicMetaData = async (musicChoice) => {
@@ -246,7 +239,7 @@ function AddMusic() {
       if (!querySnapshot.empty) {
         const musicFileData = querySnapshot.docs[0].data();
 
-        // have seperate fields for maintainability and bundled this read op for cost optimization
+        // have separate fields for maintainability and bundled this read op for cost optimization
         const backgroundMusicFilename =
           musicFileData.background_music_filename || "";
         const previewFilename = musicFileData.preview_filename || "";
@@ -273,6 +266,7 @@ function AddMusic() {
 
   const handleMusicChange = async (e) => {
     const selectedMusic = e.target.value;
+    setShowAudioPlayer(true);
     setChosenMusic(selectedMusic);
 
     const { backgroundMusicFilename, previewFilename } =
@@ -280,6 +274,7 @@ function AddMusic() {
     setBackgroundMusicFilename(backgroundMusicFilename);
     setPreviewFileName(previewFilename);
   };
+
   const handleSkipMusic = () => {
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     handleSaveState();
@@ -290,9 +285,9 @@ function AddMusic() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setPendingAdvertisement(true); // Set pending before API call starts
+    setShowAudioPlayer(false);
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
     cancelTokenSourceRef.current = axios.CancelToken.source();
@@ -316,7 +311,7 @@ function AddMusic() {
         user_id: userId,
         music_choice: backgroundMusicFilename,
         ad_length: adLength,
-        music_vol: musicVol,
+        music_vol: musicVol / 100,
         pyro_history_item_id: stitchedAudioPyroHistoryItemId,
       };
     } else {
@@ -324,7 +319,7 @@ function AddMusic() {
         user_id: userId,
         music_choice: backgroundMusicFilename,
         ad_length: adLength,
-        music_vol: musicVol,
+        music_vol: musicVol / 100,
         history_item_id: historyItemId,
       };
     }
@@ -408,13 +403,6 @@ function AddMusic() {
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
     },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
   ];
 
   if (pendingAdvertisement) {
@@ -526,7 +514,7 @@ function AddMusic() {
               >
                 Add Background Music
               </h2>
-              <Form onSubmit={handleSubmit}>
+              <Form>
                 {musicChoices.length === 0 ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Form.Select
@@ -546,7 +534,7 @@ function AddMusic() {
                     aria-label="Music selection"
                     value={chosenMusic}
                     onChange={handleMusicChange}
-                    style={{ color: "black" }}
+                    style={{ color: "black", width: "100%" }}
                   >
                     {musicChoices.map((musicOption, index) => (
                       <option key={index} value={musicOption}>
@@ -556,55 +544,47 @@ function AddMusic() {
                   </Form.Select>
                 )}
 
-                {
-                  <div style={{ marginTop: "20px" }}>
-                    <label htmlFor="volumeControl" className="form-label">
-                      Music Volume Control
-                    </label>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#eb631c",
-                      }}
-                    >
-                      <input
-                        type="range"
-                        className="form-range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        id="volumeControl"
-                        value={musicVol}
-                        onChange={(e) => setTempVolume(e.target.value)} // Update temporary volume
-                        onMouseUp={() => handleVolumeChange(tempVolume)} // Apply changes on mouse up
-                        onTouchEnd={handleVolumeChange} // Similarly for touch devices
-                      />
-                      <div
-                        style={{
-                          backgroundColor: "black",
-                          color: "white",
-                          padding: "2px 5px",
-                          marginLeft: "10px",
-                          borderRadius: "10px",
-                          fontSize: "0.9em",
-                        }}
-                      >
-                        {volumePercentage}%
-                      </div>
-                    </div>
-                  </div>
-                }
+                <div style={{ marginTop: "20px", marginBottom: "30px" }}>
+                  <label htmlFor="volumeControl" className="form-label">
+                    Music Volume Control
+                  </label>
+                  <FireSlider
+                    min={1}
+                    max={100}
+                    value={musicVol}
+                    onValueChange={(value) => {
+                      setMusicVol(value);
+                      handleVolumeChange(value / 100);
+                    }}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    disabled={false}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{
+                      position: "absolute",
+                      top: "225px",
+                      left: "22px",
+                    }}
+                    leftInfoMessage="Low"
+                    rightInfoMessage="High"
+                  />
+                </div>
 
                 <Button
-                  type="submit"
+                  onClick={handleSubmit}
                   className="mt-3"
-                  style={{ backgroundColor: "#eb631c", borderColor: "#eb631c" }}
+                  style={{
+                    backgroundColor: "#eb631c",
+                    borderColor: "#eb631c",
+                    marginTop: "20px",
+                  }}
                 >
                   Submit
                 </Button>
                 <Button
-                  // variant="danger"
                   onClick={handleSkipMusic}
                   style={{
                     position: "absolute",
@@ -629,13 +609,16 @@ function AddMusic() {
             </div>
           </div>
           <div>
-            <SimpleAudioPlayer
-              audioTitle={chosenMusic}
-              audioSrc={
-                volAdjustedMusicPreview ||
-                baseMusicPreviewsUrl + previewFileName
-              }
-            />
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioTitle={chosenMusic}
+                audioSrc={
+                  volAdjustedMusicPreview ||
+                  baseMusicPreviewsUrl + previewFileName
+                }
+                autoplay={true}
+              />
+            )}
           </div>
         </Col>
       </Row>

@@ -29,6 +29,7 @@ import Swal from "sweetalert2";
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 import { NavBar } from "@/components/foundation-components/nav-bar";
+import FireSlider from "@/components/foundation-components/slider";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
@@ -297,58 +298,6 @@ function ProcessSection() {
     });
   };
 
-  async function preprocessVoiceover({
-    script,
-    voice,
-    modelId,
-    userId,
-    dragonsBreathMode = false,
-    talkSpeed = "Normal",
-    legalDisclaimer = false,
-  }) {
-    //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
-    const voiceGender = localCurrentSectionObj
-      .getVoicePreviewFilename()
-      .split("/")[0];
-    try {
-      const response = await fetch(
-        audioProcessingWebServiceUrl + "/preprocess-voiceover",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            script,
-            voice,
-            model_id: modelId,
-            voice_gender: voiceGender,
-            user_id: userId,
-            dragons_breath_mode: dragonsBreathMode,
-            speech_rate: talkSpeed,
-            legal_disclaimer: legalDisclaimer,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        // Handle HTTP errors
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data && data["pyro_history_item_id"]) {
-        return data["pyro_history_item_id"];
-      } else {
-        throw new Error("pyro_history_item_id not found in response");
-      }
-    } catch (error) {
-      console.error("Fetching error:", error);
-      // Return or throw a specific error object based on your error handling strategy
-      return { error: error.message };
-    }
-  }
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
@@ -442,6 +391,7 @@ function ProcessSection() {
           newVoiceId: docData.elevenlabs_id,
           newVoicePreviewFilename: docData.voice_preview_filename,
           newVoiceModelId: docData.model_id,
+          newVoiceIntonationConsistency: docData.stability * 100,
         };
       } else {
         console.log("No matching documents found for voice:", voiceName);
@@ -458,16 +408,19 @@ function ProcessSection() {
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
 
     if (
-      metadata &&
-      metadata.newVoiceId &&
-      metadata.newVoicePreviewFilename &&
-      metadata.newVoiceModelId
+      metadata?.newVoiceId != null &&
+      metadata?.newVoicePreviewFilename != null &&
+      metadata?.newVoiceModelId != null &&
+      metadata?.newVoiceIntonationConsistency != null
     ) {
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
       localCurrentSectionObj.setVoiceName(selectedVoiceName);
       localCurrentSectionObj.setVoicePreviewFilename(
         metadata.newVoicePreviewFilename
+      );
+      localCurrentSectionObj.setVoiceIntonationConsistency(
+        metadata.newVoiceIntonationConsistency
       );
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
 
@@ -586,58 +539,6 @@ function ProcessSection() {
       .join(" ");
   };
 
-  async function generateVoiceWithCustomPreprocess(
-    script,
-    voiceId,
-    modelId,
-    userId,
-    dragonsBreathMode,
-    talkSpeed,
-    legalDisclaimer
-  ) {
-    if (process.env.NODE_ENV !== "development") {
-      posthog.capture("process-section-custom-preprocess-used", {
-        userId: auth.currentUser.uid,
-        userEmail: auth.currentUser.email,
-        dragonsBreathMode: dragonsBreathMode,
-        speechRate: talkSpeed,
-        voiceId: localCurrentSectionObj.getVoiceId(),
-      });
-    }
-    try {
-      const pyroHistoryItemId = await preprocessVoiceover({
-        script,
-        voice: voiceId,
-        modelId: modelId,
-        userId,
-        dragonsBreathMode: dragonsBreathMode,
-        talkSpeed: talkSpeed,
-        legalDisclaimer: legalDisclaimer,
-      });
-
-      if (!pyroHistoryItemId) {
-        throw new Error("Failed to preprocess voiceover");
-      }
-
-      // @TODO: Replace estimatedProcessingTime with a pub/sub.
-      const estimatedProcessingTime =
-        (1 / CHARACTERSPERSEC) *
-          localCurrentSectionObj.getCurrentCharCount() *
-          SECTOMILLISEC +
-        ADDITIONALWAITTIME;
-
-      const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        pyroHistoryItemId,
-        estimatedProcessingTime
-      );
-
-      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
-    } catch (error) {
-      console.error("Error in generating voice with custom preprocess:", error);
-      throw error; // Propagate error to be handled in the calling function
-    }
-  }
-
   const updateLocalSectionHistoryObj = (newKeyValuePair) => {
     setLocalSectionHistoryObj((prevMap) => {
       const updatedMap = new Map(prevMap);
@@ -664,30 +565,27 @@ function ProcessSection() {
         localCurrentSectionObj.getDragonBreathEnhancement() ||
         localCurrentSectionObj.getSpeechRate() !== "Normal";
 
-      if (!preprocessRequired) {
-        const result = await generateVoiceWithElevenLabsAPI(
-          mostUptodateSection,
-          localCurrentSectionObj.getModelId(),
-          localCurrentSectionObj.getVoiceId()
-        );
-        // Repeated code
-        audioUrl = result.audioUrl;
-        localHistoryItemId = result.localHistoryItemId;
-      } else {
-        const result = await generateVoiceWithCustomPreprocess(
-          mostUptodateSection,
-          localCurrentSectionObj.getVoiceId(),
-          localCurrentSectionObj.getModelId(),
-          auth.currentUser.uid,
-          localCurrentSectionObj.getDragonBreathEnhancement(),
-          localCurrentSectionObj.getSpeechRate(),
-          true
-        );
+      const result = preprocessRequired
+        ? await generateVoiceWithCustomPreprocess(
+            mostUptodateSection,
+            localCurrentSectionObj.getVoiceId(),
+            localCurrentSectionObj.getVoiceIntonationConsistency(),
+            localCurrentSectionObj.getModelId(),
+            auth.currentUser.uid,
+            localCurrentSectionObj.getDragonBreathEnhancement(),
+            localCurrentSectionObj.getSpeechRate(),
+            true
+          )
+        : await generateVoiceWithElevenLabsAPI(
+            mostUptodateSection,
+            localCurrentSectionObj.getModelId(),
+            localCurrentSectionObj.getVoiceId(),
+            localCurrentSectionObj.getVoiceIntonationConsistency()
+          );
 
-        // Repeated code
-        audioUrl = result.audioUrl;
-        localHistoryItemId = result.localHistoryItemId;
-      }
+      // Common code
+      audioUrl = result.audioUrl;
+      localHistoryItemId = result.localHistoryItemId;
 
       setAllowDownload(true);
       setShowAudioPlayer(true);
@@ -709,27 +607,106 @@ function ProcessSection() {
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
       localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
-      setLocalCurrentSectionObj(localCurrentSectionObj.clone()); // can we get rid of the clone here?
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
       updateLocalSectionHistoryObj({
         [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
       });
     } catch (error) {
       console.error("Error generating voice:", error);
       if (error.name === "NetworkError") {
-        // Handle network errors specifically
         console.error("Check your network or API endpoint:", error);
       } else if (error.message.includes("pyro_history_item_id")) {
-        // Handle missing ID errors specifically
         console.error(
           "API response missing required 'pyro_history_item_id':",
           error
         );
+      } else if (error.message.includes("Failed to fetch audio URL from API")) {
+        console.error("Too much demand:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Too much demand",
+          text: "We have too much demand right now, please try again shortly.",
+        });
       } else {
-        // Handle all other errors
         console.error("Processing error:", error);
       }
     } finally {
       setIsGeneratingVoice(false);
+    }
+  }
+
+  async function generateVoiceWithCustomPreprocess(
+    script,
+    voiceId,
+    voiceIntonationConsistency,
+    modelId,
+    userId,
+    dragonsBreathMode,
+    talkSpeed,
+    legalDisclaimer
+  ) {
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("process-section-custom-preprocess-used", {
+        userId: auth.currentUser.uid,
+        userEmail: auth.currentUser.email,
+        dragonsBreathMode: dragonsBreathMode,
+        speechRate: talkSpeed,
+        voiceId: localCurrentSectionObj.getVoiceId(),
+      });
+    }
+
+    const voiceGender = localCurrentSectionObj
+      .getVoicePreviewFilename()
+      .split("/")[0];
+
+    try {
+      const response = await fetch(
+        audioProcessingWebServiceUrl + "/preprocess-voiceover",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            script,
+            voice: voiceId,
+            voice_intonation_consistency: voiceIntonationConsistency,
+            model_id: modelId,
+            voice_gender: voiceGender,
+            user_id: userId,
+            dragons_breath_mode: dragonsBreathMode,
+            speech_rate: talkSpeed,
+            legal_disclaimer: legalDisclaimer,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data || !data["pyro_history_item_id"]) {
+        throw new Error("pyro_history_item_id not found in response");
+      }
+
+      const pyroHistoryItemId = data["pyro_history_item_id"];
+      const estimatedProcessingTime =
+        (1 / CHARACTERSPERSEC) *
+          localCurrentSectionObj.getCurrentCharCount() *
+          SECTOMILLISEC +
+        ADDITIONALWAITTIME;
+
+      const audioUrl = await fetchAudioFromPyroBackendDistribution(
+        pyroHistoryItemId,
+        estimatedProcessingTime
+      );
+
+      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
+    } catch (error) {
+      console.error("Error in generating voice with custom preprocess:", error);
+      throw error;
     }
   }
 
@@ -828,6 +805,11 @@ function ProcessSection() {
     });
   };
 
+  const handleIntonationChange = (value) => {
+    localCurrentSectionObj.setVoiceIntonationConsistency(value);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
   const links = [
     {
       label: "Home",
@@ -902,11 +884,10 @@ function ProcessSection() {
                   label={`${progressBarPercentage}%`}
                 />
               </Form.Group>
-              {""}
-              <>
+              <div>
                 You have roughly {Math.round(secondsYouhaveLeft)} seconds left
                 out of {adLength} seconds.
-              </>
+              </div>
             </Form>
           </Card>
         </Col>
@@ -921,7 +902,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "320px",
+              height: "400px",
               marginBottom: "10px",
             }}
           >
@@ -945,7 +926,6 @@ function ProcessSection() {
                   </div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    {" "}
                     <Form.Select
                       aria-label="Voice select"
                       value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
@@ -976,77 +956,99 @@ function ProcessSection() {
                       handlerArgs={[]}
                       size="32px"
                       preventDefault={true}
-                    />{" "}
+                    />
                   </div>
                 )}
               </Form.Group>
-              <div>
-                <Form.Group
-                  controlId="dragonBreathToggle"
-                  className="d-flex align-items-center"
-                  style={{ marginTop: "10px" }}
-                >
-                  <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
-                    Dragon's Breath Enhancement
-                  </Form.Label>
-                  <div className="form-check form-switch">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="dragonBreathEnhancementSwitch"
-                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                      onChange={handleDragonBreathEnhancementChange}
-                      style={{
-                        backgroundColor:
-                          localCurrentSectionObj.getDragonBreathEnhancement()
-                            ? "#eb631c"
-                            : "white",
-                        borderColor:
-                          localCurrentSectionObj.getDragonBreathEnhancement()
-                            ? "#eb631c"
-                            : "#adb5bd",
-                      }}
-                    />
-                  </div>
-                </Form.Group>
-                <Form.Group
-                  controlId="dragonBreathToggle"
-                  className="d-flex align-items-center"
-                  style={{ marginTop: "5px" }}
-                >
-                  {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                    <Alert
-                      style={{
-                        variant: "info",
-                        fontSize: "10px",
-                        padding: "5px 10px",
-                      }}
-                    >
-                      Pyro Tip: 10X the energy of the selected voice as if a
-                      sword forged by dragon's breath
-                    </Alert>
-                  ) : null}
-                </Form.Group>
-                {/* Speech Rate Dropdown Menu */}
-                <Form.Group
-                  controlId="speechRate"
-                  style={{ marginTop: "10px" }}
-                >
-                  <Form.Label>Speech Rate</Form.Label>
-                  <Form.Select
-                    aria-label="Speech rate select"
-                    value={localCurrentSectionObj.getSpeechRate()}
-                    onChange={handleSpeechRate}
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Dragon's Breath Enhancement
+                </Form.Label>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="dragonBreathEnhancementSwitch"
+                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                    onChange={handleDragonBreathEnhancementChange}
+                    style={{
+                      backgroundColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "white",
+                      borderColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "5px" }}
+              >
+                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
+                  <Alert
+                    style={{
+                      variant: "info",
+                      fontSize: "10px",
+                      padding: "5px 10px",
+                    }}
                   >
-                    {speechRateOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
+                    Pyro Tip: 10X the energy of the selected voice as if a sword
+                    forged by dragon's breath
+                  </Alert>
+                ) : null}
+              </Form.Group>
+              <Form.Group
+                controlId="intonationConsistencyLevel"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label style={{ marginBottom: "15px" }}>
+                  Intonation Consistency Level
+                </Form.Label>
+                <FireSlider
+                  min={0}
+                  max={100}
+                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
+                  onValueChange={(value) => {
+                    handleIntonationChange(value);
+                  }}
+                  thumbColor="#eb631c"
+                  trackColor="#f0f0f0"
+                  fillColor="#eb631c"
+                  showPercentage={true}
+                  disabled={false}
+                  width="70%"
+                  height="10px"
+                  containerStyle={{
+                    marginTop: "10px",
+                  }}
+                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
+                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
+                />
+              </Form.Group>
+              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
+                <Form.Label>Speech Rate</Form.Label>
+                <Form.Select
+                  aria-label="Speech rate select"
+                  value={localCurrentSectionObj.getSpeechRate()}
+                  onChange={handleSpeechRate}
+                >
+                  {speechRateOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
             </Form>
           </Card>
         </Col>
@@ -1110,7 +1112,6 @@ function ProcessSection() {
               </Form.Group>
 
               <div>
-                {" "}
                 <Form.Label>Click on a word to change its emphasis</Form.Label>
               </div>
               <div
