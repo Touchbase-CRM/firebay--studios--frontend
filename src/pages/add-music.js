@@ -549,7 +549,7 @@ function AddMusic() {
                     Music Volume Control
                   </label>
                   <FireSlider
-                    min={0}
+                    min={1}
                     max={100}
                     value={musicVol}
                     onValueChange={(value) => {
