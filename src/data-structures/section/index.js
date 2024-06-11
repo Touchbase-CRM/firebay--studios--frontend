@@ -86,7 +86,6 @@ export class Section {
   }
 
   static deserialize(data) {
-    console.log("Deserializing section data:", data);
     const section = new Section(
       data.index,
       data.originalContent,

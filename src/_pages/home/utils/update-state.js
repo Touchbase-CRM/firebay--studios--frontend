@@ -138,7 +138,6 @@ async function deserializeSectionsArray(serializedSections) {
   const sections = await Promise.all(
     serializedSections.map(async (serializedSection) => {
       const section = Section.deserialize(serializedSection);
-      console.log("Deserialized section:", section);
       await section.updateAudioUrl(0, 3); // Assuming you pass 0 for estimatedProcessingTime and 3 for maxRetries
       return section;
     })
