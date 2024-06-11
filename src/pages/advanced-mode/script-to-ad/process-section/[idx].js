@@ -620,6 +620,13 @@ function ProcessSection() {
           "API response missing required 'pyro_history_item_id':",
           error
         );
+      } else if (error.message.includes("Failed to fetch audio URL from API")) {
+        console.error("Too much demand:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Too much demand",
+          text: "We have too much demand right now, please try again shortly.",
+        });
       } else {
         console.error("Processing error:", error);
       }
