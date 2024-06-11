@@ -298,60 +298,6 @@ function ProcessSection() {
     });
   };
 
-  async function preprocessVoiceover({
-    script,
-    voice,
-    voiceIntonationConsistency = 50,
-    modelId,
-    userId,
-    dragonsBreathMode = false,
-    talkSpeed = "Normal",
-    legalDisclaimer = false,
-  }) {
-    //Define a variable called voiceGender where the value is determined by delimiting voicePreviewFilename string with / and picking the first segment
-    const voiceGender = localCurrentSectionObj
-      .getVoicePreviewFilename()
-      .split("/")[0];
-    try {
-      const response = await fetch(
-        audioProcessingWebServiceUrl + "/preprocess-voiceover",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            script,
-            voice,
-            voice_intonation_consistency: voiceIntonationConsistency,
-            model_id: modelId,
-            voice_gender: voiceGender,
-            user_id: userId,
-            dragons_breath_mode: dragonsBreathMode,
-            speech_rate: talkSpeed,
-            legal_disclaimer: legalDisclaimer,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        // Handle HTTP errors
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data && data["pyro_history_item_id"]) {
-        return data["pyro_history_item_id"];
-      } else {
-        throw new Error("pyro_history_item_id not found in response");
-      }
-    } catch (error) {
-      console.error("Fetching error:", error);
-      // Return or throw a specific error object based on your error handling strategy
-      return { error: error.message };
-    }
-  }
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
@@ -595,60 +541,6 @@ function ProcessSection() {
       .join(" ");
   };
 
-  async function generateVoiceWithCustomPreprocess(
-    script,
-    voiceId,
-    voiceIntonationConsistency,
-    modelId,
-    userId,
-    dragonsBreathMode,
-    talkSpeed,
-    legalDisclaimer
-  ) {
-    if (process.env.NODE_ENV !== "development") {
-      posthog.capture("process-section-custom-preprocess-used", {
-        userId: auth.currentUser.uid,
-        userEmail: auth.currentUser.email,
-        dragonsBreathMode: dragonsBreathMode,
-        speechRate: talkSpeed,
-        voiceId: localCurrentSectionObj.getVoiceId(),
-      });
-    }
-    try {
-      const pyroHistoryItemId = await preprocessVoiceover({
-        script,
-        voice: voiceId,
-        voiceIntonationConsistency: voiceIntonationConsistency,
-        modelId: modelId,
-        userId,
-        dragonsBreathMode: dragonsBreathMode,
-        talkSpeed: talkSpeed,
-        legalDisclaimer: legalDisclaimer,
-      });
-
-      if (!pyroHistoryItemId) {
-        throw new Error("Failed to preprocess voiceover");
-      }
-
-      // @TODO: Replace estimatedProcessingTime with a pub/sub.
-      const estimatedProcessingTime =
-        (1 / CHARACTERSPERSEC) *
-          localCurrentSectionObj.getCurrentCharCount() *
-          SECTOMILLISEC +
-        ADDITIONALWAITTIME;
-
-      const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        pyroHistoryItemId,
-        estimatedProcessingTime
-      );
-
-      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
-    } catch (error) {
-      console.error("Error in generating voice with custom preprocess:", error);
-      throw error; // Propagate error to be handled in the calling function
-    }
-  }
-
   const updateLocalSectionHistoryObj = (newKeyValuePair) => {
     setLocalSectionHistoryObj((prevMap) => {
       const updatedMap = new Map(prevMap);
@@ -675,32 +567,27 @@ function ProcessSection() {
         localCurrentSectionObj.getDragonBreathEnhancement() ||
         localCurrentSectionObj.getSpeechRate() !== "Normal";
 
-      if (!preprocessRequired) {
-        const result = await generateVoiceWithElevenLabsAPI(
-          mostUptodateSection,
-          localCurrentSectionObj.getModelId(),
-          localCurrentSectionObj.getVoiceId(),
-          localCurrentSectionObj.getVoiceIntonationConsistency()
-        );
-        // Repeated code
-        audioUrl = result.audioUrl;
-        localHistoryItemId = result.localHistoryItemId;
-      } else {
-        const result = await generateVoiceWithCustomPreprocess(
-          mostUptodateSection,
-          localCurrentSectionObj.getVoiceId(),
-          localCurrentSectionObj.getVoiceIntonationConsistency(),
-          localCurrentSectionObj.getModelId(),
-          auth.currentUser.uid,
-          localCurrentSectionObj.getDragonBreathEnhancement(),
-          localCurrentSectionObj.getSpeechRate(),
-          true
-        );
+      const result = preprocessRequired
+        ? await generateVoiceWithCustomPreprocess(
+            mostUptodateSection,
+            localCurrentSectionObj.getVoiceId(),
+            localCurrentSectionObj.getVoiceIntonationConsistency(),
+            localCurrentSectionObj.getModelId(),
+            auth.currentUser.uid,
+            localCurrentSectionObj.getDragonBreathEnhancement(),
+            localCurrentSectionObj.getSpeechRate(),
+            true
+          )
+        : await generateVoiceWithElevenLabsAPI(
+            mostUptodateSection,
+            localCurrentSectionObj.getModelId(),
+            localCurrentSectionObj.getVoiceId(),
+            localCurrentSectionObj.getVoiceIntonationConsistency()
+          );
 
-        // Repeated code
-        audioUrl = result.audioUrl;
-        localHistoryItemId = result.localHistoryItemId;
-      }
+      // Common code
+      audioUrl = result.audioUrl;
+      localHistoryItemId = result.localHistoryItemId;
 
       setAllowDownload(true);
       setShowAudioPlayer(true);
@@ -722,27 +609,99 @@ function ProcessSection() {
       localCurrentSectionObj.setHistoryItemId(localHistoryItemId);
       localCurrentSectionObj.setCurrentContent(mostUptodateSection);
       localCurrentSectionObj.setGeneratedVoiceUrl(audioUrl);
-      setLocalCurrentSectionObj(localCurrentSectionObj.clone()); // can we get rid of the clone here?
+      setLocalCurrentSectionObj(localCurrentSectionObj.clone());
       updateLocalSectionHistoryObj({
         [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
       });
     } catch (error) {
       console.error("Error generating voice:", error);
       if (error.name === "NetworkError") {
-        // Handle network errors specifically
         console.error("Check your network or API endpoint:", error);
       } else if (error.message.includes("pyro_history_item_id")) {
-        // Handle missing ID errors specifically
         console.error(
           "API response missing required 'pyro_history_item_id':",
           error
         );
       } else {
-        // Handle all other errors
         console.error("Processing error:", error);
       }
     } finally {
       setIsGeneratingVoice(false);
+    }
+  }
+
+  async function generateVoiceWithCustomPreprocess(
+    script,
+    voiceId,
+    voiceIntonationConsistency,
+    modelId,
+    userId,
+    dragonsBreathMode,
+    talkSpeed,
+    legalDisclaimer
+  ) {
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("process-section-custom-preprocess-used", {
+        userId: auth.currentUser.uid,
+        userEmail: auth.currentUser.email,
+        dragonsBreathMode: dragonsBreathMode,
+        speechRate: talkSpeed,
+        voiceId: localCurrentSectionObj.getVoiceId(),
+      });
+    }
+
+    const voiceGender = localCurrentSectionObj
+      .getVoicePreviewFilename()
+      .split("/")[0];
+
+    try {
+      const response = await fetch(
+        audioProcessingWebServiceUrl + "/preprocess-voiceover",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            script,
+            voice: voiceId,
+            voice_intonation_consistency: voiceIntonationConsistency,
+            model_id: modelId,
+            voice_gender: voiceGender,
+            user_id: userId,
+            dragons_breath_mode: dragonsBreathMode,
+            speech_rate: talkSpeed,
+            legal_disclaimer: legalDisclaimer,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data || !data["pyro_history_item_id"]) {
+        throw new Error("pyro_history_item_id not found in response");
+      }
+
+      const pyroHistoryItemId = data["pyro_history_item_id"];
+      const estimatedProcessingTime =
+        (1 / CHARACTERSPERSEC) *
+          localCurrentSectionObj.getCurrentCharCount() *
+          SECTOMILLISEC +
+        ADDITIONALWAITTIME;
+
+      const audioUrl = await fetchAudioFromPyroBackendDistribution(
+        pyroHistoryItemId,
+        estimatedProcessingTime
+      );
+
+      return { audioUrl, localHistoryItemId: pyroHistoryItemId };
+    } catch (error) {
+      console.error("Error in generating voice with custom preprocess:", error);
+      throw error;
     }
   }
 

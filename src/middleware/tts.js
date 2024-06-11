@@ -5,13 +5,6 @@ export async function generateVoiceWithElevenLabsAPI(
   voiceIntonationConsistency
 ) {
   try {
-    console.log(
-      "Received parameters: ",
-      script,
-      modelId,
-      voiceId,
-      voiceIntonationConsistency
-    );
     const response = await fetch(
       "/api/Elevenlabs/generate_voice_with_voice_id",
       {
