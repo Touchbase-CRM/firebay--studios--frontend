@@ -56,25 +56,26 @@ const FireSlider = ({
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      const thumbStyle = {
-        WebkitAppearance: "none",
-        appearance: "none",
-        width: "20px",
-        height: "20px",
-        background: thumbColor,
-        cursor: disabled ? "not-allowed" : "pointer",
-        borderRadius: `${parseInt(height) / 2}px`, // Rounded edges
-        position: "relative",
-        top: `${parseInt(height) / 2 - 10}px`, // Adjust to align properly
-        border: "2px solid white",
-        transition: "transform 0.3s", // Add transition for animation
-      };
+      const thumbStyle = `
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: ${thumbColor};
+        cursor: ${disabled ? "not-allowed" : "pointer"};
+        border-radius: 0px; /* Square edges */
+        position: relative;
+        top: ${parseInt(height) / 2 - 10}px; /* Adjust to align properly */
+        border: 2px solid white;
+        transition: transform 0.3s; /* Add transition for animation */
+      `;
 
       const thumbHoverStyle = disabled
-        ? {}
-        : {
-            transform: "scale(1.2)", // Scale up on hover
-          };
+        ? ""
+        : `
+        transform: scale(1.2); /* Scale up on hover */
+        border-radius: 0px; /* Square edges */
+      `;
 
       const styleElement = document.createElement("style");
       styleElement.innerHTML = `
@@ -88,7 +89,7 @@ const FireSlider = ({
         ((value - min) / (max - min)) * 100
       }%, ${trackColor} 100%);
           height: ${height};
-          border-radius: ${parseInt(height) / 2}px; // Rounded edges
+          border-radius: ${parseInt(height) / 2}px;
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
@@ -100,7 +101,7 @@ const FireSlider = ({
           width: 100%;
           height: ${height};
           background: transparent;
-          border-radius: ${parseInt(height) / 2}px; // Rounded edges
+          border-radius: ${parseInt(height) / 2}px;
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
@@ -108,33 +109,32 @@ const FireSlider = ({
           width: 100%;
           height: ${height};
           background: transparent;
-          border-radius: ${parseInt(height) / 2}px; // Rounded edges
+          border-radius: ${parseInt(height) / 2}px;
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
         input[type='range']::-webkit-slider-thumb {
-          ${Object.entries(thumbStyle)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join(" ")}
-          margin-top: 0px; /* Offset for the thumb */
+          ${thumbStyle}
         }
   
         input[type='range']::-webkit-slider-thumb:hover {
-          ${Object.entries(thumbHoverStyle)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join(" ")}
+          ${thumbHoverStyle}
         }
   
         input[type='range']::-moz-range-thumb {
-          ${Object.entries(thumbStyle)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join(" ")}
+          ${thumbStyle}
         }
   
         input[type='range']::-moz-range-thumb:hover {
-          ${Object.entries(thumbHoverStyle)
-            .map(([key, value]) => `${key}: ${value};`)
-            .join(" ")}
+          ${thumbHoverStyle}
+        }
+  
+        input[type='range']::-ms-thumb {
+          ${thumbStyle}
+        }
+  
+        input[type='range']::-ms-thumb:hover {
+          ${thumbHoverStyle}
         }
       `;
       document.head.appendChild(styleElement);
@@ -197,7 +197,20 @@ const FireSlider = ({
         <input
           type="range"
           ref={thumbRef}
-          style={{ ...styles.slider, height }}
+          style={{
+            ...styles.slider,
+            height,
+            WebkitAppearance: "none",
+            appearance: "none",
+            background: "transparent",
+            outline: "none",
+            opacity: "1", // Set to 1 for full opacity
+            transition: "opacity .2s",
+            position: "relative",
+            width: "100%",
+            cursor: disabled ? "not-allowed" : "pointer",
+            borderRadius: "0px", // Square edges for the track as well
+          }}
           min={min}
           max={max}
           value={tempValue}
