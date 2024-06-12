@@ -213,15 +213,6 @@ const LoginPage = () => {
 
             <div className="my-3">
               <p className="text-center" style={{ color: "black" }}>
-                On Trial?{" "}
-                <a
-                  href="/trial-login"
-                  style={{ color: "black", fontWeight: "bold" }}
-                >
-                  Trial Login
-                </a>
-              </p>
-              <p className="text-center" style={{ color: "black" }}>
                 Want to become a subscriber?{" "}
                 <a
                   href="/signup"

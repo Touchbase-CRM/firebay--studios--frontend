@@ -8,14 +8,8 @@ import {
   getDoc,
   writeBatch,
   collection,
-  set,
 } from "firebase/firestore";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
-  // sendEmailVerification,
-} from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import Spinner from "../components/spinner/spinner";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { checkIfExistsInFirestore } from "@/utils/db-read-write-ops/deserialization-utils";
@@ -31,6 +25,7 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [isEmployee, setIsEmployee] = useState(false);
+  const [isTrialUser, setIsTrialUser] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -41,17 +36,13 @@ const SignupPage = () => {
     }
   }, [router.query.email]);
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
+  const handlePasswordChange = (event) => setPassword(event.target.value);
 
-  const handleConfirmPasswordChange = (event) => {
+  const handleConfirmPasswordChange = (event) =>
     setConfirmPassword(event.target.value);
-  };
 
-  const handleInvoiceNumberChange = (event) => {
+  const handleInvoiceNumberChange = (event) =>
     setInvoiceNumber(event.target.value);
-  };
 
   const handleEmployeeCheck = (event) => {
     setIsEmployee(event.target.checked);
@@ -59,6 +50,8 @@ const SignupPage = () => {
       setInvoiceNumber("");
     }
   };
+
+  const handleTrialUserCheck = (event) => setIsTrialUser(event.target.checked);
 
   async function validateInvoiceNumber(invoiceNumber) {
     const response = await fetch("/api/Stripe/check-invoice", {
@@ -96,6 +89,21 @@ const SignupPage = () => {
     }
   }
 
+  async function validateTrialUser(email) {
+    const docRef = doc(db, "pyro_trial_users", email);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return true;
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Trial User",
+        text: "The email address is not registered as a trial user.",
+      });
+      return false;
+    }
+  }
+
   const handleSignUp = async (event) => {
     event.preventDefault();
 
@@ -114,7 +122,10 @@ const SignupPage = () => {
 
     const validUser = isEmployee
       ? await validateEmployeeStatus(email)
+      : isTrialUser
+      ? await validateTrialUser(email)
       : await validateInvoiceNumber(invoiceNumber);
+
     if (!validUser) {
       setIsLoading(false); // Stop loading
       return;
@@ -294,11 +305,12 @@ const SignupPage = () => {
                     value={invoiceNumber}
                     onChange={handleInvoiceNumberChange}
                     pattern="[A-Z0-9]{8}-[0-9]{4}"
-                    disabled={isEmployee}
-                    required={!isEmployee}
+                    disabled={isEmployee || isTrialUser}
+                    required={!isEmployee && !isTrialUser}
                     style={{
                       borderColor: "#e4e4e4",
-                      backgroundColor: isEmployee ? "#e9ecef" : "#e4e4e4",
+                      backgroundColor:
+                        isEmployee || isTrialUser ? "#e9ecef" : "#e4e4e4",
                       color: "black",
                     }}
                   />
@@ -310,6 +322,15 @@ const SignupPage = () => {
                     label="I am a Firebay Studios Employee"
                     checked={isEmployee}
                     onChange={handleEmployeeCheck}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="isTrialUser" className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="I am a Trial User"
+                    checked={isTrialUser}
+                    onChange={handleTrialUserCheck}
                   />
                 </Form.Group>
 
@@ -360,15 +381,6 @@ const SignupPage = () => {
               )}
 
               <div className="my-3">
-                <p className="text-center">
-                  On Trial?{" "}
-                  <a
-                    href="/trial-login"
-                    style={{ color: "black", fontWeight: "bold" }}
-                  >
-                    Trial Login
-                  </a>
-                </p>
                 <p className="text-center">
                   Already a subscriber?{" "}
                   <a
