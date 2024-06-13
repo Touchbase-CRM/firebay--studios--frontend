@@ -359,7 +359,7 @@ function CreateAd() {
         finalScript,
         modelId,
         voiceId,
-        50
+        null // No intonation consistency for quick mode
       );
       const audioUrl = result.audioUrl;
       const localHistoryItemId = result.localHistoryItemId;
