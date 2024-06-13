@@ -358,7 +358,8 @@ function CreateAd() {
       const result = await generateVoiceWithElevenLabsAPI(
         finalScript,
         modelId,
-        voiceId
+        voiceId,
+        50
       );
       const audioUrl = result.audioUrl;
       const localHistoryItemId = result.localHistoryItemId;
