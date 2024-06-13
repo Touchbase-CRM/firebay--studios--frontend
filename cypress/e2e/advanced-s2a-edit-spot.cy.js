@@ -124,7 +124,7 @@ describe("Edit advanced s2a spot workflow", () => {
     cy.url().should("eq", "http://localhost:3000/add-music");
 
     // Click the "Submit" button
-    cy.get("button[type='submit']").contains("Submit").click();
+    cy.get("button.btn.btn-primary").contains("Submit").click();
 
     // Wait for the output to process
     cy.wait(5000);

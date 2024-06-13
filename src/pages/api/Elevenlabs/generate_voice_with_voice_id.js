@@ -1,19 +1,29 @@
 import axios from "axios";
+
 export const config = {
   maxDuration: 60,
 };
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { script, modelId, voiceId, voiceIntonationConsistency } = req.body;
-    console.log(
-      "API request received with parameters:",
-      script,
-      modelId,
-      voiceId,
-      voiceIntonationConsistency / 100
-    );
 
     try {
+      const dataPayload = {
+        text: script,
+        model_id: modelId,
+      };
+
+      if (
+        typeof voiceIntonationConsistency !== "undefined" &&
+        voiceIntonationConsistency !== null
+      ) {
+        dataPayload.voice_settings = {
+          stability: voiceIntonationConsistency / 100,
+          similarity_boost: 0.75,
+        };
+      }
+
       const options = {
         method: "post",
         url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_192`,
@@ -21,14 +31,7 @@ export default async function handler(req, res) {
           "xi-api-key": process.env.ELEVEN_LABS_API_KEY, // Keep sensitive data server-side
           "Content-Type": "application/json",
         },
-        data: JSON.stringify({
-          text: script,
-          model_id: modelId,
-          voice_settings: {
-            stability: voiceIntonationConsistency / 100,
-            similarity_boost: 0.75,
-          },
-        }),
+        data: JSON.stringify(dataPayload),
         responseType: "stream", // This is important to handle binary data like audio files
       };
 

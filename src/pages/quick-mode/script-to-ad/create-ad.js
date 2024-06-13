@@ -358,7 +358,8 @@ function CreateAd() {
       const result = await generateVoiceWithElevenLabsAPI(
         finalScript,
         modelId,
-        voiceId
+        voiceId,
+        null // No intonation consistency for quick mode
       );
       const audioUrl = result.audioUrl;
       const localHistoryItemId = result.localHistoryItemId;

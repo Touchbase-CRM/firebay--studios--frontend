@@ -37,6 +37,8 @@ import useUserInputsStore from "@/store/user-inputs";
 
 const Home = () => {
   const { setSpotName } = useUserInputsStore();
+  const reset = useUserInputsStore((state) => state.reset);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateAdModal, setShowCreateAdModal] = useState(false);
   const [spots, setSpots] = useState([]);
@@ -414,7 +416,10 @@ const Home = () => {
                     borderColor: "#eb631c",
                     color: "white",
                   }}
-                  onClick={() => setShowCreateAdModal(true)}
+                  onClick={() => {
+                    setShowCreateAdModal(true);
+                    reset();
+                  }}
                 >
                   Create a new Spot
                 </Button>
