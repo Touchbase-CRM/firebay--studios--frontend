@@ -236,6 +236,7 @@ function CreateSections() {
                   <option value="30">30 seconds</option>
                   <option value="45">45 seconds</option>
                   <option value="60">60 seconds</option>
+                  <option value="90">90 seconds</option>
                   <option value="120">120 seconds</option>
                 </Form.Select>
               </Form.Group>
@@ -515,5 +516,5 @@ function CreateSections() {
     </div>
   );
 }
-// export default withAuth(CreateSections);
-export default CreateSections;
+export default withAuth(CreateSections);
+// export default CreateSections;
