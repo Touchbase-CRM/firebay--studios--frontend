@@ -852,7 +852,7 @@ function ProcessSection() {
               color: "black",
               marginTop: "10px",
               marginBottom: "10px",
-              height: "180px",
+              height: "200px",
             }}
           >
             <div
@@ -1062,7 +1062,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "500px",
+              height: "750px",
               marginBottom: "10px",
             }}
           >
@@ -1080,7 +1080,7 @@ function ProcessSection() {
                     onChange={handleScriptChange}
                     style={{
                       color: "black",
-                      height: "70px",
+                      height: "200px",
                       marginRight: "10px", // Add a right margin to separate the textarea and the button
                       marginBottom: "10px",
                     }}
@@ -1327,4 +1327,5 @@ function ProcessSection() {
     </div>
   );
 }
+// export default ProcessSection;
 export default withAuth(ProcessSection);
