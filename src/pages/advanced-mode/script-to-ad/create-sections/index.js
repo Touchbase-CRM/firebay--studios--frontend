@@ -217,7 +217,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "950px",
+              height: "1150px",
               marginBottom: "10px",
             }}
           >
@@ -236,6 +236,7 @@ function CreateSections() {
                   <option value="30">30 seconds</option>
                   <option value="45">45 seconds</option>
                   <option value="60">60 seconds</option>
+                  <option value="120">120 seconds</option>
                 </Form.Select>
               </Form.Group>
               {/* Message to display when script is empty */}
@@ -314,7 +315,7 @@ function CreateSections() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "140px",
+                    height: "280px",
                     marginBottom: "20px",
                   }}
                 />
@@ -514,4 +515,5 @@ function CreateSections() {
     </div>
   );
 }
-export default withAuth(CreateSections);
+// export default withAuth(CreateSections);
+export default CreateSections;
