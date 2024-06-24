@@ -1054,7 +1054,9 @@ function ProcessSection() {
                 />
               </Form.Group>
               <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label>Speech Rate</Form.Label>
+                <Form.Label style={{ marginBottom: "15px" }}>
+                  Speech Rate
+                </Form.Label>
                 <FireSlider
                   min={speechRateMin}
                   max={speechRateMax}
@@ -1062,7 +1064,6 @@ function ProcessSection() {
                     localCurrentSectionObj.getSpeechRate()
                   )}
                   onValueChange={(value) => {
-                    console.log("Speech rate value:", value);
                     handleSpeechRate(value);
                   }}
                   thumbColor="#eb631c"
