@@ -827,6 +827,9 @@ function ProcessSection() {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
+  const resetSpeechRate = () => {
+    handleSpeechRate(0); // Or however you want to reset the speech rate
+  };
 
   const links = [
     {
@@ -1076,6 +1079,7 @@ function ProcessSection() {
                   containerStyle={{ marginTop: "10px" }}
                   leftInfoMessage="Slower"
                   rightInfoMessage="Faster"
+                  reset={resetSpeechRate}
                 />
               </Form.Group>
             </Form>

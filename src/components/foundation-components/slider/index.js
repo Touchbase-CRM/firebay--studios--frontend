@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Spinner,
+  ProgressBar,
+  Alert,
+} from "react-bootstrap";
 
 const FireSlider = ({
   min = 0,
@@ -16,6 +26,7 @@ const FireSlider = ({
   onValueChange, // handler for the final value change
   leftInfoMessage = "Left info message", // default left info message
   rightInfoMessage = "Right info message", // default right info message
+  reset, // optional reset callback
 }) => {
   const [tempValue, setTempValue] = useState(value);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -239,6 +250,22 @@ const FireSlider = ({
           disabled={disabled}
         />
       </OverlayTrigger>
+      {reset && (
+        <div style={{ position: "absolute", right: 0, bottom: -20 }}>
+          <Button
+            variant="link"
+            onClick={() => reset(0)}
+            style={{
+              color: "#eb631c",
+              textDecoration: "underline",
+              padding: 0,
+              fontSize: "10px",
+            }}
+          >
+            Back to Normal
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
