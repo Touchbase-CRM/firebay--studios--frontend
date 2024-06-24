@@ -1072,7 +1072,7 @@ function ProcessSection() {
                   thumbColor="#eb631c"
                   trackColor="#f0f0f0"
                   fillColor="#eb631c"
-                  showPercentage={false}
+                  showPercentage={true}
                   disabled={false}
                   width="70%"
                   height="10px"

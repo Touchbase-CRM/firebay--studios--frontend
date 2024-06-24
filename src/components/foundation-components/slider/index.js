@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Spinner,
-  ProgressBar,
-  Alert,
-} from "react-bootstrap";
+import { OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
 const FireSlider = ({
   min = 0,
@@ -251,7 +241,7 @@ const FireSlider = ({
         />
       </OverlayTrigger>
       {reset && (
-        <div style={{ position: "absolute", right: 0, bottom: -20 }}>
+        <div style={{ position: "absolute", right: -29, bottom: -4 }}>
           <Button
             variant="link"
             onClick={() => reset(0)}
@@ -259,10 +249,10 @@ const FireSlider = ({
               color: "#eb631c",
               textDecoration: "underline",
               padding: 0,
-              fontSize: "10px",
+              fontSize: "11px",
             }}
           >
-            Back to Normal
+            reset
           </Button>
         </div>
       )}
