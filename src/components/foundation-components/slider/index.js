@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
 const FireSlider = ({
   min = 0,
@@ -16,11 +16,16 @@ const FireSlider = ({
   onValueChange, // handler for the final value change
   leftInfoMessage = "Left info message", // default left info message
   rightInfoMessage = "Right info message", // default right info message
+  reset, // optional reset callback
 }) => {
   const [tempValue, setTempValue] = useState(value);
   const [showTooltip, setShowTooltip] = useState(false);
   const sliderRef = useRef(null);
   const thumbRef = useRef(null);
+
+  const uniqueClassName = `fire-slider-${Math.random()
+    .toString(36)
+    .substring(2, 15)}`;
 
   useEffect(() => {
     setTempValue(value);
@@ -79,7 +84,7 @@ const FireSlider = ({
 
       const styleElement = document.createElement("style");
       styleElement.innerHTML = `
-        input[type='range'] {
+        .${uniqueClassName} input[type='range'] {
           -webkit-appearance: none;
           appearance: none;
           width: 100%;
@@ -93,11 +98,11 @@ const FireSlider = ({
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
-        input[type='range']:focus {
+        .${uniqueClassName} input[type='range']:focus {
           outline: none;
         }
   
-        input[type='range']::-webkit-slider-runnable-track {
+        .${uniqueClassName} input[type='range']::-webkit-slider-runnable-track {
           width: 100%;
           height: ${height};
           background: transparent;
@@ -105,7 +110,7 @@ const FireSlider = ({
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
-        input[type='range']::-moz-range-track {
+        .${uniqueClassName} input[type='range']::-moz-range-track {
           width: 100%;
           height: ${height};
           background: transparent;
@@ -113,27 +118,27 @@ const FireSlider = ({
           cursor: ${disabled ? "not-allowed" : "pointer"};
         }
   
-        input[type='range']::-webkit-slider-thumb {
+        .${uniqueClassName} input[type='range']::-webkit-slider-thumb {
           ${thumbStyle}
         }
   
-        input[type='range']::-webkit-slider-thumb:hover {
+        .${uniqueClassName} input[type='range']::-webkit-slider-thumb:hover {
           ${thumbHoverStyle}
         }
   
-        input[type='range']::-moz-range-thumb {
+        .${uniqueClassName} input[type='range']::-moz-range-thumb {
           ${thumbStyle}
         }
   
-        input[type='range']::-moz-range-thumb:hover {
+        .${uniqueClassName} input[type='range']::-moz-range-thumb:hover {
           ${thumbHoverStyle}
         }
   
-        input[type='range']::-ms-thumb {
+        .${uniqueClassName} input[type='range']::-ms-thumb {
           ${thumbStyle}
         }
   
-        input[type='range']::-ms-thumb:hover {
+        .${uniqueClassName} input[type='range']::-ms-thumb:hover {
           ${thumbHoverStyle}
         }
       `;
@@ -143,21 +148,34 @@ const FireSlider = ({
         document.head.removeChild(styleElement);
       };
     }
-  }, [thumbColor, trackColor, height, fillColor, value, min, max, disabled]);
+  }, [
+    thumbColor,
+    trackColor,
+    height,
+    fillColor,
+    value,
+    min,
+    max,
+    disabled,
+    uniqueClassName,
+  ]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      const slider = document.querySelector("input[type='range']");
+      const slider = document.querySelector(
+        `.${uniqueClassName} input[type='range']`
+      );
       slider.style.background = `linear-gradient(to right, ${fillColor} 0%, ${fillColor} ${
         ((tempValue - min) / (max - min)) * 100
       }%, ${trackColor} ${
         ((tempValue - min) / (max - min)) * 100
       }%, ${trackColor} 100%)`;
     }
-  }, [tempValue, fillColor, trackColor, min, max]);
+  }, [tempValue, fillColor, trackColor, min, max, uniqueClassName]);
 
   return (
     <div
+      className={uniqueClassName}
       style={{ ...styles.sliderContainer, width, ...containerStyle }}
       ref={sliderRef}
     >
@@ -222,6 +240,22 @@ const FireSlider = ({
           disabled={disabled}
         />
       </OverlayTrigger>
+      {reset && (
+        <div style={{ position: "absolute", right: -29, bottom: -4 }}>
+          <Button
+            variant="link"
+            onClick={() => reset(0)}
+            style={{
+              color: "#eb631c",
+              textDecoration: "underline",
+              padding: 0,
+              fontSize: "11px",
+            }}
+          >
+            reset
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

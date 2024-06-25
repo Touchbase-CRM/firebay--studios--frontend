@@ -100,13 +100,7 @@ function ProcessSection() {
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
   );
-  const speechRateOptions = [
-    { label: "Normal", value: "Normal" },
-    { label: "1.25x", value: "1.25X" },
-    { label: "1.5x", value: "1.5X" },
-    { label: "1.75x", value: "1.75X" },
-    { label: "2x", value: "2X" },
-  ];
+
   const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
@@ -149,6 +143,9 @@ function ProcessSection() {
   const [allowDownload, setAllowDownload] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
+  const speechRateMax = 100;
+
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined.
@@ -298,6 +295,28 @@ function ProcessSection() {
     });
   };
 
+  const manageLegacySpeechRate = (legacyValue) => {
+    const legacyMapping = {
+      Normal: 0,
+      "1.25x": 25,
+      "1.5x": 50,
+      "1.75x": 75,
+      "2x": 100,
+    };
+
+    if (legacyMapping.hasOwnProperty(legacyValue)) {
+      return legacyMapping[legacyValue];
+    }
+
+    const numericValue = Number(legacyValue);
+    if (!isNaN(numericValue) && numericValue >= -50 && numericValue <= 100) {
+      return numericValue;
+    }
+
+    // If the value is neither a legacy string nor a valid number, return 0 by default
+    return 0;
+  };
+
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
@@ -354,9 +373,8 @@ function ProcessSection() {
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
   };
-  const handleSpeechRate = (event) => {
-    const newSpeechRate = event.target.value;
-    localCurrentSectionObj.setSpeechRate(newSpeechRate);
+  const handleSpeechRate = (value) => {
+    localCurrentSectionObj.setSpeechRate(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
@@ -563,7 +581,7 @@ function ProcessSection() {
     try {
       const preprocessRequired =
         localCurrentSectionObj.getDragonBreathEnhancement() ||
-        localCurrentSectionObj.getSpeechRate() !== "Normal";
+        manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()) !== 0;
 
       const result = preprocessRequired
         ? await generateVoiceWithCustomPreprocess(
@@ -573,7 +591,7 @@ function ProcessSection() {
             localCurrentSectionObj.getModelId(),
             auth.currentUser.uid,
             localCurrentSectionObj.getDragonBreathEnhancement(),
-            localCurrentSectionObj.getSpeechRate(),
+            manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
             true
           )
         : await generateVoiceWithElevenLabsAPI(
@@ -809,6 +827,9 @@ function ProcessSection() {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
+  const resetSpeechRate = () => {
+    handleSpeechRate(0); // Or however you want to reset the speech rate
+  };
 
   const links = [
     {
@@ -1036,18 +1057,30 @@ function ProcessSection() {
                 />
               </Form.Group>
               <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label>Speech Rate</Form.Label>
-                <Form.Select
-                  aria-label="Speech rate select"
-                  value={localCurrentSectionObj.getSpeechRate()}
-                  onChange={handleSpeechRate}
-                >
-                  {speechRateOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
+                <Form.Label style={{ marginBottom: "15px" }}>
+                  Speech Rate
+                </Form.Label>
+                <FireSlider
+                  min={speechRateMin}
+                  max={speechRateMax}
+                  value={manageLegacySpeechRate(
+                    localCurrentSectionObj.getSpeechRate()
+                  )}
+                  onValueChange={(value) => {
+                    handleSpeechRate(value);
+                  }}
+                  thumbColor="#eb631c"
+                  trackColor="#f0f0f0"
+                  fillColor="#eb631c"
+                  showPercentage={true}
+                  disabled={false}
+                  width="70%"
+                  height="10px"
+                  containerStyle={{ marginTop: "10px" }}
+                  leftInfoMessage="Slower"
+                  rightInfoMessage="Faster"
+                  reset={resetSpeechRate}
+                />
               </Form.Group>
             </Form>
           </Card>
