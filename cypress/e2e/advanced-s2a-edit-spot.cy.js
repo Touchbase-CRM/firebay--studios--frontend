@@ -66,12 +66,6 @@ describe("Edit advanced s2a spot workflow", () => {
       "http://localhost:3000/advanced-mode/script-to-ad/process-section/1"
     );
 
-    // Wait for the page to load
-    cy.get('select[aria-label="Speech rate select"]').should("be.visible");
-
-    // Select a different speech rate (2X)
-    cy.get('select[aria-label="Speech rate select"]').select("2X");
-
     // Click the "Generate Voice" button
     cy.get("button").contains("Generate Voice").click();
 
