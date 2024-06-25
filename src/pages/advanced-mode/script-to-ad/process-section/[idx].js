@@ -295,7 +295,7 @@ function ProcessSection() {
     });
   };
 
-  const handleLegacySpeechRate = (legacyValue) => {
+  const manageLegacySpeechRate = (legacyValue) => {
     const legacyMapping = {
       Normal: 0,
       "1.25x": 25,
@@ -581,7 +581,7 @@ function ProcessSection() {
     try {
       const preprocessRequired =
         localCurrentSectionObj.getDragonBreathEnhancement() ||
-        localCurrentSectionObj.getSpeechRate() !== "Normal";
+        manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()) !== 0;
 
       const result = preprocessRequired
         ? await generateVoiceWithCustomPreprocess(
@@ -591,7 +591,7 @@ function ProcessSection() {
             localCurrentSectionObj.getModelId(),
             auth.currentUser.uid,
             localCurrentSectionObj.getDragonBreathEnhancement(),
-            localCurrentSectionObj.getSpeechRate(),
+            manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
             true
           )
         : await generateVoiceWithElevenLabsAPI(
@@ -1063,7 +1063,7 @@ function ProcessSection() {
                 <FireSlider
                   min={speechRateMin}
                   max={speechRateMax}
-                  value={handleLegacySpeechRate(
+                  value={manageLegacySpeechRate(
                     localCurrentSectionObj.getSpeechRate()
                   )}
                   onValueChange={(value) => {
