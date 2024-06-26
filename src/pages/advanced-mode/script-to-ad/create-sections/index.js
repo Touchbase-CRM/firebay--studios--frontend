@@ -40,7 +40,6 @@ function CreateSections() {
     setS2aAdvancedRememberVoice,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
-  console.log(s2aAdvancedRememberVoice);
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
