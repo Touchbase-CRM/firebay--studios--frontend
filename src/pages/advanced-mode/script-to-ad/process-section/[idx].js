@@ -64,6 +64,11 @@ function ProcessSection() {
     adLength,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    s2aAdvancedRememberVoice,
+    setS2aAdvancedRememberVoice,
+    s2aAdvancedDefaultVoice,
+    setS2aAdvancedDefaultVoice,
+    navigationStack,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -193,6 +198,16 @@ function ProcessSection() {
     setSecondsYouHaveLeft(newSecondsLeft);
     setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
   };
+
+  useEffect(() => {
+    if (
+      navigationStack.size() === 0 && // to prevent overwriting during navigation
+      s2aAdvancedRememberVoice &&
+      s2aAdvancedDefaultVoice
+    ) {
+      updateCurrentSectionVoice(s2aAdvancedDefaultVoice);
+    }
+  }, [idx]);
 
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
@@ -468,6 +483,7 @@ function ProcessSection() {
   const handleVoiceChange = async (e) => {
     const selectedVoiceName = e.target.value;
     updateCurrentSectionVoice(selectedVoiceName);
+    setS2aAdvancedDefaultVoice(selectedVoiceName);
   };
 
   const syncLocalStackWithGlobal = () => {
@@ -927,7 +943,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "400px",
+              height: "420px",
               marginBottom: "10px",
             }}
           >
@@ -951,11 +967,13 @@ function ProcessSection() {
                   </div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center" }}>
+                    {console.log(s2aAdvancedRememberVoice, idx)}
                     <Form.Select
                       aria-label="Voice select"
                       value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
                       onChange={handleVoiceChange}
                       style={{ color: "black", marginRight: "10px" }}
+                      disabled={s2aAdvancedRememberVoice && idx !== "0"}
                     >
                       {voiceOptions
                         // These restrictions are temporary. Need to figure out a better data model.
@@ -1364,5 +1382,5 @@ function ProcessSection() {
     </div>
   );
 }
-// export default ProcessSection;
-export default withAuth(ProcessSection);
+export default ProcessSection;
+// export default withAuth(ProcessSection);

@@ -36,8 +36,11 @@ function CreateSections() {
     setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     setS2aAdvancedFreeStyleStatus,
+    s2aAdvancedRememberVoice,
+    setS2aAdvancedRememberVoice,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
+  console.log(s2aAdvancedRememberVoice);
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
@@ -306,6 +309,14 @@ function CreateSections() {
                 </Alert>
               </Form.Group>
 
+              <Form.Check
+                type="checkbox"
+                label="This is a single voice spot"
+                checked={s2aAdvancedRememberVoice}
+                onChange={(e) => setS2aAdvancedRememberVoice(e.target.checked)}
+                style={{ marginTop: "10px" }}
+              />
+
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Script</Form.Label>
                 <Form.Control
@@ -516,5 +527,5 @@ function CreateSections() {
     </div>
   );
 }
-export default withAuth(CreateSections);
-// export default CreateSections;
+// export default withAuth(CreateSections);
+export default CreateSections;

@@ -3,7 +3,7 @@ import { Stack } from "@/data-structures/stack";
 
 export const advancedScriptToAdDefaultValues = {
   s2aAdvancedFreeStyleStatus: false,
-  s2aAdvancedRememberVoice: true,
+  s2aAdvancedRememberVoice: false,
   s2aAdvancedDefaultVoice: "Charley",
   navigationStack: new Stack(),
 
