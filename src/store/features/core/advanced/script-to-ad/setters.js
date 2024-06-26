@@ -13,6 +13,16 @@ export class AdvancedScriptToAdSetters {
     this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
     this.setSectionsArray = this.setSectionsArray.bind(this);
     this.setNavigationStack = this.setNavigationStack.bind(this);
+    this.setS2aAdvancedRememberVoice =
+      this.setS2aAdvancedRememberVoice.bind(this);
+    this.setS2aAdvancedDefaultVoice =
+      this.setS2aAdvancedDefaultVoice.bind(this);
+  }
+  setS2aAdvancedDefaultVoice(defaultVoice) {
+    this.set({ s2aAdvancedDefaultVoice: defaultVoice });
+  }
+  setS2aAdvancedRememberVoice(rememberVoice) {
+    this.set({ s2aAdvancedRememberVoice: rememberVoice });
   }
 
   setNavigationStack(navigationStack) {

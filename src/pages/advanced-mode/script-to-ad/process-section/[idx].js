@@ -421,8 +421,7 @@ function ProcessSection() {
     }
   };
 
-  const handleVoiceChange = async (e) => {
-    const selectedVoiceName = e.target.value;
+  const updateCurrentSectionVoice = async (selectedVoiceName) => {
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
 
     if (
@@ -464,6 +463,11 @@ function ProcessSection() {
         voiceAudioPlayerRef.current.play();
       }
     }
+  };
+
+  const handleVoiceChange = async (e) => {
+    const selectedVoiceName = e.target.value;
+    updateCurrentSectionVoice(selectedVoiceName);
   };
 
   const syncLocalStackWithGlobal = () => {
