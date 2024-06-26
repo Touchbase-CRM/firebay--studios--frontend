@@ -199,15 +199,15 @@ function ProcessSection() {
     setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
   };
 
-  useEffect(() => {
-    if (
-      navigationStack.size() === 0 && // to prevent overwriting during navigation
-      s2aAdvancedRememberVoice &&
-      s2aAdvancedDefaultVoice
-    ) {
-      updateCurrentSectionVoice(s2aAdvancedDefaultVoice);
-    }
-  }, [idx]);
+  // useEffect(() => {
+  //   if (
+  //     navigationStack.size() === 0 && // to prevent overwriting during navigation
+  //     s2aAdvancedRememberVoice &&
+  //     s2aAdvancedDefaultVoice
+  //   ) {
+  //     updateCurrentSectionVoice(s2aAdvancedDefaultVoice);
+  //   }
+  // }, [idx]);
 
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
@@ -508,6 +508,17 @@ function ProcessSection() {
     setSectionHistoryArray(updatedArray);
   };
 
+  const updateVoiceForAllSections = () => {
+    localSectionsArray.forEach((section) => {
+      section.setModelId(localCurrentSectionObj.getModelId());
+      section.setVoiceId(localCurrentSectionObj.getVoiceId());
+      section.setVoiceName(localCurrentSectionObj.getVoiceName());
+      section.setVoicePreviewFilename(
+        localCurrentSectionObj.getVoicePreviewFilename()
+      );
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!localCurrentSectionObj.getHistoryItemId()) {
@@ -517,6 +528,9 @@ function ProcessSection() {
         "Please generate the voice audio before proceeding further."
       );
       return;
+    }
+    if (s2aAdvancedRememberVoice && idx === "0") {
+      updateVoiceForAllSections();
     }
 
     // sync the local history with global.
@@ -967,13 +981,15 @@ function ProcessSection() {
                   </div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    {console.log(s2aAdvancedRememberVoice, idx)}
                     <Form.Select
                       aria-label="Voice select"
                       value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
                       onChange={handleVoiceChange}
                       style={{ color: "black", marginRight: "10px" }}
-                      disabled={s2aAdvancedRememberVoice && idx !== "0"}
+                      disabled={
+                        (s2aAdvancedRememberVoice && idx !== "0") ||
+                        (navigationStack.size() > 0 && s2aAdvancedRememberVoice)
+                      }
                     >
                       {voiceOptions
                         // These restrictions are temporary. Need to figure out a better data model.
