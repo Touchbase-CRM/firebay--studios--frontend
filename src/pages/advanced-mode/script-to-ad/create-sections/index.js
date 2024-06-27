@@ -7,6 +7,8 @@ import {
   Button,
   Table,
   Offcanvas,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
@@ -21,6 +23,7 @@ import { SectioningTutorial } from "@/_pages/advanced-mode/script-to-ad/create-s
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
 import withAuth from "@/hocs/with-auth";
+import { set } from "lodash";
 
 function CreateSections() {
   const auth = getAuth();
@@ -36,6 +39,8 @@ function CreateSections() {
     setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     setS2aAdvancedFreeStyleStatus,
+    s2aAdvancedSingleVoiceStatus,
+    setS2aAdvancedSingleVoiceStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -163,6 +168,12 @@ function CreateSections() {
     const newValue = e.target.checked;
     setS2aAdvancedFreeStyleStatus(newValue);
   };
+
+  const handleSingleVoiceChange = (e) => {
+    const newValue = e.target.checked;
+    setS2aAdvancedSingleVoiceStatus(newValue);
+  };
+
   const handleTutorialClose = () => setShowTutorial(false);
   const handleTutorialShow = () => setShowTutorial(true);
 
@@ -264,10 +275,34 @@ function CreateSections() {
                 className="d-flex align-items-center"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
                   Free Style Mode
                 </Form.Label>
-                <div className="form-check form-switch">
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: If you are not concerned about sticking to the
+                      spot length of {adLength} Sec, you can enable free style
+                      mode to lift the character count restrictions. We will
+                      still display the character limit as a recommendation
+                      which you may choose to ignore.
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "10px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
+                <div
+                  className="form-check form-switch"
+                  style={{ marginLeft: "0px" }}
+                >
                   <input
                     className="form-check-input"
                     type="checkbox"
@@ -287,24 +322,55 @@ function CreateSections() {
                 </div>
               </Form.Group>
               <Form.Group
+                controlId="singleVoiceToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Single Voice Mode
+                </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: If you want to use a single voice for the entire
+                      spot you can enable this option.
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "5px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="singleVoiceSwitch"
+                    checked={s2aAdvancedSingleVoiceStatus}
+                    onChange={handleSingleVoiceChange}
+                    style={{
+                      backgroundColor: s2aAdvancedSingleVoiceStatus
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: s2aAdvancedSingleVoiceStatus
+                        ? "#eb631c"
+                        : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
                 style={{ marginTop: "5px" }}
-              >
-                <Alert
-                  style={{
-                    variant: "info",
-                    fontSize: "12px",
-                    padding: "5px 10px",
-                  }}
-                >
-                  Pyro Tip: If you are not concerned about sticking to the spot
-                  length of {adLength} Sec , you can enable free style mode to
-                  lift the character count restrictions. We will still display
-                  the character limit as a reccomendation which you may choose
-                  to ignore.
-                </Alert>
-              </Form.Group>
+              ></Form.Group>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Script</Form.Label>
@@ -516,5 +582,5 @@ function CreateSections() {
     </div>
   );
 }
-export default withAuth(CreateSections);
-// export default CreateSections;
+// export default withAuth(CreateSections);
+export default CreateSections;
