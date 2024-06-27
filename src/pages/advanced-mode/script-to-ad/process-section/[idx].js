@@ -62,8 +62,10 @@ function ProcessSection() {
     sectionHistoryArray,
     setSectionHistoryArray,
     adLength,
+    voiceName,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    s2aAdvancedSingleVoiceStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -72,6 +74,7 @@ function ProcessSection() {
     sectionHistoryArray,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    s2aAdvancedSingleVoiceStatus,
   };
 
   const saveSharedStates = {
@@ -929,58 +932,64 @@ function ProcessSection() {
           >
             <Card.Title>Voice Editor</Card.Title>
             <Form>
-              <Form.Group controlId="voice">
-                <Form.Label>Voice</Form.Label>
-                {voiceOptions.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      disabled
-                      style={{ color: "black" }}
-                    >
-                      <option>Loading voice choices...</option>
-                    </Form.Select>
-                    <Spinner
-                      animation="border"
-                      style={{ marginLeft: "10px" }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                      onChange={handleVoiceChange}
-                      style={{ color: "black", marginRight: "10px" }}
-                    >
-                      {voiceOptions
-                        // These restrictions are temporary. Need to figure out a better data model.
-                        .filter((voice) => {
-                          const isRestrictedVoice =
-                            restrictedVoices.includes(voice);
-                          const isFirebayStudiosEmail =
-                            auth.currentUser.email.split("@")[1] ===
-                            "firebaystudios.com";
-                          return (
-                            !isRestrictedVoice ||
-                            (isRestrictedVoice && isFirebayStudiosEmail)
-                          );
-                        })
-                        .map((voice, index) => (
-                          <option key={voice} value={voice}>
-                            {voice}
-                          </option>
-                        ))}
-                    </Form.Select>
-                    <PlayButton
-                      onClickHandler={handleVoicePreviewPlayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                    />
-                  </div>
-                )}
-              </Form.Group>
+              {
+                <Form.Group controlId="voice">
+                  <Form.Label>Voice</Form.Label>
+                  {s2aAdvancedSingleVoiceStatus ? (
+                    <Alert variant="info">
+                      {voiceName} will be used for all the sections.
+                    </Alert>
+                  ) : voiceOptions.length === 0 ? (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        disabled
+                        style={{ color: "black" }}
+                      >
+                        <option>Loading voice choices...</option>
+                      </Form.Select>
+                      <Spinner
+                        animation="border"
+                        style={{ marginLeft: "10px" }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                        onChange={handleVoiceChange}
+                        style={{ color: "black", marginRight: "10px" }}
+                      >
+                        {voiceOptions
+                          // These restrictions are temporary. Need to figure out a better data model.
+                          .filter((voice) => {
+                            const isRestrictedVoice =
+                              restrictedVoices.includes(voice);
+                            const isFirebayStudiosEmail =
+                              auth.currentUser.email.split("@")[1] ===
+                              "firebaystudios.com";
+                            return (
+                              !isRestrictedVoice ||
+                              (isRestrictedVoice && isFirebayStudiosEmail)
+                            );
+                          })
+                          .map((voice) => (
+                            <option key={voice} value={voice}>
+                              {voice}
+                            </option>
+                          ))}
+                      </Form.Select>
+                      <PlayButton
+                        onClickHandler={handleVoicePreviewPlayButton}
+                        handlerArgs={[]}
+                        size="32px"
+                        preventDefault={true}
+                      />
+                    </div>
+                  )}
+                </Form.Group>
+              }
               <Form.Group
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
