@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
   Col,
@@ -13,7 +13,16 @@ import {
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
-import Alert from "react-bootstrap/Alert";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
+import app from "@/firebase";
 
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -32,6 +41,16 @@ function CreateSections() {
 
   // Zustand store hooks
   const {
+    voiceId,
+    setVoiceId,
+    voiceName,
+    setVoiceName,
+    voicePreviewFilename,
+    setVoicePreviewFilename,
+    modelId,
+    setModelId,
+    generatedVoiceUrl,
+    setGeneratedVoiceUrl,
     adLength,
     setAdLength,
     sectionsArray,
@@ -54,9 +73,12 @@ function CreateSections() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState([]);
   const restrictedVoices = ["Evan (Cloned)"];
+  const voiceAudioPlayerRef = useRef(null);
 
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  const baseVoicePreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
   useEffect(() => {
     // prevent back button
@@ -77,6 +99,28 @@ function CreateSections() {
       window.onpopstate = null;
     };
   }, [router]);
+
+  useEffect(() => {
+    const fetchVoiceOptions = async () => {
+      const voicesDocRef = doc(
+        getFirestore(app),
+        "fetch_data_to_frontend",
+        "pyro_voices"
+      );
+      try {
+        const docSnapshot = await getDoc(voicesDocRef);
+        if (docSnapshot.exists()) {
+          setVoiceOptions(docSnapshot.data().pyro_voice_choices);
+        } else {
+          console.log("No voice options found in document");
+        }
+      } catch (error) {
+        console.error("Error fetching voice options:", error);
+      }
+    };
+
+    fetchVoiceOptions();
+  }, []);
 
   useEffect(() => {
     if (isFormSubmitted) {
@@ -178,6 +222,69 @@ function CreateSections() {
     setS2aAdvancedSingleVoiceStatus(newValue);
   };
 
+  const fetchVoiceMetaData = async (voiceName) => {
+    const db = getFirestore(app);
+    const voiceQuery = query(
+      collection(db, "pyro_voices"),
+      where("pyro_name", "==", voiceName)
+    );
+
+    try {
+      const querySnapshot = await getDocs(voiceQuery);
+      if (!querySnapshot.empty) {
+        const docData = querySnapshot.docs[0].data();
+        return {
+          newVoiceId: docData.elevenlabs_id,
+          newVoicePreviewFilename: docData.voice_preview_filename,
+          newVoiceModelId: docData.model_id,
+        };
+      } else {
+        console.log("No matching documents found for voice:", voiceName);
+        return {}; // Return an empty object instead of null
+      }
+    } catch (error) {
+      console.error("Error fetching voice metadata:", error);
+      return {}; // Return an empty object in case of error
+    }
+  };
+
+  const handleVoiceChange = async (e) => {
+    const selectedVoiceName = e.target.value;
+    const metadata = await fetchVoiceMetaData(selectedVoiceName);
+
+    if (
+      metadata &&
+      metadata.newVoiceId &&
+      metadata.newVoicePreviewFilename &&
+      metadata.newVoiceModelId
+    ) {
+      setVoiceId(metadata.newVoiceId);
+      setVoicePreviewFilename(metadata.newVoicePreviewFilename);
+      setVoiceName(selectedVoiceName);
+      setModelId(metadata.newVoiceModelId);
+
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(""); // This line is added to reset the URL
+    } else {
+      // Handle the case when no metadata is found
+      console.log(
+        "No metadata found for the selected voice:",
+        selectedVoiceName
+      );
+    }
+
+    // Assuming you want to play the new voice preview immediately
+    if (metadata.newVoicePreviewFilename) {
+      const previewUrl =
+        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      if (voiceAudioPlayerRef.current) {
+        voiceAudioPlayerRef.current.src = previewUrl;
+        voiceAudioPlayerRef.current.load();
+        voiceAudioPlayerRef.current.play();
+      }
+    }
+  };
+
   const handleTutorialClose = () => setShowTutorial(false);
   const handleTutorialShow = () => setShowTutorial(true);
 
@@ -232,7 +339,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "1150px",
+              height: "1000px",
               marginBottom: "10px",
             }}
           >
@@ -273,6 +380,100 @@ function CreateSections() {
                   </Offcanvas>
                 </>
               )}
+
+              <Form.Group controlId="voice">
+                <Form.Label style={{ marginTop: "0px" }}>Voice</Form.Label>
+                {voiceOptions.length === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Voice select"
+                      disabled
+                      style={{ color: "black" }}
+                    >
+                      <option>Loading voice choices...</option>
+                    </Form.Select>
+                    <Spinner
+                      animation="border"
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Voice select"
+                      value={voiceName} // Retains the current voice name
+                      onChange={handleVoiceChange}
+                      style={{ color: "black" }}
+                      disabled={!s2aAdvancedSingleVoiceStatus}
+                    >
+                      {voiceOptions
+                        // These restrictions are temporary. Need to figure out a better data model.
+                        .filter((voice) => {
+                          const isRestrictedVoice =
+                            restrictedVoices.includes(voice);
+                          const isFirebayStudiosEmail =
+                            auth.currentUser.email.split("@")[1] ===
+                            "firebaystudios.com";
+                          return (
+                            !isRestrictedVoice ||
+                            (isRestrictedVoice && isFirebayStudiosEmail)
+                          );
+                        })
+                        .map((voice, index) => (
+                          <option key={voice} value={voice}>
+                            {voice}
+                          </option>
+                        ))}
+                    </Form.Select>
+                  </div>
+                )}
+              </Form.Group>
+
+              <Form.Group
+                controlId="singleVoiceToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                  Single Voice Mode
+                </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: If you want to use a single voice for the entire
+                      spot you can enable this option.
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "5px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="singleVoiceSwitch"
+                    checked={s2aAdvancedSingleVoiceStatus}
+                    onChange={handleSingleVoiceChange}
+                    style={{
+                      backgroundColor: s2aAdvancedSingleVoiceStatus
+                        ? "#eb631c"
+                        : "white",
+                      borderColor: s2aAdvancedSingleVoiceStatus
+                        ? "#eb631c"
+                        : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
 
               <Form.Group
                 controlId="freeStyleToggle"
@@ -325,109 +526,9 @@ function CreateSections() {
                   />
                 </div>
               </Form.Group>
-              <Form.Group
-                controlId="singleVoiceToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
-                  Single Voice Mode
-                </Form.Label>
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="tooltip-info">
-                      Pyro Tip: If you want to use a single voice for the entire
-                      spot you can enable this option.
-                    </Tooltip>
-                  }
-                >
-                  <i
-                    className="bi bi-info-circle"
-                    style={{
-                      marginLeft: "5px",
-                      marginRight: "15px",
-                      cursor: "pointer",
-                    }}
-                  ></i>
-                </OverlayTrigger>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="singleVoiceSwitch"
-                    checked={s2aAdvancedSingleVoiceStatus}
-                    onChange={handleSingleVoiceChange}
-                    style={{
-                      backgroundColor: s2aAdvancedSingleVoiceStatus
-                        ? "#eb631c"
-                        : "white",
-                      borderColor: s2aAdvancedSingleVoiceStatus
-                        ? "#eb631c"
-                        : "#adb5bd",
-                    }}
-                  />
-                </div>
-              </Form.Group>
-
-              {s2aAdvancedSingleVoiceStatus && (
-                <Form.Group controlId="voice">
-                  <Form.Label>Voice</Form.Label>
-                  {voiceOptions.length === 0 ? (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <Form.Select
-                        aria-label="Voice select"
-                        disabled
-                        style={{ color: "black" }}
-                      >
-                        <option>Loading voice choices...</option>
-                      </Form.Select>
-                      <Spinner
-                        animation="border"
-                        style={{ marginLeft: "10px" }}
-                      />
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <Form.Select
-                        aria-label="Voice select"
-                        value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                        onChange={handleVoiceChange}
-                        style={{ color: "black", marginRight: "10px" }}
-                      >
-                        {voiceOptions
-                          // These restrictions are temporary. Need to figure out a better data model.
-                          .filter((voice) => {
-                            const isRestrictedVoice =
-                              restrictedVoices.includes(voice);
-                            const isFirebayStudiosEmail =
-                              auth.currentUser.email.split("@")[1] ===
-                              "firebaystudios.com";
-                            return (
-                              !isRestrictedVoice ||
-                              (isRestrictedVoice && isFirebayStudiosEmail)
-                            );
-                          })
-                          .map((voice, index) => (
-                            <option key={voice} value={voice}>
-                              {voice}
-                            </option>
-                          ))}
-                      </Form.Select>
-                      <PlayButton
-                        onClickHandler={handleVoicePreviewPlayButton}
-                        handlerArgs={[]}
-                        size="32px"
-                        preventDefault={true}
-                      />
-                    </div>
-                  )}
-                </Form.Group>
-              )}
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
+                <Form.Label style={{ marginTop: "10px" }}>Script</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
