@@ -9,6 +9,7 @@ import {
   Offcanvas,
   OverlayTrigger,
   Tooltip,
+  Spinner,
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
@@ -51,6 +52,9 @@ function CreateSections() {
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const [showTutorial, setShowTutorial] = useState(false);
+  const [voiceOptions, setVoiceOptions] = useState([]);
+  const restrictedVoices = ["Evan (Cloned)"];
+
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
   charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
 
@@ -366,11 +370,61 @@ function CreateSections() {
                   />
                 </div>
               </Form.Group>
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "5px" }}
-              ></Form.Group>
+
+              {s2aAdvancedSingleVoiceStatus && (
+                <Form.Group controlId="voice">
+                  <Form.Label>Voice</Form.Label>
+                  {voiceOptions.length === 0 ? (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        disabled
+                        style={{ color: "black" }}
+                      >
+                        <option>Loading voice choices...</option>
+                      </Form.Select>
+                      <Spinner
+                        animation="border"
+                        style={{ marginLeft: "10px" }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                        onChange={handleVoiceChange}
+                        style={{ color: "black", marginRight: "10px" }}
+                      >
+                        {voiceOptions
+                          // These restrictions are temporary. Need to figure out a better data model.
+                          .filter((voice) => {
+                            const isRestrictedVoice =
+                              restrictedVoices.includes(voice);
+                            const isFirebayStudiosEmail =
+                              auth.currentUser.email.split("@")[1] ===
+                              "firebaystudios.com";
+                            return (
+                              !isRestrictedVoice ||
+                              (isRestrictedVoice && isFirebayStudiosEmail)
+                            );
+                          })
+                          .map((voice, index) => (
+                            <option key={voice} value={voice}>
+                              {voice}
+                            </option>
+                          ))}
+                      </Form.Select>
+                      <PlayButton
+                        onClickHandler={handleVoicePreviewPlayButton}
+                        handlerArgs={[]}
+                        size="32px"
+                        preventDefault={true}
+                      />
+                    </div>
+                  )}
+                </Form.Group>
+              )}
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
                 <Form.Label>Script</Form.Label>
