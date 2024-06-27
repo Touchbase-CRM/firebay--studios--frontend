@@ -80,6 +80,7 @@ function ProcessSection() {
   const saveSharedStates = {
     spotId,
     adLength,
+    voiceName,
   };
 
   const { idx } = router.query;

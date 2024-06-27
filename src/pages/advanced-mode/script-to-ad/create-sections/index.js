@@ -42,11 +42,13 @@ function CreateSections() {
 
   // Zustand store hooks
   const {
-    setVoiceId,
     voiceName,
     setVoiceName,
+    voiceId,
+    setVoiceId,
     voicePreviewFilename,
     setVoicePreviewFilename,
+    modelId,
     setModelId,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
@@ -170,10 +172,27 @@ function CreateSections() {
         0
       ); // +1 if you want to start indexing from 1
       // Add the section to the tmpArray
+      section.setVoiceId(voiceId);
+      section.setVoiceName(voiceName);
+      section.setVoicePreviewFilename(voicePreviewFilename);
+      section.setModelId(modelId);
       tmpArray.push(section);
     });
 
     setLocalSectionsArray(tmpArray);
+  };
+
+  const updateVoiceForAllSections = () => {
+    const updatedSections = localSectionsArray.map((section) => {
+      section.setVoiceId(voiceId);
+      section.setVoiceName(voiceName);
+      section.setVoicePreviewFilename(voicePreviewFilename);
+      section.setModelId(modelId);
+      return section;
+    });
+
+    // Assuming setLocalSectionsArray is available to update the global array
+    setLocalSectionsArray(updatedSections);
   };
 
   const handleSubmit = (e) => {
@@ -187,6 +206,10 @@ function CreateSections() {
     );
 
     if (!isValid) return;
+
+    if (s2aAdvancedSingleVoiceStatus) {
+      updateVoiceForAllSections();
+    }
 
     // Update Zustand store with the local state before navigating
     setSectionsArray(localSectionsArray);
