@@ -32,8 +32,9 @@ import { SectioningTutorial } from "@/_pages/advanced-mode/script-to-ad/create-s
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+
 import withAuth from "@/hocs/with-auth";
-import { set } from "lodash";
 
 function CreateSections() {
   const auth = getAuth();
@@ -41,13 +42,11 @@ function CreateSections() {
 
   // Zustand store hooks
   const {
-    voiceId,
     setVoiceId,
     voiceName,
     setVoiceName,
     voicePreviewFilename,
     setVoicePreviewFilename,
-    modelId,
     setModelId,
     generatedVoiceUrl,
     setGeneratedVoiceUrl,
@@ -339,7 +338,7 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "1000px",
+              height: "1150px",
               marginBottom: "10px",
             }}
           >
@@ -602,78 +601,81 @@ function CreateSections() {
                     Sections From Your Script
                   </Form.Label>
                   {localSectionsArray.length > 0 ? (
-                    <Table bordered hover style={{ borderColor: "#eb631c" }}>
-                      <thead style={{ backgroundColor: "#eb631c" }}>
-                        <tr>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-                              width: "5%", // Allocate less width for 'Section ID'
-                            }}
-                          >
-                            Section ID
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              // Do not set width here to allow this column to take the remaining space
-                            }}
-                          >
-                            Section content
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              width: "15%", // Allocate less width for 'Allocated character count for the section'
-                            }}
-                          >
-                            Allocated character count for the section
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {localSectionsArray.map((section, index) => {
-                          return (
-                            <tr key={index} style={{ borderColor: "#eb631c" }}>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
+                    <div style={{ maxHeight: "270px", overflowY: "auto" }}>
+                      <Table bordered hover style={{ borderColor: "#eb631c" }}>
+                        <thead style={{ backgroundColor: "#eb631c" }}>
+                          <tr>
+                            <th
+                              style={{
+                                borderColor: "#eb631c",
+                                padding: "8px",
+                                color: "black",
+                                width: "5%", // Allocate less width for 'Section ID'
+                              }}
+                            >
+                              Section ID
+                            </th>
+                            <th
+                              style={{
+                                borderColor: "#eb631c",
+                                padding: "8px",
+                                color: "black",
+                                // Do not set width here to allow this column to take the remaining space
+                              }}
+                            >
+                              Section content
+                            </th>
+                            <th
+                              style={{
+                                borderColor: "#eb631c",
+                                padding: "8px",
+                                color: "black",
+                                width: "15%", // Allocate less width for 'Allocated character count for the section'
+                              }}
+                            >
+                              Allocated character count for the section
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {localSectionsArray.map((section, index) => {
+                            return (
+                              <tr
+                                key={index}
+                                style={{ borderColor: "#eb631c" }}
                               >
-                                {section.getIndex() + 1}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                }}
-                              >
-                                {section.getOriginalContent()}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {section.getOriginalCharCount()}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
+                                <td
+                                  style={{
+                                    borderColor: "#eb631c",
+                                    padding: "8px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {section.getIndex() + 1}
+                                </td>
+                                <td
+                                  style={{
+                                    borderColor: "#eb631c",
+                                    padding: "8px",
+                                  }}
+                                >
+                                  {section.getOriginalContent()}
+                                </td>
+                                <td
+                                  style={{
+                                    borderColor: "#eb631c",
+                                    padding: "8px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {section.getOriginalCharCount()}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </Table>
+                    </div>
                   ) : (
                     <p style={{ color: "gray", fontStyle: "italic" }}>
                       No sections found
@@ -732,6 +734,20 @@ function CreateSections() {
               Next
             </Button>
           </div>
+          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
+          {s2aAdvancedSingleVoiceStatus && (
+            <div style={{ position: "relative", marginTop: "400px" }}>
+              <SimpleAudioPlayer
+                audioSrc={
+                  generatedVoiceUrl ||
+                  baseVoicePreviewsUrl + voicePreviewFilename
+                }
+                audioTitle={voiceName}
+                allowDownload={false}
+                autoplay={s2aAdvancedSingleVoiceStatus}
+              />
+            </div>
+          )}
         </Col>
       </Row>
     </div>
