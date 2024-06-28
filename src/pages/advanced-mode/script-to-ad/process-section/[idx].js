@@ -9,6 +9,8 @@ import {
   Spinner,
   ProgressBar,
   Alert,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -927,7 +929,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "400px",
+              height: "360px",
               marginBottom: "10px",
             }}
           >
@@ -936,10 +938,6 @@ function ProcessSection() {
               {
                 <Form.Group controlId="voice">
                   <Form.Label>Voice</Form.Label>
-                  {console.log(
-                    "s2aAdvancedSingleVoiceStatus",
-                    s2aAdvancedSingleVoiceStatus
-                  )}
                   {s2aAdvancedSingleVoiceStatus ? (
                     <Alert variant="info">
                       {voiceName} will be used for all the sections.
@@ -1000,9 +998,27 @@ function ProcessSection() {
                 className="d-flex align-items-center"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
                   Dragon's Breath Enhancement
                 </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "10px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
                 <div className="form-check form-switch">
                   <input
                     className="form-check-input"
@@ -1028,20 +1044,7 @@ function ProcessSection() {
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
                 style={{ marginTop: "5px" }}
-              >
-                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                  <Alert
-                    style={{
-                      variant: "info",
-                      fontSize: "10px",
-                      padding: "5px 10px",
-                    }}
-                  >
-                    Pyro Tip: 10X the energy of the selected voice as if a sword
-                    forged by dragon's breath
-                  </Alert>
-                ) : null}
-              </Form.Group>
+              ></Form.Group>
               <Form.Group
                 controlId="intonationConsistencyLevel"
                 style={{ marginTop: "10px" }}
@@ -1374,5 +1377,5 @@ function ProcessSection() {
     </div>
   );
 }
-export default ProcessSection;
-// export default withAuth(ProcessSection);
+// export default ProcessSection;
+export default withAuth(ProcessSection);

@@ -776,5 +776,5 @@ function CreateSections() {
     </div>
   );
 }
-// export default withAuth(CreateSections);
-export default CreateSections;
+export default withAuth(CreateSections);
+// export default CreateSections;
