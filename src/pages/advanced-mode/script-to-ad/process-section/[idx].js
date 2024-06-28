@@ -936,6 +936,10 @@ function ProcessSection() {
               {
                 <Form.Group controlId="voice">
                   <Form.Label>Voice</Form.Label>
+                  {console.log(
+                    "s2aAdvancedSingleVoiceStatus",
+                    s2aAdvancedSingleVoiceStatus
+                  )}
                   {s2aAdvancedSingleVoiceStatus ? (
                     <Alert variant="info">
                       {voiceName} will be used for all the sections.
