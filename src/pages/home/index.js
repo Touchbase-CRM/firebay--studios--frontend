@@ -132,6 +132,7 @@ const Home = () => {
   };
 
   async function handleEditSpot(spotId) {
+    reset();
     try {
       const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
       switch (mode) {

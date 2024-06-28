@@ -9,6 +9,8 @@ import {
   Spinner,
   ProgressBar,
   Alert,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -62,8 +64,10 @@ function ProcessSection() {
     sectionHistoryArray,
     setSectionHistoryArray,
     adLength,
+    voiceName,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    s2aAdvancedSingleVoiceStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -72,11 +76,13 @@ function ProcessSection() {
     sectionHistoryArray,
     numSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    s2aAdvancedSingleVoiceStatus,
   };
 
   const saveSharedStates = {
     spotId,
     adLength,
+    voiceName,
   };
 
   const { idx } = router.query;
@@ -923,72 +929,96 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "400px",
+              height: "360px",
               marginBottom: "10px",
             }}
           >
             <Card.Title>Voice Editor</Card.Title>
             <Form>
-              <Form.Group controlId="voice">
-                <Form.Label>Voice</Form.Label>
-                {voiceOptions.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      disabled
-                      style={{ color: "black" }}
-                    >
-                      <option>Loading voice choices...</option>
-                    </Form.Select>
-                    <Spinner
-                      animation="border"
-                      style={{ marginLeft: "10px" }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                      onChange={handleVoiceChange}
-                      style={{ color: "black", marginRight: "10px" }}
-                    >
-                      {voiceOptions
-                        // These restrictions are temporary. Need to figure out a better data model.
-                        .filter((voice) => {
-                          const isRestrictedVoice =
-                            restrictedVoices.includes(voice);
-                          const isFirebayStudiosEmail =
-                            auth.currentUser.email.split("@")[1] ===
-                            "firebaystudios.com";
-                          return (
-                            !isRestrictedVoice ||
-                            (isRestrictedVoice && isFirebayStudiosEmail)
-                          );
-                        })
-                        .map((voice, index) => (
-                          <option key={voice} value={voice}>
-                            {voice}
-                          </option>
-                        ))}
-                    </Form.Select>
-                    <PlayButton
-                      onClickHandler={handleVoicePreviewPlayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                    />
-                  </div>
-                )}
-              </Form.Group>
+              {
+                <Form.Group controlId="voice">
+                  <Form.Label>Voice</Form.Label>
+                  {s2aAdvancedSingleVoiceStatus ? (
+                    <Alert variant="info">
+                      {voiceName} will be used for all the sections.
+                    </Alert>
+                  ) : voiceOptions.length === 0 ? (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        disabled
+                        style={{ color: "black" }}
+                      >
+                        <option>Loading voice choices...</option>
+                      </Form.Select>
+                      <Spinner
+                        animation="border"
+                        style={{ marginLeft: "10px" }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Select
+                        aria-label="Voice select"
+                        value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                        onChange={handleVoiceChange}
+                        style={{ color: "black", marginRight: "10px" }}
+                      >
+                        {voiceOptions
+                          // These restrictions are temporary. Need to figure out a better data model.
+                          .filter((voice) => {
+                            const isRestrictedVoice =
+                              restrictedVoices.includes(voice);
+                            const isFirebayStudiosEmail =
+                              auth.currentUser.email.split("@")[1] ===
+                              "firebaystudios.com";
+                            return (
+                              !isRestrictedVoice ||
+                              (isRestrictedVoice && isFirebayStudiosEmail)
+                            );
+                          })
+                          .map((voice) => (
+                            <option key={voice} value={voice}>
+                              {voice}
+                            </option>
+                          ))}
+                      </Form.Select>
+                      <PlayButton
+                        onClickHandler={handleVoicePreviewPlayButton}
+                        handlerArgs={[]}
+                        size="32px"
+                        preventDefault={true}
+                      />
+                    </div>
+                  )}
+                </Form.Group>
+              }
               <Form.Group
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
                   Dragon's Breath Enhancement
                 </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "10px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
                 <div className="form-check form-switch">
                   <input
                     className="form-check-input"
@@ -1014,20 +1044,7 @@ function ProcessSection() {
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
                 style={{ marginTop: "5px" }}
-              >
-                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                  <Alert
-                    style={{
-                      variant: "info",
-                      fontSize: "10px",
-                      padding: "5px 10px",
-                    }}
-                  >
-                    Pyro Tip: 10X the energy of the selected voice as if a sword
-                    forged by dragon's breath
-                  </Alert>
-                ) : null}
-              </Form.Group>
+              ></Form.Group>
               <Form.Group
                 controlId="intonationConsistencyLevel"
                 style={{ marginTop: "10px" }}
