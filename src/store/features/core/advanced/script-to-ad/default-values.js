@@ -3,7 +3,6 @@ import { Stack } from "@/data-structures/stack";
 
 export const advancedScriptToAdDefaultValues = {
   s2aAdvancedFreeStyleStatus: false,
-  s2aAdvancedSingleVoiceStatus: false,
   navigationStack: new Stack(),
 
   sectionsArray: [], // Array for section objects

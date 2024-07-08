@@ -13,11 +13,6 @@ export class AdvancedScriptToAdSetters {
     this.setNumSectionsIdentified = this.setNumSectionsIdentified.bind(this);
     this.setSectionsArray = this.setSectionsArray.bind(this);
     this.setNavigationStack = this.setNavigationStack.bind(this);
-    this.setS2aAdvancedSingleVoiceStatus =
-      this.setS2aAdvancedSingleVoiceStatus.bind(this);
-  }
-  setS2aAdvancedSingleVoiceStatus(status) {
-    this.set({ s2aAdvancedSingleVoiceStatus: status });
   }
 
   setNavigationStack(navigationStack) {
