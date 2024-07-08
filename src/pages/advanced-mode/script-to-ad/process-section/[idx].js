@@ -9,6 +9,8 @@ import {
   Spinner,
   ProgressBar,
   Alert,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -946,7 +948,7 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "10px",
-              height: "400px",
+              height: "380px",
               marginBottom: "10px",
             }}
           >
@@ -1009,9 +1011,27 @@ function ProcessSection() {
                 className="d-flex align-items-center"
                 style={{ marginTop: "10px" }}
               >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
+                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
                   Dragon's Breath Enhancement
                 </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "10px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
                 <div className="form-check form-switch">
                   <input
                     className="form-check-input"
