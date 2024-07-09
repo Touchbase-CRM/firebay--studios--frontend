@@ -62,7 +62,7 @@ const Home = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 15;
+  const pageSize = 20;
 
   useEffect(() => {
     setPaginatedSpots(
@@ -152,8 +152,6 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Error handling the spot mode:", error);
-    } finally {
-      setEditLoading(false); // Hide loading spinner
     }
   }
 
@@ -181,6 +179,7 @@ const Home = () => {
     await updateQuickV2AState(data);
     router.push("/quick-mode/voice-to-ad/create-ad");
   }
+
   function findDownloadLogs(spotId) {
     const spot = spots.find((spot) => spot.id === spotId);
     const logs = spot ? spot.downloadLogs : [];
@@ -387,7 +386,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      {/* <NavBar links={[]} dropdownItems={dropdownItems} /> */}
+      <NavBar links={[]} dropdownItems={dropdownItems} />
       <Container
         fluid
         style={{
@@ -466,5 +465,4 @@ const Home = () => {
   );
 };
 
-// export default withAuth(Home);
-export default Home;
+export default withAuth(Home);
