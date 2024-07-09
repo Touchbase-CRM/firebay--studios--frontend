@@ -1,5 +1,5 @@
 // Related path: src/pages/home/index.js
-import { Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -62,7 +62,7 @@ const Home = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 20;
+  const pageSize = 15;
 
   useEffect(() => {
     setPaginatedSpots(
@@ -360,6 +360,11 @@ const Home = () => {
     }
   };
 
+  const cancelLoading = () => {
+    setIsLoading(false);
+    setEditLoading(false); // Hide the loading spinner
+  };
+
   const dropdownItems = [
     {
       text: "Logout",
@@ -398,7 +403,50 @@ const Home = () => {
         {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
           <Row className="justify-content-center">
             <Col xs={12} className="text-center">
-              <Spinner /> {/* Use the custom spinner here */}
+              <div
+                className="d-flex align-items-center justify-content-center flex-column"
+                style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
+              >
+                <Spinner
+                  animation="border"
+                  variant="primary"
+                  style={{ marginBottom: "200px" }}
+                />
+
+                <Card
+                  className="p-4"
+                  style={{
+                    marginTop: "100px",
+                    borderRadius: "1rem",
+                    border: "2px solid #eb631c",
+                    color: "black",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <p
+                    className="ml-3 mb-0"
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "24px",
+                      color: "black",
+                      textShadow: "2px 2px 2px rgba(0,0,0,0.2)",
+                      fontFamily: "'Cinzel', serif",
+                    }}
+                  >
+                    Loading Data...
+                  </p>
+                </Card>
+                <div className="mt-3">
+                  <Button
+                    variant="danger"
+                    onClick={cancelLoading}
+                    style={{ width: "150px" }} // Setting a fixed width
+                    title="Stop the current operation and start from the beginning."
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
             </Col>
           </Row>
         ) : (
@@ -465,4 +513,5 @@ const Home = () => {
   );
 };
 
-export default withAuth(Home);
+// export default withAuth(Home);
+export default Home;
