@@ -1,5 +1,5 @@
 // Related path: src/pages/home/index.js
-import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -34,6 +34,7 @@ import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
+import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
 
 const Home = () => {
   const { setSpotName } = useUserInputsStore();
@@ -55,12 +56,13 @@ const Home = () => {
   const [copySpotId, setCopySpotId] = useState("");
   const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
   const [downloadLogs, setDownloadLogs] = useState([]);
+  const [editLoading, setEditLoading] = useState(false); // New state for edit button loading
 
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 20;
+  const pageSize = 15;
 
   useEffect(() => {
     setPaginatedSpots(
@@ -132,6 +134,7 @@ const Home = () => {
   };
 
   async function handleEditSpot(spotId) {
+    setEditLoading(true); // Show loading spinner
     try {
       const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
       switch (mode) {
@@ -149,6 +152,8 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Error handling the spot mode:", error);
+    } finally {
+      setEditLoading(false); // Hide loading spinner
     }
   }
 
@@ -382,7 +387,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} dropdownItems={dropdownItems} />
+      {/* <NavBar links={[]} dropdownItems={dropdownItems} /> */}
       <Container
         fluid
         style={{
@@ -391,12 +396,10 @@ const Home = () => {
           minHeight: "100vh",
         }}
       >
-        {isLoading ? (
+        {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
           <Row className="justify-content-center">
             <Col xs={12} className="text-center">
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
+              <Spinner /> {/* Use the custom spinner here */}
             </Col>
           </Row>
         ) : (
@@ -463,4 +466,5 @@ const Home = () => {
   );
 };
 
-export default withAuth(Home);
+// export default withAuth(Home);
+export default Home;

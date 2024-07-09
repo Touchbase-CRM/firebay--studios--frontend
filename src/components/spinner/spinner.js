@@ -1,3 +1,4 @@
+// relative path: src/components/spinner/spinner.js
 import React from "react";
 import styles from "../../styles/Spinner.module.css";
 
