@@ -1,4 +1,3 @@
-// Related path: src/pages/home/index.js
 import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -366,6 +365,22 @@ const Home = () => {
     router.push("/home");
   };
 
+  useEffect(() => {
+    let timeout;
+    if (isLoading || editLoading) {
+      timeout = setTimeout(() => {
+        setIsLoading(false);
+        setEditLoading(false);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to load data, please try again.",
+          icon: "error",
+        });
+      }, 60000); // 60 seconds
+    }
+    return () => clearTimeout(timeout);
+  }, [isLoading, editLoading]);
+
   const dropdownItems = [
     {
       text: "Logout",
@@ -438,16 +453,6 @@ const Home = () => {
                     Loading Data...
                   </p>
                 </Card>
-                <div className="mt-3">
-                  <Button
-                    variant="danger"
-                    onClick={cancelLoading}
-                    style={{ width: "150px" }} // Setting a fixed width
-                    title="Stop the current operation and start from the beginning."
-                  >
-                    Cancel
-                  </Button>
-                </div>
               </div>
             </Col>
           </Row>
@@ -515,5 +520,5 @@ const Home = () => {
   );
 };
 
-// export default withAuth(Home);
-export default Home;
+export default withAuth(Home);
+// export default Home;
