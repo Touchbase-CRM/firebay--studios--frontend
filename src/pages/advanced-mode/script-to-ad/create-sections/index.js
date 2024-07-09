@@ -214,8 +214,8 @@ function CreateSections() {
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "10px",
-              height: "1150px",
+              marginTop: "100px",
+              height: "750px",
               marginBottom: "10px",
             }}
           >
