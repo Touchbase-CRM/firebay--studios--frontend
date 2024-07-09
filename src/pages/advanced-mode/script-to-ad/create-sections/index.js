@@ -239,23 +239,80 @@ function CreateSections() {
                 </Form.Select>
               </Form.Group>
               {/* Message to display when script is empty */}
-              {originalScriptForSectionSplit === "" && (
-                <>
-                  <Offcanvas
-                    show={showTutorial}
-                    onHide={handleTutorialClose}
-                    placement="end"
-                    style={{ width: "800px" }}
-                  >
-                    <Offcanvas.Header closeButton>
-                      <Offcanvas.Title>Tutorial</Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                      <SectioningTutorial />
-                    </Offcanvas.Body>
-                  </Offcanvas>
-                </>
-              )}
+              <Offcanvas
+                show={
+                  showTutorial ||
+                  (originalScriptForSectionSplit === "" && showOffCanvas)
+                }
+                onHide={
+                  showTutorial ? handleTutorialClose : handleOffCanvasClose
+                }
+                placement="end"
+                style={{ width: "800px" }}
+              >
+                <Offcanvas.Header closeButton>
+                  <Offcanvas.Title>
+                    {showTutorial ? "Tutorial" : "Sections From Your Script"}
+                  </Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                  {showTutorial ? (
+                    <SectioningTutorial />
+                  ) : localSectionsArray.length > 0 ? (
+                    <ListGroup>
+                      {localSectionsArray.map((section, index) => (
+                        <ListGroup.Item
+                          key={index}
+                          className="mb-3"
+                          style={{
+                            border: "1px solid #eb631c",
+                            borderRadius: "5px",
+                            padding: "15px",
+                            backgroundColor: "white",
+                            fontFamily: "'Garamond', serif",
+                            fontSize: "16px",
+                            lineHeight: "1.6",
+                            color: "#333",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontWeight: "bold",
+                              color: "#eb631c",
+                              fontSize: "18px",
+                            }}
+                          >
+                            Section {section.getIndex() + 1}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "10px",
+                              fontStyle: "italic",
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
+                            {section.getOriginalContent()}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "10px",
+                              textAlign: "right",
+                              fontSize: "12px",
+                              color: "#666",
+                            }}
+                          >
+                            Character count: {section.getOriginalCharCount()}
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  ) : (
+                    <p style={{ color: "gray", fontStyle: "italic" }}>
+                      No sections found
+                    </p>
+                  )}
+                </Offcanvas.Body>
+              </Offcanvas>
 
               <Form.Group
                 controlId="freeStyleToggle"
@@ -343,22 +400,26 @@ function CreateSections() {
                   >
                     Clear
                   </Button>
-                  {originalScriptForSectionSplit === "" && (
-                    <Button
-                      variant="primary"
-                      onClick={handleTutorialShow}
-                      style={{
-                        position: "absolute",
-                        right: "0px",
-                        bottom: "10px",
-                        backgroundColor: "white",
-                        borderColor: "#FDA942",
-                        color: "black",
-                      }} // Adjusted to align horizontally with the Clear Script button
-                    >
-                      Tutorial
-                    </Button>
-                  )}
+                  <Button
+                    variant="primary"
+                    onClick={
+                      originalScriptForSectionSplit === ""
+                        ? handleTutorialShow
+                        : handleOffCanvasShow
+                    }
+                    style={{
+                      position: "absolute",
+                      right: "0px",
+                      bottom: "10px",
+                      backgroundColor: "white",
+                      borderColor: "#FDA942",
+                      color: "black",
+                    }} // Adjusted to align horizontally with the Clear Script button
+                  >
+                    {originalScriptForSectionSplit === ""
+                      ? "Tutorial"
+                      : "View Sections"}
+                  </Button>
                 </div>
               </Form.Group>
 
