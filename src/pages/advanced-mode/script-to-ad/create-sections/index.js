@@ -5,8 +5,8 @@ import {
   Card,
   Form,
   Button,
-  Table,
   Offcanvas,
+  ListGroup,
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
@@ -46,8 +46,10 @@ function CreateSections() {
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showOffCanvas, setShowOffCanvas] = useState(false); // New state for off-canvas
+
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
-  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // subtracting a threshold to avoid overflow
 
   useEffect(() => {
     // prevent back button
@@ -166,6 +168,9 @@ function CreateSections() {
   const handleTutorialClose = () => setShowTutorial(false);
   const handleTutorialShow = () => setShowTutorial(true);
 
+  const handleOffCanvasClose = () => setShowOffCanvas(false); // New function to handle closing the off-canvas
+  const handleOffCanvasShow = () => setShowOffCanvas(true); // New function to handle showing the off-canvas
+
   const links = [
     {
       label: "Home",
@@ -174,13 +179,6 @@ function CreateSections() {
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
     },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
   ];
 
   const wordCountStyle = {
@@ -364,125 +362,36 @@ function CreateSections() {
                 </div>
               </Form.Group>
 
-              <div
-                style={{
-                  borderColor: "#eb631c",
-                  color: "black",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginTop: "10px",
-                  maxHeight: "350px", // Set a max-height for scrollable area
-                  overflowY: "auto", // Add vertical scrollbar
-                  backgroundColor: "rgba(0, 0, 0, 0.05)", // Add gray background
-                }}
-              >
-                <div style={{ marginTop: "10px" }}>
-                  <Form.Label style={{ color: "black" }}>
-                    Sections From Your Script
-                  </Form.Label>
-                  {localSectionsArray.length > 0 ? (
-                    <Table bordered hover style={{ borderColor: "#eb631c" }}>
-                      <thead style={{ backgroundColor: "#eb631c" }}>
-                        <tr>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-                              width: "5%", // Allocate less width for 'Section ID'
-                            }}
-                          >
-                            Section ID
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              // Do not set width here to allow this column to take the remaining space
-                            }}
-                          >
-                            Section content
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              width: "15%", // Allocate less width for 'Allocated character count for the section'
-                            }}
-                          >
-                            Allocated character count for the section
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {localSectionsArray.map((section, index) => {
-                          return (
-                            <tr key={index} style={{ borderColor: "#eb631c" }}>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {section.getIndex() + 1}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                }}
-                              >
-                                {section.getOriginalContent()}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {section.getOriginalCharCount()}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  ) : (
-                    <p style={{ color: "gray", fontStyle: "italic" }}>
-                      No sections found
-                    </p>
-                  )}
-                </div>
-              </div>
-
               <br></br>
               {/* Display the number of sections found */}
               {localSectionsArray.length > 0 && (
-                <div className="alert alert-success" role="alert">
-                  We have found {localSectionsArray.length} section
+                <div
+                  className="alert alert-success"
+                  role="alert"
+                  style={{
+                    backgroundColor: "#d4edda",
+                    borderColor: "#c3e6cb",
+                    color: "#155724",
+                  }}
+                >
+                  We found {localSectionsArray.length} section
                   {localSectionsArray.length !== 1 ? "s" : ""} in your script.
-                  You will be prompted to produce the voice for these one by one
-                  in the next few steps. <span> </span>
-                  {s2aAdvancedFreeStyleStatus ? (
-                    <span>
-                      To help ensure the ad fits your desired length, we suggest
-                      keeping within the character count mentioned above for
-                      each section. Since you are in Freestyle mode, of course
-                      you can ignore it.
-                    </span>
-                  ) : (
-                    <span>
-                      To comply with the ad length you desired, you will be
-                      limited to the character count mentioned for each section
-                      above.
-                    </span>
-                  )}
+                  You can{" "}
+                  <span
+                    onClick={handleOffCanvasShow}
+                    style={{
+                      color: "#155724",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: "inherit",
+                    }}
+                  >
+                    view the sections here
+                  </span>
+                  . Next, you'll be prompted to produce the voice for these one
+                  by one. To ensure your ad fits the desired length, you'll be
+                  limited to the character count mentioned for each section.
                 </div>
               )}
             </Card.Body>
@@ -513,8 +422,75 @@ function CreateSections() {
           </div>
         </Col>
       </Row>
+
+      {/* Off-canvas for displaying sections as a numbered list group */}
+      <Offcanvas
+        show={showOffCanvas}
+        onHide={handleOffCanvasClose}
+        placement="end"
+        style={{ width: "auto", maxWidth: "90vw", backgroundColor: "#f8f9fa" }} // Adjust width and background color
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Sections From Your Script</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          {localSectionsArray.length > 0 ? (
+            <ListGroup>
+              {localSectionsArray.map((section, index) => (
+                <ListGroup.Item
+                  key={index}
+                  className="mb-3"
+                  style={{
+                    border: "1px solid #eb631c",
+                    borderRadius: "5px",
+                    padding: "15px",
+                    backgroundColor: "white",
+                    fontFamily: "'Garamond', serif",
+                    fontSize: "16px",
+                    lineHeight: "1.6",
+                    color: "#333",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      color: "#eb631c",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Section {section.getIndex() + 1}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      fontStyle: "italic",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {section.getOriginalContent()}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      textAlign: "right",
+                      fontSize: "12px",
+                      color: "#666",
+                    }}
+                  >
+                    Character count: {section.getOriginalCharCount()}
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          ) : (
+            <p style={{ color: "gray", fontStyle: "italic" }}>
+              No sections found
+            </p>
+          )}
+        </Offcanvas.Body>
+      </Offcanvas>
     </div>
   );
 }
-export default withAuth(CreateSections);
-// export default CreateSections;
+// export default withAuth(CreateSections);
+export default CreateSections;
