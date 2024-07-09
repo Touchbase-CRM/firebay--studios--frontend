@@ -5,18 +5,16 @@ import {
   Card,
   Form,
   Button,
-  Table,
+  Alert,
   Offcanvas,
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
-import Alert from "react-bootstrap/Alert";
-
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import { SectioningTutorial } from "@/_pages/advanced-mode/script-to-ad/create-sections/components/tutorial/alert";
+import DetectedSections from "@/_pages/advanced-mode/script-to-ad/create-sections/components/detected-sections";
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
@@ -46,8 +44,10 @@ function CreateSections() {
   const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showOffCanvas, setShowOffCanvas] = useState(false); // New state for off-canvas
+
   var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
-  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // substracting a threshold to avoid overflow
+  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // subtracting a threshold to avoid overflow
 
   useEffect(() => {
     // prevent back button
@@ -166,6 +166,9 @@ function CreateSections() {
   const handleTutorialClose = () => setShowTutorial(false);
   const handleTutorialShow = () => setShowTutorial(true);
 
+  const handleOffCanvasClose = () => setShowOffCanvas(false); // New function to handle closing the off-canvas
+  const handleOffCanvasShow = () => setShowOffCanvas(true); // New function to handle showing the off-canvas
+
   const links = [
     {
       label: "Home",
@@ -174,13 +177,6 @@ function CreateSections() {
       icon: "bi bi-house", // Bootstrap icon class
       style: { marginRight: "10px" }, // Example styling
     },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
   ];
 
   const wordCountStyle = {
@@ -216,9 +212,10 @@ function CreateSections() {
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "10px",
-              height: "1150px",
+              marginTop: "100px",
+              height: "800px",
               marginBottom: "10px",
+              minWidth: "1000px",
             }}
           >
             <Card.Body>
@@ -240,24 +237,6 @@ function CreateSections() {
                   <option value="120">120 seconds</option>
                 </Form.Select>
               </Form.Group>
-              {/* Message to display when script is empty */}
-              {originalScriptForSectionSplit === "" && (
-                <>
-                  <Offcanvas
-                    show={showTutorial}
-                    onHide={handleTutorialClose}
-                    placement="end"
-                    style={{ width: "800px" }}
-                  >
-                    <Offcanvas.Header closeButton>
-                      <Offcanvas.Title>Tutorial</Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                      <SectioningTutorial />
-                    </Offcanvas.Body>
-                  </Offcanvas>
-                </>
-              )}
 
               <Form.Group
                 controlId="freeStyleToggle"
@@ -345,144 +324,59 @@ function CreateSections() {
                   >
                     Clear
                   </Button>
-                  {originalScriptForSectionSplit === "" && (
-                    <Button
-                      variant="primary"
-                      onClick={handleTutorialShow}
-                      style={{
-                        position: "absolute",
-                        right: "0px",
-                        bottom: "10px",
-                        backgroundColor: "white",
-                        borderColor: "#FDA942",
-                        color: "black",
-                      }} // Adjusted to align horizontally with the Clear Script button
-                    >
-                      Tutorial
-                    </Button>
-                  )}
+                  <Button
+                    variant="primary"
+                    onClick={
+                      originalScriptForSectionSplit === ""
+                        ? handleTutorialShow
+                        : handleOffCanvasShow
+                    }
+                    style={{
+                      position: "absolute",
+                      right: "0px",
+                      bottom: "10px",
+                      backgroundColor: "white",
+                      borderColor: "#FDA942",
+                      color: "black",
+                    }} // Adjusted to align horizontally with the Clear Script button
+                  >
+                    {originalScriptForSectionSplit === ""
+                      ? "Tutorial"
+                      : "View Sections"}
+                  </Button>
                 </div>
               </Form.Group>
-
-              <div
-                style={{
-                  borderColor: "#eb631c",
-                  color: "black",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginTop: "10px",
-                  maxHeight: "350px", // Set a max-height for scrollable area
-                  overflowY: "auto", // Add vertical scrollbar
-                  backgroundColor: "rgba(0, 0, 0, 0.05)", // Add gray background
-                }}
-              >
-                <div style={{ marginTop: "10px" }}>
-                  <Form.Label style={{ color: "black" }}>
-                    Sections From Your Script
-                  </Form.Label>
-                  {localSectionsArray.length > 0 ? (
-                    <Table bordered hover style={{ borderColor: "#eb631c" }}>
-                      <thead style={{ backgroundColor: "#eb631c" }}>
-                        <tr>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-                              width: "5%", // Allocate less width for 'Section ID'
-                            }}
-                          >
-                            Section ID
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              // Do not set width here to allow this column to take the remaining space
-                            }}
-                          >
-                            Section content
-                          </th>
-                          <th
-                            style={{
-                              borderColor: "#eb631c",
-                              padding: "8px",
-                              color: "black",
-
-                              width: "15%", // Allocate less width for 'Allocated character count for the section'
-                            }}
-                          >
-                            Allocated character count for the section
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {localSectionsArray.map((section, index) => {
-                          return (
-                            <tr key={index} style={{ borderColor: "#eb631c" }}>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {section.getIndex() + 1}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                }}
-                              >
-                                {section.getOriginalContent()}
-                              </td>
-                              <td
-                                style={{
-                                  borderColor: "#eb631c",
-                                  padding: "8px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {section.getOriginalCharCount()}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  ) : (
-                    <p style={{ color: "gray", fontStyle: "italic" }}>
-                      No sections found
-                    </p>
-                  )}
-                </div>
-              </div>
 
               <br></br>
               {/* Display the number of sections found */}
               {localSectionsArray.length > 0 && (
-                <div className="alert alert-success" role="alert">
-                  We have found {localSectionsArray.length} section
+                <div
+                  className="alert alert-success"
+                  role="alert"
+                  style={{
+                    backgroundColor: "#d4edda",
+                    borderColor: "#c3e6cb",
+                    color: "#155724",
+                  }}
+                >
+                  We found {localSectionsArray.length} section
                   {localSectionsArray.length !== 1 ? "s" : ""} in your script.
-                  You will be prompted to produce the voice for these one by one
-                  in the next few steps. <span> </span>
-                  {s2aAdvancedFreeStyleStatus ? (
-                    <span>
-                      To help ensure the ad fits your desired length, we suggest
-                      keeping within the character count mentioned above for
-                      each section. Since you are in Freestyle mode, of course
-                      you can ignore it.
-                    </span>
-                  ) : (
-                    <span>
-                      To comply with the ad length you desired, you will be
-                      limited to the character count mentioned for each section
-                      above.
-                    </span>
-                  )}
+                  You can{" "}
+                  <span
+                    onClick={handleOffCanvasShow}
+                    style={{
+                      color: "#155724",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: "inherit",
+                    }}
+                  >
+                    view the sections here
+                  </span>
+                  . Next, you'll be prompted to produce the voice for these one
+                  by one. To ensure your ad fits the desired length, you'll be
+                  limited to the character count mentioned for each section.
                 </div>
               )}
             </Card.Body>
@@ -513,8 +407,31 @@ function CreateSections() {
           </div>
         </Col>
       </Row>
+
+      {/* Off-canvas for displaying sections as a numbered list group */}
+      <DetectedSections
+        show={showOffCanvas}
+        handleClose={handleOffCanvasClose}
+        sections={localSectionsArray}
+      />
+
+      {/* Off-canvas for displaying tutorial */}
+      <Offcanvas
+        show={showTutorial}
+        onHide={handleTutorialClose}
+        placement="end"
+        style={{ width: "800px" }}
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Tutorial</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <SectioningTutorial />
+        </Offcanvas.Body>
+      </Offcanvas>
     </div>
   );
 }
+
 export default withAuth(CreateSections);
 // export default CreateSections;
