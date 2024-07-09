@@ -213,8 +213,9 @@ function CreateSections() {
               borderColor: "#eb631c",
               color: "black",
               marginTop: "100px",
-              height: "750px",
+              height: "800px",
               marginBottom: "10px",
+              minWidth: "1000px",
             }}
           >
             <Card.Body>
@@ -433,3 +434,4 @@ function CreateSections() {
 }
 
 export default withAuth(CreateSections);
+// export default CreateSections;
