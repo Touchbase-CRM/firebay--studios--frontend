@@ -363,6 +363,7 @@ const Home = () => {
   const cancelLoading = () => {
     setIsLoading(false);
     setEditLoading(false); // Hide the loading spinner
+    router.push("/home");
   };
 
   const dropdownItems = [
@@ -397,7 +398,8 @@ const Home = () => {
         style={{
           backgroundColor: "white",
           padding: "20px",
-          minHeight: "100vh",
+          height: "calc(100vh - 90px)", // Adjust height considering the navbar height
+          overflowY: "auto",
         }}
       >
         {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
