@@ -1,5 +1,4 @@
-// Related path: src/pages/home/index.js
-import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -34,6 +33,7 @@ import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
+import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
 
 const Home = () => {
   const { setSpotName } = useUserInputsStore();
@@ -55,12 +55,13 @@ const Home = () => {
   const [copySpotId, setCopySpotId] = useState("");
   const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
   const [downloadLogs, setDownloadLogs] = useState([]);
+  const [editLoading, setEditLoading] = useState(false); // New state for edit button loading
 
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 20;
+  const pageSize = 15;
 
   useEffect(() => {
     setPaginatedSpots(
@@ -132,6 +133,7 @@ const Home = () => {
   };
 
   async function handleEditSpot(spotId) {
+    setEditLoading(true); // Show loading spinner
     try {
       const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
       switch (mode) {
@@ -176,6 +178,7 @@ const Home = () => {
     await updateQuickV2AState(data);
     router.push("/quick-mode/voice-to-ad/create-ad");
   }
+
   function findDownloadLogs(spotId) {
     const spot = spots.find((spot) => spot.id === spotId);
     const logs = spot ? spot.downloadLogs : [];
@@ -356,6 +359,28 @@ const Home = () => {
     }
   };
 
+  const cancelLoading = () => {
+    setIsLoading(false);
+    setEditLoading(false); // Hide the loading spinner
+    router.push("/home");
+  };
+
+  useEffect(() => {
+    let timeout;
+    if (isLoading || editLoading) {
+      timeout = setTimeout(() => {
+        setIsLoading(false);
+        setEditLoading(false);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to load data, please try again.",
+          icon: "error",
+        });
+      }, 60000); // 60 seconds
+    }
+    return () => clearTimeout(timeout);
+  }, [isLoading, editLoading]);
+
   const dropdownItems = [
     {
       text: "Logout",
@@ -388,15 +413,47 @@ const Home = () => {
         style={{
           backgroundColor: "white",
           padding: "20px",
-          minHeight: "100vh",
+          height: "calc(100vh - 90px)", // Adjust height considering the navbar height
+          overflowY: "auto",
         }}
       >
-        {isLoading ? (
+        {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
           <Row className="justify-content-center">
             <Col xs={12} className="text-center">
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
+              <div
+                className="d-flex align-items-center justify-content-center flex-column"
+                style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
+              >
+                <Spinner
+                  animation="border"
+                  variant="primary"
+                  style={{ marginBottom: "200px" }}
+                />
+
+                <Card
+                  className="p-4"
+                  style={{
+                    marginTop: "100px",
+                    borderRadius: "1rem",
+                    border: "2px solid #eb631c",
+                    color: "black",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <p
+                    className="ml-3 mb-0"
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "24px",
+                      color: "black",
+                      textShadow: "2px 2px 2px rgba(0,0,0,0.2)",
+                      fontFamily: "'Cinzel', serif",
+                    }}
+                  >
+                    Loading Data...
+                  </p>
+                </Card>
+              </div>
             </Col>
           </Row>
         ) : (
@@ -464,3 +521,4 @@ const Home = () => {
 };
 
 export default withAuth(Home);
+// export default Home;
