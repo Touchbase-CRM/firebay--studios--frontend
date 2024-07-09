@@ -5,18 +5,16 @@ import {
   Card,
   Form,
   Button,
+  Alert,
   Offcanvas,
-  ListGroup,
 } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
-import Alert from "react-bootstrap/Alert";
-
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import { SectioningTutorial } from "@/_pages/advanced-mode/script-to-ad/create-sections/components/tutorial/alert";
+import DetectedSections from "@/_pages/advanced-mode/script-to-ad/create-sections/components/detected-sections";
 
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
@@ -238,81 +236,6 @@ function CreateSections() {
                   <option value="120">120 seconds</option>
                 </Form.Select>
               </Form.Group>
-              {/* Message to display when script is empty */}
-              <Offcanvas
-                show={
-                  showTutorial ||
-                  (originalScriptForSectionSplit === "" && showOffCanvas)
-                }
-                onHide={
-                  showTutorial ? handleTutorialClose : handleOffCanvasClose
-                }
-                placement="end"
-                style={{ width: "800px" }}
-              >
-                <Offcanvas.Header closeButton>
-                  <Offcanvas.Title>
-                    {showTutorial ? "Tutorial" : "Sections From Your Script"}
-                  </Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                  {showTutorial ? (
-                    <SectioningTutorial />
-                  ) : localSectionsArray.length > 0 ? (
-                    <ListGroup>
-                      {localSectionsArray.map((section, index) => (
-                        <ListGroup.Item
-                          key={index}
-                          className="mb-3"
-                          style={{
-                            border: "1px solid #eb631c",
-                            borderRadius: "5px",
-                            padding: "15px",
-                            backgroundColor: "white",
-                            fontFamily: "'Garamond', serif",
-                            fontSize: "16px",
-                            lineHeight: "1.6",
-                            color: "#333",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontWeight: "bold",
-                              color: "#eb631c",
-                              fontSize: "18px",
-                            }}
-                          >
-                            Section {section.getIndex() + 1}
-                          </div>
-                          <div
-                            style={{
-                              marginTop: "10px",
-                              fontStyle: "italic",
-                              whiteSpace: "pre-wrap",
-                            }}
-                          >
-                            {section.getOriginalContent()}
-                          </div>
-                          <div
-                            style={{
-                              marginTop: "10px",
-                              textAlign: "right",
-                              fontSize: "12px",
-                              color: "#666",
-                            }}
-                          >
-                            Character count: {section.getOriginalCharCount()}
-                          </div>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  ) : (
-                    <p style={{ color: "gray", fontStyle: "italic" }}>
-                      No sections found
-                    </p>
-                  )}
-                </Offcanvas.Body>
-              </Offcanvas>
 
               <Form.Group
                 controlId="freeStyleToggle"
@@ -485,73 +408,28 @@ function CreateSections() {
       </Row>
 
       {/* Off-canvas for displaying sections as a numbered list group */}
-      <Offcanvas
+      <DetectedSections
         show={showOffCanvas}
-        onHide={handleOffCanvasClose}
+        handleClose={handleOffCanvasClose}
+        sections={localSectionsArray}
+      />
+
+      {/* Off-canvas for displaying tutorial */}
+      <Offcanvas
+        show={showTutorial}
+        onHide={handleTutorialClose}
         placement="end"
-        style={{ width: "auto", maxWidth: "90vw", backgroundColor: "#f8f9fa" }} // Adjust width and background color
+        style={{ width: "800px" }}
       >
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Sections From Your Script</Offcanvas.Title>
+          <Offcanvas.Title>Tutorial</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {localSectionsArray.length > 0 ? (
-            <ListGroup>
-              {localSectionsArray.map((section, index) => (
-                <ListGroup.Item
-                  key={index}
-                  className="mb-3"
-                  style={{
-                    border: "1px solid #eb631c",
-                    borderRadius: "5px",
-                    padding: "15px",
-                    backgroundColor: "white",
-                    fontFamily: "'Garamond', serif",
-                    fontSize: "16px",
-                    lineHeight: "1.6",
-                    color: "#333",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontWeight: "bold",
-                      color: "#eb631c",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Section {section.getIndex() + 1}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      fontStyle: "italic",
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {section.getOriginalContent()}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      textAlign: "right",
-                      fontSize: "12px",
-                      color: "#666",
-                    }}
-                  >
-                    Character count: {section.getOriginalCharCount()}
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          ) : (
-            <p style={{ color: "gray", fontStyle: "italic" }}>
-              No sections found
-            </p>
-          )}
+          <SectioningTutorial />
         </Offcanvas.Body>
       </Offcanvas>
     </div>
   );
 }
+
 export default withAuth(CreateSections);
-// export default CreateSections;
