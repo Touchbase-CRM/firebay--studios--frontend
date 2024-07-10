@@ -472,16 +472,21 @@ function CreateAd() {
                   onChange={(e) => setAdLength(e.target.value)}
                   style={{ color: "black", marginBottom: "20px" }}
                 >
-                  {[10, 15, 30, 45, 60]
-                    .filter(
-                      (length) =>
-                        length >= parseDurationToSeconds(v2aQuickAudioDuration)
-                    )
-                    .map((length) => (
-                      <option key={length} value={length}>
-                        {length} seconds
-                      </option>
-                    ))}
+                  {
+                    // [10, 15, 30, 45, 60] @TODO: Uncomment when bug is fixed
+                    [10, 15]
+
+                      .filter(
+                        (length) =>
+                          length >=
+                          parseDurationToSeconds(v2aQuickAudioDuration)
+                      )
+                      .map((length) => (
+                        <option key={length} value={length}>
+                          {length} seconds
+                        </option>
+                      ))
+                  }
                 </Form.Select>
               </Form.Group>
 
