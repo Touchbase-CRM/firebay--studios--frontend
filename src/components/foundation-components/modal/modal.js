@@ -1,4 +1,4 @@
-// Relative path: src/components/foundation-components/modal/modal.js
+// src/components/foundation-components/modal/modal.js
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
@@ -33,8 +33,8 @@ export const GenericModal = ({
           onClick={onHide}
           style={{
             fontWeight: "400",
-            backgroundColor: "#FDA942",
-            borderColor: "#FDA942",
+            backgroundColor: "#FDA942 !important",
+            borderColor: "#FDA942 !important",
           }}
         >
           {closeButtonLabel}
@@ -43,8 +43,8 @@ export const GenericModal = ({
           onClick={onSave}
           style={{
             fontWeight: "400",
-            backgroundColor: "#eb631c",
-            borderColor: "#eb631c",
+            backgroundColor: "#eb631c !important",
+            borderColor: "#eb631c !important",
           }}
         >
           {saveButtonLabel}
