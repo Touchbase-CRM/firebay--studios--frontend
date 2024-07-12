@@ -955,7 +955,7 @@ function ProcessSection() {
         saveHandler={handleSaveState}
       />
 
-      <div style={{ display: "flex", flex: 1 }}>
+      <div style={{ display: "flex", flex: 1, overflowY: "hidden" }}>
         {/* Left Card for Section Editor */}
         <div style={{ flex: 3, padding: "20px", minWidth: 0 }}>
           <Card
@@ -964,7 +964,7 @@ function ProcessSection() {
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              height: "900px", // Preserving the original height
+              height: "800px", // Preserving the original height
               overflowY: "auto", // Added scroll for overflow content
               overflowX: "hidden", // Prevent horizontal overflow
               display: "flex",
@@ -983,7 +983,7 @@ function ProcessSection() {
                     placeholder={`Enter your script here (up to ${charLimit} characters)`}
                     value={typedText}
                     onChange={handleScriptChange}
-                    maxLength={charLimit}
+                    maxLength={2000}
                     style={{
                       color: "black",
                       width: "100%", // Ensure it takes up the full width of the container
@@ -1243,7 +1243,9 @@ function ProcessSection() {
         </div>
 
         {/* Right Card for Progress Bar and Voice Editor */}
-        <div style={{ flex: 1, padding: "20px", minWidth: 0 }}>
+        <div
+          style={{ flex: 1, padding: "20px", minWidth: 0, overflowY: "auto" }}
+        >
           <Card
             className="p-4"
             style={{
@@ -1251,7 +1253,8 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginBottom: "10px",
-              height: "900px", // Preserving the original height
+              height: "800px", // Preserving the original height
+              minWidth: "300px", // Set a minimum width to prevent overflow
               display: "flex",
               flexDirection: "column",
             }}
@@ -1273,7 +1276,7 @@ function ProcessSection() {
                 />
               )}
             </div>
-            <Card.Title style={{ marginTop: "5px" }}>
+            <Card.Title style={{ marginTop: "70px" }}>
               <div
                 style={{
                   display: "flex",
@@ -1312,8 +1315,8 @@ function ProcessSection() {
                 />
               </Form.Group>
               <div>
-                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
-                out of {adLength} seconds.
+                Roughly {Math.round(secondsYouhaveLeft)} sec left out of{" "}
+                {adLength} sec
               </div>
 
               <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
