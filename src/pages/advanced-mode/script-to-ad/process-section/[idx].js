@@ -965,7 +965,9 @@ function ProcessSection() {
               borderColor: "#eb631c",
               color: "black",
               marginBottom: "10px",
-              height: "250px",
+              height: "900px", // Preserving the original height
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <div
@@ -1012,7 +1014,10 @@ function ProcessSection() {
               </span>
             </Card.Title>
 
-            <Form key={localCurrentSectionObj.getHistoryItemId()}>
+            <Form
+              key={localCurrentSectionObj.getHistoryItemId()}
+              style={{ flex: 1 }}
+            >
               <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
@@ -1024,24 +1029,8 @@ function ProcessSection() {
                 You have roughly {Math.round(secondsYouhaveLeft)} seconds left
                 out of {adLength} seconds.
               </div>
-            </Form>
-          </Card>
 
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginTop: "10px",
-              height: "400px",
-              marginBottom: "10px",
-              overflowX: "hidden", // Prevent horizontal overflow
-            }}
-          >
-            <Card.Title>Voice Editor</Card.Title>
-            <Form>
-              <Form.Group controlId="voice">
+              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
                 <Form.Label>Voice</Form.Label>
                 {voiceOptions.length === 0 ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1093,6 +1082,7 @@ function ProcessSection() {
                   </div>
                 )}
               </Form.Group>
+
               <Form.Group
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
@@ -1224,12 +1214,14 @@ function ProcessSection() {
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              height: "900px",
+              height: "900px", // Preserving the original height
               overflowY: "auto", // Added scroll for overflow content
               overflowX: "hidden", // Prevent horizontal overflow
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <Card.Body>
+            <Card.Body style={{ flex: 1 }}>
               <Card.Title>Section Editor</Card.Title>
 
               <Form.Group controlId="script" style={{ position: "relative" }}>
