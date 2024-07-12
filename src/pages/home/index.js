@@ -413,7 +413,7 @@ const Home = () => {
         style={{
           backgroundColor: "white",
           padding: "20px",
-          height: "calc(100vh - 90px)", // Adjust height considering the navbar height
+          // height: "calc(100vh - 90px)", // Adjust height considering the navbar height
           overflowY: "auto",
         }}
       >
