@@ -1241,6 +1241,7 @@ function ProcessSection() {
                     placeholder={`Enter your script here (up to ${charLimit} characters)`}
                     value={typedText}
                     onChange={handleScriptChange}
+                    maxLength={charLimit}
                     style={{
                       color: "black",
                       width: "100%", // Ensure it takes up the full width of the container
@@ -1251,6 +1252,7 @@ function ProcessSection() {
                       overflowY: "auto", // Enable vertical scroll when content overflows
                       overflowX: "hidden", // Prevent horizontal overflow
                       resize: "none", // Prevent manual resizing
+                      marginRight: "10px",
                     }}
                   />
 
@@ -1289,6 +1291,8 @@ function ProcessSection() {
                   borderRadius: "5px",
                   marginTop: "10px",
                   overflowX: "hidden", // Prevent horizontal overflow
+                  maxHeight: "350px", // Set a max-height for the container
+                  overflowY: "auto", // Enable vertical scroll when content overflows
                 }}
               >
                 {typedText.split(" ").map((word, index) => (
