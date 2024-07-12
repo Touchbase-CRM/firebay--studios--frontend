@@ -1,4 +1,3 @@
-// src/components/rename-modal/index.js
 import React from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -11,6 +10,7 @@ import {
   collection,
   where,
 } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 
 const RenameModal = ({
@@ -30,18 +30,28 @@ const RenameModal = ({
       });
       return;
     }
+
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    const currentUser = auth.currentUser;
 
     try {
-      // Query to check if the new spot name already exists
+      // Query to check if the new spot name already exists for other users
       const spotsRef = collection(db, "spots_meta_data");
       const q = query(spotsRef, where("spotName", "==", newSpotName));
       const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
+      // Manually filter the documents to exclude the current user's documents
+      const filteredDocs = querySnapshot.docs.filter(
+        (doc) => doc.data().userId === currentUser.uid
+      );
+
+      const isDuplicate = filteredDocs.length > 0;
+
+      if (isDuplicate) {
         Swal.fire({
           title: "Duplicate Name",
-          text: "This spot name already exists. Please choose a different name.",
+          text: `This spot name already exists. Please choose a different name.`,
           icon: "error",
         });
         return;
@@ -64,7 +74,6 @@ const RenameModal = ({
       setSpotName(newSpotName);
       onHide();
     } catch (error) {
-      console.error("Failed to update spot name:", error);
       Swal.fire({
         title: "Update Failed",
         text: error.message,
@@ -74,9 +83,6 @@ const RenameModal = ({
   };
 
   return (
-    // Note for future developers:
-    // We are using a standard Bootstrap Modal here instead of the GenericModal due to persistent styling issues with GenericModal.
-    // The GenericModal does not apply the custom styles correctly in this context, hence we have resorted to using Bootstrap Modal with the same color scheme.
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header
         closeButton
@@ -95,6 +101,7 @@ const RenameModal = ({
           <Form.Control
             type="text"
             value={newSpotName}
+            maxLength={30} // Limiting input to 30 characters
             onChange={(e) => setNewSpotName(e.target.value)}
           />
         </Form.Group>
