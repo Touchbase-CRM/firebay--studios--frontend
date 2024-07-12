@@ -956,256 +956,6 @@ function ProcessSection() {
       />
 
       <div style={{ display: "flex", flex: 1 }}>
-        {/* Right Card for Progress Bar and Voice Editor */}
-        <div style={{ flex: 1, padding: "20px", minWidth: 0 }}>
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginBottom: "10px",
-              height: "900px", // Preserving the original height
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute", // Absolutely position the BackButton
-                top: "10px", // Adjust as needed
-                left: "10px", // Adjust as needed
-                marginBottom: "20px",
-              }}
-            >
-              {localCurrentSectionObj.getIndex() !== 0 && (
-                <BackButton
-                  width="30px"
-                  height="30px"
-                  backgroundColor="#eb631c"
-                  onClick={handleGoBack} // Pass the onClick method directly
-                />
-              )}
-            </div>
-            <Card.Title style={{ marginTop: "5px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  fontWeight: "bold",
-                  fontSize: "1.5em",
-                }}
-              >
-                <i
-                  className="bi bi-pencil-square"
-                  style={{
-                    cursor: "pointer",
-                    marginRight: "10px",
-                    fontSize: "0.8em",
-                  }} // Adjust the fontSize here
-                  onClick={() => setShowRenameModal(true)}
-                ></i>
-                {spotName}
-              </div>
-              <br />
-              <span style={{ fontSize: "0.7em", color: "gray" }}>
-                Section {localCurrentSectionObj.getIndex() + 1} of{" "}
-                {numSectionsIdentified}
-              </span>
-            </Card.Title>
-
-            <Form
-              key={localCurrentSectionObj.getHistoryItemId()}
-              style={{ flex: 1 }}
-            >
-              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
-                <Form.Label>Voiceover Progress</Form.Label>
-                <ProgressBar
-                  now={progressBarPercentage}
-                  label={`${progressBarPercentage}%`}
-                />
-              </Form.Group>
-              <div>
-                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
-                out of {adLength} seconds.
-              </div>
-
-              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
-                <Form.Label>Voice</Form.Label>
-                {voiceOptions.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      disabled
-                      style={{ color: "black" }}
-                    >
-                      <option>Loading voice choices...</option>
-                    </Form.Select>
-                    <Spinner
-                      animation="border"
-                      style={{ marginLeft: "10px" }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                      onChange={handleVoiceChange}
-                      style={{ color: "black", marginRight: "10px" }}
-                    >
-                      {voiceOptions
-                        // These restrictions are temporary. Need to figure out a better data model.
-                        .filter((voice) => {
-                          const isRestrictedVoice =
-                            restrictedVoices.includes(voice);
-                          const isFirebayStudiosEmail =
-                            auth.currentUser.email.split("@")[1] ===
-                            "firebaystudios.com";
-                          return (
-                            !isRestrictedVoice ||
-                            (isRestrictedVoice && isFirebayStudiosEmail)
-                          );
-                        })
-                        .map((voice, index) => (
-                          <option key={voice} value={voice}>
-                            {voice}
-                          </option>
-                        ))}
-                    </Form.Select>
-                    <PlayButton
-                      onClickHandler={handleVoicePreviewPlayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                    />
-                  </div>
-                )}
-              </Form.Group>
-
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
-                  Dragon's Breath Enhancement
-                </Form.Label>
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="tooltip-info">
-                      Pyro Tip: 10X the energy of the selected voice as if a
-                      sword forged by dragon's breath
-                    </Tooltip>
-                  }
-                >
-                  <i
-                    className="bi bi-info-circle"
-                    style={{
-                      marginLeft: "10px",
-                      marginRight: "15px",
-                      cursor: "pointer",
-                    }}
-                  ></i>
-                </OverlayTrigger>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="dragonBreathEnhancementSwitch"
-                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                    onChange={handleDragonBreathEnhancementChange}
-                    style={{
-                      backgroundColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "white",
-                      borderColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "#adb5bd",
-                    }}
-                  />
-                </div>
-              </Form.Group>
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "5px" }}
-              >
-                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                  <Alert
-                    style={{
-                      variant: "info",
-                      fontSize: "10px",
-                      padding: "5px 10px",
-                    }}
-                  >
-                    Pyro Tip: 10X the energy of the selected voice as if a sword
-                    forged by dragon's breath
-                  </Alert>
-                ) : null}
-              </Form.Group>
-              <Form.Group
-                controlId="intonationConsistencyLevel"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Intonation Consistency Level
-                </Form.Label>
-                <FireSlider
-                  min={0}
-                  max={100}
-                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
-                  onValueChange={(value) => {
-                    handleIntonationChange(value);
-                  }}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  disabled={false}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{
-                    marginTop: "10px",
-                  }}
-                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
-                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
-                />
-              </Form.Group>
-              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Speech Rate
-                </Form.Label>
-                <FireSlider
-                  min={speechRateMin}
-                  max={speechRateMax}
-                  value={manageLegacySpeechRate(
-                    localCurrentSectionObj.getSpeechRate()
-                  )}
-                  onValueChange={(value) => {
-                    handleSpeechRate(value);
-                  }}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  disabled={false}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{ marginTop: "10px" }}
-                  leftInfoMessage="Slower"
-                  rightInfoMessage="Faster"
-                  reset={resetSpeechRate}
-                />
-              </Form.Group>
-            </Form>
-          </Card>
-        </div>
-
         {/* Left Card for Section Editor */}
         <div style={{ flex: 3, padding: "20px", minWidth: 0 }}>
           <Card
@@ -1490,6 +1240,256 @@ function ProcessSection() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Right Card for Progress Bar and Voice Editor */}
+        <div style={{ flex: 1, padding: "20px", minWidth: 0 }}>
+          <Card
+            className="p-4"
+            style={{
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
+              marginBottom: "10px",
+              height: "900px", // Preserving the original height
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute", // Absolutely position the BackButton
+                top: "10px", // Adjust as needed
+                left: "10px", // Adjust as needed
+                marginBottom: "20px",
+              }}
+            >
+              {localCurrentSectionObj.getIndex() !== 0 && (
+                <BackButton
+                  width="30px"
+                  height="30px"
+                  backgroundColor="#eb631c"
+                  onClick={handleGoBack} // Pass the onClick method directly
+                />
+              )}
+            </div>
+            <Card.Title style={{ marginTop: "5px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  fontWeight: "bold",
+                  fontSize: "1.5em",
+                }}
+              >
+                <i
+                  className="bi bi-pencil-square"
+                  style={{
+                    cursor: "pointer",
+                    marginRight: "10px",
+                    fontSize: "0.8em",
+                  }} // Adjust the fontSize here
+                  onClick={() => setShowRenameModal(true)}
+                ></i>
+                {spotName}
+              </div>
+              <br />
+              <span style={{ fontSize: "0.7em", color: "gray" }}>
+                Section {localCurrentSectionObj.getIndex() + 1} of{" "}
+                {numSectionsIdentified}
+              </span>
+            </Card.Title>
+
+            <Form
+              key={localCurrentSectionObj.getHistoryItemId()}
+              style={{ flex: 1 }}
+            >
+              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
+                <Form.Label>Voiceover Progress</Form.Label>
+                <ProgressBar
+                  now={progressBarPercentage}
+                  label={`${progressBarPercentage}%`}
+                />
+              </Form.Group>
+              <div>
+                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
+                out of {adLength} seconds.
+              </div>
+
+              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
+                <Form.Label>Voice</Form.Label>
+                {voiceOptions.length === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Voice select"
+                      disabled
+                      style={{ color: "black" }}
+                    >
+                      <option>Loading voice choices...</option>
+                    </Form.Select>
+                    <Spinner
+                      animation="border"
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Select
+                      aria-label="Voice select"
+                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
+                      onChange={handleVoiceChange}
+                      style={{ color: "black", marginRight: "10px" }}
+                    >
+                      {voiceOptions
+                        // These restrictions are temporary. Need to figure out a better data model.
+                        .filter((voice) => {
+                          const isRestrictedVoice =
+                            restrictedVoices.includes(voice);
+                          const isFirebayStudiosEmail =
+                            auth.currentUser.email.split("@")[1] ===
+                            "firebaystudios.com";
+                          return (
+                            !isRestrictedVoice ||
+                            (isRestrictedVoice && isFirebayStudiosEmail)
+                          );
+                        })
+                        .map((voice, index) => (
+                          <option key={voice} value={voice}>
+                            {voice}
+                          </option>
+                        ))}
+                    </Form.Select>
+                    <PlayButton
+                      onClickHandler={handleVoicePreviewPlayButton}
+                      handlerArgs={[]}
+                      size="32px"
+                      preventDefault={true}
+                    />
+                  </div>
+                )}
+              </Form.Group>
+
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
+                  Dragon's Breath Enhancement
+                </Form.Label>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="tooltip-info">
+                      Pyro Tip: 10X the energy of the selected voice as if a
+                      sword forged by dragon's breath
+                    </Tooltip>
+                  }
+                >
+                  <i
+                    className="bi bi-info-circle"
+                    style={{
+                      marginLeft: "10px",
+                      marginRight: "15px",
+                      cursor: "pointer",
+                    }}
+                  ></i>
+                </OverlayTrigger>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="dragonBreathEnhancementSwitch"
+                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                    onChange={handleDragonBreathEnhancementChange}
+                    style={{
+                      backgroundColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "white",
+                      borderColor:
+                        localCurrentSectionObj.getDragonBreathEnhancement()
+                          ? "#eb631c"
+                          : "#adb5bd",
+                    }}
+                  />
+                </div>
+              </Form.Group>
+              <Form.Group
+                controlId="dragonBreathToggle"
+                className="d-flex align-items-center"
+                style={{ marginTop: "5px" }}
+              >
+                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
+                  <Alert
+                    style={{
+                      variant: "info",
+                      fontSize: "10px",
+                      padding: "5px 10px",
+                    }}
+                  >
+                    Pyro Tip: 10X the energy of the selected voice as if a sword
+                    forged by dragon's breath
+                  </Alert>
+                ) : null}
+              </Form.Group>
+              <Form.Group
+                controlId="intonationConsistencyLevel"
+                style={{ marginTop: "10px" }}
+              >
+                <Form.Label style={{ marginBottom: "15px" }}>
+                  Intonation Consistency Level
+                </Form.Label>
+                <FireSlider
+                  min={0}
+                  max={100}
+                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
+                  onValueChange={(value) => {
+                    handleIntonationChange(value);
+                  }}
+                  thumbColor="#eb631c"
+                  trackColor="#f0f0f0"
+                  fillColor="#eb631c"
+                  showPercentage={true}
+                  disabled={false}
+                  width="70%"
+                  height="10px"
+                  containerStyle={{
+                    marginTop: "10px",
+                  }}
+                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
+                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
+                />
+              </Form.Group>
+              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
+                <Form.Label style={{ marginBottom: "15px" }}>
+                  Speech Rate
+                </Form.Label>
+                <FireSlider
+                  min={speechRateMin}
+                  max={speechRateMax}
+                  value={manageLegacySpeechRate(
+                    localCurrentSectionObj.getSpeechRate()
+                  )}
+                  onValueChange={(value) => {
+                    handleSpeechRate(value);
+                  }}
+                  thumbColor="#eb631c"
+                  trackColor="#f0f0f0"
+                  fillColor="#eb631c"
+                  showPercentage={true}
+                  disabled={false}
+                  width="70%"
+                  height="10px"
+                  containerStyle={{ marginTop: "10px" }}
+                  leftInfoMessage="Slower"
+                  rightInfoMessage="Faster"
+                  reset={resetSpeechRate}
+                />
+              </Form.Group>
+            </Form>
+          </Card>
         </div>
       </div>
 
