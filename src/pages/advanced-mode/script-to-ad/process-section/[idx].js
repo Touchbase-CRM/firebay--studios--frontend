@@ -886,7 +886,7 @@ function ProcessSection() {
     <div
       style={{
         backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
+        minHeight: "150vh",
         display: "flex",
         flexDirection: "column",
         overflowX: "hidden", // Prevent horizontal overflow
@@ -930,7 +930,7 @@ function ProcessSection() {
                     style={{
                       color: "black",
                       width: "100%", // Ensure it takes up the full width of the container
-                      minHeight: "100px", // Minimum height
+                      // minHeight: "100px", // Minimum height
                       maxHeight: "600px", // Maximum height to allow for scrolling
                       height: "300px", // Auto height based on content
                       marginBottom: "10px",
@@ -1453,3 +1453,4 @@ function ProcessSection() {
 }
 
 export default withAuth(ProcessSection);
+// export default ProcessSection;
