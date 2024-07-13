@@ -1225,7 +1225,7 @@ function ProcessSection() {
                   display: "flex",
                   alignItems: "center",
                   fontWeight: "bold",
-                  fontSize: "1.5em",
+                  fontSize: "1.2em",
                 }}
               >
                 <i
