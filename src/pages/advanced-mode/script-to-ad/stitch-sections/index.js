@@ -9,6 +9,7 @@ import { usePostHog } from "posthog-js/react";
 import { Card, Button, Table } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import Spinner from "@/components/spinner/spinner";
@@ -38,6 +39,8 @@ function StitchSections() {
   const posthog = usePostHog();
 
   const {
+    spotName,
+    setSpotName,
     sectionsArray,
     setSectionsArray,
     adLength,
@@ -65,6 +68,8 @@ function StitchSections() {
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
   );
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [newSpotName, setNewSpotName] = useState("");
   const [isEditPauseModalVisible, setEditPauseModalVisible] = useState(false);
   const [currentEditingSectionIndex, setCurrentEditingSectionIndex] =
     useState(null);
@@ -463,6 +468,25 @@ function StitchSections() {
           color: "black",
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontWeight: "bold",
+            fontSize: "1.2em",
+          }}
+        >
+          <i
+            className="bi bi-pencil-square"
+            style={{
+              cursor: "pointer",
+              marginRight: "10px",
+              fontSize: "0.8em",
+            }} // Adjust the fontSize here
+            onClick={() => setShowRenameModal(true)}
+          ></i>
+          {spotName}
+        </div>
         <Card.Body>
           <Card.Title style={{ color: "white" }}>Sections Overview</Card.Title>
           <div
@@ -756,6 +780,15 @@ function StitchSections() {
           />
         )}
       </div>
+      {/* Modal for editing spot name */}
+      <RenameModal
+        show={showRenameModal}
+        onHide={() => setShowRenameModal(false)}
+        newSpotName={newSpotName}
+        setNewSpotName={setNewSpotName}
+        spotId={spotId}
+        setSpotName={setSpotName}
+      />
     </div>
   );
 }
