@@ -474,6 +474,7 @@ function StitchSections() {
             alignItems: "center",
             fontWeight: "bold",
             fontSize: "1.2em",
+            marginTop: "20px",
           }}
         >
           <i
@@ -481,6 +482,7 @@ function StitchSections() {
             style={{
               cursor: "pointer",
               marginRight: "10px",
+              marginLeft: "10px",
               fontSize: "0.8em",
             }} // Adjust the fontSize here
             onClick={() => setShowRenameModal(true)}
@@ -794,3 +796,4 @@ function StitchSections() {
 }
 
 export default withAuth(StitchSections);
+// export default StitchSections;
