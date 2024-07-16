@@ -665,5 +665,5 @@ function AddMusic() {
   );
 }
 
-// export default withAuth(AddMusic);
-export default AddMusic;
+export default withAuth(AddMusic);
+// export default AddMusic;
