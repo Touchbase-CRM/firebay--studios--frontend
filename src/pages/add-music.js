@@ -496,7 +496,7 @@ function AddMusic() {
                 borderColor: "#eb631c",
                 color: "black",
                 position: "relative",
-                height: "500px",
+                height: "400px",
               }}
             >
               <div
@@ -570,7 +570,7 @@ function AddMusic() {
                   </Form.Select>
                 )}
 
-                <div style={{ marginTop: "30px", marginBottom: "157px" }}>
+                <div style={{ marginTop: "30px", marginBottom: "54px" }}>
                   <label htmlFor="volumeControl" className="form-label">
                     Music Volume Control
                   </label>
