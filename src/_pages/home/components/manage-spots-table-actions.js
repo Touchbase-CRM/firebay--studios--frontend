@@ -61,6 +61,7 @@ const ManageSpotTableActions = ({
         onSave={updateSpotName}
         closeButtonLabel="Cancel"
         saveButtonLabel="Save"
+        maxLength={30}
       >
         <input
           type="text"
@@ -78,6 +79,7 @@ const ManageSpotTableActions = ({
         onSave={handleNextOnCreateAd}
         closeButtonLabel="Discard"
         saveButtonLabel="Next"
+        maxLength={30}
       >
         <input
           type="text"

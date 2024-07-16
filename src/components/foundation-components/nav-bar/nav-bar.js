@@ -15,7 +15,8 @@ export const NavBar = ({
     if (saveHandler) {
       saveHandler();
     }
-    router.push(url);
+    // Use replace instead of push to avoid full page reload and maintain scroll position
+    router.replace(url, undefined, { scroll: false });
   };
 
   return (

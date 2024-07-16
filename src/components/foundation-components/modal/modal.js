@@ -1,4 +1,3 @@
-// Relative path: src/components/foundation-components/modal/modal.js
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
@@ -10,6 +9,7 @@ export const GenericModal = ({
   closeButtonLabel = "Close",
   saveButtonLabel = "Save Changes",
   onSave,
+  maxLength = 2000, // Default maxLength to 2000
 }) => {
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -24,7 +24,7 @@ export const GenericModal = ({
           {title}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>{children}</Modal.Body>
+      <Modal.Body>{React.cloneElement(children, { maxLength })}</Modal.Body>
       <Modal.Footer
         style={{ backgroundColor: "#f8f9fa", borderTop: "1px solid #dee2e6" }}
       >

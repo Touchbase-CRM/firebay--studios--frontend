@@ -17,6 +17,7 @@ import withAuth from "@/hocs/with-auth";
 import useUserInputsStore from "@/store/user-inputs";
 import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
 import { captureCurrentTimestamp } from "@/utils/time/current-timestamp.js";
+import RenameModal from "@/components/rename-modal";
 
 const DownloadManager = () => {
   const posthog = usePostHog();
@@ -25,7 +26,10 @@ const DownloadManager = () => {
   const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { reset, generatedVoiceUrl, spotName, spotId } = useUserInputsStore();
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [newSpotName, setNewSpotName] = useState("");
+  const { reset, generatedVoiceUrl, spotName, setSpotName, spotId } =
+    useUserInputsStore();
   const [capturedTimestamp, setCapturedTimestamp] = useState(
     captureCurrentTimestamp()
   );
@@ -155,6 +159,16 @@ const DownloadManager = () => {
       }}
     >
       <NavBar links={[]} dropdownItems={dropdownItems} />
+      {/* Modal for editing spot name */}
+      <RenameModal
+        show={showRenameModal}
+        onHide={() => setShowRenameModal(false)}
+        newSpotName={newSpotName}
+        setNewSpotName={setNewSpotName}
+        spotId={spotId}
+        setSpotName={setSpotName}
+      />
+
       <GenericModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -183,6 +197,27 @@ const DownloadManager = () => {
         <div
           style={{
             display: "flex",
+            alignItems: "center",
+            fontWeight: "bold",
+            fontSize: "1.2em",
+            marginTop: "20px",
+          }}
+        >
+          <i
+            className="bi bi-pencil-square"
+            style={{
+              cursor: "pointer",
+              marginRight: "10px",
+              marginLeft: "-357px",
+              fontSize: "1.5em",
+            }} // Adjust the fontSize here
+            onClick={() => setShowRenameModal(true)}
+          ></i>
+          <span style={{ fontSize: "1.5em" }}>{spotName}</span>
+        </div>
+        <div
+          style={{
+            display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
             justifyContent: "center",
@@ -190,7 +225,7 @@ const DownloadManager = () => {
         >
           <h2
             style={{
-              fontSize: "1.5em",
+              fontSize: "1.0em",
               fontWeight: "bold",
               textAlign: "left",
               marginBottom: "30px",
@@ -244,4 +279,5 @@ const DownloadManager = () => {
   );
 };
 
+// export default DownloadManager;
 export default withAuth(DownloadManager);

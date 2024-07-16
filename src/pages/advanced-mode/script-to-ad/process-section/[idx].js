@@ -19,6 +19,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  updateDoc,
   query,
   collection,
   where,
@@ -35,6 +36,7 @@ import FireSlider from "@/components/foundation-components/slider";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
+import RenameModal from "@/components/rename-modal";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
@@ -59,6 +61,7 @@ function ProcessSection() {
   const {
     spotId,
     spotName,
+    setSpotName,
     sectionsArray,
     setSectionsArray,
     sectionHistoryArray,
@@ -78,6 +81,7 @@ function ProcessSection() {
   };
 
   const saveSharedStates = {
+    spotName,
     spotId,
     adLength,
   };
@@ -145,7 +149,12 @@ function ProcessSection() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [allowDownload, setAllowDownload] = useState(false);
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
+
+  // State for managing modal visibility and spot name editing
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [newSpotName, setNewSpotName] = useState(spotName);
   const [forceRenderKey, setForceRenderKey] = useState(0);
+
   const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
   const speechRateMax = 100;
 
@@ -877,9 +886,10 @@ function ProcessSection() {
     <div
       style={{
         backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
+        minHeight: "150vh",
         display: "flex",
         flexDirection: "column",
+        overflowX: "hidden", // Prevent horizontal overflow
       }}
     >
       <NavBar
@@ -888,17 +898,308 @@ function ProcessSection() {
         saveHandler={handleSaveState}
       />
 
-      <Row>
-        <Col md={10} className="mx-auto">
+      <div style={{ display: "flex", flex: 1, overflowY: "hidden" }}>
+        {/* Left Card for Section Editor */}
+        <div style={{ flex: 3, padding: "20px", minWidth: 0 }}>
           <Card
             className="p-4"
             style={{
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "10px",
+              height: "800px", // Preserving the original height
+              overflowY: "auto", // Added scroll for overflow content
+              overflowX: "hidden", // Prevent horizontal overflow
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Card.Body style={{ flex: 1 }}>
+              <Card.Title>Section Editor</Card.Title>
+
+              <Form.Group controlId="script" style={{ position: "relative" }}>
+                <Form.Label>Edit section</Form.Label>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                    value={typedText}
+                    onChange={handleScriptChange}
+                    maxLength={2000}
+                    style={{
+                      color: "black",
+                      width: "100%", // Ensure it takes up the full width of the container
+                      // minHeight: "100px", // Minimum height
+                      maxHeight: "600px", // Maximum height to allow for scrolling
+                      height: "300px", // Auto height based on content
+                      marginBottom: "10px",
+                      overflowY: "auto", // Enable vertical scroll when content overflows
+                      overflowX: "hidden", // Prevent horizontal overflow
+                      resize: "none", // Prevent manual resizing
+                      marginRight: "10px",
+                    }}
+                  />
+
+                  <PlayButton
+                    onClickHandler={handleReadReplayButton} // You might need to modify the handler for this button's specific action
+                    handlerArgs={[]}
+                    size="32px" // Ensure this matches the size of the other play button for consistency
+                    preventDefault={true}
+                    isDisabled={
+                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
+                    }
+                  />
+                </div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "15px",
+                    right: "50px", // Adjust as necessary if the play button affects the positioning
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "0 5px",
+                    borderRadius: "5px",
+                  }}
+                >
+                  {typedText.replace(/'/g, "").length}/{charLimit}
+                </div>
+              </Form.Group>
+
+              <div>
+                <Form.Label>Click on a word to change its emphasis</Form.Label>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "#e4e4e4",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginTop: "10px",
+                  overflowX: "hidden", // Prevent horizontal overflow
+                  maxHeight: "350px", // Set a max-height for the container
+                  overflowY: "auto", // Enable vertical scroll when content overflows
+                }}
+              >
+                {typedText.split(" ").map((word, index) => (
+                  <span
+                    key={index}
+                    onClick={(e) => handleLeftClick(e, index)}
+                    style={{
+                      marginRight: "5px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      textDecorationColor: "transparent",
+                      color: "#eb631c",
+                      overflowX: "hidden", // Prevent horizontal overflow
+                      whiteSpace: "nowrap", // Prevent line breaks
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.textDecorationColor = "#eb631c")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.textDecorationColor = "transparent")
+                    }
+                  >
+                    {transformedWords[index] || word}
+                  </span>
+                ))}
+              </div>
+            </Card.Body>
+
+            {/* Position the Generate Voice button at the bottom right of the card */}
+            <Button
+              onClick={handleGenerateVoice}
+              disabled={isGeneratingVoice} // Disable button when audio is being generated
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "60%",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
+              }}
+            >
+              {isGeneratingVoice ? (
+                <span>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />{" "}
+                  Generating...
+                </span>
+              ) : (
+                "Generate Voice"
+              )}
+            </Button>
+          </Card>
+
+          <div
+            style={{
+              display: "flex", // Enable flexbox
+              justifyContent: "flex-start", // Align items to the start of the container
+              alignItems: "center", // Align items vertically
+              bottom: "10px",
+              left: "10px",
+              fontSize: "small",
+              fontWeight: "bold",
+              fontStyle: "italic",
+            }}
+          >
+            {/* Next Button */}
+            <Button
+              className="mt-3"
+              style={{
+                marginRight: "auto", // Push all subsequent items to the right
+                marginTop: "20px",
+                backgroundColor: "#EB631C",
+                borderColor: "#EB631C",
+              }}
+              onClick={handleSubmit}
+            >
+              {"Next"}
+            </Button>
+            {/* Save Button */}
+            <SecondaryActionButton
+              onClick={handleSaveState}
+              initialText="Save"
+              clickedText="Saved!"
+              duration={1000}
+              marginRight="10px"
+              marginTop="20px"
+            />
+
+            {/* History Button */}
+            <SecondaryActionButton
+              onClick={showOffcanvas}
+              initialText="History"
+              clickedText="History!"
+              duration={1000}
+              disabled={
+                !(
+                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                  localSectionHistoryObj &&
+                  localSectionHistoryObj[currentSectionIndex] !== null
+                )
+              }
+              opacity={
+                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
+                localSectionHistoryObj &&
+                localSectionHistoryObj[currentSectionIndex] !== null
+                  ? "1"
+                  : "0.5"
+              }
+              marginRight="0px"
+              marginTop="20px"
+            />
+            <HistoryCanvas
+              show={offcanvasVisible}
+              handleClose={hideOffcanvas}
+              localSectionHistoryObj={localSectionHistoryObj}
+              playAudioUrl={playAudioUrl}
+              changeCurrentSectionObj={changeCurrentSectionObj}
+            />
+          </div>
+
+          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
+          <div style={{ position: "relative" }}>
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioSrc={generatedVoiceUrl}
+                audioTitle={localCurrentSectionObj.getVoiceName()}
+                allowDownload={allowDownload}
+                autoplay={true}
+                forceRender={forceRenderKey}
+              />
+            )}
+          </div>
+
+          {showMenu && (
+            <div
+              style={{
+                position: "absolute",
+                top: menuPosition.y,
+                left: menuPosition.x,
+                zIndex: 1000,
+                backgroundColor: "#eb631c",
+                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <h6
+                style={{
+                  marginBottom: "10px",
+                  color: "#333",
+                  fontWeight: "500",
+                  fontSize: "13px",
+                }}
+              >
+                Word Smith
+              </h6>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasizeLevel3")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                High Emphasis
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasizeLevel2")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Medium Emphasis
+              </button>
+              <button
+                className="btn btn-light"
+                onClick={() => transformWord("emphasizeLevel1")}
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+              >
+                Low Emphasis
+              </button>
+
+              <button
+                className="btn btn-light"
+                style={{ marginBottom: "8px", fontSize: "12px" }}
+                onClick={() => transformWord("removeEmphasis")}
+              >
+                Remove Emphasis
+              </button>
+
+              <button
+                className="btn btn-light"
+                onClick={() => setShowMenu(false)}
+                style={{ fontSize: "12px" }}
+              >
+                Close Menu
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Card for Progress Bar and Voice Editor */}
+        <div
+          style={{ flex: 1, padding: "20px", minWidth: 0, overflowY: "auto" }}
+        >
+          <Card
+            className="p-4"
+            style={{
+              borderRadius: "1rem",
+              borderColor: "#eb631c",
+              color: "black",
               marginBottom: "10px",
-              height: "200px",
+              height: "800px", // Preserving the original height
+              minWidth: "300px", // Set a minimum width to prevent overflow
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <div
@@ -918,11 +1219,37 @@ function ProcessSection() {
                 />
               )}
             </div>
-            <Card.Title style={{ marginTop: "20px" }}>
-              Section {localCurrentSectionObj.getIndex() + 1} of{" "}
-              {numSectionsIdentified}
+            <Card.Title style={{ marginTop: "70px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  fontWeight: "bold",
+                  fontSize: "1.2em",
+                }}
+              >
+                <i
+                  className="bi bi-pencil-square"
+                  style={{
+                    cursor: "pointer",
+                    marginRight: "10px",
+                    fontSize: "0.8em",
+                  }} // Adjust the fontSize here
+                  onClick={() => setShowRenameModal(true)}
+                ></i>
+                {spotName}
+              </div>
+              <br />
+              <span style={{ fontSize: "0.7em", color: "gray" }}>
+                Section {localCurrentSectionObj.getIndex() + 1} of{" "}
+                {numSectionsIdentified}
+              </span>
             </Card.Title>
-            <Form key={localCurrentSectionObj.getHistoryItemId()}>
+
+            <Form
+              key={localCurrentSectionObj.getHistoryItemId()}
+              style={{ flex: 1 }}
+            >
               <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
                 <Form.Label>Voiceover Progress</Form.Label>
                 <ProgressBar
@@ -931,30 +1258,11 @@ function ProcessSection() {
                 />
               </Form.Group>
               <div>
-                You have roughly {Math.round(secondsYouhaveLeft)} seconds left
-                out of {adLength} seconds.
+                Roughly {Math.round(secondsYouhaveLeft)} sec left out of{" "}
+                {adLength} sec
               </div>
-            </Form>
-          </Card>
-        </Col>
-      </Row>
 
-      <Row>
-        <Col md={10} className="mx-auto">
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginTop: "10px",
-              height: "380px",
-              marginBottom: "10px",
-            }}
-          >
-            <Card.Title>Voice Editor</Card.Title>
-            <Form>
-              <Form.Group controlId="voice">
+              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
                 <Form.Label>Voice</Form.Label>
                 {voiceOptions.length === 0 ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1006,6 +1314,7 @@ function ProcessSection() {
                   </div>
                 )}
               </Form.Group>
+
               <Form.Group
                 controlId="dragonBreathToggle"
                 className="d-flex align-items-center"
@@ -1127,281 +1436,21 @@ function ProcessSection() {
               </Form.Group>
             </Form>
           </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={10} className="mx-auto">
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginTop: "10px",
-              height: "750px",
-              marginBottom: "10px",
-            }}
-          >
-            <Card.Body>
-              <Card.Title>Section Editor</Card.Title>
+        </div>
+      </div>
 
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Edit section</Form.Label>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                    value={typedText}
-                    onChange={handleScriptChange}
-                    style={{
-                      color: "black",
-                      height: "200px",
-                      marginRight: "10px", // Add a right margin to separate the textarea and the button
-                      marginBottom: "10px",
-                    }}
-                  />
-
-                  <PlayButton
-                    onClickHandler={handleReadReplayButton} // You might need to modify the handler for this button's specific action
-                    handlerArgs={[]}
-                    size="32px" // Ensure this matches the size of the other play button for consistency
-                    preventDefault={true}
-                    isDisabled={
-                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
-                    }
-                  />
-                </div>
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "15px",
-                    right: "50px", // Adjust as necessary if the play button affects the positioning
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "0 5px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {typedText.replace(/'/g, "").length}/{charLimit}
-                </div>
-              </Form.Group>
-
-              <div>
-                <Form.Label>Click on a word to change its emphasis</Form.Label>
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#e4e4e4",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginTop: "10px",
-                }}
-              >
-                {typedText.split(" ").map((word, index) => (
-                  <span
-                    key={index}
-                    onClick={(e) => handleLeftClick(e, index)}
-                    style={{
-                      marginRight: "5px",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      textDecorationColor: "transparent",
-                      color: "#eb631c",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "#eb631c")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.style.textDecorationColor = "transparent")
-                    }
-                  >
-                    {transformedWords[index] || word}
-                  </span>
-                ))}
-              </div>
-            </Card.Body>
-
-            {/* Position the Generate Voice button at the bottom right of the card */}
-            <Button
-              onClick={handleGenerateVoice}
-              disabled={isGeneratingVoice} // Disable button when audio is being generated
-              style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "60%",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-            >
-              {isGeneratingVoice ? (
-                <span>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />{" "}
-                  Generating...
-                </span>
-              ) : (
-                "Generate Voice"
-              )}
-            </Button>
-          </Card>
-          <div
-            style={{
-              display: "flex", // Enable flexbox
-              justifyContent: "flex-start", // Align items to the start of the container
-              alignItems: "center", // Align items vertically
-              bottom: "10px",
-              left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          >
-            {/* Next Button */}
-            <Button
-              className="mt-3"
-              style={{
-                marginRight: "auto", // Push all subsequent items to the right
-                marginTop: "20px",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-              onClick={handleSubmit}
-            >
-              {"Next"}
-            </Button>
-            {/* Save Button */}
-            <SecondaryActionButton
-              onClick={handleSaveState}
-              initialText="Save"
-              clickedText="Saved!"
-              duration={1000}
-              marginRight="10px"
-              marginTop="20px"
-            />
-
-            {/* History Button */}
-            <SecondaryActionButton
-              onClick={showOffcanvas}
-              initialText="History"
-              clickedText="History!"
-              duration={1000}
-              disabled={
-                !(
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                  localSectionHistoryObj &&
-                  localSectionHistoryObj[currentSectionIndex] !== null
-                )
-              }
-              opacity={
-                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                localSectionHistoryObj &&
-                localSectionHistoryObj[currentSectionIndex] !== null
-                  ? "1"
-                  : "0.5"
-              }
-              marginRight="0px"
-              marginTop="20px"
-            />
-            <HistoryCanvas
-              show={offcanvasVisible}
-              handleClose={hideOffcanvas}
-              localSectionHistoryObj={localSectionHistoryObj}
-              playAudioUrl={playAudioUrl}
-              changeCurrentSectionObj={changeCurrentSectionObj}
-            />
-          </div>
-
-          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
-          <div style={{ position: "relative", marginTop: "400px" }}>
-            {showAudioPlayer && (
-              <SimpleAudioPlayer
-                audioSrc={generatedVoiceUrl}
-                audioTitle={localCurrentSectionObj.getVoiceName()}
-                allowDownload={allowDownload}
-                autoplay={true}
-                forceRender={forceRenderKey}
-              />
-            )}
-          </div>
-
-          {showMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: menuPosition.y,
-                left: menuPosition.x,
-                zIndex: 1000,
-                backgroundColor: "#eb631c",
-                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <h6
-                style={{
-                  marginBottom: "10px",
-                  color: "#333",
-                  fontWeight: "500",
-                  fontSize: "13px",
-                }}
-              >
-                Word Smith
-              </h6>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel3")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                High Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel2")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Medium Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel1")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Low Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-                onClick={() => transformWord("removeEmphasis")}
-              >
-                Remove Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                onClick={() => setShowMenu(false)}
-                style={{ fontSize: "12px" }}
-              >
-                Close Menu
-              </button>
-            </div>
-          )}
-        </Col>
-      </Row>
+      {/* Modal for editing spot name */}
+      <RenameModal
+        show={showRenameModal}
+        onHide={() => setShowRenameModal(false)}
+        newSpotName={newSpotName}
+        setNewSpotName={setNewSpotName}
+        spotId={spotId}
+        setSpotName={setSpotName}
+      />
     </div>
   );
 }
-// export default ProcessSection;
+
 export default withAuth(ProcessSection);
+// export default ProcessSection;

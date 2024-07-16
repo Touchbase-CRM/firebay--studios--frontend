@@ -33,7 +33,7 @@ import {
 import app from "@/firebase";
 import { Stack } from "../data-structures/stack";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
-import { set } from "lodash";
+import RenameModal from "@/components/rename-modal";
 
 const db = getFirestore(app);
 
@@ -56,6 +56,8 @@ function AddMusic() {
     stitchedAudioPyroHistoryItemId,
     adGenerationMethod,
     spotId,
+    spotName,
+    setSpotName,
   } = useUserInputsStore();
 
   const saveFeatureSpecificStates = {
@@ -80,6 +82,8 @@ function AddMusic() {
   const [volAdjustedMusicPreview, setVolAdjustedMusicPreview] = useState(null);
   const [localStack, setLocalStack] = useState(() => new Stack());
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [newSpotName, setNewSpotName] = useState("");
 
   const syncStackWithGlobal = useUserInputsStore(
     (state) => state.setNavigationStack
@@ -492,6 +496,7 @@ function AddMusic() {
                 borderColor: "#eb631c",
                 color: "black",
                 position: "relative",
+                height: "400px",
               }}
             >
               <div
@@ -507,10 +512,31 @@ function AddMusic() {
                   backgroundColor="#eb631c"
                   onClick={handleGoBack} // Pass the onClick method directly
                 />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    fontWeight: "bold",
+                    fontSize: "1.2em",
+                    marginTop: "20px",
+                  }}
+                >
+                  <i
+                    className="bi bi-pencil-square"
+                    style={{
+                      cursor: "pointer",
+                      marginRight: "10px",
+                      marginLeft: "10px",
+                      fontSize: "0.8em",
+                    }} // Adjust the fontSize here
+                    onClick={() => setShowRenameModal(true)}
+                  ></i>
+                  {spotName}
+                </div>
               </div>
               <h2
                 className="mb-4"
-                style={{ marginBottom: "20px", marginTop: "30px" }}
+                style={{ marginBottom: "20px", marginTop: "80px" }}
               >
                 Add Background Music
               </h2>
@@ -544,7 +570,7 @@ function AddMusic() {
                   </Form.Select>
                 )}
 
-                <div style={{ marginTop: "20px", marginBottom: "30px" }}>
+                <div style={{ marginTop: "30px", marginBottom: "54px" }}>
                   <label htmlFor="volumeControl" className="form-label">
                     Music Volume Control
                   </label>
@@ -565,7 +591,7 @@ function AddMusic() {
                     height="10px"
                     containerStyle={{
                       position: "absolute",
-                      top: "225px",
+                      top: "300px",
                       left: "22px",
                     }}
                     leftInfoMessage="Low"
@@ -580,6 +606,8 @@ function AddMusic() {
                     backgroundColor: "#eb631c",
                     borderColor: "#eb631c",
                     marginTop: "20px",
+                    width: "80px",
+                    height: "40px",
                   }}
                 >
                   Submit
@@ -592,9 +620,11 @@ function AddMusic() {
                     right: "20px",
                     backgroundColor: "#FDA942",
                     borderColor: "#FDA942",
+                    width: "80px",
+                    height: "40px",
                   }}
                 >
-                  Skip Music
+                  Skip
                 </Button>
               </Form>
             </Card>
@@ -622,8 +652,18 @@ function AddMusic() {
           </div>
         </Col>
       </Row>
+      {/* Modal for editing spot name */}
+      <RenameModal
+        show={showRenameModal}
+        onHide={() => setShowRenameModal(false)}
+        newSpotName={newSpotName}
+        setNewSpotName={setNewSpotName}
+        spotId={spotId}
+        setSpotName={setSpotName}
+      />
     </div>
   );
 }
 
 export default withAuth(AddMusic);
+// export default AddMusic;
