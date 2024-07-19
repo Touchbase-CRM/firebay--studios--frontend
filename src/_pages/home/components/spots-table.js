@@ -23,31 +23,31 @@ const SpotTable = ({
   };
 
   return (
-    <div>
+    <div style={{ padding: 0, margin: 0 }}>
       {spots.length === 0 ? (
         <Alert variant="info" className="text-center">
           Welcome to Pyro! Click on the "Create a new Spot" button above to get started!
         </Alert>
       ) : (
-        <Table striped bordered hover>
+        <Table striped bordered hover style={{ padding: 0, margin: 0 }}>
           <thead
             style={{
               backgroundColor: "#e4e4e4",
             }}
           >
             <tr>
-              <th style={{ width: "200px" }}>Spot Name</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th style={{ width: "200px", padding: "0.25rem" }}>Spot Name</th>
+              <th style={{ width: "250px", whiteSpace: "nowrap", padding: "0.25rem" }}>Created</th>
+              <th style={{ padding: "0.25rem" }}>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {spots.map((spot, index) => (
               <tr key={index}>
-                <td>{spot.spotName || "-"}</td>
-                <td>{spot.created || "-"}</td>
-                <td>
+                <td style={{ padding: "0.25rem" }}>{spot.spotName || "-"}</td>
+                <td style={{ width: "250px", whiteSpace: "nowrap", padding: "0.25rem" }}>{spot.created || "-"}</td>
+                <td style={{ padding: "0.25rem" }}>
                   <Button
                     variant="link"
                     onClick={() => handleSpotActions.downloadHistory(spot.id)}
