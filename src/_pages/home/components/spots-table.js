@@ -23,18 +23,14 @@ const SpotTable = ({
   };
 
   return (
-    <div style={{ padding: 0, margin: 0 }}>
+    <div className="container-fluid p-0 m-0">
       {spots.length === 0 ? (
         <Alert variant="info" className="text-center">
           Welcome to Pyro! Click on the "Create a new Spot" button above to get started!
         </Alert>
       ) : (
-        <Table striped bordered hover style={{ padding: 0, margin: 0 }}>
-          <thead
-            style={{
-              backgroundColor: "#e4e4e4",
-            }}
-          >
+        <Table striped bordered hover className="table-responsive">
+          <thead className="thead-light">
             <tr>
               <th style={{ width: "200px", padding: "0.25rem" }}>Spot Name</th>
               <th style={{ width: "250px", whiteSpace: "nowrap", padding: "0.25rem" }}>Created</th>
