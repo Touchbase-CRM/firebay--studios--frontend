@@ -36,7 +36,7 @@ import useUserInputsStore from "@/store/user-inputs";
 import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
 
 const Home = () => {
-  const { setSpotName } = useUserInputsStore();
+  const { setSpotName,    reset: resetUserInputsStore, } = useUserInputsStore();
   const reset = useUserInputsStore((state) => state.reset);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -410,22 +410,18 @@ const Home = () => {
     return () => clearTimeout(timeout);
   }, [isLoading, editLoading]);
 
-  const dropdownItems = [
-    {
-      text: "Logout",
-      handler: () => {
-        localStorage.removeItem("user");
-        auth
-          .signOut()
-          .then(() => {
-            router.push("/login");
-          })
-          .catch((error) => {
-            console.error("Logout Error:", error);
-          });
-      },
-    },
-  ];
+  const handleLogout = () => {
+    resetUserInputsStore();
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
 
   return (
     <div
@@ -436,7 +432,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} dropdownItems={dropdownItems} />
+      <NavBar links={[]} logoutHandler={handleLogout} />
       <Container
         fluid
         style={{
