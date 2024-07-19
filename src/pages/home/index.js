@@ -501,6 +501,8 @@ const Home = () => {
                     backgroundColor: "#eb631c",
                     borderColor: "#eb631c",
                     color: "white",
+                    width: "160px",
+                    height: "40px",
                   }}
                   onClick={() => {
                     setShowCreateAdModal(true);
