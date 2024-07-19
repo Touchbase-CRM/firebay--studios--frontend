@@ -67,17 +67,17 @@ const Home = () => {
     const handleResize = () => {
       const height = window.innerHeight;
       if (height >= 1300) {
-        setPageSize(22); // xxl
+        setPageSize(16); // xxl
       } else if (height >= 1100) {
-        setPageSize(17); // xl
+        setPageSize(13); // xl
       } else if (height >= 900) {
-        setPageSize(13); // lg
+        setPageSize(10); // lg
       } else if (height >= 700) {
-        setPageSize(9); // md
+        setPageSize(6); // md
       } else if (height >= 500) {
-        setPageSize(5); // sm
+        setPageSize(3); // sm
       } else {
-        setPageSize(3); // xs
+        setPageSize(1); // xs
       }
     };
   
