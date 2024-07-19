@@ -61,13 +61,42 @@ const Home = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10); // Updated state for pageSize
+
+  useEffect(() => {
+    const handleResize = () => {
+      const height = window.innerHeight;
+      if (height >= 1300) {
+        setPageSize(22); // xxl
+      } else if (height >= 1100) {
+        setPageSize(17); // xl
+      } else if (height >= 900) {
+        setPageSize(13); // lg
+      } else if (height >= 700) {
+        setPageSize(9); // md
+      } else if (height >= 500) {
+        setPageSize(5); // sm
+      } else {
+        setPageSize(3); // xs
+      }
+    };
+  
+    window.addEventListener('resize', handleResize);
+    handleResize();
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  
+  
 
   useEffect(() => {
     setPaginatedSpots(
       spots.slice(currentTableIndex, currentTableIndex + pageSize)
     );
-  }, [spots, currentTableIndex]);
+  }, [spots, currentTableIndex, pageSize]);
 
   useEffect(() => {
     const fetchDownloads = async () => {
