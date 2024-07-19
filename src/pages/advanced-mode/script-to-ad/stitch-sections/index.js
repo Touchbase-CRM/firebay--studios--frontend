@@ -368,23 +368,6 @@ function StitchSections() {
     );
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
-  ];
-
   if (pendingAdvertisement) {
     return (
       <div
@@ -455,7 +438,7 @@ function StitchSections() {
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />

@@ -425,16 +425,6 @@ function CreateAd() {
     return minutes * 60 + seconds;
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-  ];
-
   return (
     <div
       style={{
@@ -445,7 +435,7 @@ function CreateAd() {
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />

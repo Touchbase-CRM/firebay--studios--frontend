@@ -169,26 +169,6 @@ function CreateSections() {
   const handleOffCanvasClose = () => setShowOffCanvas(false); // New function to handle closing the off-canvas
   const handleOffCanvasShow = () => setShowOffCanvas(true); // New function to handle showing the off-canvas
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-  ];
-
-  const wordCountStyle = {
-    position: "absolute",
-    bottom: "10px",
-    right: "10px",
-    background: "rgba(0, 0, 0, 0.7)",
-    color: "white",
-    padding: "0 5px",
-    borderRadius: "5px",
-  };
-
   return (
     <div
       style={{
@@ -199,7 +179,7 @@ function CreateSections() {
         backgroundColor: "#FFFFFF",
       }}
     >
-      <NavBar links={links} logoutHandler={handleLogout} />
+      <NavBar links={[]} logoutHandler={handleLogout} />
 
       <Row>
         <Col md={10} className="mx-auto"></Col>

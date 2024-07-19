@@ -865,23 +865,6 @@ function ProcessSection() {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
-  ];
-
   return (
     <div
       style={{
@@ -893,7 +876,7 @@ function ProcessSection() {
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />
