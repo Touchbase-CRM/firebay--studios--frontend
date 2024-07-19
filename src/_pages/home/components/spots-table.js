@@ -23,7 +23,7 @@ const SpotTable = ({
   };
 
   return (
-    <div style={{ padding: 0, margin: 0, minWidth: "1024px" }}>
+    <div style={{ padding: 0, margin: 0, minWidth: "800px" }}>
       {spots.length === 0 ? (
         <Alert variant="info" className="text-center">
           Welcome to Pyro! Click on the "Create a new Spot" button above to get started!
@@ -36,9 +36,9 @@ const SpotTable = ({
             }}
           >
             <tr>
-              <th style={{ width: "200px", padding: "0.25rem" }}>Spot Name</th>
-              <th style={{ width: "250px", whiteSpace: "nowrap", padding: "0.25rem" }}>Created</th>
-              <th style={{ padding: "0.25rem" }}>Actions</th>
+              <th style={{ width: "150px", padding: "0.25rem" }}>Spot Name</th>
+              <th style={{ width: "150px", whiteSpace: "nowrap", padding: "0.25rem" }}>Created</th>
+              <th style={{ width: "200px",padding: "0.25rem" }}>Actions</th>
             </tr>
           </thead>
 
