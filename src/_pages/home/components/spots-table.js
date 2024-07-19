@@ -25,14 +25,9 @@ const SpotTable = ({
   return (
     <div>
       {spots.length === 0 ? (
-        <tr>
-          <td colSpan="3">
-            <Alert variant="info" className="text-center">
-              Welcome to Pyro! Click on the "Create a new Spot" button above to
-              get started!
-            </Alert>
-          </td>
-        </tr>
+        <Alert variant="info" className="text-center">
+          Welcome to Pyro! Click on the "Create a new Spot" button above to get started!
+        </Alert>
       ) : (
         <Table striped bordered hover>
           <thead
@@ -41,7 +36,7 @@ const SpotTable = ({
             }}
           >
             <tr>
-              <th>Spot Name</th>
+              <th style={{ width: "200px" }}>Spot Name</th>
               <th>Created</th>
               <th>Actions</th>
             </tr>
