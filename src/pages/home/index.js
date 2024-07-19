@@ -61,7 +61,7 @@ const Home = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 15;
+  const pageSize = 12;
 
   useEffect(() => {
     setPaginatedSpots(
