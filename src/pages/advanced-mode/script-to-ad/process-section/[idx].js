@@ -877,72 +877,109 @@ function ProcessSection() {
       <div className="row" style={{ overflow: "hidden" }}>
         {/* Left Card for Section Editor */}
         <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
-          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black" }}>
+          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
             <Card.Body className="d-flex flex-column">
               <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
               <Form.Group controlId="script" className="position-relative">
                 <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
-                <div className="d-flex align-items-center">
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                    value={typedText}
-                    onChange={handleScriptChange}
-                    maxLength={2000}
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                  value={typedText}
+                  onChange={handleScriptChange}
+                  maxLength={2000}
+                  style={{
+                    color: "black",
+                    width: "100%",
+                    fontSize: "0.875rem",
+                    height: "366px", // Increased height
+                    marginBottom: "10px",
+                    overflow: "hidden",
+                    resize: "none",
+                  }}
+                />
+                <div className="d-flex justify-content-between mt-2">
+                  <Button
+                    onClick={showOffcanvas}
+                    variant="outline-secondary"
                     style={{
-                      color: "black",
-                      width: "80%", // Reduce width to make it more compact
-                      fontSize: "0.875rem", // Decrease font size
-                      height: "200px", // Reduce height
-                      marginBottom: "10px",
-                      overflow: "hidden",
-                      resize: "none",
-                      marginRight: "10px",
+                      borderColor: "#EB631C",
+                      color: "#EB631C",
+                      backgroundColor: "white",
                     }}
-                  />
-                  <div className="d-flex flex-column align-items-start">
-                    <Button
-                      onClick={showOffcanvas}
-                      className="mb-2"
-                      style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
-                    >
-                      Change Emphasis
-                    </Button>
-                    <Button
-                      onClick={handleGenerateVoice}
-                      disabled={isGeneratingVoice}
-                      style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
-                    >
-                      {isGeneratingVoice ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...</> : "Generate Voice"}
-                    </Button>
-                    <PlayButton
-                      onClickHandler={handleReadReplayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                      isDisabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
-                      className="mt-2"
-                      buttonText="Play Latest Read"
-                    />
-                  </div>
+                  >
+                    Change Emphasis
+                  </Button>
+                  <Button
+                    onClick={handleGenerateVoice}
+                    disabled={isGeneratingVoice}
+                    style={{
+                      backgroundColor: "#EB631C",
+                      borderColor: "#EB631C",
+                      color: "white",
+                      width: "400px", // Shorter width
+                    }}
+                  >
+                    {isGeneratingVoice ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
+                      </>
+                    ) : (
+                      "Generate Voice"
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleReadReplayButton}
+                    variant="outline-secondary"
+                    style={{
+                      borderColor: "#EB631C",
+                      color: "#EB631C",
+                      backgroundColor: "white",
+                    }}
+                    disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+                  >
+                    Latest Read
+                  </Button>
                 </div>
-                <div className="position-absolute" style={{ bottom: "15px", right: "15px", background: "rgba(0, 0, 0, 0.7)", color: "white", padding: "0 5px", borderRadius: "5px" }}>
+                <div
+                  className="position-absolute"
+                  style={{
+                    bottom: "49px",
+                    right: "0px",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "0 5px",
+                    borderRadius: "5px",
+                  }}
+                >
                   {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
             </Card.Body>
-            {showAudioPlayer && <SimpleAudioPlayer audioSrc={generatedVoiceUrl} audioTitle={localCurrentSectionObj.getVoiceName()} allowDownload={allowDownload} autoplay={true} forceRender={forceRenderKey} />}
+            {showAudioPlayer && (
+              <SimpleAudioPlayer
+                audioSrc={generatedVoiceUrl}
+                audioTitle={localCurrentSectionObj.getVoiceName()}
+                allowDownload={allowDownload}
+                autoplay={true}
+                forceRender={forceRenderKey}
+              />
+            )}
           </Card>
           <div className="d-flex justify-content-start align-items-center mt-3">
-            <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>Next</Button>
+            <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>
+              Next
+            </Button>
             <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
             <SecondaryActionButton
               onClick={showHistoryOffcanvas}
               initialText="History"
               clickedText="History!"
               duration={1000}
-              disabled={!(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)}
+              disabled={
+                !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
+              }
               className="mt-3"
             />
             <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
@@ -950,7 +987,7 @@ function ProcessSection() {
         </div>
         {/* Right Card for Progress Bar and Voice Editor */}
         <div className="col-12 col-lg-4 p-3" style={{ height: "100%", overflow: "hidden" }}>
-          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black" }}>
+          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
             <div className="position-absolute" style={{ top: "10px", left: "10px", marginBottom: "20px" }}>
               {localCurrentSectionObj.getIndex() !== 0 && <BackButton width="30px" height="30px" backgroundColor="#eb631c" onClick={handleGoBack} />}
             </div>
@@ -1030,7 +1067,7 @@ function ProcessSection() {
                   showPercentage={true}
                   width="70%"
                   height="10px"
-                  containerStyle={{ marginTop: "10px" }}
+                  containerStyle={{ marginTop: "18px" }}
                   leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
                   rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
                 />
@@ -1048,7 +1085,7 @@ function ProcessSection() {
                   showPercentage={true}
                   width="70%"
                   height="10px"
-                  containerStyle={{ marginTop: "10px" }}
+                  containerStyle={{ marginTop: "18px" }}
                   leftInfoMessage="Slower"
                   rightInfoMessage="Faster"
                   reset={resetSpeechRate}
@@ -1071,15 +1108,15 @@ function ProcessSection() {
                 <Dropdown.Toggle
                   as="span"
                   onClick={(e) => handleLeftClick(e, index)}
-                  className="text-primary"
                   style={{
                     cursor: "pointer",
                     textDecoration: "underline",
-                    textDecorationColor: "transparent",
+                    textDecorationColor: "#EB631C", // Orange brand color
                     whiteSpace: "nowrap",
+                    color: "#EB631C", // Ensuring the text is orange
                   }}
-                  onMouseEnter={(e) => (e.target.style.textDecorationColor = "#eb631c")}
-                  onMouseLeave={(e) => (e.target.style.textDecorationColor = "transparent")}
+                  onMouseEnter={(e) => (e.target.style.textDecorationColor = "#EB631C")}
+                  onMouseLeave={(e) => (e.target.style.textDecorationColor = "#EB631C")}
                 >
                   {transformedWords[index] || word}
                 </Dropdown.Toggle>
@@ -1094,11 +1131,13 @@ function ProcessSection() {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
-
-
-
     </div>
   );
+
+
+
+
+
 }
 
 // export default withAuth(ProcessSection);
