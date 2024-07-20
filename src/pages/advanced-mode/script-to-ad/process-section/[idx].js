@@ -1,4 +1,3 @@
-// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -11,6 +10,8 @@ import {
   Alert,
   OverlayTrigger,
   Tooltip,
+  Offcanvas,
+  Dropdown,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -109,9 +110,13 @@ function ProcessSection() {
   );
 
   const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
+  const [historyOffcanvasVisible, setHistoryOffcanvasVisibility] = useState(false);
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
   const showOffcanvas = () => setOffcanvasVisibility(true);
+
+  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
+  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -340,7 +345,7 @@ function ProcessSection() {
 
   const handleLeftClick = (event, index) => {
     event.preventDefault();
-    setShowMenu(!showMenu);
+    setShowMenu(true);
     setMenuPosition({ x: event.clientX, y: event.clientY });
     setSelectedWordIndex(index);
   };
@@ -385,6 +390,7 @@ function ProcessSection() {
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
   };
+
   const handleSpeechRate = (value) => {
     localCurrentSectionObj.setSpeechRate(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
@@ -860,6 +866,7 @@ function ProcessSection() {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
+
   const resetSpeechRate = () => {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
@@ -894,73 +901,51 @@ function ProcessSection() {
                       marginRight: "10px",
                     }}
                   />
-                  <PlayButton
-                    onClickHandler={handleReadReplayButton}
-                    handlerArgs={[]}
-                    size="32px"
-                    preventDefault={true}
-                    isDisabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
-                  />
+                  <div className="d-flex flex-column align-items-start">
+                    <Button
+                      onClick={showOffcanvas}
+                      className="mb-2"
+                      style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
+                    >
+                      Change Emphasis
+                    </Button>
+                    <Button
+                      onClick={handleGenerateVoice}
+                      disabled={isGeneratingVoice}
+                      style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
+                    >
+                      {isGeneratingVoice ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...</> : "Generate Voice"}
+                    </Button>
+                    <PlayButton
+                      onClickHandler={handleReadReplayButton}
+                      handlerArgs={[]}
+                      size="32px"
+                      preventDefault={true}
+                      isDisabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+                      className="mt-2"
+                      buttonText="Play Latest Read"
+                    />
+                  </div>
                 </div>
                 <div className="position-absolute" style={{ bottom: "15px", right: "15px", background: "rgba(0, 0, 0, 0.7)", color: "white", padding: "0 5px", borderRadius: "5px" }}>
                   {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
-              <Form.Label style={{ fontSize: "0.875rem" }}>Click on a word to change its emphasis</Form.Label>
-              <div className="bg-light p-2 rounded mt-2" style={{ height: "100%", overflow: "hidden" }}>
-                {typedText.split(" ").map((word, index) => (
-                  <span
-                    key={index}
-                    onClick={(e) => handleLeftClick(e, index)}
-                    className="me-1 text-primary"
-                    style={{
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      textDecorationColor: "transparent",
-                      whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => (e.target.style.textDecorationColor = "#eb631c")}
-                    onMouseLeave={(e) => (e.target.style.textDecorationColor = "transparent")}
-                  >
-                    {transformedWords[index] || word}
-                  </span>
-                ))}
-              </div>
             </Card.Body>
-
-
             {showAudioPlayer && <SimpleAudioPlayer audioSrc={generatedVoiceUrl} audioTitle={localCurrentSectionObj.getVoiceName()} allowDownload={allowDownload} autoplay={true} forceRender={forceRenderKey} />}
-            {showMenu && (
-              <div className="position-absolute" style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000, backgroundColor: "#eb631c", boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)", border: "1px solid #e0e0e0", borderRadius: "8px", padding: "8px 12px" }}>
-                <h6 className="mb-2" style={{ color: "#333", fontWeight: "500", fontSize: "13px" }}>Word Smith</h6>
-                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</button>
-                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</button>
-                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</button>
-                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</button>
-                <button className="btn btn-light" style={{ fontSize: "12px" }} onClick={() => setShowMenu(false)}>Close Menu</button>
-              </div>
-            )}
-            <Button
-              onClick={handleGenerateVoice}
-              disabled={isGeneratingVoice}
-              className="position-absolute bottom-2 start-50 translate-middle-x w-50"
-              style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
-            >
-              {isGeneratingVoice ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...</> : "Generate Voice"}
-            </Button>
           </Card>
           <div className="d-flex justify-content-start align-items-center mt-3">
             <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>Next</Button>
             <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
             <SecondaryActionButton
-              onClick={showOffcanvas}
+              onClick={showHistoryOffcanvas}
               initialText="History"
               clickedText="History!"
               duration={1000}
               disabled={!(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)}
               className="mt-3"
             />
-            <HistoryCanvas show={offcanvasVisible} handleClose={hideOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
+            <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
           </div>
         </div>
         {/* Right Card for Progress Bar and Voice Editor */}
@@ -1074,10 +1059,46 @@ function ProcessSection() {
         </div>
       </div>
       <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
+      <Offcanvas show={offcanvasVisible} onHide={hideOffcanvas} placement="bottom" style={{ width: "100%", height: "40%" }}>
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body style={{ overflow: "hidden" }}>
+          <Form.Label style={{ fontSize: "0.875rem" }}>Click on a word to change its emphasis</Form.Label>
+          <div className="bg-light p-2 rounded mt-2" style={{ height: "100%", overflow: "hidden" }}>
+            {typedText.split(" ").map((word, index) => (
+              <Dropdown key={index} drop="end" className="d-inline-block me-1 mb-1">
+                <Dropdown.Toggle
+                  as="span"
+                  onClick={(e) => handleLeftClick(e, index)}
+                  className="text-primary"
+                  style={{
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    textDecorationColor: "transparent",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.textDecorationColor = "#eb631c")}
+                  onMouseLeave={(e) => (e.target.style.textDecorationColor = "transparent")}
+                >
+                  {transformedWords[index] || word}
+                </Dropdown.Toggle>
+                <Dropdown.Menu show={showMenu && selectedWordIndex === index} style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}>
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ))}
+          </div>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+
+
     </div>
   );
-
-
 }
 
 // export default withAuth(ProcessSection);
