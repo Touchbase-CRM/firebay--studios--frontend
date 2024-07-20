@@ -1435,5 +1435,5 @@ function ProcessSection() {
   );
 }
 
-export default withAuth(ProcessSection);
-// export default ProcessSection;
+// export default withAuth(ProcessSection);
+export default ProcessSection;
