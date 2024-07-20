@@ -54,8 +54,8 @@ function ProcessSection() {
   const voiceAudioPlayerRef = useRef(null);
   // prettier-ignore
   const audioProcessingWebServiceUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+    ? "http://localhost:8000"
+    : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 
   // Zustand store hooks
   const {
@@ -136,13 +136,13 @@ function ProcessSection() {
       ((previousSectionsTotalDuration +
         localCurrentSectionObj.getSectionDurationSeconds()) /
         adLength) *
-        100
+      100
     )
   );
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
-      (previousSectionsTotalDuration +
-        localCurrentSectionObj.getSectionDurationSeconds())
+    (previousSectionsTotalDuration +
+      localCurrentSectionObj.getSectionDurationSeconds())
   );
 
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
@@ -194,7 +194,7 @@ function ProcessSection() {
       ((previousSectionsTotalDuration +
         sectionToUpdate.getSectionDurationSeconds()) /
         adLength) *
-        100
+      100
     );
     const newSecondsLeft =
       adLength -
@@ -564,8 +564,7 @@ function ProcessSection() {
       } else {
         router.push(
           "/advanced-mode/script-to-ad/process-section/[idx]",
-          `/advanced-mode/script-to-ad/process-section/${
-            currentSectionIndex + 1
+          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1
           }`
         );
       }
@@ -602,7 +601,7 @@ function ProcessSection() {
   };
 
   async function handleGenerateVoice() {
-    const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
+    const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
     if (!isValid) return;
     setIsGeneratingVoice(true);
@@ -619,21 +618,21 @@ function ProcessSection() {
 
       const result = preprocessRequired
         ? await generateVoiceWithCustomPreprocess(
-            mostUptodateSection,
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency(),
-            localCurrentSectionObj.getModelId(),
-            auth.currentUser.uid,
-            localCurrentSectionObj.getDragonBreathEnhancement(),
-            manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
-            true
-          )
+          mostUptodateSection,
+          localCurrentSectionObj.getVoiceId(),
+          localCurrentSectionObj.getVoiceIntonationConsistency(),
+          localCurrentSectionObj.getModelId(),
+          auth.currentUser.uid,
+          localCurrentSectionObj.getDragonBreathEnhancement(),
+          manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
+          true
+        )
         : await generateVoiceWithElevenLabsAPI(
-            mostUptodateSection,
-            localCurrentSectionObj.getModelId(),
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency()
-          );
+          mostUptodateSection,
+          localCurrentSectionObj.getModelId(),
+          localCurrentSectionObj.getVoiceId(),
+          localCurrentSectionObj.getVoiceIntonationConsistency()
+        );
 
       // Common code
       audioUrl = result.audioUrl;
@@ -746,8 +745,8 @@ function ProcessSection() {
       const pyroHistoryItemId = data["pyro_history_item_id"];
       const estimatedProcessingTime =
         (1 / CHARACTERSPERSEC) *
-          localCurrentSectionObj.getCurrentCharCount() *
-          SECTOMILLISEC +
+        localCurrentSectionObj.getCurrentCharCount() *
+        SECTOMILLISEC +
         ADDITIONALWAITTIME;
 
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
@@ -866,43 +865,17 @@ function ProcessSection() {
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        minHeight: "150vh",
-        display: "flex",
-        flexDirection: "column",
-        overflowX: "hidden", // Prevent horizontal overflow
-      }}
-    >
-      <NavBar
-        links={[]}
-        logoutHandler={handleLogout}
-        saveHandler={handleSaveState}
-      />
-
-      <div style={{ display: "flex", flex: 1, overflowY: "hidden" }}>
+    <div className="container-fluid" style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
+      <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
+      <div className="row" style={{ overflow: "hidden" }}>
         {/* Left Card for Section Editor */}
-        <div style={{ flex: 3, padding: "20px", minWidth: 0 }}>
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              height: "800px", // Preserving the original height
-              overflowY: "auto", // Added scroll for overflow content
-              overflowX: "hidden", // Prevent horizontal overflow
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Card.Body style={{ flex: 1 }}>
-              <Card.Title>Section Editor</Card.Title>
-
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Edit section</Form.Label>
-                <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
+          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black" }}>
+            <Card.Body className="d-flex flex-column">
+              <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
+              <Form.Group controlId="script" className="position-relative">
+                <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
+                <div className="d-flex align-items-center">
                   <Form.Control
                     as="textarea"
                     rows={3}
@@ -912,76 +885,42 @@ function ProcessSection() {
                     maxLength={2000}
                     style={{
                       color: "black",
-                      width: "100%", // Ensure it takes up the full width of the container
-                      // minHeight: "100px", // Minimum height
-                      maxHeight: "600px", // Maximum height to allow for scrolling
-                      height: "300px", // Auto height based on content
+                      width: "80%", // Reduce width to make it more compact
+                      fontSize: "0.875rem", // Decrease font size
+                      height: "200px", // Reduce height
                       marginBottom: "10px",
-                      overflowY: "auto", // Enable vertical scroll when content overflows
-                      overflowX: "hidden", // Prevent horizontal overflow
-                      resize: "none", // Prevent manual resizing
+                      overflow: "hidden",
+                      resize: "none",
                       marginRight: "10px",
                     }}
                   />
-
                   <PlayButton
-                    onClickHandler={handleReadReplayButton} // You might need to modify the handler for this button's specific action
+                    onClickHandler={handleReadReplayButton}
                     handlerArgs={[]}
-                    size="32px" // Ensure this matches the size of the other play button for consistency
+                    size="32px"
                     preventDefault={true}
-                    isDisabled={
-                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
-                    }
+                    isDisabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
                   />
                 </div>
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "15px",
-                    right: "50px", // Adjust as necessary if the play button affects the positioning
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "0 5px",
-                    borderRadius: "5px",
-                  }}
-                >
+                <div className="position-absolute" style={{ bottom: "15px", right: "15px", background: "rgba(0, 0, 0, 0.7)", color: "white", padding: "0 5px", borderRadius: "5px" }}>
                   {typedText.replace(/'/g, "").length}/{charLimit}
                 </div>
               </Form.Group>
-
-              <div>
-                <Form.Label>Click on a word to change its emphasis</Form.Label>
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#e4e4e4",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginTop: "10px",
-                  overflowX: "hidden", // Prevent horizontal overflow
-                  maxHeight: "350px", // Set a max-height for the container
-                  overflowY: "auto", // Enable vertical scroll when content overflows
-                }}
-              >
+              <Form.Label style={{ fontSize: "0.875rem" }}>Click on a word to change its emphasis</Form.Label>
+              <div className="bg-light p-2 rounded mt-2" style={{ height: "100%", overflow: "hidden" }}>
                 {typedText.split(" ").map((word, index) => (
                   <span
                     key={index}
                     onClick={(e) => handleLeftClick(e, index)}
+                    className="me-1 text-primary"
                     style={{
-                      marginRight: "5px",
                       cursor: "pointer",
                       textDecoration: "underline",
                       textDecorationColor: "transparent",
-                      color: "#eb631c",
-                      overflowX: "hidden", // Prevent horizontal overflow
-                      whiteSpace: "nowrap", // Prevent line breaks
+                      whiteSpace: "nowrap",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "#eb631c")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.style.textDecorationColor = "transparent")
-                    }
+                    onMouseEnter={(e) => (e.target.style.textDecorationColor = "#eb631c")}
+                    onMouseLeave={(e) => (e.target.style.textDecorationColor = "transparent")}
                   >
                     {transformedWords[index] || word}
                   </span>
@@ -989,340 +928,89 @@ function ProcessSection() {
               </div>
             </Card.Body>
 
-            {/* Position the Generate Voice button at the bottom right of the card */}
+
+            {showAudioPlayer && <SimpleAudioPlayer audioSrc={generatedVoiceUrl} audioTitle={localCurrentSectionObj.getVoiceName()} allowDownload={allowDownload} autoplay={true} forceRender={forceRenderKey} />}
+            {showMenu && (
+              <div className="position-absolute" style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000, backgroundColor: "#eb631c", boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)", border: "1px solid #e0e0e0", borderRadius: "8px", padding: "8px 12px" }}>
+                <h6 className="mb-2" style={{ color: "#333", fontWeight: "500", fontSize: "13px" }}>Word Smith</h6>
+                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</button>
+                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</button>
+                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</button>
+                <button className="btn btn-light mb-2" style={{ fontSize: "12px" }} onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</button>
+                <button className="btn btn-light" style={{ fontSize: "12px" }} onClick={() => setShowMenu(false)}>Close Menu</button>
+              </div>
+            )}
             <Button
               onClick={handleGenerateVoice}
-              disabled={isGeneratingVoice} // Disable button when audio is being generated
-              style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "60%",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
+              disabled={isGeneratingVoice}
+              className="position-absolute bottom-2 start-50 translate-middle-x w-50"
+              style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }}
             >
-              {isGeneratingVoice ? (
-                <span>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />{" "}
-                  Generating...
-                </span>
-              ) : (
-                "Generate Voice"
-              )}
+              {isGeneratingVoice ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...</> : "Generate Voice"}
             </Button>
           </Card>
-
-          <div
-            style={{
-              display: "flex", // Enable flexbox
-              justifyContent: "flex-start", // Align items to the start of the container
-              alignItems: "center", // Align items vertically
-              bottom: "10px",
-              left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          >
-            {/* Next Button */}
-            <Button
-              className="mt-3"
-              style={{
-                marginRight: "auto", // Push all subsequent items to the right
-                marginTop: "20px",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-              onClick={handleSubmit}
-            >
-              {"Next"}
-            </Button>
-            {/* Save Button */}
-            <SecondaryActionButton
-              onClick={handleSaveState}
-              initialText="Save"
-              clickedText="Saved!"
-              duration={1000}
-              marginRight="10px"
-              marginTop="20px"
-            />
-
-            {/* History Button */}
+          <div className="d-flex justify-content-start align-items-center mt-3">
+            <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>Next</Button>
+            <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
             <SecondaryActionButton
               onClick={showOffcanvas}
               initialText="History"
               clickedText="History!"
               duration={1000}
-              disabled={
-                !(
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                  localSectionHistoryObj &&
-                  localSectionHistoryObj[currentSectionIndex] !== null
-                )
-              }
-              opacity={
-                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                localSectionHistoryObj &&
-                localSectionHistoryObj[currentSectionIndex] !== null
-                  ? "1"
-                  : "0.5"
-              }
-              marginRight="0px"
-              marginTop="20px"
+              disabled={!(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)}
+              className="mt-3"
             />
-            <HistoryCanvas
-              show={offcanvasVisible}
-              handleClose={hideOffcanvas}
-              localSectionHistoryObj={localSectionHistoryObj}
-              playAudioUrl={playAudioUrl}
-              changeCurrentSectionObj={changeCurrentSectionObj}
-            />
+            <HistoryCanvas show={offcanvasVisible} handleClose={hideOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
           </div>
-
-          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
-          <div style={{ position: "relative" }}>
-            {showAudioPlayer && (
-              <SimpleAudioPlayer
-                audioSrc={generatedVoiceUrl}
-                audioTitle={localCurrentSectionObj.getVoiceName()}
-                allowDownload={allowDownload}
-                autoplay={true}
-                forceRender={forceRenderKey}
-              />
-            )}
-          </div>
-
-          {showMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: menuPosition.y,
-                left: menuPosition.x,
-                zIndex: 1000,
-                backgroundColor: "#eb631c",
-                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <h6
-                style={{
-                  marginBottom: "10px",
-                  color: "#333",
-                  fontWeight: "500",
-                  fontSize: "13px",
-                }}
-              >
-                Word Smith
-              </h6>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel3")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                High Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel2")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Medium Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel1")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Low Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-                onClick={() => transformWord("removeEmphasis")}
-              >
-                Remove Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                onClick={() => setShowMenu(false)}
-                style={{ fontSize: "12px" }}
-              >
-                Close Menu
-              </button>
-            </div>
-          )}
         </div>
-
         {/* Right Card for Progress Bar and Voice Editor */}
-        <div
-          style={{ flex: 1, padding: "20px", minWidth: 0, overflowY: "auto" }}
-        >
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginBottom: "10px",
-              height: "800px", // Preserving the original height
-              minWidth: "300px", // Set a minimum width to prevent overflow
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute", // Absolutely position the BackButton
-                top: "10px", // Adjust as needed
-                left: "10px", // Adjust as needed
-                marginBottom: "20px",
-              }}
-            >
-              {localCurrentSectionObj.getIndex() !== 0 && (
-                <BackButton
-                  width="30px"
-                  height="30px"
-                  backgroundColor="#eb631c"
-                  onClick={handleGoBack} // Pass the onClick method directly
-                />
-              )}
+        <div className="col-12 col-lg-4 p-3" style={{ height: "100%", overflow: "hidden" }}>
+          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black" }}>
+            <div className="position-absolute" style={{ top: "10px", left: "10px", marginBottom: "20px" }}>
+              {localCurrentSectionObj.getIndex() !== 0 && <BackButton width="30px" height="30px" backgroundColor="#eb631c" onClick={handleGoBack} />}
             </div>
-            <Card.Title style={{ marginTop: "70px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  fontWeight: "bold",
-                  fontSize: "1.2em",
-                }}
-              >
-                <i
-                  className="bi bi-pencil-square"
-                  style={{
-                    cursor: "pointer",
-                    marginRight: "10px",
-                    fontSize: "0.8em",
-                  }} // Adjust the fontSize here
-                  onClick={() => setShowRenameModal(true)}
-                ></i>
+            <Card.Title className="mt-5" style={{ fontSize: "1.25rem" }}>
+              <div className="d-flex align-items-center font-weight-bold">
+                <i className="bi bi-pencil-square me-2" style={{ cursor: "pointer", fontSize: "0.8em" }} onClick={() => setShowRenameModal(true)}></i>
                 {spotName}
               </div>
               <br />
-              <span style={{ fontSize: "0.7em", color: "gray" }}>
-                Section {localCurrentSectionObj.getIndex() + 1} of{" "}
-                {numSectionsIdentified}
-              </span>
+              <span className="text-muted" style={{ fontSize: "0.875rem" }}>Section {localCurrentSectionObj.getIndex() + 1} of {numSectionsIdentified}</span>
             </Card.Title>
-
-            <Form
-              key={localCurrentSectionObj.getHistoryItemId()}
-              style={{ flex: 1 }}
-            >
-              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
-                <Form.Label>Voiceover Progress</Form.Label>
-                <ProgressBar
-                  now={progressBarPercentage}
-                  label={`${progressBarPercentage}%`}
-                />
+            <Form key={localCurrentSectionObj.getHistoryItemId()} className="d-flex flex-column flex-grow-1">
+              <Form.Group controlId="voice" className="mb-2">
+                <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
+                <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
               </Form.Group>
-              <div>
-                Roughly {Math.round(secondsYouhaveLeft)} sec left out of{" "}
-                {adLength} sec
-              </div>
-
-              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
-                <Form.Label>Voice</Form.Label>
+              <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
+              <Form.Group controlId="voice" className="mt-2">
+                <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
                 {voiceOptions.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      disabled
-                      style={{ color: "black" }}
-                    >
+                  <div className="d-flex align-items-center">
+                    <Form.Select aria-label="Voice select" disabled className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
                       <option>Loading voice choices...</option>
                     </Form.Select>
-                    <Spinner
-                      animation="border"
-                      style={{ marginLeft: "10px" }}
-                    />
+                    <Spinner animation="border" />
                   </div>
                 ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                      onChange={handleVoiceChange}
-                      style={{ color: "black", marginRight: "10px" }}
-                    >
-                      {voiceOptions
-                        // These restrictions are temporary. Need to figure out a better data model.
-                        .filter((voice) => {
-                          const isRestrictedVoice =
-                            restrictedVoices.includes(voice);
-                          const isFirebayStudiosEmail =
-                            auth.currentUser.email.split("@")[1] ===
-                            "firebaystudios.com";
-                          return (
-                            !isRestrictedVoice ||
-                            (isRestrictedVoice && isFirebayStudiosEmail)
-                          );
-                        })
-                        .map((voice, index) => (
-                          <option key={voice} value={voice}>
-                            {voice}
-                          </option>
-                        ))}
+                  <div className="d-flex align-items-center">
+                    <Form.Select aria-label="Voice select" value={localCurrentSectionObj.getVoiceName()} onChange={handleVoiceChange} className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
+                      {voiceOptions.filter(voice => {
+                        const isRestrictedVoice = restrictedVoices.includes(voice);
+                        const isFirebayStudiosEmail = auth.currentUser.email.split("@")[1] === "firebaystudios.com";
+                        return !isRestrictedVoice || (isRestrictedVoice && isFirebayStudiosEmail);
+                      }).map((voice) => (
+                        <option key={voice} value={voice}>{voice}</option>
+                      ))}
                     </Form.Select>
-                    <PlayButton
-                      onClickHandler={handleVoicePreviewPlayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                    />
+                    <PlayButton onClickHandler={handleVoicePreviewPlayButton} handlerArgs={[]} size="32px" preventDefault={true} />
                   </div>
                 )}
               </Form.Group>
-
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
-                  Dragon's Breath Enhancement
-                </Form.Label>
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="tooltip-info">
-                      Pyro Tip: 10X the energy of the selected voice as if a
-                      sword forged by dragon's breath
-                    </Tooltip>
-                  }
-                >
-                  <i
-                    className="bi bi-info-circle"
-                    style={{
-                      marginLeft: "10px",
-                      marginRight: "15px",
-                      cursor: "pointer",
-                    }}
-                  ></i>
+              <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
+                <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
+                <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
+                  <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
                 </OverlayTrigger>
                 <div className="form-check form-switch">
                   <input
@@ -1333,82 +1021,46 @@ function ProcessSection() {
                     checked={localCurrentSectionObj.getDragonBreathEnhancement()}
                     onChange={handleDragonBreathEnhancementChange}
                     style={{
-                      backgroundColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "white",
-                      borderColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "#adb5bd",
+                      backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
+                      borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
                     }}
                   />
                 </div>
               </Form.Group>
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "5px" }}
-              >
-                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                  <Alert
-                    style={{
-                      variant: "info",
-                      fontSize: "10px",
-                      padding: "5px 10px",
-                    }}
-                  >
-                    Pyro Tip: 10X the energy of the selected voice as if a sword
-                    forged by dragon's breath
-                  </Alert>
-                ) : null}
-              </Form.Group>
-              <Form.Group
-                controlId="intonationConsistencyLevel"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Intonation Consistency Level
-                </Form.Label>
+              {!localCurrentSectionObj.getDragonBreathEnhancement() && (
+                <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
+                  Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath
+                </Alert>
+              )}
+              <Form.Group controlId="intonationConsistencyLevel" className="mt-2">
+                <Form.Label style={{ fontSize: "0.875rem" }}>Intonation Consistency Level</Form.Label>
                 <FireSlider
                   min={0}
                   max={100}
                   value={localCurrentSectionObj.getVoiceIntonationConsistency()}
-                  onValueChange={(value) => {
-                    handleIntonationChange(value);
-                  }}
+                  onValueChange={handleIntonationChange}
                   thumbColor="#eb631c"
                   trackColor="#f0f0f0"
                   fillColor="#eb631c"
                   showPercentage={true}
-                  disabled={false}
                   width="70%"
                   height="10px"
-                  containerStyle={{
-                    marginTop: "10px",
-                  }}
+                  containerStyle={{ marginTop: "10px" }}
                   leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
                   rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
                 />
               </Form.Group>
-              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Speech Rate
-                </Form.Label>
+              <Form.Group controlId="speechRate" className="mt-2">
+                <Form.Label style={{ fontSize: "0.875rem" }}>Speech Rate</Form.Label>
                 <FireSlider
-                  min={speechRateMin}
-                  max={speechRateMax}
-                  value={manageLegacySpeechRate(
-                    localCurrentSectionObj.getSpeechRate()
-                  )}
-                  onValueChange={(value) => {
-                    handleSpeechRate(value);
-                  }}
+                  min={0}
+                  max={100}
+                  value={manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate())}
+                  onValueChange={handleSpeechRate}
                   thumbColor="#eb631c"
                   trackColor="#f0f0f0"
                   fillColor="#eb631c"
                   showPercentage={true}
-                  disabled={false}
                   width="70%"
                   height="10px"
                   containerStyle={{ marginTop: "10px" }}
@@ -1421,18 +1073,11 @@ function ProcessSection() {
           </Card>
         </div>
       </div>
-
-      {/* Modal for editing spot name */}
-      <RenameModal
-        show={showRenameModal}
-        onHide={() => setShowRenameModal(false)}
-        newSpotName={newSpotName}
-        setNewSpotName={setNewSpotName}
-        spotId={spotId}
-        setSpotName={setSpotName}
-      />
+      <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
     </div>
   );
+
+
 }
 
 // export default withAuth(ProcessSection);
