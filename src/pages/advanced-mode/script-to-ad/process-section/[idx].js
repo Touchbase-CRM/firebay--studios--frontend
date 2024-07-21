@@ -896,19 +896,20 @@ function ProcessSection() {
                     color: "black",
                     width: "100%",
                     fontSize: "0.875rem",
-                    height: "366px", // Increased height
+                    height: "366px",
                     marginBottom: "10px",
                     overflow: "hidden",
                     resize: "none",
                   }}
                 />
-                <div className="d-flex justify-content-between mt-2">
+                <div className="d-flex justify-content-between mt-2 flex-wrap">
                   <Button
                     onClick={showOffcanvas}
                     variant="outline-secondary"
+                    className="mb-2"
                     style={{
-                      borderColor: "#EB631C",
-                      color: "#EB631C",
+                      borderColor: "#FDA942",
+                      color: "black",
                       backgroundColor: "white",
                     }}
                   >
@@ -917,11 +918,14 @@ function ProcessSection() {
                   <Button
                     onClick={handleGenerateVoice}
                     disabled={isGeneratingVoice}
+                    className="mb-2 mx-2"
                     style={{
                       backgroundColor: "#EB631C",
                       borderColor: "#EB631C",
                       color: "white",
-                      width: "400px", // Shorter width
+                      minWidth: "150px",
+                      maxWidth: "550px", // Setting a max-width
+                      flex: "1 1 auto" // Allow flex to grow and shrink
                     }}
                   >
                     {isGeneratingVoice ? (
@@ -935,9 +939,10 @@ function ProcessSection() {
                   <Button
                     onClick={handleReadReplayButton}
                     variant="outline-secondary"
+                    className="mb-2"
                     style={{
-                      borderColor: "#EB631C",
-                      color: "#EB631C",
+                      borderColor: "#FDA942",
+                      color: "black",
                       backgroundColor: "white",
                     }}
                     disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
@@ -970,7 +975,7 @@ function ProcessSection() {
               />
             )}
           </Card>
-          <div className="d-flex justify-content-start align-items-center mt-3">
+          <div className="d-flex justify-content-start align-items-center mt-3 flex-wrap">
             <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>
               Next
             </Button>
@@ -1106,7 +1111,7 @@ function ProcessSection() {
         style={{ width: "100%", height: "auto", minHeight: "40%", maxHeight: "100%" }}
       >
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
+          <Offcanvas.Title >Change Emphasis</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body style={{ overflowY: "auto" }}>
           <Form.Label style={{ fontSize: "0.875rem" }}>
@@ -1171,8 +1176,6 @@ function ProcessSection() {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
-
-
     </div>
   );
 }
