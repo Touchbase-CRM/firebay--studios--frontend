@@ -1099,13 +1099,29 @@ function ProcessSection() {
         </div>
       </div>
       <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
-      <Offcanvas show={offcanvasVisible} onHide={hideOffcanvas} placement="bottom" style={{ width: "100%", height: "auto", maxHeight: "90%", minHeight: "40%" }}>
+      <Offcanvas
+        show={offcanvasVisible}
+        onHide={hideOffcanvas}
+        placement="bottom"
+        style={{ width: "100%", height: "auto", minHeight: "40%" }}
+      >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body style={{ overflow: "hidden" }}>
-          <Form.Label style={{ fontSize: "0.875rem" }}>Click on a word to change its emphasis</Form.Label>
-          <div className="bg-light p-2 rounded mt-2" style={{ height: "100%", overflow: "hidden" }}>
+          <Form.Label style={{ fontSize: "0.875rem" }}>
+            Click on a word to change its emphasis
+          </Form.Label>
+          <div
+            className="bg-light p-2 rounded mt-2"
+            style={{
+              height: "100%",
+              overflow: "hidden",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "5px",
+            }}
+          >
             {typedText.split(" ").map((word, index) => (
               <Dropdown key={index} drop="end" className="d-inline-block me-1 mb-1">
                 <Dropdown.Toggle
@@ -1113,28 +1129,51 @@ function ProcessSection() {
                   onClick={(e) => handleLeftClick(e, index)}
                   style={{
                     cursor: "pointer",
-                    textDecoration: "underline",
-                    textDecorationColor: "#EB631C", // Orange brand color
-                    whiteSpace: "nowrap",
-                    color: "#EB631C", // Ensuring the text is orange
+                    // textDecoration: "underline",
+                    color: "#EB631C", // Orange brand color
+                    backgroundColor: "#f8f9fa", // Light background color
+                    padding: "5px 10px",
+                    borderRadius: "10px",
+                    fontSize: "1rem", // Larger font size
+                    fontWeight: "500", // Medium font weight
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                    transition: "all 0.3s ease",
                   }}
-                  onMouseEnter={(e) => (e.target.style.textDecorationColor = "#EB631C")}
-                  onMouseLeave={(e) => (e.target.style.textDecorationColor = "#EB631C")}
+                  onMouseEnter={(e) => {
+                    e.target.style.textDecorationColor = "#EB631C";
+                    e.target.style.backgroundColor = "#ffecd1";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.textDecorationColor = "#EB631C";
+                    e.target.style.backgroundColor = "#f8f9fa";
+                  }}
                 >
                   {transformedWords[index] || word}
                 </Dropdown.Toggle>
-                <Dropdown.Menu show={showMenu && selectedWordIndex === index} style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}>
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item> {/* New Cancel option */}
+                <Dropdown.Menu
+                  show={showMenu && selectedWordIndex === index}
+                  style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}
+                >
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>
+                    High Emphasis
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>
+                    Medium Emphasis
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>
+                    Low Emphasis
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>
+                    Remove Emphasis
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             ))}
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
     </div>
   );
 }
