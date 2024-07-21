@@ -875,307 +875,309 @@ function ProcessSection() {
   };
 
   return (
-    <div className="container-fluid" style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
+    <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
       <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
-      <div className="row" style={{ overflow: "hidden" }}>
-        {/* Left Card for Section Editor */}
-        <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
-          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
-            <Card.Body className="d-flex flex-column">
-              <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
-              <Form.Group controlId="script" className="position-relative">
-                <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={typedText}
-                  onChange={handleScriptChange}
-                  maxLength={2000}
-                  style={{
-                    color: "black",
-                    width: "100%",
-                    fontSize: "0.875rem",
-                    height: "366px",
-                    marginBottom: "10px",
-                    overflow: "hidden",
-                    resize: "none",
-                  }}
-                />
-                <div className="d-flex justify-content-between mt-2 flex-wrap">
-                  <Button
-                    onClick={showOffcanvas}
-                    variant="outline-secondary"
-                    className="mb-2"
+      <div className="container-fluid">
+        <div className="row" style={{ overflow: "hidden" }}>
+          {/* Left Card for Section Editor */}
+          <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
+            <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
+              <Card.Body className="d-flex flex-column">
+                <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
+                <Form.Group controlId="script" className="position-relative">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder={`Enter your script here (up to ${charLimit} characters)`}
+                    value={typedText}
+                    onChange={handleScriptChange}
+                    maxLength={2000}
                     style={{
-                      borderColor: "#FDA942",
                       color: "black",
-                      backgroundColor: "white",
-                    }}
-                  >
-                    Change Emphasis
-                  </Button>
-                  <Button
-                    onClick={handleGenerateVoice}
-                    disabled={isGeneratingVoice}
-                    className="mb-2 mx-2"
-                    style={{
-                      backgroundColor: "#EB631C",
-                      borderColor: "#EB631C",
-                      color: "white",
-                      minWidth: "150px",
-                      maxWidth: "550px", // Setting a max-width
-                      flex: "1 1 auto" // Allow flex to grow and shrink
-                    }}
-                  >
-                    {isGeneratingVoice ? (
-                      <>
-                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
-                      </>
-                    ) : (
-                      "Generate Voice"
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleReadReplayButton}
-                    variant="outline-secondary"
-                    className="mb-2"
-                    style={{
-                      borderColor: "#FDA942",
-                      color: "black",
-                      backgroundColor: "white",
-                    }}
-                    disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
-                  >
-                    Latest Read
-                  </Button>
-                </div>
-                <div
-                  className="position-absolute"
-                  style={{
-                    bottom: "49px",
-                    right: "0px",
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "0 5px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {typedText.replace(/'/g, "").length}/{charLimit}
-                </div>
-              </Form.Group>
-            </Card.Body>
-            {showAudioPlayer && (
-              <SimpleAudioPlayer
-                audioSrc={generatedVoiceUrl}
-                audioTitle={localCurrentSectionObj.getVoiceName()}
-                allowDownload={allowDownload}
-                autoplay={true}
-                forceRender={forceRenderKey}
-              />
-            )}
-          </Card>
-          <div className="d-flex justify-content-start align-items-center mt-3 flex-wrap">
-            <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>
-              Next
-            </Button>
-            <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
-            <SecondaryActionButton
-              onClick={showHistoryOffcanvas}
-              initialText="History"
-              clickedText="History!"
-              duration={1000}
-              disabled={
-                !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
-              }
-              className="mt-3"
-            />
-            <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
-          </div>
-        </div>
-        {/* Right Card for Progress Bar and Voice Editor */}
-        <div className="col-12 col-lg-4 p-3" style={{ height: "100%", overflow: "hidden" }}>
-          <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
-            <div className="position-absolute" style={{ top: "10px", left: "10px", marginBottom: "20px" }}>
-              {localCurrentSectionObj.getIndex() !== 0 && <BackButton width="30px" height="30px" backgroundColor="#eb631c" onClick={handleGoBack} />}
-            </div>
-            <Card.Title className="mt-5" style={{ fontSize: "1.25rem" }}>
-              <div className="d-flex align-items-center font-weight-bold">
-                <i className="bi bi-pencil-square me-2" style={{ cursor: "pointer", fontSize: "0.8em" }} onClick={() => setShowRenameModal(true)}></i>
-                {spotName}
-              </div>
-              <br />
-              <span className="text-muted" style={{ fontSize: "0.875rem" }}>Section {localCurrentSectionObj.getIndex() + 1} of {numSectionsIdentified}</span>
-            </Card.Title>
-            <Form key={localCurrentSectionObj.getHistoryItemId()} className="d-flex flex-column flex-grow-1">
-              <Form.Group controlId="voice" className="mb-2">
-                <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
-                <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
-              </Form.Group>
-              <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
-              <Form.Group controlId="voice" className="mt-2">
-                <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
-                {voiceOptions.length === 0 ? (
-                  <div className="d-flex align-items-center">
-                    <Form.Select aria-label="Voice select" disabled className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
-                      <option>Loading voice choices...</option>
-                    </Form.Select>
-                    <Spinner animation="border" />
-                  </div>
-                ) : (
-                  <div className="d-flex align-items-center">
-                    <Form.Select aria-label="Voice select" value={localCurrentSectionObj.getVoiceName()} onChange={handleVoiceChange} className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
-                      {voiceOptions.filter(voice => {
-                        const isRestrictedVoice = restrictedVoices.includes(voice);
-                        const isFirebayStudiosEmail = auth.currentUser.email.split("@")[1] === "firebaystudios.com";
-                        return !isRestrictedVoice || (isRestrictedVoice && isFirebayStudiosEmail);
-                      }).map((voice) => (
-                        <option key={voice} value={voice}>{voice}</option>
-                      ))}
-                    </Form.Select>
-                    <PlayButton onClickHandler={handleVoicePreviewPlayButton} handlerArgs={[]} size="32px" preventDefault={true} />
-                  </div>
-                )}
-              </Form.Group>
-              <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
-                <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
-                <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
-                  <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
-                </OverlayTrigger>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="dragonBreathEnhancementSwitch"
-                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                    onChange={handleDragonBreathEnhancementChange}
-                    style={{
-                      backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
-                      borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
+                      width: "100%",
+                      fontSize: "0.875rem",
+                      height: "366px",
+                      marginBottom: "10px",
+                      overflow: "hidden",
+                      resize: "none",
                     }}
                   />
-                </div>
-              </Form.Group>
-              {!localCurrentSectionObj.getDragonBreathEnhancement() && (
-                <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
-                  Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath
-                </Alert>
+                  <div className="d-flex justify-content-between mt-2 flex-wrap">
+                    <Button
+                      onClick={showOffcanvas}
+                      variant="outline-secondary"
+                      className="mb-2"
+                      style={{
+                        borderColor: "#FDA942",
+                        color: "black",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      Change Emphasis
+                    </Button>
+                    <Button
+                      onClick={handleGenerateVoice}
+                      disabled={isGeneratingVoice}
+                      className="mb-2 mx-2"
+                      style={{
+                        backgroundColor: "#EB631C",
+                        borderColor: "#EB631C",
+                        color: "white",
+                        minWidth: "150px",
+                        maxWidth: "250px", // Setting a max-width
+                        flex: "1 1 auto" // Allow flex to grow and shrink
+                      }}
+                    >
+                      {isGeneratingVoice ? (
+                        <>
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
+                        </>
+                      ) : (
+                        "Generate Voice"
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleReadReplayButton}
+                      variant="outline-secondary"
+                      className="mb-2"
+                      style={{
+                        borderColor: "#FDA942",
+                        color: "black",
+                        backgroundColor: "white",
+                      }}
+                      disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+                    >
+                      Latest Read
+                    </Button>
+                  </div>
+                  <div
+                    className="position-absolute"
+                    style={{
+                      bottom: "49px",
+                      right: "0px",
+                      background: "rgba(0, 0, 0, 0.7)",
+                      color: "white",
+                      padding: "0 5px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    {typedText.replace(/'/g, "").length}/{charLimit}
+                  </div>
+                </Form.Group>
+              </Card.Body>
+              {showAudioPlayer && (
+                <SimpleAudioPlayer
+                  audioSrc={generatedVoiceUrl}
+                  audioTitle={localCurrentSectionObj.getVoiceName()}
+                  allowDownload={allowDownload}
+                  autoplay={true}
+                  forceRender={forceRenderKey}
+                />
               )}
-              <Form.Group controlId="intonationConsistencyLevel" className="mt-2">
-                <Form.Label style={{ fontSize: "0.875rem" }}>Intonation Consistency Level</Form.Label>
-                <FireSlider
-                  min={0}
-                  max={100}
-                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
-                  onValueChange={handleIntonationChange}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{ marginTop: "18px" }}
-                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
-                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
-                />
-              </Form.Group>
-              <Form.Group controlId="speechRate" className="mt-2">
-                <Form.Label style={{ fontSize: "0.875rem" }}>Speech Rate</Form.Label>
-                <FireSlider
-                  min={0}
-                  max={100}
-                  value={manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate())}
-                  onValueChange={handleSpeechRate}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{ marginTop: "18px" }}
-                  leftInfoMessage="Slower"
-                  rightInfoMessage="Faster"
-                  reset={resetSpeechRate}
-                />
-              </Form.Group>
-            </Form>
-          </Card>
-        </div>
-      </div>
-      <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
-      <Offcanvas
-        show={offcanvasVisible}
-        onHide={hideOffcanvas}
-        placement="bottom"
-        style={{ width: "100%", height: "auto", minHeight: "40%", maxHeight: "100%" }}
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title >Change Emphasis</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body style={{ overflowY: "auto" }}>
-          <Form.Label style={{ fontSize: "0.875rem" }}>
-            Click on a word to change its emphasis
-          </Form.Label>
-          <div
-            className="bg-light p-2 rounded mt-2"
-            style={{
-              height: "100%",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "5px",
-            }}
-          >
-            {typedText.split(" ").map((word, index) => (
-              <Dropdown key={index} drop="end" className="d-inline-block me-1 mb-1">
-                <Dropdown.Toggle
-                  as="span"
-                  onClick={(e) => handleLeftClick(e, index)}
-                  style={{
-                    cursor: "pointer",
-                    color: "#EB631C", // Orange brand color
-                    backgroundColor: "#f8f9fa", // Light background color
-                    padding: "5px 10px",
-                    borderRadius: "10px",
-                    fontSize: "1rem", // Larger font size
-                    fontWeight: "500", // Medium font weight
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.textDecorationColor = "#EB631C";
-                    e.target.style.backgroundColor = "#ffecd1";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.textDecorationColor = "#EB631C";
-                    e.target.style.backgroundColor = "#f8f9fa";
-                  }}
-                >
-                  {transformedWords[index] || word}
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  show={showMenu && selectedWordIndex === index}
-                  style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}
-                >
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>
-                    High Emphasis
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>
-                    Medium Emphasis
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>
-                    Low Emphasis
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>
-                    Remove Emphasis
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            ))}
+            </Card>
+            <div className="d-flex justify-content-start align-items-center mt-3 flex-wrap">
+              <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>
+                Next
+              </Button>
+              <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
+              <SecondaryActionButton
+                onClick={showHistoryOffcanvas}
+                initialText="History"
+                clickedText="History!"
+                duration={1000}
+                disabled={
+                  !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
+                }
+                className="mt-3"
+              />
+              <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
+            </div>
           </div>
-        </Offcanvas.Body>
-      </Offcanvas>
+          {/* Right Card for Progress Bar and Voice Editor */}
+          <div className="col-12 col-lg-4 p-3" style={{ height: "100%", overflow: "hidden" }}>
+            <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
+              <div className="position-absolute" style={{ top: "10px", left: "10px", marginBottom: "20px" }}>
+                {localCurrentSectionObj.getIndex() !== 0 && <BackButton width="30px" height="30px" backgroundColor="#eb631c" onClick={handleGoBack} />}
+              </div>
+              <Card.Title className="mt-5" style={{ fontSize: "1.25rem" }}>
+                <div className="d-flex align-items-center font-weight-bold">
+                  <i className="bi bi-pencil-square me-2" style={{ cursor: "pointer", fontSize: "0.8em" }} onClick={() => setShowRenameModal(true)}></i>
+                  {spotName}
+                </div>
+                <br />
+                <span className="text-muted" style={{ fontSize: "0.875rem" }}>Section {localCurrentSectionObj.getIndex() + 1} of {numSectionsIdentified}</span>
+              </Card.Title>
+              <Form key={localCurrentSectionObj.getHistoryItemId()} className="d-flex flex-column flex-grow-1">
+                <Form.Group controlId="voice" className="mb-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
+                  <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
+                </Form.Group>
+                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
+                <Form.Group controlId="voice" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
+                  {voiceOptions.length === 0 ? (
+                    <div className="d-flex align-items-center">
+                      <Form.Select aria-label="Voice select" disabled className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
+                        <option>Loading voice choices...</option>
+                      </Form.Select>
+                      <Spinner animation="border" />
+                    </div>
+                  ) : (
+                    <div className="d-flex align-items-center">
+                      <Form.Select aria-label="Voice select" value={localCurrentSectionObj.getVoiceName()} onChange={handleVoiceChange} className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
+                        {voiceOptions.filter(voice => {
+                          const isRestrictedVoice = restrictedVoices.includes(voice);
+                          const isFirebayStudiosEmail = auth.currentUser.email.split("@")[1] === "firebaystudios.com";
+                          return !isRestrictedVoice || (isRestrictedVoice && isFirebayStudiosEmail);
+                        }).map((voice) => (
+                          <option key={voice} value={voice}>{voice}</option>
+                        ))}
+                      </Form.Select>
+                      <PlayButton onClickHandler={handleVoicePreviewPlayButton} handlerArgs={[]} size="32px" preventDefault={true} />
+                    </div>
+                  )}
+                </Form.Group>
+                <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
+                  <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
+                  <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
+                    <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
+                  </OverlayTrigger>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="dragonBreathEnhancementSwitch"
+                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                      onChange={handleDragonBreathEnhancementChange}
+                      style={{
+                        backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
+                        borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
+                      }}
+                    />
+                  </div>
+                </Form.Group>
+                {!localCurrentSectionObj.getDragonBreathEnhancement() && (
+                  <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
+                    Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath
+                  </Alert>
+                )}
+                <Form.Group controlId="intonationConsistencyLevel" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Intonation Consistency Level</Form.Label>
+                  <FireSlider
+                    min={0}
+                    max={100}
+                    value={localCurrentSectionObj.getVoiceIntonationConsistency()}
+                    onValueChange={handleIntonationChange}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{ marginTop: "18px" }}
+                    leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
+                    rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
+                  />
+                </Form.Group>
+                <Form.Group controlId="speechRate" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Speech Rate</Form.Label>
+                  <FireSlider
+                    min={0}
+                    max={100}
+                    value={manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate())}
+                    onValueChange={handleSpeechRate}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{ marginTop: "18px" }}
+                    leftInfoMessage="Slower"
+                    rightInfoMessage="Faster"
+                    reset={resetSpeechRate}
+                  />
+                </Form.Group>
+              </Form>
+            </Card>
+          </div>
+        </div>
+        <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
+        <Offcanvas
+          show={offcanvasVisible}
+          onHide={hideOffcanvas}
+          placement="bottom"
+          style={{ width: "100%", height: "auto", minHeight: "40%", maxHeight: "100%" }}
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body style={{ overflowY: "auto" }}>
+            <Form.Label style={{ fontSize: "0.875rem" }}>
+              Click on a word to change its emphasis
+            </Form.Label>
+            <div
+              className="bg-light p-2 rounded mt-2"
+              style={{
+                height: "100%",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "5px",
+              }}
+            >
+              {typedText.split(" ").map((word, index) => (
+                <Dropdown key={index} drop="end" className="d-inline-block me-1 mb-1">
+                  <Dropdown.Toggle
+                    as="span"
+                    onClick={(e) => handleLeftClick(e, index)}
+                    style={{
+                      cursor: "pointer",
+                      color: "#EB631C", // Orange brand color
+                      backgroundColor: "#f8f9fa", // Light background color
+                      padding: "5px 10px",
+                      borderRadius: "10px",
+                      fontSize: "1rem", // Larger font size
+                      fontWeight: "500", // Medium font weight
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.textDecorationColor = "#EB631C";
+                      e.target.style.backgroundColor = "#ffecd1";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.textDecorationColor = "#EB631C";
+                      e.target.style.backgroundColor = "#f8f9fa";
+                    }}
+                  >
+                    {transformedWords[index] || word}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu
+                    show={showMenu && selectedWordIndex === index}
+                    style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}
+                  >
+                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>
+                      High Emphasis
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>
+                      Medium Emphasis
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>
+                      Low Emphasis
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>
+                      Remove Emphasis
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              ))}
+            </div>
+          </Offcanvas.Body>
+        </Offcanvas>
+      </div>
     </div>
   );
 }
