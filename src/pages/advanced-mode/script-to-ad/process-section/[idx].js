@@ -113,7 +113,10 @@ function ProcessSection() {
   const [historyOffcanvasVisible, setHistoryOffcanvasVisibility] = useState(false);
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
-  const showOffcanvas = () => setOffcanvasVisibility(true);
+  const showOffcanvas = () => {
+    setShowMenu(false); // Ensure dropdown is closed when offcanvas opens
+    setOffcanvasVisibility(true);
+  };
 
   const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
   const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
@@ -1132,16 +1135,8 @@ function ProcessSection() {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
-
-
     </div>
   );
-
-
-
-
-
 }
 
-// export default withAuth(ProcessSection);
 export default ProcessSection;
