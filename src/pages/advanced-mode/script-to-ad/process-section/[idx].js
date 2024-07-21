@@ -897,7 +897,7 @@ function ProcessSection() {
                       color: "black",
                       width: "100%",
                       fontSize: "0.875rem",
-                      height: "366px",
+                      height: "366px", // This height can be dynamically adjusted based on your needs
                       marginBottom: "10px",
                       overflow: "hidden",
                       resize: "none",
@@ -954,7 +954,7 @@ function ProcessSection() {
                   <div
                     className="position-absolute"
                     style={{
-                      bottom: "49px",
+                      bottom: "57px", // Adjust this value according to the height of the textarea
                       right: "0px",
                       background: "rgba(0, 0, 0, 0.7)",
                       color: "white",
@@ -1180,6 +1180,8 @@ function ProcessSection() {
       </div>
     </div>
   );
+
+
 }
 
 export default ProcessSection;
