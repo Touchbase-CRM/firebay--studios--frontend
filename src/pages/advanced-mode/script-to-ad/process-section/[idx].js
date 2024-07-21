@@ -1103,12 +1103,12 @@ function ProcessSection() {
         show={offcanvasVisible}
         onHide={hideOffcanvas}
         placement="bottom"
-        style={{ width: "100%", height: "auto", minHeight: "40%" }}
+        style={{ width: "100%", height: "auto", minHeight: "40%", maxHeight: "100%" }}
       >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
         </Offcanvas.Header>
-        <Offcanvas.Body style={{ overflow: "hidden" }}>
+        <Offcanvas.Body style={{ overflowY: "auto" }}>
           <Form.Label style={{ fontSize: "0.875rem" }}>
             Click on a word to change its emphasis
           </Form.Label>
@@ -1116,7 +1116,6 @@ function ProcessSection() {
             className="bg-light p-2 rounded mt-2"
             style={{
               height: "100%",
-              overflow: "hidden",
               display: "flex",
               flexWrap: "wrap",
               gap: "5px",
@@ -1129,7 +1128,6 @@ function ProcessSection() {
                   onClick={(e) => handleLeftClick(e, index)}
                   style={{
                     cursor: "pointer",
-                    // textDecoration: "underline",
                     color: "#EB631C", // Orange brand color
                     backgroundColor: "#f8f9fa", // Light background color
                     padding: "5px 10px",
@@ -1173,6 +1171,7 @@ function ProcessSection() {
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
 
     </div>
   );
