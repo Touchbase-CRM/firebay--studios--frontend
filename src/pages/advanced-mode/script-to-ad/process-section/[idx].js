@@ -1096,7 +1096,7 @@ function ProcessSection() {
         </div>
       </div>
       <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
-      <Offcanvas show={offcanvasVisible} onHide={hideOffcanvas} placement="bottom" style={{ width: "100%", height: "40%" }}>
+      <Offcanvas show={offcanvasVisible} onHide={hideOffcanvas} placement="bottom" style={{ width: "100%", height: "auto", maxHeight: "90%", minHeight: "40%" }}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
         </Offcanvas.Header>
