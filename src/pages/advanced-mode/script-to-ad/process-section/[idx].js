@@ -1125,12 +1125,15 @@ function ProcessSection() {
                   <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Dropdown.Item>
                   <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Dropdown.Item>
                   <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item> {/* New Cancel option */}
                 </Dropdown.Menu>
               </Dropdown>
             ))}
           </div>
         </Offcanvas.Body>
       </Offcanvas>
+
+
     </div>
   );
 
