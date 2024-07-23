@@ -72,13 +72,18 @@ export default function SimpleAudioPlayer({
           src={audioSrc || undefined}
           autoPlay={autoplay}
           header={null}
-          showJumpControls={false}
+          showJumpControls={true}
           customAdditionalControls={[]}
           customVolumeControls={[]}
           customProgressBarSection={[
             RHAP_UI.CURRENT_TIME,
             RHAP_UI.PROGRESS_BAR,
             RHAP_UI.DURATION,
+          ]}
+          customControlsSection={[
+            RHAP_UI.ADDITIONAL_CONTROLS,
+            RHAP_UI.MAIN_CONTROLS,
+            RHAP_UI.VOLUME_CONTROLS,
           ]}
           style={styles.audioPlayer}
         />
