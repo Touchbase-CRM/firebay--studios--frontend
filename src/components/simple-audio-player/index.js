@@ -60,10 +60,10 @@ export default function SimpleAudioPlayer({
     <div className="fixed-bottom bg-light border-top">
       <div className="container pt-2 pb-2">
         <div className="row align-items-center">
-          <div className="col-10">
+          <div className="col-8 col-md-10">
             <span>Now playing: {audioTitle}</span>
           </div>
-          <div className="col-2 text-end">
+          <div className="col-4 col-md-2 text-end">
             {setShowAudioPlayer && (
               <button
                 onClick={() => setShowAudioPlayer(false)}
