@@ -1156,6 +1156,12 @@ function ProcessSection() {
             </div>
             {showMenu && (
               <div className="mt-3">
+                <Form.Label style={{ fontSize: "0.875rem", display: "block", textAlign: "left", marginBottom: "1rem" }}>
+                  Select an option to emphasize the chosen word:  <span style={{ fontFamily: "'Times New Roman', Times, serif", fontWeight: "bold", color: "#EB631C", fontSize: "1.2rem", fontStyle: "italic" }}>{ogScriptWordsArray[selectedWordIndex]}</span>
+                </Form.Label>
+
+
+
                 <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Button>
                 <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Button>
                 <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</Button>
