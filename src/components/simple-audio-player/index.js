@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import AudioPlayer from "react-h5-audio-player";
+import AudioPlayer, { RHAP_UI } from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { getAuth } from "firebase/auth";
@@ -22,10 +22,8 @@ export default function SimpleAudioPlayer({
 
   const downloadFileName = `${spotName}--${capturedTimestamp}.mp3`;
 
-  // Enhanced increment function with additional checks
   const incrementMonthlyDownloads = useCallback(async () => {
     if (!allowDownload) {
-      // Exit if downloading is not allowed
       return;
     }
 
@@ -48,63 +46,105 @@ export default function SimpleAudioPlayer({
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists() && docSnap.data().monthly_downloads !== undefined) {
-        // Increment only if monthly_downloads field exists
         await updateDoc(docRef, {
           monthly_downloads: docSnap.data().monthly_downloads + 1,
         });
       }
     }
-  }, [allowDownload]); // Dependency on allowDownload to reinitialize if its value changes
+  }, [allowDownload]);
 
   return (
-    <div className="fixed-bottom bg-light border-top">
-      <div className="container pt-2 pb-2">
-        <div className="row align-items-center">
-          <div className="col-8 col-md-10">
-            <span>Now playing: {audioTitle}</span>
-          </div>
-          <div className="col-4 col-md-2 text-end">
-            {setShowAudioPlayer && (
-              <button
-                onClick={() => setShowAudioPlayer(false)}
-                className="btn btn-link"
-                style={{ fontSize: "1.5em", color: "black" }}
-              >
-                <i className="bi bi-x"></i>
-              </button>
-            )}
-          </div>
+    <div style={styles.audioPlayerContainer}>
+      <div style={styles.audioPlayerContent}>
+        <div style={styles.infoRow}>
+          <div style={styles.audioTitle}>Now playing: {audioTitle}</div>
+          {setShowAudioPlayer && (
+            <button
+              onClick={() => setShowAudioPlayer(false)}
+              style={styles.closeBtn}
+            >
+              <i className="bi bi-x"></i>
+            </button>
+          )}
         </div>
-        <div className="row justify-content-center">
-          <div className="col-12">
-            <AudioPlayer
-              key={forceRender}
-              src={audioSrc || undefined}
-              autoPlay={autoplay}
-              header={null} // Remove the header from AudioPlayer
-              showJumpControls={false}
-              customAdditionalControls={[]}
-              customVolumeControls={[]}
-            />
-          </div>
-        </div>
+        <AudioPlayer
+          key={forceRender}
+          src={audioSrc || undefined}
+          autoPlay={autoplay}
+          header={null}
+          showJumpControls={false}
+          customAdditionalControls={[]}
+          customVolumeControls={[]}
+          customProgressBarSection={[
+            RHAP_UI.CURRENT_TIME,
+            RHAP_UI.PROGRESS_BAR,
+            RHAP_UI.DURATION,
+          ]}
+          style={styles.audioPlayer}
+        />
         {allowDownload && (
-          <div className="row">
-            <div className="col-12 text-end">
-              <a
-                href={audioSrc}
-                download={downloadFileName}
-                className="btn btn-link"
-                title="Download"
-                style={{ fontSize: "1.5em", color: "#EB631C" }}
-                onClick={incrementMonthlyDownloads}
-              >
-                <i className="bi bi-download"></i>
-              </a>
-            </div>
+          <div style={styles.downloadRow}>
+            <a
+              href={audioSrc}
+              download={downloadFileName}
+              style={styles.downloadBtn}
+              onClick={incrementMonthlyDownloads}
+            >
+              <i className="bi bi-download"></i>
+            </a>
           </div>
         )}
       </div>
     </div>
   );
 }
+
+const styles = {
+  audioPlayerContainer: {
+    background: "#ffffff",
+    boxShadow: "0px 0px 15px rgba(0, 0, 0, 0.1)",
+    borderRadius: "10px",
+    margin: "10px",
+    position: "fixed",
+    bottom: "10px",
+    width: "calc(100% - 20px)",
+    maxWidth: "600px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 1000,
+  },
+  audioPlayerContent: {
+    padding: "10px",
+  },
+  infoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px",
+  },
+  audioTitle: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+  closeBtn: {
+    fontSize: "1.5em",
+    color: "black",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+  },
+  downloadRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: "10px",
+  },
+  downloadBtn: {
+    fontSize: "1.5em",
+    color: "#EB631C",
+    textDecoration: "none",
+  },
+  audioPlayer: {
+    background: "transparent",
+    boxShadow: "none",
+  },
+};
