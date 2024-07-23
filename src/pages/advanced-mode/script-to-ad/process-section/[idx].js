@@ -881,7 +881,7 @@ function ProcessSection() {
         <div className="row" style={{ overflow: "hidden" }}>
           {/* Left Card for Section Editor */}
           <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
-            <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
+            <Card className="p-2 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
               <Card.Body className="d-flex flex-column">
                 <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
                 <Form.Group controlId="script" className="position-relative">
@@ -1185,4 +1185,4 @@ function ProcessSection() {
 
 }
 
-export default ProcessSection;
+export default withAuth(ProcessSection);
