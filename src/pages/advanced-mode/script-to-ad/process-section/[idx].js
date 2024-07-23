@@ -11,7 +11,6 @@ import {
   OverlayTrigger,
   Tooltip,
   Offcanvas,
-  Dropdown,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -346,11 +345,9 @@ function ProcessSection() {
     );
   };
 
-  const handleLeftClick = (event, index) => {
-    event.preventDefault();
-    setShowMenu(true);
-    setMenuPosition({ x: event.clientX, y: event.clientY });
+  const handleWordClick = (index) => {
     setSelectedWordIndex(index);
+    setShowMenu(true);
   };
 
   const transformWord = (action) => {
@@ -392,6 +389,7 @@ function ProcessSection() {
 
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
+    setSelectedWordIndex(null);
   };
 
   const handleSpeechRate = (value) => {
@@ -1129,60 +1127,47 @@ function ProcessSection() {
               }}
             >
               {typedText.split(" ").map((word, index) => (
-                <Dropdown key={index} drop="end" className="d-inline-block me-1 mb-1">
-                  <Dropdown.Toggle
-                    as="span"
-                    onClick={(e) => handleLeftClick(e, index)}
-                    style={{
-                      cursor: "pointer",
-                      color: "#EB631C", // Orange brand color
-                      backgroundColor: "#f8f9fa", // Light background color
-                      padding: "5px 10px",
-                      borderRadius: "10px",
-                      fontSize: "1rem", // Larger font size
-                      fontWeight: "500", // Medium font weight
-                      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                      transition: "all 0.3s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.textDecorationColor = "#EB631C";
-                      e.target.style.backgroundColor = "#ffecd1";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.textDecorationColor = "#EB631C";
-                      e.target.style.backgroundColor = "#f8f9fa";
-                    }}
-                  >
-                    {transformedWords[index] || word}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu
-                    show={showMenu && selectedWordIndex === index}
-                    style={{ top: menuPosition.y, left: menuPosition.x, zIndex: 1000 }}
-                  >
-                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel3")}>
-                      High Emphasis
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel2")}>
-                      Medium Emphasis
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => transformWord("emphasizeLevel1")}>
-                      Low Emphasis
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => transformWord("removeEmphasis")}>
-                      Remove Emphasis
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setShowMenu(false)}>Cancel</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+                <span
+                  key={index}
+                  style={{
+                    cursor: "pointer",
+                    color: "#EB631C", // Orange brand color
+                    backgroundColor: "#f8f9fa", // Light background color
+                    padding: "5px 10px",
+                    borderRadius: "10px",
+                    fontSize: "1rem", // Larger font size
+                    fontWeight: "500", // Medium font weight
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.textDecorationColor = "#EB631C";
+                    e.target.style.backgroundColor = "#ffecd1";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.textDecorationColor = "#EB631C";
+                    e.target.style.backgroundColor = "#f8f9fa";
+                  }}
+                  onClick={() => handleWordClick(index)}
+                >
+                  {transformedWords[index] || word}
+                </span>
               ))}
             </div>
+            {showMenu && (
+              <div className="mt-3">
+                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => setShowMenu(false)}>Cancel</Button>
+              </div>
+            )}
           </Offcanvas.Body>
         </Offcanvas>
       </div>
     </div>
   );
-
-
 }
 
-export default withAuth(ProcessSection);
+export default ProcessSection;
