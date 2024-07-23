@@ -390,6 +390,7 @@ function ProcessSection() {
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
     setSelectedWordIndex(null);
+    setShowOptions(false); // Hide the options and show the words again
   };
 
   const handleSpeechRate = (value) => {
@@ -872,6 +873,8 @@ function ProcessSection() {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
 
+  const [showOptions, setShowOptions] = useState(false); // State to control options visibility
+
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
       <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
@@ -1111,66 +1114,73 @@ function ProcessSection() {
           style={{ width: "100%", height: "auto", minHeight: "40%", maxHeight: "100%" }}
         >
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Change Emphasis</Offcanvas.Title>
+            <Offcanvas.Title style={{ fontSize: "1rem", display: "block", textAlign: "left" }}>
+              {showOptions
+                ? <>Select an option to emphasize the chosen word: <span style={{ fontFamily: "'Times New Roman', Times, serif", fontWeight: "bold", color: "#EB631C", fontSize: "1.2rem", fontStyle: "italic" }}>{ogScriptWordsArray[selectedWordIndex]}</span></>
+                : "Change Emphasis"}
+            </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body style={{ overflowY: "auto" }}>
-            <Form.Label style={{ fontSize: "0.875rem" }}>
-              Click on a word to change its emphasis
-            </Form.Label>
-            <div
-              className="bg-light p-2 rounded mt-2"
-              style={{
-                height: "100%",
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "5px",
-              }}
-            >
-              {typedText.split(" ").map((word, index) => (
-                <span
-                  key={index}
-                  style={{
-                    cursor: "pointer",
-                    color: "#EB631C", // Orange brand color
-                    backgroundColor: "#f8f9fa", // Light background color
-                    padding: "5px 10px",
-                    borderRadius: "10px",
-                    fontSize: "1rem", // Larger font size
-                    fontWeight: "500", // Medium font weight
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.textDecorationColor = "#EB631C";
-                    e.target.style.backgroundColor = "#ffecd1";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.textDecorationColor = "#EB631C";
-                    e.target.style.backgroundColor = "#f8f9fa";
-                  }}
-                  onClick={() => handleWordClick(index)}
-                >
-                  {transformedWords[index] || word}
-                </span>
-              ))}
-            </div>
-            {showMenu && (
-              <div className="mt-3">
-                <Form.Label style={{ fontSize: "0.875rem", display: "block", textAlign: "left", marginBottom: "1rem" }}>
-                  Select an option to emphasize the chosen word:  <span style={{ fontFamily: "'Times New Roman', Times, serif", fontWeight: "bold", color: "#EB631C", fontSize: "1.2rem", fontStyle: "italic" }}>{ogScriptWordsArray[selectedWordIndex]}</span>
+            {!showOptions ? (
+              <>
+                <Form.Label style={{ fontSize: "0.875rem" }}>
+                  Click on a word to change its emphasis
                 </Form.Label>
-
-
-
-                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel1")}>Low Emphasis</Button>
-                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel2")}>Medium Emphasis</Button>
-                <Button variant="secondary" className="me-2" onClick={() => transformWord("emphasizeLevel3")}>High Emphasis</Button>
-                <Button variant="secondary" className="me-2" onClick={() => transformWord("removeEmphasis")}>Remove Emphasis</Button>
-                <Button variant="secondary" className="me-2" onClick={() => setShowMenu(false)}>Cancel</Button>
+                <div
+                  className="bg-light p-2 rounded mt-2"
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "5px",
+                  }}
+                >
+                  {typedText.split(" ").map((word, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        cursor: "pointer",
+                        color: "#EB631C", // Orange brand color
+                        backgroundColor: "#f8f9fa", // Light background color
+                        padding: "5px 10px",
+                        borderRadius: "10px",
+                        fontSize: "1rem", // Larger font size
+                        fontWeight: "500", // Medium font weight
+                        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.textDecorationColor = "#EB631C";
+                        e.target.style.backgroundColor = "#ffecd1";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.textDecorationColor = "#EB631C";
+                        e.target.style.backgroundColor = "#f8f9fa";
+                      }}
+                      onClick={() => {
+                        handleWordClick(index);
+                        setShowOptions(true); // Show the options when a word is clicked
+                      }}
+                    >
+                      {transformedWords[index] || word}
+                    </span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="mt-3">
+                <Button variant="secondary" className="me-2" onClick={() => { transformWord("emphasizeLevel1"); setShowOptions(false); }}>Low Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => { transformWord("emphasizeLevel2"); setShowOptions(false); }}>Medium Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => { transformWord("emphasizeLevel3"); setShowOptions(false); }}>High Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => { transformWord("removeEmphasis"); setShowOptions(false); }}>Remove Emphasis</Button>
+                <Button variant="secondary" className="me-2" onClick={() => setShowOptions(false)}>Cancel</Button>
               </div>
             )}
           </Offcanvas.Body>
         </Offcanvas>
+
+
+
       </div>
     </div>
   );
