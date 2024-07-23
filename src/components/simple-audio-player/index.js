@@ -15,6 +15,7 @@ export default function SimpleAudioPlayer({
   forceRender = 0,
   autoplay = false,
   allowDownload = false,
+  setShowAudioPlayer, // Optional prop
 }) {
   const { spotName, spotId } = useUserInputsStore();
   const capturedTimestamp = captureCurrentTimestamp();
@@ -58,42 +59,51 @@ export default function SimpleAudioPlayer({
   return (
     <div className="fixed-bottom bg-light border-top">
       <div className="container pt-2 pb-2">
-        <AudioPlayer
-          key={forceRender}
-          src={audioSrc || undefined}
-          autoPlay={autoplay}
-          header={
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                color: "black",
-              }}
-            >
-              <span>Now playing: {audioTitle}</span>
-              {allowDownload && (
-                <a
-                  href={audioSrc}
-                  download={downloadFileName}
-                  className="btn btn-link"
-                  title="Download"
-                  style={{
-                    marginLeft: "auto",
-                    fontSize: "1.5em",
-                    color: "#EB631C",
-                  }}
-                  onClick={incrementMonthlyDownloads}
-                >
-                  <i className="bi bi-download"></i>
-                </a>
-              )}
+        <div className="row align-items-center">
+          <div className="col-10">
+            <span>Now playing: {audioTitle}</span>
+          </div>
+          <div className="col-2 text-end">
+            {setShowAudioPlayer && (
+              <button
+                onClick={() => setShowAudioPlayer(false)}
+                className="btn btn-link"
+                style={{ fontSize: "1.5em", color: "black" }}
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="col-12">
+            <AudioPlayer
+              key={forceRender}
+              src={audioSrc || undefined}
+              autoPlay={autoplay}
+              header={null} // Remove the header from AudioPlayer
+              showJumpControls={false}
+              customAdditionalControls={[]}
+              customVolumeControls={[]}
+            />
+          </div>
+        </div>
+        {allowDownload && (
+          <div className="row">
+            <div className="col-12 text-end">
+              <a
+                href={audioSrc}
+                download={downloadFileName}
+                className="btn btn-link"
+                title="Download"
+                style={{ fontSize: "1.5em", color: "#EB631C" }}
+                onClick={incrementMonthlyDownloads}
+              >
+                <i className="bi bi-download"></i>
+              </a>
             </div>
-          }
-          showJumpControls={false}
-          customAdditionalControls={[]}
-          customVolumeControls={[]}
-        />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -973,6 +973,7 @@ function ProcessSection() {
                   allowDownload={allowDownload}
                   autoplay={true}
                   forceRender={forceRenderKey}
+                  setShowAudioPlayer={setShowAudioPlayer}
                 />
               )}
             </Card>
