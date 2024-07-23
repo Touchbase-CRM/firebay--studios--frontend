@@ -85,6 +85,10 @@ export default function SimpleAudioPlayer({
             RHAP_UI.MAIN_CONTROLS,
             RHAP_UI.VOLUME_CONTROLS,
           ]}
+          progressJumpSteps={{
+            forward: 2000,
+            backward: 2000
+          }}
           style={styles.audioPlayer}
         />
         {allowDownload && (
@@ -113,7 +117,7 @@ const styles = {
     position: "fixed",
     bottom: "10px",
     width: "calc(100% - 20px)",
-    maxWidth: "600px",
+    maxWidth: "900px",
     left: "50%",
     transform: "translateX(-50%)",
     zIndex: 1000,
