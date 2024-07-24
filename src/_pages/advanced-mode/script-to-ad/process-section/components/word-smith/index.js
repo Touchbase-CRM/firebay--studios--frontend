@@ -31,7 +31,7 @@ const WordSmithOffcanvas = ({
             color: "#000000", // Text color black
         },
         cancel: {
-            borderColor: "#EB631C", // Cancel button border color
+            borderColor: "#ffba87", // Cancel button border color
             color: "#000000", // Text color black
         }
     };
