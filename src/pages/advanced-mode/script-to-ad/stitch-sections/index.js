@@ -434,6 +434,8 @@ function StitchSections() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        fontFamily: "Arial, sans-serif",
+        color: "#333",
       }}
     >
       <NavBar
@@ -455,8 +457,9 @@ function StitchSections() {
             display: "flex",
             alignItems: "center",
             fontWeight: "bold",
-            fontSize: "1.2em",
+            fontSize: "1.3em",
             marginTop: "20px",
+            color: "#333",
           }}
         >
           <i
@@ -465,14 +468,14 @@ function StitchSections() {
               cursor: "pointer",
               marginRight: "10px",
               marginLeft: "10px",
-              fontSize: "0.8em",
+              fontSize: "1em",
             }}
             onClick={() => setShowRenameModal(true)}
           ></i>
           {spotName}
         </div>
         <Card.Body>
-          <Card.Title style={{ color: "white" }}>Sections Overview</Card.Title>
+          <Card.Title style={{ color: "#000000" }}>Sections Overview</Card.Title>
           <div
             style={{
               overflowY: "auto",
@@ -481,69 +484,27 @@ function StitchSections() {
             }}
           >
             <Table bordered hover style={{ borderColor: "#eb631c" }}>
-              <thead style={{ backgroundColor: "#eb631c" }}>
+              <thead style={{ backgroundColor: "#eb631c", color: "white" }}>
                 <tr>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "8%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Section ID
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "15%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Voice Name
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "35%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Section Content
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "12%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Duration
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "12%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Section End Pause
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "9%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Play
                   </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                      width: "9%",
-                    }}
-                  >
+                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
                     Edit
                   </th>
                 </tr>
@@ -551,29 +512,17 @@ function StitchSections() {
               <tbody>
                 {localSectionsArray.map((section, index) => (
                   <tr key={index}>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
                       {index + 1}
                     </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
                       {section.getVoiceName()}
                     </td>
                     <td
                       style={{
                         border: "1px solid #eb631c",
-                        verticalAlign: "middle",
                         textAlign: "center",
+                        verticalAlign: "middle",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -581,32 +530,19 @@ function StitchSections() {
                       }}
                       onClick={() => handleContentClick(section.getCurrentContent())}
                     >
-                      {section.getCurrentContent().length > 30
-                        ? (
-                          <>
-                            {`${section.getCurrentContent().substring(0, 30)}`}
-                            <span style={{ color: "#808080", fontStyle: "italic" }}> ...see more</span>
-                          </>
-                        )
-                        : section.getCurrentContent()}
+                      {section.getCurrentContent().length > 30 ? (
+                        <>
+                          {`${section.getCurrentContent().substring(0, 30)}`}
+                          <span style={{ color: "#808080", fontStyle: "italic" }}> ...see more</span>
+                        </>
+                      ) : (
+                        section.getCurrentContent()
+                      )}
                     </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
                       {section.getSectionDurationSeconds().toFixed(2)} sec
                     </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                        padding: "0",
-                      }}
-                    >
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle", padding: "0" }}>
                       <div
                         style={{
                           display: "inline-flex",
@@ -618,62 +554,32 @@ function StitchSections() {
                         <span style={{ marginRight: "8px" }}>
                           {section.getEndOfSectionPauseDurationSeconds()} sec
                         </span>
-                        <EditButton
-                          onClickHandler={() =>
-                            showEditPauseDurationModal(index)
-                          }
-                        />
+                        <EditButton onClickHandler={() => showEditPauseDurationModal(index)} />
                         <EditPauseDurationModal
                           show={isEditPauseModalVisible}
                           onHide={() => setEditPauseModalVisible(false)}
                           initialValue={section.getEndOfSectionPauseDurationSeconds()}
                           onSave={(newPauseDuration) => {
                             if (currentEditingSectionIndex !== null) {
-                              updatePauseDuration(
-                                currentEditingSectionIndex,
-                                newPauseDuration
-                              );
+                              updatePauseDuration(currentEditingSectionIndex, newPauseDuration);
                             }
                             setEditPauseModalVisible(false);
                           }}
                           maxValue={Math.floor(
                             adLength -
-                            localSectionsArray
-                              .reduce(
-                                (acc, section) =>
-                                  acc +
-                                  section.sectionDurationSeconds +
-                                  section.getEndOfSectionPauseDurationSeconds(),
-                                0
-                              )
-                              .toFixed(2)
+                            localSectionsArray.reduce(
+                              (acc, section) => acc + section.sectionDurationSeconds + section.getEndOfSectionPauseDurationSeconds(),
+                              0
+                            ).toFixed(2)
                           )}
                         />
                       </div>
                     </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      <PlayButton
-                        onClickHandler={() => handleSectionPreviewPlay(section)}
-                        size="28px"
-                      />
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
+                      <PlayButton onClickHandler={() => handleSectionPreviewPlay(section)} size="28px" />
                     </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      <EditButton
-                        onClickHandler={() => handleEditSection(section)}
-                        size="28px"
-                      />
+                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
+                      <EditButton onClickHandler={() => handleEditSection(section)} size="28px" />
                     </td>
                   </tr>
                 ))}
@@ -684,31 +590,24 @@ function StitchSections() {
             style={{
               marginTop: "20px",
               padding: "10px 20px",
-              backgroundColor: "#e4e4e4",
+              backgroundColor: "#f9f9f9",
               borderRadius: "10px",
+              fontSize: "1em",
+              color: "#333",
             }}
           >
-            <div style={{ color: "black", marginBottom: "10px" }}>
+            <div style={{ marginBottom: "10px" }}>
               Total duration without pauses:{" "}
-              {localSectionsArray
-                .reduce(
-                  (acc, section) => acc + section.sectionDurationSeconds,
-                  0
-                )
-                .toFixed(2)}{" "}
+              {localSectionsArray.reduce((acc, section) => acc + section.sectionDurationSeconds, 0).toFixed(2)}{" "}
               seconds
             </div>
-            <div style={{ color: "black" }}>
+            <div>
               Total duration with pauses:{" "}
-              {localSectionsArray
-                .reduce(
-                  (acc, section) =>
-                    acc +
-                    section.sectionDurationSeconds +
-                    section.getEndOfSectionPauseDurationSeconds(),
-                  0
-                )
-                .toFixed(2)}{" "}
+              {localSectionsArray.reduce(
+                (acc, section) =>
+                  acc + section.sectionDurationSeconds + section.getEndOfSectionPauseDurationSeconds(),
+                0
+              ).toFixed(2)}{" "}
               seconds
             </div>
             <div style={{ flex: 1, textAlign: "center" }}>
@@ -728,10 +627,7 @@ function StitchSections() {
                 }}
                 disabled={!combinedVoiceoverUrl}
               >
-                <i
-                  class="bi bi-arrow-clockwise"
-                  style={{ verticalAlign: "middle" }}
-                ></i>
+                <i className="bi bi-arrow-clockwise" style={{ verticalAlign: "middle" }}></i>
                 <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
                   Replay Final Cut
                 </span>
@@ -800,6 +696,7 @@ function StitchSections() {
       </Modal>
     </div>
   );
+
 
 }
 
