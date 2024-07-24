@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import _ from "lodash";
 
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table } from "react-bootstrap";
+import { Card, Button, Table, Modal } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import RenameModal from "@/components/rename-modal";
@@ -55,7 +55,6 @@ function StitchSections() {
   const saveFeatureSpecificStates = {
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
-    // navigationStack, // not needed
   };
 
   const saveSharedStates = {
@@ -79,10 +78,13 @@ function StitchSections() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
-  const [nowPlayingUrl, setNowPlayingUrl] = useState(""); // This is a bug; look at Jira for more details
+  const [nowPlayingUrl, setNowPlayingUrl] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [contentModalText, setContentModalText] = useState("");
+
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -95,10 +97,9 @@ function StitchSections() {
   }, [localSectionsArray]);
 
   useEffect(() => {
-    // prevent back button
     const handleBeforeUnload = (e) => {
       e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
+      e.returnValue = "";
     };
 
     const handleBackButton = async () => {
@@ -121,13 +122,10 @@ function StitchSections() {
     );
 
     const totalDurationWithPauses = localSectionsArray.reduce(
-      (acc, section) => {
-        return (
-          acc +
-          section.sectionDurationSeconds +
-          section.getEndOfSectionPauseDurationSeconds()
-        );
-      },
+      (acc, section) =>
+        acc +
+        section.sectionDurationSeconds +
+        section.getEndOfSectionPauseDurationSeconds(),
       0
     );
 
@@ -136,6 +134,7 @@ function StitchSections() {
       totalDurationWithPauses,
     };
   };
+
   const showEditPauseDurationModal = (sectionIndex) => {
     setCurrentEditingSectionIndex(sectionIndex);
     setEditPauseModalVisible(true);
@@ -145,14 +144,12 @@ function StitchSections() {
     let newArray = [...localSectionsArray];
     let sectionToUpdate = newArray[index];
 
-    // Ensure that the new duration is a valid number. If not, temporarily set it to 0.
     const validDuration =
       isNaN(parseFloat(newDuration)) || newDuration === ""
         ? 0
         : parseFloat(newDuration);
     sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
 
-    // Calculate the total duration with the new pause duration
     const totalDurationWithPauses = newArray.reduce(
       (acc, section) =>
         acc +
@@ -161,7 +158,6 @@ function StitchSections() {
       0
     );
 
-    // Check if the total duration with pauses exceeds the ad length
     if (totalDurationWithPauses > adLength) {
       Swal.fire({
         title: "Exceeded Ad Length",
@@ -170,11 +166,9 @@ function StitchSections() {
         confirmButtonText: "Ok",
       });
 
-      // Revert the pause duration to 0 as it exceeds ad length
       sectionToUpdate.setEndOfSectionPauseDurationSeconds(0);
     }
 
-    // Update the state to reflect the changes (or reversion to 0)
     setLocalSectionsArray(newArray);
   };
 
@@ -209,8 +203,8 @@ function StitchSections() {
 
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
-        userId: userId, // Capture the Firebase user ID
-        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous", // Capture the Firebase user email
+        userId: userId,
+        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous",
         script: sectionsArray
           .map((section) => section.getCurrentContent())
           .join(". "),
@@ -230,7 +224,6 @@ function StitchSections() {
       end_of_section_pause_duration_list: endOfSectionsPausesArray,
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
-    // Send POST request to the API
     try {
       const response = await axios.post(url, payload, {
         cancelToken: cancelTokenSourceRef.current.token,
@@ -252,7 +245,6 @@ function StitchSections() {
         setForceRenderKey(Math.random().toString());
         setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
       } else if (response.data.error) {
-        // Handle case where API returned an error
         console.error(
           "API returned an error:",
           response.data.error,
@@ -262,7 +254,7 @@ function StitchSections() {
     } catch (error) {
       console.error("Error fetching pyro_history_item_id:", error);
     } finally {
-      setPendingAdvertisement(false); // Set pending to false when API call completes
+      setPendingAdvertisement(false);
     }
     setSectionsArray(localSectionsArray);
     await writeToFirestore(
@@ -283,11 +275,10 @@ function StitchSections() {
       icon: "info",
       title: "Submission Cancelled",
       text: 'Your submission has been cancelled. Click "OK" to redirect to the Home page...',
-      showConfirmButton: true, // show the confirmation button
+      showConfirmButton: true,
       confirmButtonText: "OK",
       allowOutsideClick: false,
     }).then((result) => {
-      // If the modal was closed by the confirmation button, redirect.
       if (result.isConfirmed) {
         resetUserInputsStore();
 
@@ -311,6 +302,7 @@ function StitchSections() {
       allowOutsideClick: false,
     });
   };
+
   const handleLogout = () => {
     resetUserInputsStore();
     localStorage.removeItem("user");
@@ -371,6 +363,11 @@ function StitchSections() {
     );
   };
 
+  const handleContentClick = (content) => {
+    setContentModalText(content);
+    setShowContentModal(true);
+  };
+
   if (pendingAdvertisement) {
     return (
       <div
@@ -408,20 +405,19 @@ function StitchSections() {
           <Button
             variant="danger"
             onClick={cancelLoading}
-            style={{ marginRight: "20px", width: "200px" }} // Setting a fixed width
+            style={{ marginRight: "20px", width: "200px" }}
             title="Stop the current operation and start from the beginning."
           >
             Cancel and Start Over
           </Button>
 
           <Button
-            // variant="warning"
             onClick={cancelAndRetryLoading}
             style={{
               width: "200px",
               backgroundColor: "#FDA942",
               borderColor: "#FDA942",
-            }} // Setting the same fixed width
+            }}
             title="Stop the current order and retry with the same data."
           >
             Cancel and Resubmit
@@ -470,7 +466,7 @@ function StitchSections() {
               marginRight: "10px",
               marginLeft: "10px",
               fontSize: "0.8em",
-            }} // Adjust the fontSize here
+            }}
             onClick={() => setShowRenameModal(true)}
           ></i>
           {spotName}
@@ -491,6 +487,7 @@ function StitchSections() {
                     style={{
                       borderColor: "#eb631c",
                       textAlign: "center",
+                      width: "8%",
                     }}
                   >
                     Section ID
@@ -499,6 +496,7 @@ function StitchSections() {
                     style={{
                       borderColor: "#eb631c",
                       textAlign: "center",
+                      width: "15%",
                     }}
                   >
                     Voice Name
@@ -507,6 +505,7 @@ function StitchSections() {
                     style={{
                       borderColor: "#eb631c",
                       textAlign: "center",
+                      width: "35%",
                     }}
                   >
                     Section Content
@@ -515,6 +514,7 @@ function StitchSections() {
                     style={{
                       borderColor: "#eb631c",
                       textAlign: "center",
+                      width: "12%",
                     }}
                   >
                     Duration
@@ -522,11 +522,8 @@ function StitchSections() {
                   <th
                     style={{
                       borderColor: "#eb631c",
-                      maxWidth: "220px", // Adjust this value as needed
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
                       textAlign: "center",
+                      width: "12%",
                     }}
                   >
                     Section End Pause
@@ -535,11 +532,18 @@ function StitchSections() {
                     style={{
                       borderColor: "#eb631c",
                       textAlign: "center",
+                      width: "9%",
                     }}
                   >
                     Play
                   </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
+                  <th
+                    style={{
+                      borderColor: "#eb631c",
+                      textAlign: "center",
+                      width: "9%",
+                    }}
+                  >
                     Edit
                   </th>
                 </tr>
@@ -547,7 +551,6 @@ function StitchSections() {
               <tbody>
                 {localSectionsArray.map((section, index) => (
                   <tr key={index}>
-                    {/* Other cells */}
                     <td
                       style={{
                         border: "1px solid #eb631c",
@@ -571,9 +574,21 @@ function StitchSections() {
                         border: "1px solid #eb631c",
                         verticalAlign: "middle",
                         textAlign: "center",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleContentClick(section.getCurrentContent())}
                     >
-                      {section.getCurrentContent()}
+                      {section.getCurrentContent().length > 30
+                        ? (
+                          <>
+                            {`${section.getCurrentContent().substring(0, 30)}`}
+                            <span style={{ color: "#808080", fontStyle: "italic" }}> ...see more</span>
+                          </>
+                        )
+                        : section.getCurrentContent()}
                     </td>
                     <td
                       style={{
@@ -584,22 +599,20 @@ function StitchSections() {
                     >
                       {section.getSectionDurationSeconds().toFixed(2)} sec
                     </td>
-                    {/* Adjusted cell for section end pause with EditButton */}
                     <td
                       style={{
                         border: "1px solid #eb631c",
                         verticalAlign: "middle",
                         textAlign: "center",
-                        padding: "0", // Remove any default padding if necessary
+                        padding: "0",
                       }}
                     >
-                      {/* Span for the duration and EditButton wrapped in a div */}
                       <div
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: "100%", // Take up full width of the cell
+                          width: "100%",
                         }}
                       >
                         <span style={{ marginRight: "8px" }}>
@@ -638,7 +651,6 @@ function StitchSections() {
                         />
                       </div>
                     </td>
-                    {/* Other cells */}
                     <td
                       style={{
                         border: "1px solid #eb631c",
@@ -677,8 +689,6 @@ function StitchSections() {
             }}
           >
             <div style={{ color: "black", marginBottom: "10px" }}>
-              {" "}
-              {/* Add some margin to separate the lines */}
               Total duration without pauses:{" "}
               {localSectionsArray
                 .reduce(
@@ -711,12 +721,12 @@ function StitchSections() {
                   setAudioTitle("Final Cut");
                 }}
                 style={{
-                  backgroundColor: "#eb631c", // Orange color
-                  borderColor: "#eb631c", // Orange border
-                  color: "white", // Ensuring text and icon are visible
-                  textDecoration: "none", // Removing any underline from the link variant
+                  backgroundColor: "#eb631c",
+                  borderColor: "#eb631c",
+                  color: "white",
+                  textDecoration: "none",
                 }}
-                disabled={!combinedVoiceoverUrl} // Disable button if combinedVoiceoverUrl is null
+                disabled={!combinedVoiceoverUrl}
               >
                 <i
                   class="bi bi-arrow-clockwise"
@@ -733,10 +743,10 @@ function StitchSections() {
 
       <div
         style={{
-          display: "flex", // Enable flexbox
-          justifyContent: "space-between", // Space between the buttons
-          padding: "10px 20px", // Padding inside the card
-          margin: "20px 0 0", // Margin top for spacing from content
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "10px 20px",
+          margin: "20px 0 0",
         }}
       >
         <Button
@@ -749,7 +759,6 @@ function StitchSections() {
         >
           {combinedVoiceoverUrl === null ? "Finalize" : "Next"}
         </Button>
-        {/* Save Button */}
         <SecondaryActionButton
           initialText="Save"
           clickedText="Saved!"
@@ -770,7 +779,6 @@ function StitchSections() {
           />
         )}
       </div>
-      {/* Modal for editing spot name */}
       <RenameModal
         show={showRenameModal}
         onHide={() => setShowRenameModal(false)}
@@ -779,9 +787,20 @@ function StitchSections() {
         spotId={spotId}
         setSpotName={setSpotName}
       />
+      <Modal show={showContentModal} onHide={() => setShowContentModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Section Content</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{contentModalText}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowContentModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
+
 }
 
-export default withAuth(StitchSections);
-// export default StitchSections;
+export default StitchSections;
