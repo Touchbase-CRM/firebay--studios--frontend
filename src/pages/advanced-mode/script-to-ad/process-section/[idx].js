@@ -45,7 +45,7 @@ import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith/index.js";
+import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 
 
 function ProcessSection() {

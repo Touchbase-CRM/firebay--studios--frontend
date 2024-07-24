@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Offcanvas, Button, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import React from "react";
+import { Offcanvas, Button, Form } from "react-bootstrap";
 
 const WordSmithOffcanvas = ({
     offcanvasVisible,
@@ -13,6 +13,25 @@ const WordSmithOffcanvas = ({
     typedText,
     transformedWords
 }) => {
+    const emphasisButtonStyles = {
+        emphasizeLevel1: {
+            borderColor: "#90ee90", // Light green
+            color: "#EB631C",
+        },
+        emphasizeLevel2: {
+            borderColor: "#FFD700", // Yellow
+            color: "#EB631C",
+        },
+        emphasizeLevel3: {
+            borderColor: "#FF4500", // Red
+            color: "#EB631C",
+        },
+        removeEmphasis: {
+            borderColor: "#EB631C", // Default
+            color: "#EB631C",
+        }
+    };
+
     return (
         <Offcanvas
             show={offcanvasVisible}
@@ -43,42 +62,57 @@ const WordSmithOffcanvas = ({
                                 boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)",
                             }}
                         >
-                            {typedText.split(" ").map((word, index) => (
-                                <span
-                                    key={index}
-                                    style={{
-                                        cursor: "pointer",
-                                        color: "#EB631C", // Orange brand color
-                                        backgroundColor: "#f8f9fa", // Light background color
-                                        padding: "8px 12px",
-                                        borderRadius: "15px",
-                                        fontSize: "1.1rem", // Slightly larger font size
-                                        fontWeight: "500", // Medium font weight
-                                        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                                        transition: "all 0.3s ease",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.target.style.backgroundColor = "#ffecd1";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.target.style.backgroundColor = "#f8f9fa";
-                                    }}
-                                    onClick={() => {
-                                        handleWordClick(index);
-                                        setShowOptions(true); // Show the options when a word is clicked
-                                    }}
-                                >
-                                    {transformedWords[index] || word}
-                                </span>
-                            ))}
+                            {typedText.split(" ").map((word, index) => {
+                                let borderColor = emphasisButtonStyles.removeEmphasis.borderColor; // Default color
+                                const transformedWord = transformedWords[index];
+                                if (transformedWord && transformedWord !== ogScriptWordsArray[index]) {
+                                    if (transformedWord.toUpperCase() === word.toUpperCase() && !transformedWord.startsWith("'") && !transformedWord.endsWith("'")) {
+                                        borderColor = emphasisButtonStyles.emphasizeLevel1.borderColor;
+                                    } else if (transformedWord.startsWith("'") && transformedWord.endsWith("'") && transformedWord !== `'${word.toUpperCase()}'`) {
+                                        borderColor = emphasisButtonStyles.emphasizeLevel2.borderColor;
+                                    } else if (transformedWord === `'${word.toUpperCase()}'`) {
+                                        borderColor = emphasisButtonStyles.emphasizeLevel3.borderColor;
+                                    }
+                                }
+
+                                return (
+                                    <span
+                                        key={index}
+                                        style={{
+                                            cursor: "pointer",
+                                            color: "#EB631C", // Orange brand color
+                                            backgroundColor: "#f8f9fa", // Light background color
+                                            padding: "8px 12px",
+                                            borderRadius: "15px",
+                                            fontSize: "1.1rem", // Slightly larger font size
+                                            fontWeight: "500", // Medium font weight
+                                            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                                            transition: "all 0.3s ease",
+                                            border: `2px solid ${borderColor}`
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.backgroundColor = "#ffecd1";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.backgroundColor = "#f8f9fa";
+                                        }}
+                                        onClick={() => {
+                                            handleWordClick(index);
+                                            setShowOptions(true); // Show the options when a word is clicked
+                                        }}
+                                    >
+                                        {transformedWords[index] || word}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </>
                 ) : (
                     <div className="mt-4" style={{ textAlign: "center" }}>
-                        <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("emphasizeLevel1"); setShowOptions(false); }}>Low Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("emphasizeLevel2"); setShowOptions(false); }}>Medium Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("emphasizeLevel3"); setShowOptions(false); }}>High Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("removeEmphasis"); setShowOptions(false); }}>Remove Emphasis</Button>
+                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel3, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel3"); setShowOptions(false); }}>High Emphasis</Button>
+                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel2, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel2"); setShowOptions(false); }}>Medium Emphasis</Button>
+                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel1, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel1"); setShowOptions(false); }}>Low Emphasis</Button>
+                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.removeEmphasis, borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("removeEmphasis"); setShowOptions(false); }}>Remove Emphasis</Button>
                         <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => setShowOptions(false)}>Cancel</Button>
                     </div>
                 )}
