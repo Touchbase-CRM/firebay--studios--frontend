@@ -81,6 +81,9 @@ function CreateAd() {
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [forceRenderKey, setForceRenderKey] = useState(0);
+
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -275,6 +278,10 @@ function CreateAd() {
       setVoicePreviewFilename(metadata.newVoicePreviewFilename);
       setVoiceName(selectedVoiceName);
       setModelId(metadata.newVoiceModelId);
+      setForceRenderKey(Math.random());
+      setShowAudioPlayer(true);
+
+
 
       // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
       setGeneratedVoiceUrl(""); // This line is added to reset the URL
@@ -342,7 +349,7 @@ function CreateAd() {
     const isValid = validateScript(
       originalScriptString,
       charLimit,
-      () => {},
+      () => { },
       showAlert
     );
 
@@ -365,6 +372,9 @@ function CreateAd() {
       const localHistoryItemId = result.localHistoryItemId;
 
       setHistoryItemId(localHistoryItemId);
+      setForceRenderKey(Math.random());
+      setShowAudioPlayer(true);
+
       setGeneratedVoiceUrl(audioUrl);
 
       if (process.env.NODE_ENV !== "development") {
@@ -623,13 +633,18 @@ function CreateAd() {
 
           {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
           <div style={{ position: "relative", marginTop: "400px" }}>
-            <SimpleAudioPlayer
-              audioSrc={
-                generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
-              }
-              audioTitle={voiceName}
-              allowDownload={generatedVoiceUrl !== ""}
-            />
+            {
+              showAudioPlayer && (<SimpleAudioPlayer
+                audioSrc={
+                  generatedVoiceUrl || baseVoicePreviewsUrl + voicePreviewFilename
+                }
+                audioTitle={voiceName}
+                allowDownload={generatedVoiceUrl !== ""}
+                forceRender={forceRenderKey}
+                setShowAudioPlayer={setShowAudioPlayer}
+                autoplay={true}
+              />)
+            }
           </div>
 
           {showMenu && (

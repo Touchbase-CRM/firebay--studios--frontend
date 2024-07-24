@@ -109,6 +109,7 @@ function CreateAd() {
   const [audioTitle, setAudioTitle] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
+
   useEffect(() => {
     setAdGenerationMethod("voice-to-ad");
   }, []);
@@ -714,6 +715,8 @@ function CreateAd() {
                 audioTitle={voiceName}
                 allowDownload={generatedVoiceUrl !== ""}
                 autoplay={audioAutoPlay}
+                forceRender={forceRenderKey}
+                setShowAudioPlayer={setShowAudioPlayer}
               />
             )}
           </div>
