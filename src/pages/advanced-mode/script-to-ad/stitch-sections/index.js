@@ -758,7 +758,7 @@ function StitchSections() {
         />
       </div>
 
-      <div style={{ position: "relative", marginTop: "400px" }}>
+      <div style={{ position: "relative" }}>
         {showAudioPlayer && (
           <SimpleAudioPlayer
             audioSrc={nowPlayingUrl}
