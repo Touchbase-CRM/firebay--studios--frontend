@@ -14,25 +14,27 @@ const WordSmithOffcanvas = ({
     transformedWords
 }) => {
     const emphasisButtonStyles = {
+        //https://www.color-hex.com/color-palette/5473 color palette was used to get the colors.
+
         emphasizeLevel1: {
-            borderColor: "#ff8a35", // Light green
-            color: "#000000", // Text color black
+            borderColor: "#ff8a35",
+            color: "#000000",
         },
         emphasizeLevel2: {
-            borderColor: "#d85b00", // Yellow
-            color: "#000000", // Text color black
+            borderColor: "#d85b00",
+            color: "#000000",
         },
         emphasizeLevel3: {
-            borderColor: "#8a3a00", // Red
-            color: "#000000", // Text color black
+            borderColor: "#8a3a00",
+            color: "#000000",
         },
         removeEmphasis: {
-            borderColor: "#000000", // Default
-            color: "#000000", // Text color black
+            borderColor: "#000000",
+            color: "#000000",
         },
         cancel: {
-            borderColor: "#ffba87", // Cancel button border color
-            color: "#000000", // Text color black
+            borderColor: "#ffba87",
+            color: "#000000",
         }
     };
 
