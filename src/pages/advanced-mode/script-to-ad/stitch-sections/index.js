@@ -79,7 +79,8 @@ function StitchSections() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
-  const [nowPlayingUrl, setNowPlayingUrl] = useState(false); // This is a bug; look at Jira for more details
+  const [nowPlayingUrl, setNowPlayingUrl] = useState(""); // This is a bug; look at Jira for more details
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const musicGenWebServiceUrl =
@@ -179,6 +180,7 @@ function StitchSections() {
 
   const fetchAudioFromElevenLabsWrapper = async (historyItemId) => {
     const audioUrl = await fetchAudioFromElevenLabs(historyItemId);
+    setShowAudioPlayer(true);
     setAudioUrl(audioUrl);
     setNowPlayingUrl(audioUrl);
   };
@@ -243,6 +245,7 @@ function StitchSections() {
           pyroHistoryItemId,
           0
         );
+        setShowAudioPlayer(true);
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
         setAudioTitle("Final Cut");
@@ -331,7 +334,7 @@ function StitchSections() {
         historyItemId,
         0
       );
-
+      setShowAudioPlayer(true);
       setAudioUrl(audioUrl);
       setNowPlayingUrl(audioUrl);
     } else {
@@ -622,15 +625,15 @@ function StitchSections() {
                           }}
                           maxValue={Math.floor(
                             adLength -
-                              localSectionsArray
-                                .reduce(
-                                  (acc, section) =>
-                                    acc +
-                                    section.sectionDurationSeconds +
-                                    section.getEndOfSectionPauseDurationSeconds(),
-                                  0
-                                )
-                                .toFixed(2)
+                            localSectionsArray
+                              .reduce(
+                                (acc, section) =>
+                                  acc +
+                                  section.sectionDurationSeconds +
+                                  section.getEndOfSectionPauseDurationSeconds(),
+                                0
+                              )
+                              .toFixed(2)
                           )}
                         />
                       </div>
@@ -703,6 +706,7 @@ function StitchSections() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setForceRenderKey(Math.random().toString());
+                  setShowAudioPlayer(true);
                   setNowPlayingUrl(combinedVoiceoverUrl);
                   setAudioTitle("Final Cut");
                 }}
@@ -755,13 +759,14 @@ function StitchSections() {
       </div>
 
       <div style={{ position: "relative", marginTop: "400px" }}>
-        {nowPlayingUrl && (
+        {showAudioPlayer && (
           <SimpleAudioPlayer
             audioSrc={nowPlayingUrl}
             audioTitle={audioTitle}
             forceRender={forceRenderKey}
             autoplay={true}
             allowDownload={true}
+            setShowAudioPlayer={setShowAudioPlayer}
           />
         )}
       </div>
