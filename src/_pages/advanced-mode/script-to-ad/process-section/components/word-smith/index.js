@@ -15,20 +15,24 @@ const WordSmithOffcanvas = ({
 }) => {
     const emphasisButtonStyles = {
         emphasizeLevel1: {
-            borderColor: "#90ee90", // Light green
-            color: "#EB631C",
+            borderColor: "#ff8a35", // Light green
+            color: "#000000", // Text color black
         },
         emphasizeLevel2: {
-            borderColor: "#FFD700", // Yellow
-            color: "#EB631C",
+            borderColor: "#d85b00", // Yellow
+            color: "#000000", // Text color black
         },
         emphasizeLevel3: {
-            borderColor: "#FF4500", // Red
-            color: "#EB631C",
+            borderColor: "#8a3a00", // Red
+            color: "#000000", // Text color black
         },
         removeEmphasis: {
-            borderColor: "#EB631C", // Default
-            color: "#EB631C",
+            borderColor: "#000000", // Default
+            color: "#000000", // Text color black
+        },
+        cancel: {
+            borderColor: "#EB631C", // Cancel button border color
+            color: "#000000", // Text color black
         }
     };
 
@@ -80,7 +84,7 @@ const WordSmithOffcanvas = ({
                                         key={index}
                                         style={{
                                             cursor: "pointer",
-                                            color: "#EB631C", // Orange brand color
+                                            color: "#000000", // Text color black
                                             backgroundColor: "#f8f9fa", // Light background color
                                             padding: "8px 12px",
                                             borderRadius: "15px",
@@ -109,11 +113,86 @@ const WordSmithOffcanvas = ({
                     </>
                 ) : (
                     <div className="mt-4" style={{ textAlign: "center" }}>
-                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel3, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel3"); setShowOptions(false); }}>High Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel2, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel2"); setShowOptions(false); }}>Medium Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.emphasizeLevel1, borderRadius: "20px", fontWeight: "bold" }} onClick={() => { transformWord("emphasizeLevel1"); setShowOptions(false); }}>Low Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ ...emphasisButtonStyles.removeEmphasis, borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => { transformWord("removeEmphasis"); setShowOptions(false); }}>Remove Emphasis</Button>
-                        <Button variant="outline-dark" className="me-2" style={{ color: "#EB631C", borderRadius: "20px", fontWeight: "bold", borderColor: "#EB631C" }} onClick={() => setShowOptions(false)}>Cancel</Button>
+                        <Button
+                            variant="outline-dark"
+                            className="me-2"
+                            style={{ ...emphasisButtonStyles.emphasizeLevel3, borderRadius: "20px", fontWeight: "bold", border: `2px solid ${emphasisButtonStyles.emphasizeLevel3.borderColor}` }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = emphasisButtonStyles.emphasizeLevel3.borderColor;
+                                e.target.style.color = "#ffffff"; // Change text color on hover
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#000000"; // Revert text color
+                            }}
+                            onClick={() => { transformWord("emphasizeLevel3"); setShowOptions(false); }}
+                        >
+                            High Emphasis
+                        </Button>
+                        <Button
+                            variant="outline-dark"
+                            className="me-2"
+                            style={{ ...emphasisButtonStyles.emphasizeLevel2, borderRadius: "20px", fontWeight: "bold", border: `2px solid ${emphasisButtonStyles.emphasizeLevel2.borderColor}` }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = emphasisButtonStyles.emphasizeLevel2.borderColor;
+                                e.target.style.color = "#ffffff"; // Change text color on hover
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#000000"; // Revert text color
+                            }}
+                            onClick={() => { transformWord("emphasizeLevel2"); setShowOptions(false); }}
+                        >
+                            Medium Emphasis
+                        </Button>
+                        <Button
+                            variant="outline-dark"
+                            className="me-2"
+                            style={{ ...emphasisButtonStyles.emphasizeLevel1, borderRadius: "20px", fontWeight: "bold", border: `2px solid ${emphasisButtonStyles.emphasizeLevel1.borderColor}` }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = emphasisButtonStyles.emphasizeLevel1.borderColor;
+                                e.target.style.color = "#ffffff"; // Change text color on hover
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#000000"; // Revert text color
+                            }}
+                            onClick={() => { transformWord("emphasizeLevel1"); setShowOptions(false); }}
+                        >
+                            Low Emphasis
+                        </Button>
+                        <Button
+                            variant="outline-dark"
+                            className="me-2"
+                            style={{ ...emphasisButtonStyles.removeEmphasis, borderRadius: "20px", fontWeight: "bold", border: `2px solid ${emphasisButtonStyles.removeEmphasis.borderColor}` }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = emphasisButtonStyles.removeEmphasis.borderColor;
+                                e.target.style.color = "#ffffff"; // Change text color on hover
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#000000"; // Revert text color
+                            }}
+                            onClick={() => { transformWord("removeEmphasis"); setShowOptions(false); }}
+                        >
+                            Remove Emphasis
+                        </Button>
+                        <Button
+                            variant="outline-dark"
+                            className="me-2"
+                            style={{ ...emphasisButtonStyles.cancel, borderRadius: "20px", fontWeight: "bold", border: `2px solid ${emphasisButtonStyles.cancel.borderColor}` }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = emphasisButtonStyles.cancel.borderColor;
+                                e.target.style.color = "#ffffff"; // Change text color on hover
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#000000"; // Revert text color
+                            }}
+                            onClick={() => setShowOptions(false)}
+                        >
+                            Cancel
+                        </Button>
                     </div>
                 )}
             </Offcanvas.Body>
