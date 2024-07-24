@@ -1,5 +1,3 @@
-// Relative path: src/pages/download.js
-
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import ActionCard from "@/components/action-card";
@@ -28,6 +26,7 @@ const DownloadManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
+  const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const { reset, generatedVoiceUrl, spotName, setSpotName, spotId } =
     useUserInputsStore();
   const [capturedTimestamp, setCapturedTimestamp] = useState(
@@ -142,6 +141,14 @@ const DownloadManager = () => {
     router.push("/add-music");
   };
 
+  const handlePlayAdClick = () => {
+    setShowAudioPlayer((prev) => !prev);
+  };
+
+  const handleRenameClick = () => {
+    setShowRenameModal(true);
+  };
+
   const dropdownItems = [
     {
       text: "Logout",
@@ -192,42 +199,22 @@ const DownloadManager = () => {
           justifyContent: "center",
           height: "100vh",
           backgroundColor: "#FFFFFF",
+          padding: "20px", // Added padding to the container
         }}
       >
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            fontWeight: "bold",
-            fontSize: "1.2em",
-            marginTop: "20px",
-          }}
-        >
-          <i
-            className="bi bi-pencil-square"
-            style={{
-              cursor: "pointer",
-              marginRight: "10px",
-              marginLeft: "-357px",
-              fontSize: "1.5em",
-            }} // Adjust the fontSize here
-            onClick={() => setShowRenameModal(true)}
-          ></i>
-          <span style={{ fontSize: "1.5em" }}>{spotName}</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start",
+            alignItems: "flex-start", // Changed to align left
             justifyContent: "center",
           }}
         >
           <h2
             style={{
-              fontSize: "1.0em",
+              fontSize: "1.5em",
               fontWeight: "bold",
-              textAlign: "left",
+              textAlign: "left", // Changed to align left
               marginBottom: "30px",
             }}
           >
@@ -242,17 +229,33 @@ const DownloadManager = () => {
             }}
           >
             <ActionCard
+              icon="bi bi-play-circle"
+              title="Play your spot"
+              description="Click here to open or hide the audio player."
+              link="#"
+              onLinkClick={handlePlayAdClick}
+              linkLabel="Play"
+            />
+            <ActionCard
               icon="bi bi-download"
-              title="Download your ad"
+              title="Download your spot"
               description="When you download, it will count as a credit."
               link="#"
               onLinkClick={handleDownloadClick}
               linkLabel="Download"
             />
             <ActionCard
+              icon="bi bi-pencil-square"
+              title="Rename your Spot"
+              description="Click here to rename your spot."
+              link="#"
+              onLinkClick={handleRenameClick}
+              linkLabel="Rename"
+            />
+            <ActionCard
               icon="bi bi-house"
               title="Home"
-              description="By clicking here, you will be brought back to the home page with your recent projects."
+              description="By clicking here, you will be brought back to the home page with your recent spots."
               link="#"
               onLinkClick={handleNewAd}
               linkLabel="Home"
@@ -272,12 +275,18 @@ const DownloadManager = () => {
           </div>
         </div>
       </div>
-      <div>
-        <SimpleAudioPlayer audioTitle="" audioSrc={audioUrl} />
-      </div>
+      {showAudioPlayer && (
+        <div>
+          <SimpleAudioPlayer
+            audioTitle=""
+            audioSrc={audioUrl}
+            setShowAudioPlayer={setShowAudioPlayer}
+            autoplay={true}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
-// export default DownloadManager;
 export default withAuth(DownloadManager);
