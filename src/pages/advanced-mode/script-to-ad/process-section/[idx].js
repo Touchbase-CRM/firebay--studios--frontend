@@ -510,6 +510,9 @@ function ProcessSection() {
 
   const updateVoiceForAllSections = (currentIndex) => {
     const updatedSections = localSectionsArray.map((section, index) => {
+      if (index > currentIndex && localSectionsArray[currentIndex + 1] && localSectionsArray[currentIndex + 1].getHistoryItemId() !== null) {
+        return section;
+      }
       if (index >= currentIndex) {
         section.setVoiceId(localCurrentSectionObj.getVoiceId());
         section.setVoiceName(localCurrentSectionObj.getVoiceName());
@@ -528,6 +531,7 @@ function ProcessSection() {
       return section;
     });
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
