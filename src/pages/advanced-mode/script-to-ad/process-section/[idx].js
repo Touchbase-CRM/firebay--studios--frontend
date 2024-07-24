@@ -509,29 +509,22 @@ function ProcessSection() {
   };
 
   const updateVoiceForAllSections = (currentIndex) => {
-    const updatedSections = localSectionsArray.map((section, index) => {
-      if (index > currentIndex && localSectionsArray[currentIndex + 1] && localSectionsArray[currentIndex + 1].getHistoryItemId() !== null) {
-        return section;
+    localSectionsArray.forEach((section, index) => {
+      if (index > currentIndex && localSectionsArray[currentIndex + 1]?.getHistoryItemId() !== null) {
+        return;
       }
+
       if (index >= currentIndex) {
         section.setVoiceId(localCurrentSectionObj.getVoiceId());
         section.setVoiceName(localCurrentSectionObj.getVoiceName());
-        section.setVoicePreviewFilename(
-          localCurrentSectionObj.getVoicePreviewFilename()
-        );
+        section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
         section.setModelId(localCurrentSectionObj.getModelId());
-        section.setVoiceIntonationConsistency(
-          localCurrentSectionObj.getVoiceIntonationConsistency()
-        );
-        section.setDragonBreathEnhancement(
-          localCurrentSectionObj.getDragonBreathEnhancement()
-        );
+        section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
+        section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
         section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
       }
-      return section;
     });
   };
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1193,4 +1186,4 @@ function ProcessSection() {
   );
 }
 
-export default ProcessSection;
+export default withAuth(ProcessSection);
