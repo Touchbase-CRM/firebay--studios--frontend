@@ -4,11 +4,9 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
-
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table, Modal } from "react-bootstrap";
+import { Card, Button, Table, Modal, Pagination } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
@@ -16,12 +14,9 @@ import Spinner from "@/components/spinner/spinner";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
-
 import useUserInputsStore from "@/store/user-inputs";
-
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
@@ -30,7 +25,6 @@ import {
   updateExistingSpotInDb,
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
-
 import { EditPauseDurationModal } from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/edit-pause-duration-modal/modal";
 
 function StitchSections() {
@@ -84,6 +78,19 @@ function StitchSections() {
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [showContentModal, setShowContentModal] = useState(false);
   const [contentModalText, setContentModalText] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSizeMd = 2; // Example: 5 rows per page for medium screens
+  const pageSizeLg = 3; // Example: 10 rows per page for large screens
+
+  const pageSize = window.innerHeight < 768 ? pageSizeMd : pageSizeLg;
+
+  const indexOfLastSection = currentPage * pageSize;
+  const indexOfFirstSection = indexOfLastSection - pageSize;
+  const currentSections = localSectionsArray.slice(
+    indexOfFirstSection,
+    indexOfLastSection
+  );
 
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
@@ -368,6 +375,15 @@ function StitchSections() {
     setShowContentModal(true);
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(localSectionsArray.length / pageSize); i++) {
+    pageNumbers.push(i);
+  }
+
   if (pendingAdvertisement) {
     return (
       <div
@@ -475,7 +491,6 @@ function StitchSections() {
           {spotName}
         </div>
         <Card.Body>
-          <Card.Title style={{ color: "#000000" }}>Sections Overview</Card.Title>
           <div
             style={{
               overflowY: "auto",
@@ -510,12 +525,24 @@ function StitchSections() {
                 </tr>
               </thead>
               <tbody>
-                {localSectionsArray.map((section, index) => (
+                {currentSections.map((section, index) => (
                   <tr key={index}>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
-                      {index + 1}
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {indexOfFirstSection + index + 1}
                     </td>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
                       {section.getVoiceName()}
                     </td>
                     <td
@@ -528,21 +555,46 @@ function StitchSections() {
                         textOverflow: "ellipsis",
                         cursor: "pointer",
                       }}
-                      onClick={() => handleContentClick(section.getCurrentContent())}
+                      onClick={() =>
+                        handleContentClick(section.getCurrentContent())
+                      }
                     >
                       {section.getCurrentContent().length > 30 ? (
                         <>
-                          {`${section.getCurrentContent().substring(0, 30)}`}
-                          <span style={{ color: "#808080", fontStyle: "italic" }}> ...see more</span>
+                          {`${section
+                            .getCurrentContent()
+                            .substring(0, 30)}`}
+                          <span
+                            style={{
+                              color: "#808080",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            {" "}
+                            ...see more
+                          </span>
                         </>
                       ) : (
                         section.getCurrentContent()
                       )}
                     </td>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
                       {section.getSectionDurationSeconds().toFixed(2)} sec
                     </td>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle", padding: "0" }}>
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                        padding: "0",
+                      }}
+                    >
                       <div
                         style={{
                           display: "inline-flex",
@@ -554,38 +606,89 @@ function StitchSections() {
                         <span style={{ marginRight: "8px" }}>
                           {section.getEndOfSectionPauseDurationSeconds()} sec
                         </span>
-                        <EditButton onClickHandler={() => showEditPauseDurationModal(index)} />
+                        <EditButton
+                          onClickHandler={() =>
+                            showEditPauseDurationModal(
+                              indexOfFirstSection + index
+                            )
+                          }
+                        />
                         <EditPauseDurationModal
                           show={isEditPauseModalVisible}
                           onHide={() => setEditPauseModalVisible(false)}
                           initialValue={section.getEndOfSectionPauseDurationSeconds()}
                           onSave={(newPauseDuration) => {
                             if (currentEditingSectionIndex !== null) {
-                              updatePauseDuration(currentEditingSectionIndex, newPauseDuration);
+                              updatePauseDuration(
+                                currentEditingSectionIndex,
+                                newPauseDuration
+                              );
                             }
                             setEditPauseModalVisible(false);
                           }}
                           maxValue={Math.floor(
                             adLength -
-                            localSectionsArray.reduce(
-                              (acc, section) => acc + section.sectionDurationSeconds + section.getEndOfSectionPauseDurationSeconds(),
-                              0
-                            ).toFixed(2)
+                            localSectionsArray
+                              .reduce(
+                                (acc, section) =>
+                                  acc +
+                                  section.sectionDurationSeconds +
+                                  section.getEndOfSectionPauseDurationSeconds(),
+                                0
+                              )
+                              .toFixed(2)
                           )}
                         />
                       </div>
                     </td>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
-                      <PlayButton onClickHandler={() => handleSectionPreviewPlay(section)} size="28px" />
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <PlayButton
+                        onClickHandler={() =>
+                          handleSectionPreviewPlay(
+                            localSectionsArray[indexOfFirstSection + index]
+                          )
+                        }
+                        size="28px"
+                      />
                     </td>
-                    <td style={{ border: "1px solid #eb631c", textAlign: "center", verticalAlign: "middle" }}>
-                      <EditButton onClickHandler={() => handleEditSection(section)} size="28px" />
+                    <td
+                      style={{
+                        border: "1px solid #eb631c",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <EditButton
+                        onClickHandler={() =>
+                          handleEditSection(
+                            localSectionsArray[indexOfFirstSection + index]
+                          )
+                        }
+                        size="28px"
+                      />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           </div>
+          <Pagination>
+            {pageNumbers.map((number) => (
+              <Pagination.Item
+                key={number}
+                active={number === currentPage}
+                onClick={() => handlePageChange(number)}
+              >
+                {number}
+              </Pagination.Item>
+            ))}
+          </Pagination>
           <div
             style={{
               marginTop: "20px",
@@ -598,16 +701,22 @@ function StitchSections() {
           >
             <div style={{ marginBottom: "10px" }}>
               Total duration without pauses:{" "}
-              {localSectionsArray.reduce((acc, section) => acc + section.sectionDurationSeconds, 0).toFixed(2)}{" "}
+              {localSectionsArray
+                .reduce((acc, section) => acc + section.sectionDurationSeconds, 0)
+                .toFixed(2)}{" "}
               seconds
             </div>
             <div>
               Total duration with pauses:{" "}
-              {localSectionsArray.reduce(
-                (acc, section) =>
-                  acc + section.sectionDurationSeconds + section.getEndOfSectionPauseDurationSeconds(),
-                0
-              ).toFixed(2)}{" "}
+              {localSectionsArray
+                .reduce(
+                  (acc, section) =>
+                    acc +
+                    section.sectionDurationSeconds +
+                    section.getEndOfSectionPauseDurationSeconds(),
+                  0
+                )
+                .toFixed(2)}{" "}
               seconds
             </div>
             <div style={{ flex: 1, textAlign: "center" }}>
@@ -627,7 +736,10 @@ function StitchSections() {
                 }}
                 disabled={!combinedVoiceoverUrl}
               >
-                <i className="bi bi-arrow-clockwise" style={{ verticalAlign: "middle" }}></i>
+                <i
+                  className="bi bi-arrow-clockwise"
+                  style={{ verticalAlign: "middle" }}
+                ></i>
                 <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
                   Replay Final Cut
                 </span>
@@ -696,8 +808,6 @@ function StitchSections() {
       </Modal>
     </div>
   );
-
-
 }
 
 export default StitchSections;
