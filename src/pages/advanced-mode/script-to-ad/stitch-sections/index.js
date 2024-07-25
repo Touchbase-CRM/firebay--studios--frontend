@@ -27,6 +27,11 @@ import {
 } from "@/utils/db-read-write-ops/serialization-utils";
 import { EditPauseDurationModal } from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/edit-pause-duration-modal/modal";
 import ContentModal from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/content-modal"; // Import the new ContentModal component
+import LoadingScreen from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/loading-screen";
+import SectionsTable from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/sections-table";
+import NavigationButtons from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/navigation-buttons";
+import InfoPad from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/info-pad";
+
 
 function StitchSections() {
   const auth = getAuth();
@@ -101,6 +106,7 @@ function StitchSections() {
     indexOfFirstSection,
     indexOfLastSection
   );
+  const totalPages = Math.ceil(localSectionsArray.length / pageSize);
 
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
@@ -399,60 +405,10 @@ function StitchSections() {
 
   if (pendingAdvertisement) {
     return (
-      <div
-        className="d-flex align-items-center justify-content-center flex-column"
-        style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
-      >
-        <Spinner
-          animation="border"
-          variant="primary"
-          style={{ marginBottom: "200px" }}
-        />
-
-        <Card
-          className="p-4"
-          style={{
-            marginTop: "300px",
-            borderRadius: "1rem",
-            borderColor: "#eb631c",
-            color: "black",
-          }}
-        >
-          <p
-            className="ml-3 mb-0"
-            style={{
-              fontWeight: "bold",
-              fontSize: "24px",
-              color: "black",
-              textShadow: "1px 1px 1px #000",
-            }}
-          >
-            Just a second. We are cooking up your final voice cut!
-          </p>
-        </Card>
-        <div className="mt-3">
-          <Button
-            variant="danger"
-            onClick={cancelLoading}
-            style={{ marginRight: "20px", width: "200px" }}
-            title="Stop the current operation and start from the beginning."
-          >
-            Cancel and Start Over
-          </Button>
-
-          <Button
-            onClick={cancelAndRetryLoading}
-            style={{
-              width: "200px",
-              backgroundColor: "#FDA942",
-              borderColor: "#FDA942",
-            }}
-            title="Stop the current order and retry with the same data."
-          >
-            Cancel and Resubmit
-          </Button>
-        </div>
-      </div>
+      <LoadingScreen
+        cancelLoading={cancelLoading}
+        cancelAndRetryLoading={cancelAndRetryLoading}
+      />
     );
   }
 
@@ -511,261 +467,36 @@ function StitchSections() {
               overflowX: "hidden",
             }}
           >
-            <Table bordered hover style={{ borderColor: "#eb631c" }}>
-              <thead style={{ backgroundColor: "#eb631c", color: "white" }}>
-                <tr>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Section ID
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Voice Name
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Section Content
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Duration
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Section End Pause
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Play
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Edit
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentSections.map((section, index) => (
-                  <tr key={index}>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {indexOfFirstSection + index + 1}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {section.getVoiceName()}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        handleContentClick(section.getCurrentContent())
-                      }
-                    >
-                      {section.getCurrentContent().length > 30 ? (
-                        <>
-                          {`${section
-                            .getCurrentContent()
-                            .substring(0, 30)}`}
-                          <span
-                            style={{
-                              color: "#808080",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            {" "}
-                            ...see more
-                          </span>
-                        </>
-                      ) : (
-                        section.getCurrentContent()
-                      )}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {section.getSectionDurationSeconds().toFixed(2)} sec
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                        padding: "0",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                        }}
-                      >
-                        <span style={{ marginRight: "8px" }}>
-                          {section.getEndOfSectionPauseDurationSeconds()} sec
-                        </span>
-                        <EditButton
-                          onClickHandler={() =>
-                            showEditPauseDurationModal(
-                              indexOfFirstSection + index
-                            )
-                          }
-                        />
-                        <EditPauseDurationModal
-                          show={isEditPauseModalVisible}
-                          onHide={() => setEditPauseModalVisible(false)}
-                          initialValue={section.getEndOfSectionPauseDurationSeconds()}
-                          onSave={(newPauseDuration) => {
-                            if (currentEditingSectionIndex !== null) {
-                              updatePauseDuration(
-                                currentEditingSectionIndex,
-                                newPauseDuration
-                              );
-                            }
-                            setEditPauseModalVisible(false);
-                          }}
-                          maxValue={Math.floor(
-                            adLength -
-                            localSectionsArray
-                              .reduce(
-                                (acc, section) =>
-                                  acc +
-                                  section.sectionDurationSeconds +
-                                  section.getEndOfSectionPauseDurationSeconds(),
-                                0
-                              )
-                              .toFixed(2)
-                          )}
-                        />
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <PlayButton
-                        onClickHandler={() =>
-                          handleSectionPreviewPlay(
-                            localSectionsArray[indexOfFirstSection + index]
-                          )
-                        }
-                        size="28px"
-                      />
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <EditButton
-                        onClickHandler={() =>
-                          handleEditSection(
-                            localSectionsArray[indexOfFirstSection + index]
-                          )
-                        }
-                        size="28px"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            <SectionsTable
+              currentSections={currentSections}
+              indexOfFirstSection={indexOfFirstSection}
+              handleContentClick={handleContentClick}
+              showEditPauseDurationModal={showEditPauseDurationModal}
+              isEditPauseModalVisible={isEditPauseModalVisible}
+              setEditPauseModalVisible={setEditPauseModalVisible}
+              updatePauseDuration={updatePauseDuration}
+              currentEditingSectionIndex={currentEditingSectionIndex}
+              adLength={adLength}
+              localSectionsArray={localSectionsArray}
+              handleSectionPreviewPlay={handleSectionPreviewPlay}
+              handleEditSection={handleEditSection}
+            />
           </div>
-          <Row className="align-items-center mt-3">
-            <Col xs="auto">
-              <Button
-                variant="outline-secondary"
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-              >
-                {"<"}
-              </Button>{" "}
-              <Button
-                variant="outline-secondary"
-                onClick={handleNextPage}
-                disabled={currentPage === Math.ceil(localSectionsArray.length / pageSize)}
-              >
-                {">"}
-              </Button>
-            </Col>
-          </Row>
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              backgroundColor: "#f9f9f9",
-              borderRadius: "10px",
-              fontSize: "1em",
-              color: "#333",
-            }}
-          >
-            <div style={{ marginBottom: "10px" }}>
-              Total duration without pauses:{" "}
-              {localSectionsArray
-                .reduce((acc, section) => acc + section.sectionDurationSeconds, 0)
-                .toFixed(2)}{" "}
-              seconds
-            </div>
-            <div>
-              Total duration with pauses:{" "}
-              {localSectionsArray
-                .reduce(
-                  (acc, section) =>
-                    acc +
-                    section.sectionDurationSeconds +
-                    section.getEndOfSectionPauseDurationSeconds(),
-                  0
-                )
-                .toFixed(2)}{" "}
-              seconds
-            </div>
-            <div style={{ flex: 1, textAlign: "center" }}>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setForceRenderKey(Math.random().toString());
-                  setShowAudioPlayer(true);
-                  setNowPlayingUrl(combinedVoiceoverUrl);
-                  setAudioTitle("Final Cut");
-                }}
-                style={{
-                  backgroundColor: "#eb631c",
-                  borderColor: "#eb631c",
-                  color: "white",
-                  textDecoration: "none",
-                }}
-                disabled={!combinedVoiceoverUrl}
-              >
-                <i
-                  className="bi bi-arrow-clockwise"
-                  style={{ verticalAlign: "middle" }}
-                ></i>
-                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Replay Final Cut
-                </span>
-              </Button>
-            </div>
-          </div>
+          <NavigationButtons
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
+          <InfoPad
+            localSectionsArray={localSectionsArray}
+            adLength={adLength}
+            combinedVoiceoverUrl={combinedVoiceoverUrl}
+            setForceRenderKey={setForceRenderKey}
+            setShowAudioPlayer={setShowAudioPlayer}
+            setNowPlayingUrl={setNowPlayingUrl}
+            setAudioTitle={setAudioTitle}
+          />
         </Card.Body>
       </Card>
 
