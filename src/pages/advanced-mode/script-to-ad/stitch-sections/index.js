@@ -5,7 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table, Modal, Row, Col } from "react-bootstrap";
+import { Card, Button, Table, Row, Col } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
@@ -26,6 +26,7 @@ import {
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
 import { EditPauseDurationModal } from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/edit-pause-duration-modal/modal";
+import ContentModal from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/content-modal"; // Import the new ContentModal component
 
 function StitchSections() {
   const auth = getAuth();
@@ -814,17 +815,11 @@ function StitchSections() {
         spotId={spotId}
         setSpotName={setSpotName}
       />
-      <Modal show={showContentModal} onHide={() => setShowContentModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Section Content</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{contentModalText}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowContentModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ContentModal
+        show={showContentModal}
+        onHide={() => setShowContentModal(false)}
+        content={contentModalText}
+      />
     </div>
   );
 }
