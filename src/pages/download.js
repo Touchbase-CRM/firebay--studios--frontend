@@ -163,9 +163,19 @@ const DownloadManager = () => {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden", // Prevent scrolling
+        alignItems: "center",
       }}
     >
-      <NavBar links={[]} dropdownItems={dropdownItems} />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          width: "100%",
+        }}
+      >
+        <NavBar links={[]} dropdownItems={dropdownItems} />
+      </div>
       {/* Modal for editing spot name */}
       <RenameModal
         show={showRenameModal}
@@ -196,7 +206,7 @@ const DownloadManager = () => {
         style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "flex-start", // Align items to the start for left alignment
           justifyContent: "center",
           height: "100vh",
           backgroundColor: "#FFFFFF",
@@ -208,8 +218,9 @@ const DownloadManager = () => {
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start",
+            alignItems: "flex-start", // Align items to the start for left alignment
             justifyContent: "center",
+            width: "100%",
           }}
         >
           <div className="col-12">
@@ -217,7 +228,7 @@ const DownloadManager = () => {
               style={{
                 fontSize: "1.5em",
                 fontWeight: "bold",
-                textAlign: "left",
+                textAlign: "left", // Align text to the left
                 marginBottom: "30px",
               }}
             >
@@ -225,7 +236,7 @@ const DownloadManager = () => {
             </h2>
           </div>
           <div
-            className="col-12 d-flex justify-content-center flex-wrap"
+            className="col-12 d-flex justify-content-start flex-wrap"
             style={{
               gap: "10px",
               marginBottom: "20px",
@@ -325,6 +336,4 @@ const DownloadManager = () => {
   );
 };
 
-// export default withAuth(DownloadManager);
-export default DownloadManager;
-
+export default withAuth(DownloadManager);
