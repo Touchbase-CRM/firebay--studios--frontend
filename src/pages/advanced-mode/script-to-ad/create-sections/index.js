@@ -181,13 +181,13 @@ function CreateSections() {
     >
       <NavBar links={[]} logoutHandler={handleLogout} />
 
-      <Row className="m-0 p-0 mt-3">
+      <Row className="m-0 p-0 mt-2">
         <Col md={10} className="mx-auto m-0 p-0"></Col>
       </Row>
       <Row className="m-0 p-0">
         <Col md={10} className="mx-auto m-0 p-0">
           <Card
-            className="p-3 p-md-4 m-0"
+            className="p-2 p-md-3 m-0"
             style={{
               borderRadius: "1rem",
               borderColor: "#eb631c",
@@ -197,15 +197,15 @@ function CreateSections() {
               boxSizing: "border-box",
             }}
           >
-            <Card.Body className="p-0 p-md-2">
+            <Card.Body className="p-0 p-md-1">
               <Card.Title>Script Editor</Card.Title>
-              <Form.Group controlId="adLength" className="mt-3">
+              <Form.Group controlId="adLength" className="mt-2">
                 <Form.Label>Choose Ad Length</Form.Label>
                 <Form.Select
                   aria-label="Ad length select"
                   value={adLength}
                   onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: "black", marginBottom: "20px" }}
+                  style={{ color: "black", marginBottom: "10px" }}
                 >
                   <option value="10">10 seconds</option>
                   <option value="15">15 seconds</option>
@@ -274,15 +274,15 @@ function CreateSections() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "180px",
-                    marginBottom: "20px",
+                    height: "150px",
+                    marginBottom: "10px",
                     resize: "none",
                   }}
                 />
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "38px",
+                    bottom: "30px",
                     right: "3px",
                     background: "rgba(0, 0, 0, 0.7)",
                     color: "white",
@@ -367,10 +367,9 @@ function CreateSections() {
             }}
           >
             <Button
-              className="mt-3"
+              className="mt-2"
               style={{
                 marginRight: "10px",
-                marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
               }}
