@@ -181,26 +181,26 @@ function CreateSections() {
     >
       <NavBar links={[]} logoutHandler={handleLogout} />
 
-      <Row>
-        <Col md={10} className="mx-auto"></Col>
+      <Row className="m-0 p-0">
+        <Col md={10} className="mx-auto m-0 p-0"></Col>
       </Row>
-      <Row>
-        <Col md={10} className="mx-auto">
+      <Row className="m-0 p-0">
+        <Col md={10} className="mx-auto m-0 p-0">
           <Card
-            className="p-4 "
+            className="p-3 p-md-4 m-0"
             style={{
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "100px",
-              height: "800px",
-              marginBottom: "10px",
-              minWidth: "1000px",
+              marginTop: "20px",
+              marginBottom: "20px",
+              minWidth: "100%",
+              boxSizing: "border-box",
             }}
           >
-            <Card.Body>
+            <Card.Body className="p-0 p-md-2">
               <Card.Title>Script Editor</Card.Title>
-              <Form.Group controlId="adLength">
+              <Form.Group controlId="adLength" className="mt-3">
                 <Form.Label>Choose Ad Length</Form.Label>
                 <Form.Select
                   aria-label="Ad length select"
@@ -275,14 +275,15 @@ function CreateSections() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "280px",
+                    height: "180px",
                     marginBottom: "20px",
+                    resize: "none",
                   }}
                 />
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "62px",
+                    bottom: "38px",
                     right: "3px",
                     background: "rgba(0, 0, 0, 0.7)",
                     color: "white",
@@ -312,9 +313,6 @@ function CreateSections() {
                         : handleOffCanvasShow
                     }
                     style={{
-                      position: "absolute",
-                      right: "0px",
-                      bottom: "10px",
                       backgroundColor: "white",
                       borderColor: "#FDA942",
                       color: "black",
@@ -364,9 +362,6 @@ function CreateSections() {
 
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
               fontSize: "small",
               fontWeight: "bold",
               fontStyle: "italic",
@@ -400,7 +395,6 @@ function CreateSections() {
         show={showTutorial}
         onHide={handleTutorialClose}
         placement="end"
-        style={{ width: "800px" }}
       >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Tutorial</Offcanvas.Title>
@@ -413,5 +407,5 @@ function CreateSections() {
   );
 }
 
-export default withAuth(CreateSections);
-// export default CreateSections;
+// export default withAuth(CreateSections);
+export default CreateSections;
