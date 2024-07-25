@@ -274,7 +274,7 @@ function CreateSections() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "150px",
+                    height: "120px",
                     marginBottom: "10px",
                     resize: "none",
                   }}
@@ -403,5 +403,5 @@ function CreateSections() {
 
 }
 
-// export default withAuth(CreateSections);
-export default CreateSections;
+export default withAuth(CreateSections);
+// export default CreateSections;
