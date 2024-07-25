@@ -282,8 +282,8 @@ function CreateSections() {
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "30px",
-                    right: "3px",
+                    bottom: "48px",
+                    right: "0px",
                     background: "rgba(0, 0, 0, 0.7)",
                     color: "white",
                     padding: "0 5px",
@@ -292,9 +292,7 @@ function CreateSections() {
                 >
                   {originalScriptForSectionSplit.length}/{charLimit}
                 </div>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <Button
                     style={{
                       backgroundColor: "#FDA942",
@@ -317,12 +315,11 @@ function CreateSections() {
                       color: "black",
                     }} // Adjusted to align horizontally with the Clear Script button
                   >
-                    {originalScriptForSectionSplit === ""
-                      ? "Tutorial"
-                      : "View Sections"}
+                    {originalScriptForSectionSplit === "" ? "Tutorial" : "View Sections"}
                   </Button>
                 </div>
               </Form.Group>
+
 
               <br></br>
               {/* Display the number of sections found */}
