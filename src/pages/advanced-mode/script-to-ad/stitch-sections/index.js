@@ -5,15 +5,11 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table, Row, Col } from "react-bootstrap";
+import { Card, Button, Modal } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import Spinner from "@/components/spinner/spinner";
-import { PlayButton } from "@/components/buttons/play-button/play";
-import { EditButton } from "@/components/buttons/edit-button/edit";
-import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import useUserInputsStore from "@/store/user-inputs";
@@ -25,13 +21,11 @@ import {
   updateExistingSpotInDb,
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
-import { EditPauseDurationModal } from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/edit-pause-duration-modal/modal";
-import ContentModal from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/content-modal"; // Import the new ContentModal component
 import LoadingScreen from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/loading-screen";
 import SectionsTable from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/sections-table";
 import NavigationButtons from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/navigation-buttons";
 import InfoPad from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/info-pad";
-
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function StitchSections() {
   const auth = getAuth();
@@ -85,28 +79,16 @@ function StitchSections() {
   const [showContentModal, setShowContentModal] = useState(false);
   const [contentModalText, setContentModalText] = useState("");
 
+  const getPageSize = () => {
+    const height = window.innerHeight;
+    if (height < 768) return 3; // Example: 2 rows per page for medium screens
+    if (height < 992) return 4; // Example: 3 rows per page for large screens
+    if (height < 1200) return 7; // Example: 4 rows per page for extra large screens
+    return 10; // Example: 5 rows per page for extra extra large screens
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSizeMd = 3; // Example: 2 rows per page for medium screens
-  const pageSizeLg = 4; // Example: 3 rows per page for large screens
-  const pageSizeXl = 7; // Example: 4 rows per page for extra large screens
-  const pageSizeXxl = 10; // Example: 5 rows per page for extra extra large screens
-
-  const pageSize =
-    window.innerHeight < 768
-      ? pageSizeMd
-      : window.innerHeight < 992
-        ? pageSizeLg
-        : window.innerHeight < 1200
-          ? pageSizeXl
-          : pageSizeXxl;
-
-  const indexOfLastSection = currentPage * pageSize;
-  const indexOfFirstSection = indexOfLastSection - pageSize;
-  const currentSections = localSectionsArray.slice(
-    indexOfFirstSection,
-    indexOfLastSection
-  );
-  const totalPages = Math.ceil(localSectionsArray.length / pageSize);
+  const [pageSize, setPageSize] = useState(getPageSize());
 
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
@@ -137,6 +119,22 @@ function StitchSections() {
       window.onpopstate = null;
     };
   }, [router]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setPageSize(getPageSize());
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when page size changes
+  }, [pageSize]);
 
   const calculateTotalDuration = () => {
     const totalDurationWithoutPauses = localSectionsArray.reduce(
@@ -398,7 +396,7 @@ function StitchSections() {
   };
 
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(localSectionsArray.length / pageSize)) {
+    if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -411,6 +409,14 @@ function StitchSections() {
       />
     );
   }
+
+  const indexOfLastSection = currentPage * pageSize;
+  const indexOfFirstSection = indexOfLastSection - pageSize;
+  const currentSections = localSectionsArray.slice(
+    indexOfFirstSection,
+    indexOfLastSection
+  );
+  const totalPages = Math.ceil(localSectionsArray.length / pageSize);
 
   return (
     <div
@@ -546,11 +552,17 @@ function StitchSections() {
         spotId={spotId}
         setSpotName={setSpotName}
       />
-      <ContentModal
-        show={showContentModal}
-        onHide={() => setShowContentModal(false)}
-        content={contentModalText}
-      />
+      <Modal show={showContentModal} onHide={() => setShowContentModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Section Content</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{contentModalText}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowContentModal(false)}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
