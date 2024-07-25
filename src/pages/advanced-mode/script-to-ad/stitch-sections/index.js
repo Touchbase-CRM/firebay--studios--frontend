@@ -5,7 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table, Modal, Pagination } from "react-bootstrap";
+import { Card, Button, Table, Modal, Row, Col } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
@@ -80,10 +80,19 @@ function StitchSections() {
   const [contentModalText, setContentModalText] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSizeMd = 2; // Example: 5 rows per page for medium screens
-  const pageSizeLg = 3; // Example: 10 rows per page for large screens
+  const pageSizeMd = 3; // Example: 2 rows per page for medium screens
+  const pageSizeLg = 4; // Example: 3 rows per page for large screens
+  const pageSizeXl = 7; // Example: 4 rows per page for extra large screens
+  const pageSizeXxl = 10; // Example: 5 rows per page for extra extra large screens
 
-  const pageSize = window.innerHeight < 768 ? pageSizeMd : pageSizeLg;
+  const pageSize =
+    window.innerHeight < 768
+      ? pageSizeMd
+      : window.innerHeight < 992
+        ? pageSizeLg
+        : window.innerHeight < 1200
+          ? pageSizeXl
+          : pageSizeXxl;
 
   const indexOfLastSection = currentPage * pageSize;
   const indexOfFirstSection = indexOfLastSection - pageSize;
@@ -375,14 +384,17 @@ function StitchSections() {
     setShowContentModal(true);
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(localSectionsArray.length / pageSize); i++) {
-    pageNumbers.push(i);
-  }
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(localSectionsArray.length / pageSize)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   if (pendingAdvertisement) {
     return (
@@ -494,7 +506,7 @@ function StitchSections() {
           <div
             style={{
               overflowY: "auto",
-              maxHeight: "600px",
+              maxHeight: "700px",
               overflowX: "hidden",
             }}
           >
@@ -678,17 +690,24 @@ function StitchSections() {
               </tbody>
             </Table>
           </div>
-          <Pagination>
-            {pageNumbers.map((number) => (
-              <Pagination.Item
-                key={number}
-                active={number === currentPage}
-                onClick={() => handlePageChange(number)}
+          <Row className="align-items-center mt-3">
+            <Col xs="auto">
+              <Button
+                variant="outline-secondary"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
               >
-                {number}
-              </Pagination.Item>
-            ))}
-          </Pagination>
+                {"<"}
+              </Button>{" "}
+              <Button
+                variant="outline-secondary"
+                onClick={handleNextPage}
+                disabled={currentPage === Math.ceil(localSectionsArray.length / pageSize)}
+              >
+                {">"}
+              </Button>
+            </Col>
+          </Row>
           <div
             style={{
               marginTop: "20px",
