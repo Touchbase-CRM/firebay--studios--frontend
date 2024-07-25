@@ -109,6 +109,7 @@ function CreateAd() {
   const [audioTitle, setAudioTitle] = useState("");
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
 
+
   useEffect(() => {
     setAdGenerationMethod("voice-to-ad");
   }, []);
@@ -425,16 +426,6 @@ function CreateAd() {
     return minutes * 60 + seconds;
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-  ];
-
   return (
     <div
       style={{
@@ -445,7 +436,7 @@ function CreateAd() {
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />
@@ -724,6 +715,8 @@ function CreateAd() {
                 audioTitle={voiceName}
                 allowDownload={generatedVoiceUrl !== ""}
                 autoplay={audioAutoPlay}
+                forceRender={forceRenderKey}
+                setShowAudioPlayer={setShowAudioPlayer}
               />
             )}
           </div>

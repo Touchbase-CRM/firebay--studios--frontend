@@ -169,26 +169,6 @@ function CreateSections() {
   const handleOffCanvasClose = () => setShowOffCanvas(false); // New function to handle closing the off-canvas
   const handleOffCanvasShow = () => setShowOffCanvas(true); // New function to handle showing the off-canvas
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-  ];
-
-  const wordCountStyle = {
-    position: "absolute",
-    bottom: "10px",
-    right: "10px",
-    background: "rgba(0, 0, 0, 0.7)",
-    color: "white",
-    padding: "0 5px",
-    borderRadius: "5px",
-  };
-
   return (
     <div
       style={{
@@ -199,34 +179,33 @@ function CreateSections() {
         backgroundColor: "#FFFFFF",
       }}
     >
-      <NavBar links={links} logoutHandler={handleLogout} />
+      <NavBar links={[]} logoutHandler={handleLogout} />
 
-      <Row>
-        <Col md={10} className="mx-auto"></Col>
+      <Row className="m-0 p-0 mt-4 mt-md-5">
+        <Col md={10} className="mx-auto m-0 p-0"></Col>
       </Row>
-      <Row>
-        <Col md={10} className="mx-auto">
+      <Row className="m-0 p-0">
+        <Col md={10} className="mx-auto m-0 p-0">
           <Card
-            className="p-4 "
+            className="p-2 p-md-3 m-0"
             style={{
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "100px",
-              height: "800px",
-              marginBottom: "10px",
-              minWidth: "1000px",
+              marginBottom: "20px",
+              minWidth: "100%",
+              boxSizing: "border-box",
             }}
           >
-            <Card.Body>
+            <Card.Body className="p-0 p-md-1">
               <Card.Title>Script Editor</Card.Title>
-              <Form.Group controlId="adLength">
+              <Form.Group controlId="adLength" className="mt-2">
                 <Form.Label>Choose Ad Length</Form.Label>
                 <Form.Select
                   aria-label="Ad length select"
                   value={adLength}
                   onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: "black", marginBottom: "20px" }}
+                  style={{ color: "black", marginBottom: "10px" }}
                 >
                   <option value="10">10 seconds</option>
                   <option value="15">15 seconds</option>
@@ -295,15 +274,16 @@ function CreateSections() {
                   onChange={handleScriptChange}
                   style={{
                     color: "black",
-                    height: "280px",
-                    marginBottom: "20px",
+                    height: "120px",
+                    marginBottom: "10px",
+                    resize: "none",
                   }}
                 />
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "62px",
-                    right: "3px",
+                    bottom: "48px",
+                    right: "0px",
                     background: "rgba(0, 0, 0, 0.7)",
                     color: "white",
                     padding: "0 5px",
@@ -312,9 +292,7 @@ function CreateSections() {
                 >
                   {originalScriptForSectionSplit.length}/{charLimit}
                 </div>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <Button
                     style={{
                       backgroundColor: "#FDA942",
@@ -332,20 +310,16 @@ function CreateSections() {
                         : handleOffCanvasShow
                     }
                     style={{
-                      position: "absolute",
-                      right: "0px",
-                      bottom: "10px",
                       backgroundColor: "white",
                       borderColor: "#FDA942",
                       color: "black",
                     }} // Adjusted to align horizontally with the Clear Script button
                   >
-                    {originalScriptForSectionSplit === ""
-                      ? "Tutorial"
-                      : "View Sections"}
+                    {originalScriptForSectionSplit === "" ? "Tutorial" : "View Sections"}
                   </Button>
                 </div>
               </Form.Group>
+
 
               <br></br>
               {/* Display the number of sections found */}
@@ -384,19 +358,15 @@ function CreateSections() {
 
           <div
             style={{
-              // position: "absolute",
-              // bottom: "10px",
-              // left: "10px",
               fontSize: "small",
               fontWeight: "bold",
               fontStyle: "italic",
             }}
           >
             <Button
-              className="mt-3"
+              className="mt-2"
               style={{
                 marginRight: "10px",
-                marginTop: "20px",
                 backgroundColor: "#EB631C",
                 borderColor: "#EB631C",
               }}
@@ -420,7 +390,6 @@ function CreateSections() {
         show={showTutorial}
         onHide={handleTutorialClose}
         placement="end"
-        style={{ width: "800px" }}
       >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Tutorial</Offcanvas.Title>
@@ -431,6 +400,7 @@ function CreateSections() {
       </Offcanvas>
     </div>
   );
+
 }
 
 export default withAuth(CreateSections);

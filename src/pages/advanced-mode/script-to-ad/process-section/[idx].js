@@ -1,4 +1,3 @@
-// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
 import React, { useState, useEffect, useRef } from "react";
 import {
   Row,
@@ -11,6 +10,7 @@ import {
   Alert,
   OverlayTrigger,
   Tooltip,
+  Offcanvas,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -45,6 +45,8 @@ import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
+import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
+
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -54,8 +56,8 @@ function ProcessSection() {
   const voiceAudioPlayerRef = useRef(null);
   // prettier-ignore
   const audioProcessingWebServiceUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+    ? "http://localhost:8000"
+    : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 
   // Zustand store hooks
   const {
@@ -109,9 +111,16 @@ function ProcessSection() {
   );
 
   const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
+  const [historyOffcanvasVisible, setHistoryOffcanvasVisibility] = useState(false);
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
-  const showOffcanvas = () => setOffcanvasVisibility(true);
+  const showOffcanvas = () => {
+    setShowMenu(false); // Ensure dropdown is closed when offcanvas opens
+    setOffcanvasVisibility(true);
+  };
+
+  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
+  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -136,13 +145,13 @@ function ProcessSection() {
       ((previousSectionsTotalDuration +
         localCurrentSectionObj.getSectionDurationSeconds()) /
         adLength) *
-        100
+      100
     )
   );
   const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
-      (previousSectionsTotalDuration +
-        localCurrentSectionObj.getSectionDurationSeconds())
+    (previousSectionsTotalDuration +
+      localCurrentSectionObj.getSectionDurationSeconds())
   );
 
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
@@ -154,6 +163,8 @@ function ProcessSection() {
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  const [showOptions, setShowOptions] = useState(false); // State to control options visibility
+
 
   const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
   const speechRateMax = 100;
@@ -194,7 +205,7 @@ function ProcessSection() {
       ((previousSectionsTotalDuration +
         sectionToUpdate.getSectionDurationSeconds()) /
         adLength) *
-        100
+      100
     );
     const newSecondsLeft =
       adLength -
@@ -338,11 +349,9 @@ function ProcessSection() {
     );
   };
 
-  const handleLeftClick = (event, index) => {
-    event.preventDefault();
-    setShowMenu(!showMenu);
-    setMenuPosition({ x: event.clientX, y: event.clientY });
+  const handleWordClick = (index) => {
     setSelectedWordIndex(index);
+    setShowMenu(true);
   };
 
   const transformWord = (action) => {
@@ -384,7 +393,10 @@ function ProcessSection() {
 
     setTransformedWords(newTransformedWords); // Update the state with the new object
     setShowMenu(false);
+    setSelectedWordIndex(null);
+    setShowOptions(false); // Hide the options and show the words again
   };
+
   const handleSpeechRate = (value) => {
     localCurrentSectionObj.setSpeechRate(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
@@ -501,23 +513,20 @@ function ProcessSection() {
   };
 
   const updateVoiceForAllSections = (currentIndex) => {
-    const updatedSections = localSectionsArray.map((section, index) => {
+    localSectionsArray.forEach((section, index) => {
+      if (index > currentIndex && localSectionsArray[currentIndex + 1]?.getHistoryItemId() !== null) {
+        return;
+      }
+
       if (index >= currentIndex) {
         section.setVoiceId(localCurrentSectionObj.getVoiceId());
         section.setVoiceName(localCurrentSectionObj.getVoiceName());
-        section.setVoicePreviewFilename(
-          localCurrentSectionObj.getVoicePreviewFilename()
-        );
+        section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
         section.setModelId(localCurrentSectionObj.getModelId());
-        section.setVoiceIntonationConsistency(
-          localCurrentSectionObj.getVoiceIntonationConsistency()
-        );
-        section.setDragonBreathEnhancement(
-          localCurrentSectionObj.getDragonBreathEnhancement()
-        );
+        section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
+        section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
         section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
       }
-      return section;
     });
   };
 
@@ -564,8 +573,7 @@ function ProcessSection() {
       } else {
         router.push(
           "/advanced-mode/script-to-ad/process-section/[idx]",
-          `/advanced-mode/script-to-ad/process-section/${
-            currentSectionIndex + 1
+          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1
           }`
         );
       }
@@ -602,7 +610,7 @@ function ProcessSection() {
   };
 
   async function handleGenerateVoice() {
-    const isValid = validateScript(typedText, charLimit, () => {}, showAlert);
+    const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
     if (!isValid) return;
     setIsGeneratingVoice(true);
@@ -619,21 +627,21 @@ function ProcessSection() {
 
       const result = preprocessRequired
         ? await generateVoiceWithCustomPreprocess(
-            mostUptodateSection,
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency(),
-            localCurrentSectionObj.getModelId(),
-            auth.currentUser.uid,
-            localCurrentSectionObj.getDragonBreathEnhancement(),
-            manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
-            true
-          )
+          mostUptodateSection,
+          localCurrentSectionObj.getVoiceId(),
+          localCurrentSectionObj.getVoiceIntonationConsistency(),
+          localCurrentSectionObj.getModelId(),
+          auth.currentUser.uid,
+          localCurrentSectionObj.getDragonBreathEnhancement(),
+          manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate()),
+          true
+        )
         : await generateVoiceWithElevenLabsAPI(
-            mostUptodateSection,
-            localCurrentSectionObj.getModelId(),
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency()
-          );
+          mostUptodateSection,
+          localCurrentSectionObj.getModelId(),
+          localCurrentSectionObj.getVoiceId(),
+          localCurrentSectionObj.getVoiceIntonationConsistency()
+        );
 
       // Common code
       audioUrl = result.audioUrl;
@@ -746,8 +754,8 @@ function ProcessSection() {
       const pyroHistoryItemId = data["pyro_history_item_id"];
       const estimatedProcessingTime =
         (1 / CHARACTERSPERSEC) *
-          localCurrentSectionObj.getCurrentCharCount() *
-          SECTOMILLISEC +
+        localCurrentSectionObj.getCurrentCharCount() *
+        SECTOMILLISEC +
         ADDITIONALWAITTIME;
 
       const audioUrl = await fetchAudioFromPyroBackendDistribution(
@@ -861,65 +869,24 @@ function ProcessSection() {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
+
   const resetSpeechRate = () => {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
-  ];
 
   return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        minHeight: "150vh",
-        display: "flex",
-        flexDirection: "column",
-        overflowX: "hidden", // Prevent horizontal overflow
-      }}
-    >
-      <NavBar
-        links={links}
-        logoutHandler={handleLogout}
-        saveHandler={handleSaveState}
-      />
-
-      <div style={{ display: "flex", flex: 1, overflowY: "hidden" }}>
-        {/* Left Card for Section Editor */}
-        <div style={{ flex: 3, padding: "20px", minWidth: 0 }}>
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              height: "800px", // Preserving the original height
-              overflowY: "auto", // Added scroll for overflow content
-              overflowX: "hidden", // Prevent horizontal overflow
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Card.Body style={{ flex: 1 }}>
-              <Card.Title>Section Editor</Card.Title>
-
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Edit section</Form.Label>
-                <div style={{ display: "flex", alignItems: "center" }}>
+    <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
+      <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
+      <div className="container-fluid">
+        <div className="row" style={{ overflow: "hidden" }}>
+          {/* Left Card for Section Editor */}
+          <div className="col-12 col-lg-8 p-3" style={{ height: "100%", overflow: "hidden" }}>
+            <Card className="p-2 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
+              <Card.Body className="d-flex flex-column">
+                <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
+                <Form.Group controlId="script" className="position-relative">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
@@ -929,528 +896,232 @@ function ProcessSection() {
                     maxLength={2000}
                     style={{
                       color: "black",
-                      width: "100%", // Ensure it takes up the full width of the container
-                      // minHeight: "100px", // Minimum height
-                      maxHeight: "600px", // Maximum height to allow for scrolling
-                      height: "300px", // Auto height based on content
+                      width: "100%",
+                      fontSize: "0.875rem",
+                      height: "366px", // This height can be dynamically adjusted based on your needs
                       marginBottom: "10px",
-                      overflowY: "auto", // Enable vertical scroll when content overflows
-                      overflowX: "hidden", // Prevent horizontal overflow
-                      resize: "none", // Prevent manual resizing
-                      marginRight: "10px",
+                      overflow: "hidden",
+                      resize: "none",
                     }}
                   />
-
-                  <PlayButton
-                    onClickHandler={handleReadReplayButton} // You might need to modify the handler for this button's specific action
-                    handlerArgs={[]}
-                    size="32px" // Ensure this matches the size of the other play button for consistency
-                    preventDefault={true}
-                    isDisabled={
-                      localCurrentSectionObj.getGeneratedVoiceUrl() === ""
-                    }
-                  />
-                </div>
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "15px",
-                    right: "50px", // Adjust as necessary if the play button affects the positioning
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "0 5px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {typedText.replace(/'/g, "").length}/{charLimit}
-                </div>
-              </Form.Group>
-
-              <div>
-                <Form.Label>Click on a word to change its emphasis</Form.Label>
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#e4e4e4",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginTop: "10px",
-                  overflowX: "hidden", // Prevent horizontal overflow
-                  maxHeight: "350px", // Set a max-height for the container
-                  overflowY: "auto", // Enable vertical scroll when content overflows
-                }}
-              >
-                {typedText.split(" ").map((word, index) => (
-                  <span
-                    key={index}
-                    onClick={(e) => handleLeftClick(e, index)}
+                  <div className="d-flex justify-content-between mt-2 flex-wrap">
+                    <Button
+                      onClick={showOffcanvas}
+                      variant="outline-secondary"
+                      className="mb-2"
+                      style={{
+                        borderColor: "#FDA942",
+                        color: "black",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      Change Emphasis
+                    </Button>
+                    <Button
+                      onClick={handleGenerateVoice}
+                      disabled={isGeneratingVoice}
+                      className="mb-2 mx-2"
+                      style={{
+                        backgroundColor: "#EB631C",
+                        borderColor: "#EB631C",
+                        color: "white",
+                        minWidth: "150px",
+                        maxWidth: "250px", // Setting a max-width
+                        flex: "1 1 auto" // Allow flex to grow and shrink
+                      }}
+                    >
+                      {isGeneratingVoice ? (
+                        <>
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
+                        </>
+                      ) : (
+                        "Generate Voice"
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleReadReplayButton}
+                      variant="outline-secondary"
+                      className="mb-2"
+                      style={{
+                        borderColor: "#FDA942",
+                        color: "black",
+                        backgroundColor: "white",
+                      }}
+                      disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+                    >
+                      Latest Read
+                    </Button>
+                  </div>
+                  <div
+                    className="position-absolute"
                     style={{
-                      marginRight: "5px",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      textDecorationColor: "transparent",
-                      color: "#eb631c",
-                      overflowX: "hidden", // Prevent horizontal overflow
-                      whiteSpace: "nowrap", // Prevent line breaks
+                      bottom: "57px", // Adjust this value according to the height of the textarea
+                      right: "0px",
+                      background: "rgba(0, 0, 0, 0.7)",
+                      color: "white",
+                      padding: "0 5px",
+                      borderRadius: "5px",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.target.style.textDecorationColor = "#eb631c")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.style.textDecorationColor = "transparent")
-                    }
                   >
-                    {transformedWords[index] || word}
-                  </span>
-                ))}
-              </div>
-            </Card.Body>
-
-            {/* Position the Generate Voice button at the bottom right of the card */}
-            <Button
-              onClick={handleGenerateVoice}
-              disabled={isGeneratingVoice} // Disable button when audio is being generated
-              style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "60%",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-            >
-              {isGeneratingVoice ? (
-                <span>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />{" "}
-                  Generating...
-                </span>
-              ) : (
-                "Generate Voice"
+                    {typedText.replace(/'/g, "").length}/{charLimit}
+                  </div>
+                </Form.Group>
+              </Card.Body>
+              {showAudioPlayer && (
+                <SimpleAudioPlayer
+                  audioSrc={generatedVoiceUrl}
+                  audioTitle={localCurrentSectionObj.getVoiceName()}
+                  allowDownload={allowDownload}
+                  autoplay={true}
+                  forceRender={forceRenderKey}
+                  setShowAudioPlayer={setShowAudioPlayer}
+                />
               )}
-            </Button>
-          </Card>
-
-          <div
-            style={{
-              display: "flex", // Enable flexbox
-              justifyContent: "flex-start", // Align items to the start of the container
-              alignItems: "center", // Align items vertically
-              bottom: "10px",
-              left: "10px",
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          >
-            {/* Next Button */}
-            <Button
-              className="mt-3"
-              style={{
-                marginRight: "auto", // Push all subsequent items to the right
-                marginTop: "20px",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-              onClick={handleSubmit}
-            >
-              {"Next"}
-            </Button>
-            {/* Save Button */}
-            <SecondaryActionButton
-              onClick={handleSaveState}
-              initialText="Save"
-              clickedText="Saved!"
-              duration={1000}
-              marginRight="10px"
-              marginTop="20px"
-            />
-
-            {/* History Button */}
-            <SecondaryActionButton
-              onClick={showOffcanvas}
-              initialText="History"
-              clickedText="History!"
-              duration={1000}
-              disabled={
-                !(
-                  localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                  localSectionHistoryObj &&
-                  localSectionHistoryObj[currentSectionIndex] !== null
-                )
-              }
-              opacity={
-                localCurrentSectionObj.getGeneratedVoiceUrl() !== "" &&
-                localSectionHistoryObj &&
-                localSectionHistoryObj[currentSectionIndex] !== null
-                  ? "1"
-                  : "0.5"
-              }
-              marginRight="0px"
-              marginTop="20px"
-            />
-            <HistoryCanvas
-              show={offcanvasVisible}
-              handleClose={hideOffcanvas}
-              localSectionHistoryObj={localSectionHistoryObj}
-              playAudioUrl={playAudioUrl}
-              changeCurrentSectionObj={changeCurrentSectionObj}
-            />
-          </div>
-
-          {/* By adding a massive margin top I was able to add the scrollability to mac OS */}
-          <div style={{ position: "relative" }}>
-            {showAudioPlayer && (
-              <SimpleAudioPlayer
-                audioSrc={generatedVoiceUrl}
-                audioTitle={localCurrentSectionObj.getVoiceName()}
-                allowDownload={allowDownload}
-                autoplay={true}
-                forceRender={forceRenderKey}
+            </Card>
+            <div className="d-flex justify-content-start align-items-center mt-3 flex-wrap">
+              <Button className="mt-3 me-auto" style={{ backgroundColor: "#EB631C", borderColor: "#EB631C" }} onClick={handleSubmit}>
+                Next
+              </Button>
+              <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
+              <SecondaryActionButton
+                onClick={showHistoryOffcanvas}
+                initialText="History"
+                clickedText="History!"
+                duration={1000}
+                disabled={
+                  !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
+                }
+                className="mt-3"
               />
-            )}
+              <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
+            </div>
           </div>
-
-          {showMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: menuPosition.y,
-                left: menuPosition.x,
-                zIndex: 1000,
-                backgroundColor: "#eb631c",
-                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <h6
-                style={{
-                  marginBottom: "10px",
-                  color: "#333",
-                  fontWeight: "500",
-                  fontSize: "13px",
-                }}
-              >
-                Word Smith
-              </h6>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel3")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                High Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel2")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Medium Emphasis
-              </button>
-              <button
-                className="btn btn-light"
-                onClick={() => transformWord("emphasizeLevel1")}
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-              >
-                Low Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                style={{ marginBottom: "8px", fontSize: "12px" }}
-                onClick={() => transformWord("removeEmphasis")}
-              >
-                Remove Emphasis
-              </button>
-
-              <button
-                className="btn btn-light"
-                onClick={() => setShowMenu(false)}
-                style={{ fontSize: "12px" }}
-              >
-                Close Menu
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Right Card for Progress Bar and Voice Editor */}
-        <div
-          style={{ flex: 1, padding: "20px", minWidth: 0, overflowY: "auto" }}
-        >
-          <Card
-            className="p-4"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginBottom: "10px",
-              height: "800px", // Preserving the original height
-              minWidth: "300px", // Set a minimum width to prevent overflow
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute", // Absolutely position the BackButton
-                top: "10px", // Adjust as needed
-                left: "10px", // Adjust as needed
-                marginBottom: "20px",
-              }}
-            >
-              {localCurrentSectionObj.getIndex() !== 0 && (
-                <BackButton
-                  width="30px"
-                  height="30px"
-                  backgroundColor="#eb631c"
-                  onClick={handleGoBack} // Pass the onClick method directly
-                />
-              )}
-            </div>
-            <Card.Title style={{ marginTop: "70px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  fontWeight: "bold",
-                  fontSize: "1.2em",
-                }}
-              >
-                <i
-                  className="bi bi-pencil-square"
-                  style={{
-                    cursor: "pointer",
-                    marginRight: "10px",
-                    fontSize: "0.8em",
-                  }} // Adjust the fontSize here
-                  onClick={() => setShowRenameModal(true)}
-                ></i>
-                {spotName}
+          {/* Right Card for Progress Bar and Voice Editor */}
+          <div className="col-12 col-lg-4 p-3" style={{ height: "100%", overflow: "hidden" }}>
+            <Card className="p-4 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
+              <div className="position-absolute" style={{ top: "10px", left: "10px", marginBottom: "20px" }}>
+                {localCurrentSectionObj.getIndex() !== 0 && <BackButton width="30px" height="30px" backgroundColor="#eb631c" onClick={handleGoBack} />}
               </div>
-              <br />
-              <span style={{ fontSize: "0.7em", color: "gray" }}>
-                Section {localCurrentSectionObj.getIndex() + 1} of{" "}
-                {numSectionsIdentified}
-              </span>
-            </Card.Title>
-
-            <Form
-              key={localCurrentSectionObj.getHistoryItemId()}
-              style={{ flex: 1 }}
-            >
-              <Form.Group controlId="voice" style={{ marginBottom: "10px" }}>
-                <Form.Label>Voiceover Progress</Form.Label>
-                <ProgressBar
-                  now={progressBarPercentage}
-                  label={`${progressBarPercentage}%`}
-                />
-              </Form.Group>
-              <div>
-                Roughly {Math.round(secondsYouhaveLeft)} sec left out of{" "}
-                {adLength} sec
-              </div>
-
-              <Form.Group controlId="voice" style={{ marginTop: "10px" }}>
-                <Form.Label>Voice</Form.Label>
-                {voiceOptions.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      disabled
-                      style={{ color: "black" }}
-                    >
-                      <option>Loading voice choices...</option>
-                    </Form.Select>
-                    <Spinner
-                      animation="border"
-                      style={{ marginLeft: "10px" }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Select
-                      aria-label="Voice select"
-                      value={localCurrentSectionObj.getVoiceName()} // This should be the voice name, not the ID
-                      onChange={handleVoiceChange}
-                      style={{ color: "black", marginRight: "10px" }}
-                    >
-                      {voiceOptions
-                        // These restrictions are temporary. Need to figure out a better data model.
-                        .filter((voice) => {
-                          const isRestrictedVoice =
-                            restrictedVoices.includes(voice);
-                          const isFirebayStudiosEmail =
-                            auth.currentUser.email.split("@")[1] ===
-                            "firebaystudios.com";
-                          return (
-                            !isRestrictedVoice ||
-                            (isRestrictedVoice && isFirebayStudiosEmail)
-                          );
-                        })
-                        .map((voice, index) => (
-                          <option key={voice} value={voice}>
-                            {voice}
-                          </option>
-                        ))}
-                    </Form.Select>
-                    <PlayButton
-                      onClickHandler={handleVoicePreviewPlayButton}
-                      handlerArgs={[]}
-                      size="32px"
-                      preventDefault={true}
-                    />
-                  </div>
-                )}
-              </Form.Group>
-
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label className="mb-0" style={{ marginRight: "20px" }}>
-                  Dragon's Breath Enhancement
-                </Form.Label>
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="tooltip-info">
-                      Pyro Tip: 10X the energy of the selected voice as if a
-                      sword forged by dragon's breath
-                    </Tooltip>
-                  }
-                >
-                  <i
-                    className="bi bi-info-circle"
-                    style={{
-                      marginLeft: "10px",
-                      marginRight: "15px",
-                      cursor: "pointer",
-                    }}
-                  ></i>
-                </OverlayTrigger>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="dragonBreathEnhancementSwitch"
-                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                    onChange={handleDragonBreathEnhancementChange}
-                    style={{
-                      backgroundColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "white",
-                      borderColor:
-                        localCurrentSectionObj.getDragonBreathEnhancement()
-                          ? "#eb631c"
-                          : "#adb5bd",
-                    }}
-                  />
+              <Card.Title className="mt-5" style={{ fontSize: "1.25rem" }}>
+                <div className="d-flex align-items-center font-weight-bold">
+                  <i className="bi bi-pencil-square me-2" style={{ cursor: "pointer", fontSize: "0.8em" }} onClick={() => setShowRenameModal(true)}></i>
+                  {spotName}
                 </div>
-              </Form.Group>
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "5px" }}
-              >
-                {!localCurrentSectionObj.getDragonBreathEnhancement() ? (
-                  <Alert
-                    style={{
-                      variant: "info",
-                      fontSize: "10px",
-                      padding: "5px 10px",
-                    }}
-                  >
-                    Pyro Tip: 10X the energy of the selected voice as if a sword
-                    forged by dragon's breath
-                  </Alert>
-                ) : null}
-              </Form.Group>
-              <Form.Group
-                controlId="intonationConsistencyLevel"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Intonation Consistency Level
-                </Form.Label>
-                <FireSlider
-                  min={0}
-                  max={100}
-                  value={localCurrentSectionObj.getVoiceIntonationConsistency()}
-                  onValueChange={(value) => {
-                    handleIntonationChange(value);
-                  }}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  disabled={false}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{
-                    marginTop: "10px",
-                  }}
-                  leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
-                  rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
-                />
-              </Form.Group>
-              <Form.Group controlId="speechRate" style={{ marginTop: "10px" }}>
-                <Form.Label style={{ marginBottom: "15px" }}>
-                  Speech Rate
-                </Form.Label>
-                <FireSlider
-                  min={speechRateMin}
-                  max={speechRateMax}
-                  value={manageLegacySpeechRate(
-                    localCurrentSectionObj.getSpeechRate()
+                <br />
+                <span className="text-muted" style={{ fontSize: "0.875rem" }}>Section {localCurrentSectionObj.getIndex() + 1} of {numSectionsIdentified}</span>
+              </Card.Title>
+              <Form key={localCurrentSectionObj.getHistoryItemId()} className="d-flex flex-column flex-grow-1">
+                <Form.Group controlId="voice" className="mb-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
+                  <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
+                </Form.Group>
+                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
+                <Form.Group controlId="voice" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
+                  {voiceOptions.length === 0 ? (
+                    <div className="d-flex align-items-center">
+                      <Form.Select aria-label="Voice select" disabled className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
+                        <option>Loading voice choices...</option>
+                      </Form.Select>
+                      <Spinner animation="border" />
+                    </div>
+                  ) : (
+                    <div className="d-flex align-items-center">
+                      <Form.Select aria-label="Voice select" value={localCurrentSectionObj.getVoiceName()} onChange={handleVoiceChange} className="me-2" style={{ color: "black", fontSize: "0.875rem" }}>
+                        {voiceOptions.filter(voice => {
+                          const isRestrictedVoice = restrictedVoices.includes(voice);
+                          const isFirebayStudiosEmail = auth.currentUser.email.split("@")[1] === "firebaystudios.com";
+                          return !isRestrictedVoice || (isRestrictedVoice && isFirebayStudiosEmail);
+                        }).map((voice) => (
+                          <option key={voice} value={voice}>{voice}</option>
+                        ))}
+                      </Form.Select>
+                      <PlayButton onClickHandler={handleVoicePreviewPlayButton} handlerArgs={[]} size="32px" preventDefault={true} />
+                    </div>
                   )}
-                  onValueChange={(value) => {
-                    handleSpeechRate(value);
-                  }}
-                  thumbColor="#eb631c"
-                  trackColor="#f0f0f0"
-                  fillColor="#eb631c"
-                  showPercentage={true}
-                  disabled={false}
-                  width="70%"
-                  height="10px"
-                  containerStyle={{ marginTop: "10px" }}
-                  leftInfoMessage="Slower"
-                  rightInfoMessage="Faster"
-                  reset={resetSpeechRate}
-                />
-              </Form.Group>
-            </Form>
-          </Card>
+                </Form.Group>
+                <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
+                  <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
+                  <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
+                    <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
+                  </OverlayTrigger>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="dragonBreathEnhancementSwitch"
+                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                      onChange={handleDragonBreathEnhancementChange}
+                      style={{
+                        backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
+                        borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
+                      }}
+                    />
+                  </div>
+                </Form.Group>
+                {!localCurrentSectionObj.getDragonBreathEnhancement() && (
+                  <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
+                    Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath
+                  </Alert>
+                )}
+                <Form.Group controlId="intonationConsistencyLevel" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Intonation Consistency Level</Form.Label>
+                  <FireSlider
+                    min={0}
+                    max={100}
+                    value={localCurrentSectionObj.getVoiceIntonationConsistency()}
+                    onValueChange={handleIntonationChange}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{ marginTop: "18px" }}
+                    leftInfoMessage="Everytime you hit generate, the intonation will be dramatically different"
+                    rightInfoMessage="Everytime you hit generate, the intonation will be consistent"
+                  />
+                </Form.Group>
+                <Form.Group controlId="speechRate" className="mt-2">
+                  <Form.Label style={{ fontSize: "0.875rem" }}>Speech Rate</Form.Label>
+                  <FireSlider
+                    min={0}
+                    max={100}
+                    value={manageLegacySpeechRate(localCurrentSectionObj.getSpeechRate())}
+                    onValueChange={handleSpeechRate}
+                    thumbColor="#eb631c"
+                    trackColor="#f0f0f0"
+                    fillColor="#eb631c"
+                    showPercentage={true}
+                    width="70%"
+                    height="10px"
+                    containerStyle={{ marginTop: "18px" }}
+                    leftInfoMessage="Slower"
+                    rightInfoMessage="Faster"
+                    reset={resetSpeechRate}
+                  />
+                </Form.Group>
+              </Form>
+            </Card>
+          </div>
         </div>
+        <RenameModal show={showRenameModal} onHide={() => setShowRenameModal(false)} newSpotName={newSpotName} setNewSpotName={setNewSpotName} spotId={spotId} setSpotName={setSpotName} />
+        <WordSmithOffcanvas
+          offcanvasVisible={offcanvasVisible}
+          hideOffcanvas={hideOffcanvas}
+          showOptions={showOptions}
+          ogScriptWordsArray={ogScriptWordsArray}
+          selectedWordIndex={selectedWordIndex}
+          handleWordClick={handleWordClick}
+          setShowOptions={setShowOptions}
+          transformWord={transformWord}
+          typedText={typedText}
+          transformedWords={transformedWords}
+        />
       </div>
-
-      {/* Modal for editing spot name */}
-      <RenameModal
-        show={showRenameModal}
-        onHide={() => setShowRenameModal(false)}
-        newSpotName={newSpotName}
-        setNewSpotName={setNewSpotName}
-        spotId={spotId}
-        setSpotName={setSpotName}
-      />
     </div>
   );
 }
 
 export default withAuth(ProcessSection);
-// export default ProcessSection;

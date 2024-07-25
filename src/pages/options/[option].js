@@ -161,19 +161,19 @@ const OptionsPage = () => {
     <div
       style={{
         backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        minHeight: "100vh",
       }}
     >
       <NavBar links={[]} dropdownItems={dropdownItems} />
       <div
         style={{
+          flex: 1,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          height: "100vh",
           backgroundColor: "#FFFFFF",
         }}
       >
@@ -199,19 +199,20 @@ const OptionsPage = () => {
             style={{
               display: "flex",
               justifyContent: "center",
-              gap: "20px",
+              gap: "30px",
               marginBottom: "20px",
             }}
           >
             {cards.map((card, index) => (
-              <ActionCard
-                key={index}
-                icon={card.icon}
-                title={card.title}
-                description={card.description}
-                link={card.link}
-                onLinkClick={card.onLinkClick}
-              />
+              <div key={index} style={{ width: "250px", height: "300px" }}>
+                <ActionCard
+                  icon={card.icon}
+                  title={card.title}
+                  description={card.description}
+                  link={card.link}
+                  onLinkClick={card.onLinkClick}
+                />
+              </div>
             ))}
           </div>
           <div
@@ -230,6 +231,11 @@ const OptionsPage = () => {
       </div>
     </div>
   );
+
+
+
+
 };
 
 export default withAuth(OptionsPage);
+// export default OptionsPage;

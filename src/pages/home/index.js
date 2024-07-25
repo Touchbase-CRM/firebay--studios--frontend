@@ -36,7 +36,7 @@ import useUserInputsStore from "@/store/user-inputs";
 import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
 
 const Home = () => {
-  const { setSpotName } = useUserInputsStore();
+  const { setSpotName,    reset: resetUserInputsStore, } = useUserInputsStore();
   const reset = useUserInputsStore((state) => state.reset);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -61,13 +61,42 @@ const Home = () => {
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const pageSize = 15;
+  const [pageSize, setPageSize] = useState(10); // Updated state for pageSize
+
+  useEffect(() => {
+    const handleResize = () => {
+      const height = window.innerHeight;
+      if (height >= 1300) {
+        setPageSize(16); // xxl
+      } else if (height >= 1100) {
+        setPageSize(13); // xl
+      } else if (height >= 900) {
+        setPageSize(10); // lg
+      } else if (height >= 700) {
+        setPageSize(6); // md
+      } else if (height >= 500) {
+        setPageSize(3); // sm
+      } else {
+        setPageSize(1); // xs
+      }
+    };
+  
+    window.addEventListener('resize', handleResize);
+    handleResize();
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  
+  
 
   useEffect(() => {
     setPaginatedSpots(
       spots.slice(currentTableIndex, currentTableIndex + pageSize)
     );
-  }, [spots, currentTableIndex]);
+  }, [spots, currentTableIndex, pageSize]);
 
   useEffect(() => {
     const fetchDownloads = async () => {
@@ -381,22 +410,18 @@ const Home = () => {
     return () => clearTimeout(timeout);
   }, [isLoading, editLoading]);
 
-  const dropdownItems = [
-    {
-      text: "Logout",
-      handler: () => {
-        localStorage.removeItem("user");
-        auth
-          .signOut()
-          .then(() => {
-            router.push("/login");
-          })
-          .catch((error) => {
-            console.error("Logout Error:", error);
-          });
-      },
-    },
-  ];
+  const handleLogout = () => {
+    resetUserInputsStore();
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
 
   return (
     <div
@@ -407,7 +432,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} dropdownItems={dropdownItems} />
+      <NavBar links={[]} logoutHandler={handleLogout} />
       <Container
         fluid
         style={{
@@ -472,6 +497,8 @@ const Home = () => {
                     backgroundColor: "#eb631c",
                     borderColor: "#eb631c",
                     color: "white",
+                    width: "160px",
+                    height: "40px",
                   }}
                   onClick={() => {
                     setShowCreateAdModal(true);

@@ -4,24 +4,15 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import _ from "lodash";
-
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Table } from "react-bootstrap";
+import { Card, Button, Modal } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
-import Spinner from "@/components/spinner/spinner";
-import { PlayButton } from "@/components/buttons/play-button/play";
-import { EditButton } from "@/components/buttons/edit-button/edit";
-import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
-
 import useUserInputsStore from "@/store/user-inputs";
-
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
@@ -30,8 +21,11 @@ import {
   updateExistingSpotInDb,
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
-
-import { EditPauseDurationModal } from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/edit-pause-duration-modal/modal";
+import LoadingScreen from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/loading-screen";
+import SectionsTable from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/sections-table";
+import NavigationButtons from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/navigation-buttons";
+import InfoPad from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/info-pad";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 function StitchSections() {
   const auth = getAuth();
@@ -55,7 +49,6 @@ function StitchSections() {
   const saveFeatureSpecificStates = {
     sectionsArray,
     stitchedAudioPyroHistoryItemId,
-    // navigationStack, // not needed
   };
 
   const saveSharedStates = {
@@ -79,9 +72,24 @@ function StitchSections() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
-  const [nowPlayingUrl, setNowPlayingUrl] = useState(false); // This is a bug; look at Jira for more details
+  const [nowPlayingUrl, setNowPlayingUrl] = useState("");
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [contentModalText, setContentModalText] = useState("");
+
+  const getPageSize = () => {
+    const height = window.innerHeight;
+    if (height < 768) return 3; // Example: 2 rows per page for medium screens
+    if (height < 992) return 4; // Example: 3 rows per page for large screens
+    if (height < 1200) return 7; // Example: 4 rows per page for extra large screens
+    return 10; // Example: 5 rows per page for extra extra large screens
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(getPageSize());
+
   const musicGenWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -94,10 +102,9 @@ function StitchSections() {
   }, [localSectionsArray]);
 
   useEffect(() => {
-    // prevent back button
     const handleBeforeUnload = (e) => {
       e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
+      e.returnValue = "";
     };
 
     const handleBackButton = async () => {
@@ -113,6 +120,22 @@ function StitchSections() {
     };
   }, [router]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setPageSize(getPageSize());
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when page size changes
+  }, [pageSize]);
+
   const calculateTotalDuration = () => {
     const totalDurationWithoutPauses = localSectionsArray.reduce(
       (acc, section) => acc + section.sectionDurationSeconds,
@@ -120,13 +143,10 @@ function StitchSections() {
     );
 
     const totalDurationWithPauses = localSectionsArray.reduce(
-      (acc, section) => {
-        return (
-          acc +
-          section.sectionDurationSeconds +
-          section.getEndOfSectionPauseDurationSeconds()
-        );
-      },
+      (acc, section) =>
+        acc +
+        section.sectionDurationSeconds +
+        section.getEndOfSectionPauseDurationSeconds(),
       0
     );
 
@@ -135,6 +155,7 @@ function StitchSections() {
       totalDurationWithPauses,
     };
   };
+
   const showEditPauseDurationModal = (sectionIndex) => {
     setCurrentEditingSectionIndex(sectionIndex);
     setEditPauseModalVisible(true);
@@ -144,14 +165,12 @@ function StitchSections() {
     let newArray = [...localSectionsArray];
     let sectionToUpdate = newArray[index];
 
-    // Ensure that the new duration is a valid number. If not, temporarily set it to 0.
     const validDuration =
       isNaN(parseFloat(newDuration)) || newDuration === ""
         ? 0
         : parseFloat(newDuration);
     sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
 
-    // Calculate the total duration with the new pause duration
     const totalDurationWithPauses = newArray.reduce(
       (acc, section) =>
         acc +
@@ -160,7 +179,6 @@ function StitchSections() {
       0
     );
 
-    // Check if the total duration with pauses exceeds the ad length
     if (totalDurationWithPauses > adLength) {
       Swal.fire({
         title: "Exceeded Ad Length",
@@ -169,16 +187,15 @@ function StitchSections() {
         confirmButtonText: "Ok",
       });
 
-      // Revert the pause duration to 0 as it exceeds ad length
       sectionToUpdate.setEndOfSectionPauseDurationSeconds(0);
     }
 
-    // Update the state to reflect the changes (or reversion to 0)
     setLocalSectionsArray(newArray);
   };
 
   const fetchAudioFromElevenLabsWrapper = async (historyItemId) => {
     const audioUrl = await fetchAudioFromElevenLabs(historyItemId);
+    setShowAudioPlayer(true);
     setAudioUrl(audioUrl);
     setNowPlayingUrl(audioUrl);
   };
@@ -207,8 +224,8 @@ function StitchSections() {
 
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
-        userId: userId, // Capture the Firebase user ID
-        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous", // Capture the Firebase user email
+        userId: userId,
+        userEmail: auth.currentUser ? auth.currentUser.email : "anonymous",
         script: sectionsArray
           .map((section) => section.getCurrentContent())
           .join(". "),
@@ -228,7 +245,6 @@ function StitchSections() {
       end_of_section_pause_duration_list: endOfSectionsPausesArray,
     };
     const url = `${musicGenWebServiceUrl}/stitch-sections`;
-    // Send POST request to the API
     try {
       const response = await axios.post(url, payload, {
         cancelToken: cancelTokenSourceRef.current.token,
@@ -243,13 +259,13 @@ function StitchSections() {
           pyroHistoryItemId,
           0
         );
+        setShowAudioPlayer(true);
         setCombinedVoiceoverUrl(audioUrl);
         setNowPlayingUrl(audioUrl);
         setAudioTitle("Final Cut");
         setForceRenderKey(Math.random().toString());
         setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
       } else if (response.data.error) {
-        // Handle case where API returned an error
         console.error(
           "API returned an error:",
           response.data.error,
@@ -259,7 +275,7 @@ function StitchSections() {
     } catch (error) {
       console.error("Error fetching pyro_history_item_id:", error);
     } finally {
-      setPendingAdvertisement(false); // Set pending to false when API call completes
+      setPendingAdvertisement(false);
     }
     setSectionsArray(localSectionsArray);
     await writeToFirestore(
@@ -280,11 +296,10 @@ function StitchSections() {
       icon: "info",
       title: "Submission Cancelled",
       text: 'Your submission has been cancelled. Click "OK" to redirect to the Home page...',
-      showConfirmButton: true, // show the confirmation button
+      showConfirmButton: true,
       confirmButtonText: "OK",
       allowOutsideClick: false,
     }).then((result) => {
-      // If the modal was closed by the confirmation button, redirect.
       if (result.isConfirmed) {
         resetUserInputsStore();
 
@@ -308,6 +323,7 @@ function StitchSections() {
       allowOutsideClick: false,
     });
   };
+
   const handleLogout = () => {
     resetUserInputsStore();
     localStorage.removeItem("user");
@@ -331,7 +347,7 @@ function StitchSections() {
         historyItemId,
         0
       );
-
+      setShowAudioPlayer(true);
       setAudioUrl(audioUrl);
       setNowPlayingUrl(audioUrl);
     } else {
@@ -368,82 +384,39 @@ function StitchSections() {
     );
   };
 
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-    // {
-    //   label: "About",
-    //   url: "/about",
-    //   // Optionally, some links might not have an icon
-    //   style: { marginRight: "10px" },
-    // },
-    // Add more links as needed
-  ];
+  const handleContentClick = (content) => {
+    setContentModalText(content);
+    setShowContentModal(true);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   if (pendingAdvertisement) {
     return (
-      <div
-        className="d-flex align-items-center justify-content-center flex-column"
-        style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
-      >
-        <Spinner
-          animation="border"
-          variant="primary"
-          style={{ marginBottom: "200px" }}
-        />
-
-        <Card
-          className="p-4"
-          style={{
-            marginTop: "300px",
-            borderRadius: "1rem",
-            borderColor: "#eb631c",
-            color: "black",
-          }}
-        >
-          <p
-            className="ml-3 mb-0"
-            style={{
-              fontWeight: "bold",
-              fontSize: "24px",
-              color: "black",
-              textShadow: "1px 1px 1px #000",
-            }}
-          >
-            Just a second. We are cooking up your final voice cut!
-          </p>
-        </Card>
-        <div className="mt-3">
-          <Button
-            variant="danger"
-            onClick={cancelLoading}
-            style={{ marginRight: "20px", width: "200px" }} // Setting a fixed width
-            title="Stop the current operation and start from the beginning."
-          >
-            Cancel and Start Over
-          </Button>
-
-          <Button
-            // variant="warning"
-            onClick={cancelAndRetryLoading}
-            style={{
-              width: "200px",
-              backgroundColor: "#FDA942",
-              borderColor: "#FDA942",
-            }} // Setting the same fixed width
-            title="Stop the current order and retry with the same data."
-          >
-            Cancel and Resubmit
-          </Button>
-        </div>
-      </div>
+      <LoadingScreen
+        cancelLoading={cancelLoading}
+        cancelAndRetryLoading={cancelAndRetryLoading}
+      />
     );
   }
+
+  const indexOfLastSection = currentPage * pageSize;
+  const indexOfFirstSection = indexOfLastSection - pageSize;
+  const currentSections = localSectionsArray.slice(
+    indexOfFirstSection,
+    indexOfLastSection
+  );
+  const totalPages = Math.ceil(localSectionsArray.length / pageSize);
 
   return (
     <div
@@ -452,10 +425,12 @@ function StitchSections() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        fontFamily: "Arial, sans-serif",
+        color: "#333",
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />
@@ -473,8 +448,9 @@ function StitchSections() {
             display: "flex",
             alignItems: "center",
             fontWeight: "bold",
-            fontSize: "1.2em",
+            fontSize: "1.3em",
             marginTop: "20px",
+            color: "#333",
           }}
         >
           <i
@@ -483,273 +459,59 @@ function StitchSections() {
               cursor: "pointer",
               marginRight: "10px",
               marginLeft: "10px",
-              fontSize: "0.8em",
-            }} // Adjust the fontSize here
+              fontSize: "1em",
+            }}
             onClick={() => setShowRenameModal(true)}
           ></i>
           {spotName}
         </div>
         <Card.Body>
-          <Card.Title style={{ color: "white" }}>Sections Overview</Card.Title>
           <div
             style={{
               overflowY: "auto",
-              maxHeight: "600px",
+              maxHeight: "700px",
               overflowX: "hidden",
             }}
           >
-            <Table bordered hover style={{ borderColor: "#eb631c" }}>
-              <thead style={{ backgroundColor: "#eb631c" }}>
-                <tr>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Section ID
-                  </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Voice Name
-                  </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Section Content
-                  </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Duration
-                  </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      maxWidth: "220px", // Adjust this value as needed
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      textAlign: "center",
-                    }}
-                  >
-                    Section End Pause
-                  </th>
-                  <th
-                    style={{
-                      borderColor: "#eb631c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Play
-                  </th>
-                  <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                    Edit
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {localSectionsArray.map((section, index) => (
-                  <tr key={index}>
-                    {/* Other cells */}
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      {index + 1}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      {section.getVoiceName()}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      {section.getCurrentContent()}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      {section.getSectionDurationSeconds().toFixed(2)} sec
-                    </td>
-                    {/* Adjusted cell for section end pause with EditButton */}
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                        padding: "0", // Remove any default padding if necessary
-                      }}
-                    >
-                      {/* Span for the duration and EditButton wrapped in a div */}
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%", // Take up full width of the cell
-                        }}
-                      >
-                        <span style={{ marginRight: "8px" }}>
-                          {section.getEndOfSectionPauseDurationSeconds()} sec
-                        </span>
-                        <EditButton
-                          onClickHandler={() =>
-                            showEditPauseDurationModal(index)
-                          }
-                        />
-                        <EditPauseDurationModal
-                          show={isEditPauseModalVisible}
-                          onHide={() => setEditPauseModalVisible(false)}
-                          initialValue={section.getEndOfSectionPauseDurationSeconds()}
-                          onSave={(newPauseDuration) => {
-                            if (currentEditingSectionIndex !== null) {
-                              updatePauseDuration(
-                                currentEditingSectionIndex,
-                                newPauseDuration
-                              );
-                            }
-                            setEditPauseModalVisible(false);
-                          }}
-                          maxValue={Math.floor(
-                            adLength -
-                              localSectionsArray
-                                .reduce(
-                                  (acc, section) =>
-                                    acc +
-                                    section.sectionDurationSeconds +
-                                    section.getEndOfSectionPauseDurationSeconds(),
-                                  0
-                                )
-                                .toFixed(2)
-                          )}
-                        />
-                      </div>
-                    </td>
-                    {/* Other cells */}
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      <PlayButton
-                        onClickHandler={() => handleSectionPreviewPlay(section)}
-                        size="28px"
-                      />
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #eb631c",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                      }}
-                    >
-                      <EditButton
-                        onClickHandler={() => handleEditSection(section)}
-                        size="28px"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            <SectionsTable
+              currentSections={currentSections}
+              indexOfFirstSection={indexOfFirstSection}
+              handleContentClick={handleContentClick}
+              showEditPauseDurationModal={showEditPauseDurationModal}
+              isEditPauseModalVisible={isEditPauseModalVisible}
+              setEditPauseModalVisible={setEditPauseModalVisible}
+              updatePauseDuration={updatePauseDuration}
+              currentEditingSectionIndex={currentEditingSectionIndex}
+              adLength={adLength}
+              localSectionsArray={localSectionsArray}
+              handleSectionPreviewPlay={handleSectionPreviewPlay}
+              handleEditSection={handleEditSection}
+            />
           </div>
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              backgroundColor: "#e4e4e4",
-              borderRadius: "10px",
-            }}
-          >
-            <div style={{ color: "black", marginBottom: "10px" }}>
-              {" "}
-              {/* Add some margin to separate the lines */}
-              Total duration without pauses:{" "}
-              {localSectionsArray
-                .reduce(
-                  (acc, section) => acc + section.sectionDurationSeconds,
-                  0
-                )
-                .toFixed(2)}{" "}
-              seconds
-            </div>
-            <div style={{ color: "black" }}>
-              Total duration with pauses:{" "}
-              {localSectionsArray
-                .reduce(
-                  (acc, section) =>
-                    acc +
-                    section.sectionDurationSeconds +
-                    section.getEndOfSectionPauseDurationSeconds(),
-                  0
-                )
-                .toFixed(2)}{" "}
-              seconds
-            </div>
-            <div style={{ flex: 1, textAlign: "center" }}>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setForceRenderKey(Math.random().toString());
-                  setNowPlayingUrl(combinedVoiceoverUrl);
-                  setAudioTitle("Final Cut");
-                }}
-                style={{
-                  backgroundColor: "#eb631c", // Orange color
-                  borderColor: "#eb631c", // Orange border
-                  color: "white", // Ensuring text and icon are visible
-                  textDecoration: "none", // Removing any underline from the link variant
-                }}
-                disabled={!combinedVoiceoverUrl} // Disable button if combinedVoiceoverUrl is null
-              >
-                <i
-                  class="bi bi-arrow-clockwise"
-                  style={{ verticalAlign: "middle" }}
-                ></i>
-                <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                  Replay Final Cut
-                </span>
-              </Button>
-            </div>
-          </div>
+          <NavigationButtons
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
+          <InfoPad
+            localSectionsArray={localSectionsArray}
+            adLength={adLength}
+            combinedVoiceoverUrl={combinedVoiceoverUrl}
+            setForceRenderKey={setForceRenderKey}
+            setShowAudioPlayer={setShowAudioPlayer}
+            setNowPlayingUrl={setNowPlayingUrl}
+            setAudioTitle={setAudioTitle}
+          />
         </Card.Body>
       </Card>
 
       <div
         style={{
-          display: "flex", // Enable flexbox
-          justifyContent: "space-between", // Space between the buttons
-          padding: "10px 20px", // Padding inside the card
-          margin: "20px 0 0", // Margin top for spacing from content
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "10px 20px",
+          margin: "20px 0 0",
         }}
       >
         <Button
@@ -762,7 +524,6 @@ function StitchSections() {
         >
           {combinedVoiceoverUrl === null ? "Finalize" : "Next"}
         </Button>
-        {/* Save Button */}
         <SecondaryActionButton
           initialText="Save"
           clickedText="Saved!"
@@ -771,18 +532,18 @@ function StitchSections() {
         />
       </div>
 
-      <div style={{ position: "relative", marginTop: "400px" }}>
-        {nowPlayingUrl && (
+      <div style={{ position: "relative" }}>
+        {showAudioPlayer && (
           <SimpleAudioPlayer
             audioSrc={nowPlayingUrl}
             audioTitle={audioTitle}
             forceRender={forceRenderKey}
             autoplay={true}
             allowDownload={true}
+            setShowAudioPlayer={setShowAudioPlayer}
           />
         )}
       </div>
-      {/* Modal for editing spot name */}
       <RenameModal
         show={showRenameModal}
         onHide={() => setShowRenameModal(false)}
@@ -791,9 +552,19 @@ function StitchSections() {
         spotId={spotId}
         setSpotName={setSpotName}
       />
+      <Modal show={showContentModal} onHide={() => setShowContentModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Section Content</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{contentModalText}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowContentModal(false)}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
 
 export default withAuth(StitchSections);
-// export default StitchSections;

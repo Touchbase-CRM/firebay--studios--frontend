@@ -1,83 +1,63 @@
 import React from "react";
-import { Navbar, Nav, Button } from "react-bootstrap";
-import CustomDropdown from "./custom-dropdown"; // Ensure the path is correct
+import { Navbar, Nav, Container } from "react-bootstrap";
 import { useRouter } from "next/router";
 
-export const NavBar = ({
-  links,
-  dropdownItems,
-  logoutHandler,
-  saveHandler = null,
-}) => {
+export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler = null }) => {
   const router = useRouter();
 
   const navigate = (url) => {
     if (saveHandler) {
       saveHandler();
     }
-    // Use replace instead of push to avoid full page reload and maintain scroll position
     router.replace(url, undefined, { scroll: false });
   };
 
   return (
     <Navbar
       expand="lg"
-      style={{ marginBottom: "5px", backgroundColor: "#e4e4e4" }}
+      style={{
+        backgroundColor: 'transparent',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        borderBottom: 'none',
+        borderRadius: '0 0 10px 10px',
+      }}
     >
-      <Navbar.Brand style={{ marginLeft: "10px" }}>
-        <img
-          src="/fire.png"
-          width="50"
-          height="50"
-          className="d-inline-block align-top"
-          alt="Logo"
-        />
-      </Navbar.Brand>
-
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse
-        id="basic-navbar-nav"
-        className="justify-content-between"
-      >
-        <Nav className="mr-auto">
-          {/* Iterate over links and use navigate function to handle clicks */}
-          {links.map((link, index) => (
-            <Nav.Link
-              key={index}
-              onClick={() => navigate(link.url)}
-              style={link.style}
-            >
-              {link.icon && <i className={link.icon}></i>} {link.label}
+      <Container fluid>
+        <Navbar.Brand href="#">
+          <img
+            src="/fire.png"
+            width="50"
+            height="50"
+            className="d-inline-block align-top"
+            alt="Logo"
+          />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="navbar-nav" />
+        <Navbar.Collapse
+          id="navbar-nav"
+          style={{
+            justifyContent: 'flex-end',
+          }}
+        >
+          <Nav className="me-auto">
+            {links.map((link, index) => (
+              <Nav.Link key={index} onClick={() => navigate(link.url)}>
+                {link.label}
+              </Nav.Link>
+            ))}
+          </Nav>
+          <Nav className="ms-auto">
+            {!disableHome && (
+              <Nav.Link onClick={() => navigate('/home')}>
+                <i className="bi bi-house"></i> Home
+              </Nav.Link>
+            )}
+            <Nav.Link onClick={logoutHandler}>
+              <i className="bi bi-box-arrow-right"></i> Logout
             </Nav.Link>
-          ))}
-        </Nav>
-        {/* Conditionally render the CustomDropdown or the Logout button */}
-        {dropdownItems && dropdownItems.length > 0 ? (
-          <div style={{ paddingRight: "25px" }}>
-            <CustomDropdown items={dropdownItems} />
-          </div>
-        ) : logoutHandler ? (
-          <Button
-            variant="light"
-            size="sm"
-            onClick={logoutHandler}
-            style={{
-              marginRight: "10px",
-              padding: "5px 10px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <i
-              className="bi bi-box-arrow-right"
-              style={{ marginRight: "5px" }}
-            ></i>
-            Logout
-          </Button>
-        ) : null}
-      </Navbar.Collapse>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
     </Navbar>
   );
 };

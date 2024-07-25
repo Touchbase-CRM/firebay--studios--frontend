@@ -98,8 +98,8 @@ function AddMusic() {
 
   // prettier-ignore
   const audioStitchWebServiceUrl = process.env.NODE_ENV === "development"
-  ? "http://localhost:8000"
-  : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+    ? "http://localhost:8000"
+    : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 
   const localPushData = (newData, clone = false) => {
     localStack.push(newData);
@@ -330,7 +330,7 @@ function AddMusic() {
 
     // Endpoint URL
     // prettier-ignore
-    const url =`${audioStitchWebServiceUrl}/generate-mix`;
+    const url = `${audioStitchWebServiceUrl}/generate-mix`;
     // Send POST request to the API
     axios
       .post(url, payload, {
@@ -398,16 +398,6 @@ function AddMusic() {
       sharedStates: saveSharedStates,
     });
   };
-
-  const links = [
-    {
-      label: "Home",
-      url: "/home",
-      isInternal: true,
-      icon: "bi bi-house", // Bootstrap icon class
-      style: { marginRight: "10px" }, // Example styling
-    },
-  ];
 
   if (pendingAdvertisement) {
     return (
@@ -479,7 +469,7 @@ function AddMusic() {
       }}
     >
       <NavBar
-        links={links}
+        links={[]}
         logoutHandler={handleLogout}
         saveHandler={handleSaveState}
       />
@@ -647,6 +637,7 @@ function AddMusic() {
                   baseMusicPreviewsUrl + previewFileName
                 }
                 autoplay={true}
+                setShowAudioPlayer={setShowAudioPlayer}
               />
             )}
           </div>

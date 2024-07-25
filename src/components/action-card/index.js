@@ -11,8 +11,10 @@ const ActionCard = ({
   linkLabel,
 }) => {
   const cardStyles = {
-    width: "346px",
-    height: "296px",
+    width: "100%",
+    height: "100%",
+    maxWidth: "250px", // Adjusted max width for better responsiveness
+    maxHeight: "220px", // Adjusted max height for better responsiveness
     backgroundColor: "#EB621D",
     color: "#FFFFFF",
     borderRadius: "8px",
@@ -22,24 +24,25 @@ const ActionCard = ({
     alignItems: "flex-start",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     padding: "20px",
+    margin: "10px",
   };
 
   const iconStyles = {
-    fontSize: "30px",
+    fontSize: "24px", // Reduced font size for the icon
     color: "#FFFFFF",
   };
 
   const titleStyles = {
     margin: "0",
-    fontSize: "1.5em",
+    fontSize: "1.25em", // Reduced font size for the title
     fontWeight: "bold",
     textAlign: "left",
     color: "#FFFFFF",
   };
 
   const descriptionStyles = {
-    margin: "15px 0",
-    fontSize: "1em",
+    margin: "10px 0", // Reduced margin for the description
+    fontSize: "0.9em", // Reduced font size for the description
     textAlign: "left",
     color: "#FFFFFF",
   };
@@ -47,7 +50,7 @@ const ActionCard = ({
   const linkContainerStyles = {
     display: "flex",
     alignItems: "center",
-    fontSize: "1em",
+    fontSize: "0.9em", // Reduced font size for the link
     fontWeight: "bold",
     color: "#FFFFFF",
     textDecoration: "none",
@@ -55,7 +58,7 @@ const ActionCard = ({
 
   const arrowIconStyles = {
     marginLeft: "5px",
-    fontSize: "1em",
+    fontSize: "0.9em", // Reduced font size for the arrow icon
     fontWeight: "bold",
   };
 
@@ -100,7 +103,6 @@ ActionCard.propTypes = {
 
 ActionCard.defaultProps = {
   linkLabel: "Get Started",
-  color: "#FFFFFF",
 };
 
 export default ActionCard;
