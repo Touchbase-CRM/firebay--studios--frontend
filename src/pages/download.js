@@ -192,6 +192,7 @@ const DownloadManager = () => {
         />
       </GenericModal>
       <div
+        className="container"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -199,69 +200,104 @@ const DownloadManager = () => {
           justifyContent: "center",
           height: "100vh",
           backgroundColor: "#FFFFFF",
-          padding: "20px", // Added padding to the container
+          padding: "20px",
         }}
       >
         <div
+          className="row"
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start", // Changed to align left
+            alignItems: "flex-start",
             justifyContent: "center",
           }}
         >
-          <h2
-            style={{
-              fontSize: "1.5em",
-              fontWeight: "bold",
-              textAlign: "left", // Changed to align left
-              marginBottom: "30px",
-            }}
-          >
-            What would you like to do?
-          </h2>
+          <div className="col-12">
+            <h2
+              style={{
+                fontSize: "1.5em",
+                fontWeight: "bold",
+                textAlign: "left",
+                marginBottom: "30px",
+              }}
+            >
+              What would you like to do?
+            </h2>
+          </div>
           <div
+            className="col-12 d-flex justify-content-center flex-wrap"
             style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "20px",
+              gap: "10px",
               marginBottom: "20px",
             }}
           >
-            <ActionCard
-              icon="bi bi-play-circle"
-              title="Play your spot"
-              description="Click here to open or hide the audio player."
-              link="#"
-              onLinkClick={handlePlayAdClick}
-              linkLabel="Play"
-            />
-            <ActionCard
-              icon="bi bi-download"
-              title="Download your spot"
-              description="When you download, it will count as a credit."
-              link="#"
-              onLinkClick={handleDownloadClick}
-              linkLabel="Download"
-            />
-            <ActionCard
-              icon="bi bi-pencil-square"
-              title="Rename your Spot"
-              description="Click here to rename your spot."
-              link="#"
-              onLinkClick={handleRenameClick}
-              linkLabel="Rename"
-            />
-            <ActionCard
-              icon="bi bi-house"
-              title="Home"
-              description="By clicking here, you will be brought back to the home page with your recent spots."
-              link="#"
-              onLinkClick={handleNewAd}
-              linkLabel="Home"
-            />
+            <div
+              style={{
+                flex: "1 1 200px",
+                maxWidth: "250px",
+                height: "220px",
+              }}
+            >
+              <ActionCard
+                icon="bi bi-play-circle"
+                title="Play your spot"
+                description="Click here to open or hide the audio player."
+                link="#"
+                onLinkClick={handlePlayAdClick}
+                linkLabel="Play"
+              />
+            </div>
+            <div
+              style={{
+                flex: "1 1 200px",
+                maxWidth: "250px",
+                height: "220px",
+              }}
+            >
+              <ActionCard
+                icon="bi bi-download"
+                title="Download your spot"
+                description="When you download, it will count as a credit."
+                link="#"
+                onLinkClick={handleDownloadClick}
+                linkLabel="Download"
+              />
+            </div>
+            <div
+              style={{
+                flex: "1 1 200px",
+                maxWidth: "250px",
+                height: "220px",
+              }}
+            >
+              <ActionCard
+                icon="bi bi-pencil-square"
+                title="Rename your Spot"
+                description="Click here to rename your spot."
+                link="#"
+                onLinkClick={handleRenameClick}
+                linkLabel="Rename"
+              />
+            </div>
+            <div
+              style={{
+                flex: "1 1 200px",
+                maxWidth: "250px",
+                height: "220px",
+              }}
+            >
+              <ActionCard
+                icon="bi bi-house"
+                title="Home"
+                description="By clicking here, you will be brought back to the home page with your recent spots."
+                link="#"
+                onLinkClick={handleNewAd}
+                linkLabel="Home"
+              />
+            </div>
           </div>
           <div
+            className="col-12"
             style={{
               fontSize: "1em",
               color: "#008080",
@@ -289,4 +325,6 @@ const DownloadManager = () => {
   );
 };
 
-export default withAuth(DownloadManager);
+// export default withAuth(DownloadManager);
+export default DownloadManager;
+
