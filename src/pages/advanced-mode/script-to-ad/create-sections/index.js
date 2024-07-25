@@ -181,7 +181,7 @@ function CreateSections() {
     >
       <NavBar links={[]} logoutHandler={handleLogout} />
 
-      <Row className="m-0 p-0">
+      <Row className="m-0 p-0 mt-3">
         <Col md={10} className="mx-auto m-0 p-0"></Col>
       </Row>
       <Row className="m-0 p-0">
@@ -192,7 +192,6 @@ function CreateSections() {
               borderRadius: "1rem",
               borderColor: "#eb631c",
               color: "black",
-              marginTop: "20px",
               marginBottom: "20px",
               minWidth: "100%",
               boxSizing: "border-box",
