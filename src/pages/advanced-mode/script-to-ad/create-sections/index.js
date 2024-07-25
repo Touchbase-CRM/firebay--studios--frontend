@@ -181,7 +181,7 @@ function CreateSections() {
     >
       <NavBar links={[]} logoutHandler={handleLogout} />
 
-      <Row className="m-0 p-0 mt-2">
+      <Row className="m-0 p-0 mt-4 mt-md-5">
         <Col md={10} className="mx-auto m-0 p-0"></Col>
       </Row>
       <Row className="m-0 p-0">
@@ -403,6 +403,7 @@ function CreateSections() {
       </Offcanvas>
     </div>
   );
+
 }
 
 // export default withAuth(CreateSections);
