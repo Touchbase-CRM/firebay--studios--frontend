@@ -567,4 +567,4 @@ function StitchSections() {
   );
 }
 
-export default StitchSections;
+export default withAuth(StitchSections);
