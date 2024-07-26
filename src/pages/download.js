@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import ActionCard from "@/components/action-card";
 import "react-h5-audio-player/lib/styles.css";
@@ -33,6 +33,9 @@ const DownloadManager = () => {
     captureCurrentTimestamp()
   );
   const [fileName, setFileName] = useState("");
+  const leftMostCardRef = useRef(null);
+  const [leftOffset, setLeftOffset] = useState(0);
+
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
@@ -58,6 +61,12 @@ const DownloadManager = () => {
       setFileName(spotName + "--" + capturedTimestamp);
     }
   }, [showModal, spotName, capturedTimestamp]);
+
+  useEffect(() => {
+    if (leftMostCardRef.current) {
+      setLeftOffset(leftMostCardRef.current.offsetLeft);
+    }
+  }, [leftMostCardRef.current?.offsetLeft]);
 
   const handleDownload = async () => {
     if (!audioUrl) {
@@ -206,7 +215,7 @@ const DownloadManager = () => {
         style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start", // Align items to the start for left alignment
+          alignItems: "center",
           justifyContent: "center",
           height: "100vh",
           backgroundColor: "#FFFFFF",
@@ -218,31 +227,35 @@ const DownloadManager = () => {
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start", // Align items to the start for left alignment
+            alignItems: "flex-start",
             justifyContent: "center",
             width: "100%",
+            position: "relative",
           }}
         >
+          <div ref={leftMostCardRef} style={{ position: "absolute", top: 0, left: 0 }}></div>
           <div className="col-12">
             <h2
               style={{
                 fontSize: "1.5em",
                 fontWeight: "bold",
-                textAlign: "left", // Align text to the left
+                textAlign: "left",
                 marginBottom: "30px",
+                marginLeft: `${leftOffset > 50 ? leftOffset : 50}px`,
               }}
             >
               What would you like to do?
             </h2>
           </div>
           <div
-            className="col-12 d-flex justify-content-start flex-wrap"
+            className="col-12 d-flex justify-content-center flex-wrap"
             style={{
               gap: "10px",
               marginBottom: "20px",
             }}
           >
             <div
+              ref={leftMostCardRef}
               style={{
                 flex: "1 1 200px",
                 maxWidth: "250px",
@@ -315,6 +328,7 @@ const DownloadManager = () => {
               textDecoration: "underline",
               cursor: "pointer",
               marginTop: "10px",
+              marginLeft: `${leftOffset > 50 ? leftOffset : 50}px`,
             }}
             onClick={handleBackClick}
           >
@@ -336,4 +350,4 @@ const DownloadManager = () => {
   );
 };
 
-export default withAuth(DownloadManager);
+export default DownloadManager;
