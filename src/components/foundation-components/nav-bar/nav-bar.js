@@ -41,18 +41,64 @@ export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler 
         >
           <Nav className="me-auto">
             {links.map((link, index) => (
-              <Nav.Link key={index} onClick={() => navigate(link.url)}>
+              <Nav.Link
+                key={index}
+                onClick={() => navigate(link.url)}
+                style={{
+                  margin: '0 15px',
+                  color: '#343a40',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px'
+                }}
+              >
                 {link.label}
               </Nav.Link>
             ))}
           </Nav>
-          <Nav className="ms-auto">
+
+          <Nav className="ms-auto align-items-center">
             {!disableHome && (
-              <Nav.Link onClick={() => navigate('/home')}>
+              <Nav.Link
+                onClick={() => navigate('/home')}
+                style={{
+                  margin: '0 15px',
+                  color: '#343a40',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px'
+                }}
+              >
                 <i className="bi bi-house"></i> Home
               </Nav.Link>
             )}
-            <Nav.Link onClick={logoutHandler}>
+            <Nav.Link
+              href="#"
+              style={{
+                position: 'relative',
+                padding: '0 15px',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#343a40',
+                fontSize: '16px',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
+              <i className="bi bi-bell" style={{ fontSize: '20px', marginRight: '5px' }}></i>
+              <span style={{ marginRight: '10px' }}>Notifications</span>
+              <span className="badge text-bg-secondary" style={{ position: 'absolute', top: '-5px', right: '-5px', fontSize: '12px' }}>4</span>
+            </Nav.Link>
+            <Nav.Link
+              onClick={logoutHandler}
+              style={{
+                margin: '0 15px',
+                color: '#343a40',
+                fontSize: '16px',
+                fontWeight: '500',
+                letterSpacing: '0.5px'
+              }}
+            >
               <i className="bi bi-box-arrow-right"></i> Logout
             </Nav.Link>
           </Nav>
