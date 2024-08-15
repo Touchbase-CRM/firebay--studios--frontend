@@ -6,7 +6,8 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/router";
 import useUserInputsStore from "@/store/user-inputs";
 import React from "react";
-import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 import { defaultState } from "@/store/shared-default-values";
 import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
@@ -89,12 +90,27 @@ const OptionsPage = () => {
   };
 
   const handleEnergyOption = () => {
-    Swal.fire({
-      title: "Coming Soon",
-      text: "This feature is under development and will be available soon.",
-      icon: "info",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#3085d6",
+    toast.info("This feature is under development and will be available soon.", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      icon: <i className="bi bi-info-circle-fill" style={{ color: "#ffffff" }} />,
+      style: {
+        backgroundColor: "#eb631c",
+        color: "#ffffff",
+        fontSize: "0.9em",
+        fontWeight: "bold",
+        textAlign: "left",
+        width: "300px",
+        height: "100px",
+      },
+      progressStyle: {
+        backgroundColor: "#ffffff",
+      },
     });
   };
 
@@ -247,13 +263,11 @@ const OptionsPage = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
-
-
-
-
 };
+
 
 export default withAuth(OptionsPage);
 // export default OptionsPage;
