@@ -17,11 +17,6 @@ import {
   query,
   where,
   getDocs,
-  getDoc,
-  setDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
 } from "firebase/firestore";
 
 import {
@@ -36,7 +31,7 @@ import useUserInputsStore from "@/store/user-inputs";
 import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
 
 const Home = () => {
-  const { setSpotName,    reset: resetUserInputsStore, } = useUserInputsStore();
+  const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
   const reset = useUserInputsStore((state) => state.reset);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +51,7 @@ const Home = () => {
   const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
   const [downloadLogs, setDownloadLogs] = useState([]);
   const [editLoading, setEditLoading] = useState(false); // New state for edit button loading
+  const [notifications, setNotifications] = useState([]); // State for notifications
 
   const router = useRouter();
   const auth = getAuth(app);
@@ -80,17 +76,14 @@ const Home = () => {
         setPageSize(1); // xs
       }
     };
-  
-    window.addEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
     handleResize();
-  
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
-  
-  
-  
 
   useEffect(() => {
     setPaginatedSpots(
@@ -99,26 +92,41 @@ const Home = () => {
   }, [spots, currentTableIndex, pageSize]);
 
   useEffect(() => {
-    const fetchDownloads = async () => {
-      try {
-        const data = await readFromFirestore("uid_to_org", currentUser.uid);
+    const fetchData = async () => {
+      if (currentUser) {
+        try {
+          // Fetch spots
+          fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
 
-        const downloads = data?.monthly_downloads;
-        const unitPrice = data?.unit_price;
-        setTotalDownloads(downloads !== undefined ? downloads : null);
-        setUnitPrice(unitPrice !== undefined ? unitPrice : null);
-      } catch (error) {
-        setTotalDownloads(null);
-        setUnitPrice(null);
-        console.error("Error fetching downloads:", error);
+          // Fetch downloads and unit price
+          const data = await readFromFirestore("uid_to_org", currentUser.uid);
+          const downloads = data?.monthly_downloads;
+          const unitPrice = data?.unit_price;
+          setTotalDownloads(downloads !== undefined ? downloads : null);
+          setUnitPrice(unitPrice !== undefined ? unitPrice : null);
+
+          // Fetch notifications
+          const q = query(
+            collection(db, "notifications"),
+            where("userId", "==", currentUser.uid),
+            where("read", "==", false)
+          );
+          const querySnapshot = await getDocs(q);
+          const notificationsData = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setNotifications(notificationsData);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          setTotalDownloads(null);
+          setUnitPrice(null);
+        }
       }
     };
 
-    if (currentUser) {
-      fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
-      fetchDownloads();
-    }
-  }, [currentUser]);
+    fetchData();
+  }, [currentUser, db]);
 
   const checkSpotNameExists = async (spotName) => {
     const spotsQuery = query(
@@ -432,7 +440,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} logoutHandler={handleLogout} />
+      <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} />
       <Container
         fluid
         style={{
@@ -548,4 +556,3 @@ const Home = () => {
 };
 
 export default withAuth(Home);
-// export default Home;
