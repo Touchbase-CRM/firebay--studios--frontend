@@ -6,6 +6,7 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/router";
 import useUserInputsStore from "@/store/user-inputs";
 import React from "react";
+import Swal from "sweetalert2";
 
 import { defaultState } from "@/store/shared-default-values";
 import { advancedScriptToAdDefaultValues } from "@/store/features/core/advanced/script-to-ad";
@@ -87,6 +88,16 @@ const OptionsPage = () => {
     });
   };
 
+  const handleEnergyOption = () => {
+    Swal.fire({
+      title: "Coming Soon",
+      text: "This feature is under development and will be available soon.",
+      icon: "info",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+    });
+  };
+
   const handleAdvancedOption = async () => {
     await saveAdvancedScriptToAd(spotName);
     router.push("/advanced-mode/script-to-ad/create-sections");
@@ -114,16 +125,23 @@ const OptionsPage = () => {
     case "mode":
       heading = "What would you like to do?";
       cards = [
+        // {
+        //   icon: "bi-lightning-fill",
+        //   title: "Quick ad",
+        //   description: "Simply create your ad in seconds. Best for explorers.",
+        //   link: "#",
+        //   onLinkClick: () => handleQuickOption(),
+        // },
         {
           icon: "bi-lightning-fill",
-          title: "Quick ad",
-          description: "Simply create your ad in seconds. Best for explorers.",
+          title: "Energy Mode",
+          description: "Create ads based on the energy of your liking. Coming soon...",
           link: "#",
-          onLinkClick: () => handleQuickOption(),
+          onLinkClick: () => handleEnergyOption(),
         },
         {
           icon: "bi-lightbulb-fill",
-          title: "Advanced ad",
+          title: "Advanced Mode",
           description:
             "Create your audio ad with more precision. Best for ad agencies and production teams.",
           link: "#",
