@@ -114,7 +114,7 @@ const Home = () => {
           const q = query(
             collection(db, "notifications"),
             where("userId", "==", currentUser.uid),
-            where("read", "==", false)
+            // where("read", "==", false)
           );
           const querySnapshot = await getDocs(q);
           const notificationsData = querySnapshot.docs.map((doc) => ({
