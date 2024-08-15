@@ -3,7 +3,7 @@ import { Navbar, Nav, Container, Offcanvas, Button } from "react-bootstrap";
 import { useRouter } from "next/router";
 import { formatDate } from "@/utils/time/current-timestamp";
 
-export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler = null, notifications }) => {
+export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler = null, notifications, deleteNotification }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [internalNotifications, setInternalNotifications] = useState(notifications || []);
 
@@ -20,7 +20,7 @@ export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler 
   const handleShow = () => setShowNotifications(true);
 
   const handleDeleteNotification = (id) => {
-    setInternalNotifications(internalNotifications.filter(notification => notification.id !== id));
+    deleteNotification(id);
   };
 
   useEffect(() => {

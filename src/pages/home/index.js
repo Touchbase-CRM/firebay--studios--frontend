@@ -17,6 +17,11 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  doc,
+  updateDoc
 } from "firebase/firestore";
 
 import {
@@ -127,6 +132,17 @@ const Home = () => {
 
     fetchData();
   }, [currentUser, db]);
+
+  const deleteNotification = async (id) => {
+    try {
+      await deleteDoc(doc(db, "notifications", id));
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((notification) => notification.id !== id)
+      );
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
 
   const checkSpotNameExists = async (spotName) => {
     const spotsQuery = query(
@@ -440,7 +456,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} />
+      <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} />
       <Container
         fluid
         style={{
