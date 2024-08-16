@@ -981,20 +981,25 @@ function ProcessSection() {
                   color: "black",
                   backgroundColor: "white",
                 }}
-                disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+
                 drop="up"
               >
                 <Dropdown.Item onClick={showOffcanvas}>
                   Change Emphasis
                 </Dropdown.Item>
-                <Dropdown.Item onClick={showHistoryOffcanvas}>
-                  History
-                </Dropdown.Item>
+                {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
+                  <>
+                    <Dropdown.Item onClick={showHistoryOffcanvas}>
+                      History
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleReadReplayButton}>
+                      Play Latest Read
+                    </Dropdown.Item>
+                  </>
+                )}
+
                 <Dropdown.Item onClick={handleShowNotePad}>
                   Add Notes
-                </Dropdown.Item>
-                <Dropdown.Item onClick={handleReadReplayButton}>
-                  Play Latest Read
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => console.log('New section is added')}>
                   Add New Section
