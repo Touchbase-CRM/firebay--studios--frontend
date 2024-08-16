@@ -31,6 +31,7 @@ export class Section {
     this.dragonBreathEnhancement = false;
     this.generatedVoiceUrl = "";
     this.intonationConsistencyLevel = 0;
+    this.notes = "";
   }
 
   clone() {
@@ -59,6 +60,7 @@ export class Section {
     );
     cloned.setSectionDurationSeconds(this.sectionDurationSeconds);
     cloned.setVoiceIntonationConsistency(this.intonationConsistencyLevel);
+    cloned.setNotes(this.notes);
 
     return cloned;
   }
@@ -82,6 +84,7 @@ export class Section {
       generatedVoiceUrl: this.generatedVoiceUrl,
       currentTransformations: this.currentTransformations,
       currentWords: this.currentWords,
+      notes: this.notes,
     };
   }
 
@@ -107,8 +110,17 @@ export class Section {
     section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
     section.setCurrentTransformations(data.currentTransformations);
     section.setCurrentWords(data.currentWords);
+    section.setNotes(data.notes);
 
     return section;
+  }
+  // setter for notes
+  setNotes(newNotes) {
+    this.notes = newNotes;
+  }
+  // getter for notes
+  getNotes() {
+    return this.notes;
   }
 
   //setter for intonation consistency level

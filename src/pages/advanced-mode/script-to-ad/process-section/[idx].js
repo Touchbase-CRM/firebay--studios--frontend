@@ -48,7 +48,7 @@ import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
-
+import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -123,6 +123,11 @@ function ProcessSection() {
 
   const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
   const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
+
+  const [showNotePad, setShowNotePad] = useState(false);
+
+  const handleShowNotePad = () => setShowNotePad(true);
+  const handleCloseNotePad = () => setShowNotePad(false);
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -876,6 +881,10 @@ function ProcessSection() {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
 
+  const handleSaveNotesProp = () => {
+    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
+  };
+
 
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
@@ -981,7 +990,7 @@ function ProcessSection() {
                 <Dropdown.Item onClick={showHistoryOffcanvas}>
                   History
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => console.log('Note is added')}>
+                <Dropdown.Item onClick={handleShowNotePad}>
                   Add Notes
                 </Dropdown.Item>
                 <Dropdown.Item onClick={handleReadReplayButton}>
@@ -1125,6 +1134,12 @@ function ProcessSection() {
           changeCurrentSectionObj={changeCurrentSectionObj}
         />
       </div>
+      <NotePad
+        show={showNotePad}
+        handleClose={handleCloseNotePad}
+        localCurrentSectionObj={localCurrentSectionObj}
+        onSaveNotes={handleSaveNotesProp} // Pass the function to NotePad
+      />
     </div>
   );
 
