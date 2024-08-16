@@ -11,6 +11,8 @@ import {
   OverlayTrigger,
   Tooltip,
   Offcanvas,
+  Dropdown,
+  DropdownButton,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -905,52 +907,30 @@ function ProcessSection() {
                     }}
                   />
                   <div className="d-flex justify-content-between mt-2 flex-wrap">
-                    <Button
-                      onClick={showOffcanvas}
-                      variant="outline-secondary"
-                      className="mb-2"
-                      style={{
-                        borderColor: "#FDA942",
-                        color: "black",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      Change Emphasis
-                    </Button>
-                    <Button
-                      onClick={handleGenerateVoice}
-                      disabled={isGeneratingVoice}
-                      className="mb-2 mx-2"
-                      style={{
-                        backgroundColor: "#EB631C",
-                        borderColor: "#EB631C",
-                        color: "white",
-                        minWidth: "150px",
-                        maxWidth: "250px", // Setting a max-width
-                        flex: "1 1 auto" // Allow flex to grow and shrink
-                      }}
-                    >
-                      {isGeneratingVoice ? (
-                        <>
-                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
-                        </>
-                      ) : (
-                        "Generate Voice"
-                      )}
-                    </Button>
-                    <Button
-                      onClick={handleReadReplayButton}
-                      variant="outline-secondary"
-                      className="mb-2"
-                      style={{
-                        borderColor: "#FDA942",
-                        color: "black",
-                        backgroundColor: "white",
-                      }}
-                      disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
-                    >
-                      Latest Read
-                    </Button>
+                    <div className="d-flex justify-content-center w-100">
+                      <Button
+                        onClick={handleGenerateVoice}
+                        disabled={isGeneratingVoice}
+                        className="mb-2"
+                        style={{
+                          backgroundColor: "#EB631C",
+                          borderColor: "#EB631C",
+                          color: "white",
+                          minWidth: "150px",
+                          maxWidth: "250px", // Setting a max-width
+                          flex: "1 1 auto", // Allow flex to grow and shrink
+                          textAlign: "center",
+                        }}
+                      >
+                        {isGeneratingVoice ? (
+                          <>
+                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
+                          </>
+                        ) : (
+                          "Generate Voice"
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <div
                     className="position-absolute"
@@ -983,17 +963,35 @@ function ProcessSection() {
                 Next
               </Button>
               <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
-              <SecondaryActionButton
-                onClick={showHistoryOffcanvas}
-                initialText="History"
-                clickedText="History!"
-                duration={1000}
-                disabled={
-                  !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
-                }
+              <DropdownButton
+                variant="outline-secondary"
+                title="Actions"
                 className="mt-3"
-              />
-              <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
+                style={{
+                  borderColor: "#FDA942",
+                  color: "black",
+                  backgroundColor: "white",
+                }}
+                disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
+                drop="up"
+              >
+                <Dropdown.Item onClick={showOffcanvas}>
+                  Change Emphasis
+                </Dropdown.Item>
+                <Dropdown.Item onClick={showHistoryOffcanvas}>
+                  History
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => console.log('Note is added')}>
+                  Add Notes
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleReadReplayButton}>
+                  Play Latest Read
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => console.log('New section is added')}>
+                  Add New Section
+                </Dropdown.Item>
+              </DropdownButton>
+
             </div>
           </div>
           {/* Right Card for Progress Bar and Voice Editor */}
@@ -1119,9 +1117,20 @@ function ProcessSection() {
           typedText={typedText}
           transformedWords={transformedWords}
         />
+        <HistoryCanvas
+          show={historyOffcanvasVisible}
+          handleClose={hideHistoryOffcanvas}
+          localSectionHistoryObj={localSectionHistoryObj}
+          playAudioUrl={playAudioUrl}
+          changeCurrentSectionObj={changeCurrentSectionObj}
+        />
       </div>
     </div>
   );
+
+
 }
 
-export default withAuth(ProcessSection);
+// export default withAuth(ProcessSection);
+export default ProcessSection;
+
