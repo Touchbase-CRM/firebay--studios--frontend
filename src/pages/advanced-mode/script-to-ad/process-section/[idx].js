@@ -107,8 +107,6 @@ function ProcessSection() {
   });
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  console.log("Gandalf says: ", localSectionsArray);
-
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
@@ -1170,6 +1168,10 @@ function ProcessSection() {
           if (newContent) {
             processScriptChange(newContent);
             localCurrentSectionObj.setCurrentContent(newContent);
+            localCurrentSectionObj.setCurrentWords(newContent.split(" "));
+            // Reset the transformations
+            localCurrentSectionObj.setCurrentTransformations({});
+            setTransformedWords({});
 
             // Create the new section
             const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
@@ -1180,6 +1182,13 @@ function ProcessSection() {
               null,
               0
             );
+            section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
+            section.setVoiceId(localCurrentSectionObj.getVoiceId());
+            section.setVoiceName(localCurrentSectionObj.getVoiceName());
+            section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
+            section.setModelId(localCurrentSectionObj.getModelId());
+            section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
+            section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
 
             // Shift the existing sections and insert the new section
             const updatedSections = [...localSectionsArray];
