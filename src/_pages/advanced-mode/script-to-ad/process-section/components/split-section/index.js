@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
 const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, onSave }) => {
     const [newContent, setNewContent] = useState("");
     const [newSectionContent, setNewSectionContent] = useState("");
+    const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
+    const [displayedCharCount, setDisplayedCharCount] = useState(currentSectionCharCount);
+
+    // Reset the modal content and displayed content when the modal is opened or closed
+    useEffect(() => {
+        if (show) {
+            setNewContent("");
+            setNewSectionContent("");
+            setDisplayedContent(currentSectionContent);
+            setDisplayedCharCount(currentSectionCharCount);
+        }
+    }, [show, currentSectionContent, currentSectionCharCount]);
 
     const handleSave = () => {
         const totalCharCount = newContent.length + newSectionContent.length;
-        if (totalCharCount <= currentSectionCharCount) {
+        if (totalCharCount <= displayedCharCount) {
             onSave(newContent, newSectionContent);
         }
     };
@@ -19,8 +31,8 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
             </Modal.Header>
             <Modal.Body>
                 <p>Existing Section Content:</p>
-                <p>{currentSectionContent}</p>
-                <p>Character Count: {currentSectionCharCount}</p>
+                <p>{displayedContent}</p>
+                <p>Character Count: {displayedCharCount}</p>
                 <Form.Group>
                     <Form.Label>Content for this Section</Form.Label>
                     <Form.Control
@@ -42,7 +54,7 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleSave} disabled={newContent.length + newSectionContent.length > currentSectionCharCount}>Save</Button>
+                <Button variant="primary" onClick={handleSave} disabled={newContent.length + newSectionContent.length > displayedCharCount}>Save</Button>
             </Modal.Footer>
         </Modal>
     );

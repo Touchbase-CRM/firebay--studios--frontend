@@ -46,6 +46,7 @@ import { Stack } from "@/data-structures/stack";
 import { Section } from "@/data-structures/section";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { calculateCharCount } from "@/utils/string-ops/string-properties";
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
@@ -1162,11 +1163,12 @@ function ProcessSection() {
       <SplitSection
         show={showSplitSectionModal}
         onHide={() => setShowSplitSectionModal(false)}
-        currentSectionContent={localCurrentSectionObj.getCurrentContent()}
-        currentSectionCharCount={localCurrentSectionObj.getCurrentCharCount()}
+        currentSectionContent={typedText}
+        currentSectionCharCount={calculateCharCount(typedText)}
         onSave={(newContent, newSectionContent) => {
           if (newContent) {
             processScriptChange(newContent);
+            localCurrentSectionObj.setCurrentContent(newContent);
 
             // Create the new section
             const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
