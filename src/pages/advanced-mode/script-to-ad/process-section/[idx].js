@@ -999,7 +999,7 @@ function ProcessSection() {
                 )}
 
                 <Dropdown.Item onClick={handleShowNotePad}>
-                  Add Notes
+                  Script Notes
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => console.log('New section is added')}>
                   Add New Section
