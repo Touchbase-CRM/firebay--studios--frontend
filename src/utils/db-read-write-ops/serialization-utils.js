@@ -6,7 +6,7 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
-import app from "../../firebase"; // Update the import path as necessary
+import app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
@@ -20,7 +20,6 @@ export const writeToFirestore = async (collectionName, data, docId = null) => {
   if (docId) {
     // Updating an existing document
     docRef = doc(db, collectionName, docId);
-    console.log("Tolkein says", data);
     await setDoc(docRef, data, { merge: true });
   } else {
     // Creating a new document
