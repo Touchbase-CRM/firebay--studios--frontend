@@ -75,6 +75,7 @@ function ProcessSection() {
     setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
+    setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
     navigationStack,
@@ -1016,7 +1017,7 @@ function ProcessSection() {
                   Script Notes
                 </Dropdown.Item>
                 <Dropdown.Item onClick={handleAddNewSection}>
-                  Add New Section
+                  Split Current Section
                 </Dropdown.Item>
 
               </DropdownButton>
@@ -1189,6 +1190,7 @@ function ProcessSection() {
 
             // Update the state with the new sections array
             setLocalSectionsArray(updatedSections);
+            setNumSectionsIdentified(numSectionsIdentified + 1)
           }
           setShowSplitSectionModal(false);
         }}
