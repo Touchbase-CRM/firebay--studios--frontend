@@ -43,12 +43,14 @@ import RenameModal from "@/components/rename-modal";
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
+import { Section } from "@/data-structures/section";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
+import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -103,6 +105,7 @@ function ProcessSection() {
   });
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
+  console.log("Gandalf says: ", localSectionsArray);
 
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
@@ -171,6 +174,7 @@ function ProcessSection() {
   const [newSpotName, setNewSpotName] = useState(spotName);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showOptions, setShowOptions] = useState(false); // State to control options visibility
+  const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
 
 
   const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
@@ -361,6 +365,11 @@ function ProcessSection() {
     setShowMenu(true);
   };
 
+  const handleAddNewSection = () => {
+    setShowSplitSectionModal(true);
+  };
+
+
   const transformWord = (action) => {
     let currentWord =
       transformedWords[selectedWordIndex] ||
@@ -409,10 +418,9 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  const handleScriptChange = (e) => {
-    const updatedScript = e.target.value;
-    setTypedText(updatedScript);
-    const newWords = updatedScript.split(" ");
+  const processScriptChange = (newScript) => {
+    setTypedText(newScript);
+    const newWords = newScript.split(" ");
     const newTransformedWords = {};
 
     newWords.forEach((word, index) => {
@@ -423,6 +431,11 @@ function ProcessSection() {
 
     setOgScriptWordsArray(newWords);
     setTransformedWords(newTransformedWords);
+  };
+
+  const handleScriptChange = (e) => {
+    const updatedScript = e.target.value;
+    processScriptChange(updatedScript);
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
@@ -1001,9 +1014,10 @@ function ProcessSection() {
                 <Dropdown.Item onClick={handleShowNotePad}>
                   Script Notes
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => console.log('New section is added')}>
+                <Dropdown.Item onClick={handleAddNewSection}>
                   Add New Section
                 </Dropdown.Item>
+
               </DropdownButton>
 
             </div>
@@ -1145,6 +1159,40 @@ function ProcessSection() {
         localCurrentSectionObj={localCurrentSectionObj}
         onSaveNotes={handleSaveNotesProp} // Pass the function to NotePad
       />
+      <SplitSection
+        show={showSplitSectionModal}
+        onHide={() => setShowSplitSectionModal(false)}
+        currentSectionContent={localCurrentSectionObj.getCurrentContent()}
+        currentSectionCharCount={localCurrentSectionObj.getCurrentCharCount()}
+        onSave={(newContent, newSectionContent) => {
+          if (newContent) {
+            processScriptChange(newContent);
+
+            // Create the new section
+            const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
+            const section = new Section(
+              newSectionIndex,
+              newSectionContent,
+              newSectionContent,
+              null,
+              0
+            );
+
+            // Shift the existing sections and insert the new section
+            const updatedSections = [...localSectionsArray];
+            for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
+              updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
+            }
+            updatedSections.splice(newSectionIndex, 0, section);
+
+            // Update the state with the new sections array
+            setLocalSectionsArray(updatedSections);
+          }
+          setShowSplitSectionModal(false);
+        }}
+
+      />
+
     </div>
   );
 
