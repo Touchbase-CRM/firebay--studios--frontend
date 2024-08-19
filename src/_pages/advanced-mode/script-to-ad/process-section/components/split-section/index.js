@@ -11,7 +11,7 @@ const SplitSection = ({
     localSectionsArray, setLocalSectionsArray,
     setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData
 }) => {
-    const [newContent, setNewContent] = useState(currentSectionContent || ""); // Set the initial value to currentSectionContent
+    const [newContent, setNewContent] = useState(currentSectionContent || "");
     const [newSectionContent, setNewSectionContent] = useState("");
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
     const [displayedCharCount, setDisplayedCharCount] = useState(currentSectionCharCount);
@@ -25,7 +25,7 @@ const SplitSection = ({
 
     useEffect(() => {
         if (show) {
-            setNewContent(currentSectionContent || ""); // Reset the value when the modal is shown
+            setNewContent(currentSectionContent || "");
             setNewSectionContent("");
             setDisplayedContent(currentSectionContent);
             setDisplayedCharCount(currentSectionCharCount);
@@ -47,8 +47,6 @@ const SplitSection = ({
     };
 
     const handleSave = () => {
-        const totalCharCount = newContent.length + newSectionContent.length;
-
         if (!s2aAdvancedFreeStyleStatus && totalTypedChars > displayedCharCount) {
             toast.error("The total character count of the new sections must be less than or equal to the original section's character count.");
             return;
@@ -56,13 +54,12 @@ const SplitSection = ({
 
         if (newContent) {
             processScriptChange(newContent);
-            localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
+            localCurrentSectionObj.setHistoryItemId(null);
             localCurrentSectionObj.setCurrentContent(newContent);
             localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-            // Reset the transformations
             localCurrentSectionObj.setCurrentTransformations({});
             setTransformedWords({});
-            setLocalSectionHistoryObj(null); // reset the history
+            setLocalSectionHistoryObj(null);
 
             if (newSectionContent) {
                 const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
@@ -73,7 +70,6 @@ const SplitSection = ({
                     null,
                     0
                 );
-                // Copy attributes from the current section
                 section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
                 section.setVoiceId(localCurrentSectionObj.getVoiceId());
                 section.setVoiceName(localCurrentSectionObj.getVoiceName());
@@ -82,7 +78,6 @@ const SplitSection = ({
                 section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
                 section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
 
-                // Shift the existing sections and insert the new section
                 const updatedSections = [...localSectionsArray];
                 for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
                     updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
@@ -93,29 +88,36 @@ const SplitSection = ({
                 setNumSectionsIdentified(numSectionsIdentified + 1);
             }
 
-            // Add the new section to the navigation stack
-            localPushData(
-                `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
-            );
-
-            onHide();  // Close the modal
+            localPushData(`/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`);
+            onHide();
         } else {
             toast.error("Please enter content for the current section.");
         }
     };
 
     return (
-        <Modal show={show} onHide={onHide}>
+        <Modal show={show} onHide={onHide} style={{ color: '#333', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
             <ToastContainer position="top-center" autoClose={5000} />
-            <Modal.Header closeButton>
-                <Modal.Title>Split Section {localCurrentSectionObj.getIndex() + 1}</Modal.Title>
+            <Modal.Header closeButton style={{ borderBottom: '1px solid #eb631c' }}>
+                <Modal.Title style={{ fontWeight: 'bold', color: '#000000' }}>
+                    Split Section {localCurrentSectionObj.getIndex() + 1}
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <p>Existing content for section {localCurrentSectionObj.getIndex() + 1}: {displayedContent}</p>
-                <p>Existing content character Count: {displayedCharCount}</p>
-                <p>Typed Character Count: {totalTypedChars} / {displayedCharCount}</p>
-                <div className="d-flex align-items-center mb-3">
-                    <span className="me-2">Free Style Mode</span>
+            <Modal.Body style={{ padding: '20px', backgroundColor: '#ffffff' }}>
+                <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
+                    <strong>Existing content for section {localCurrentSectionObj.getIndex() + 1}:</strong>
+                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
+                        {displayedContent}
+                    </span>
+                </p>
+                <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
+                    <strong>Existing content character count:</strong> {displayedCharCount}
+                </p>
+                <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+                    <strong>Typed character count:</strong> {totalTypedChars} / {displayedCharCount}
+                </p>
+                <div className="d-flex align-items-center mb-3" style={{ marginBottom: '15px' }}>
+                    <span className="me-2" style={{ fontSize: '14px', color: '#666' }}>Free Style Mode</span>
                     <FireToggle
                         id="free-style-toggle"
                         checked={s2aAdvancedFreeStyleStatus}
@@ -123,32 +125,36 @@ const SplitSection = ({
                         color="#eb631c"
                     />
                 </div>
-                <Form.Group>
-                    <Form.Label>Updated content for the current section</Form.Label>
+                <Form.Group style={{ marginBottom: '20px' }}>
+                    <Form.Label style={{ fontWeight: 'bold', color: '#666' }}>
+                        Updated content for the current section
+                    </Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
                         value={newContent}
                         onChange={(e) => setNewContent(e.target.value)}
                         placeholder={`Enter your content for section ${localCurrentSectionObj.getIndex() + 1}`}
-
+                        style={{ fontSize: '14px', padding: '10px', borderRadius: '4px', borderColor: '#eb631c', backgroundColor: '#f9f9f9' }}
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>Updated content for the new section</Form.Label>
+                    <Form.Label style={{ fontWeight: 'bold', color: '#666' }}>
+                        Updated content for the new section
+                    </Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
                         value={newSectionContent}
                         onChange={(e) => setNewSectionContent(e.target.value)}
                         placeholder={`Enter your content for section ${localCurrentSectionObj.getIndex() + 2}`}
+                        style={{ fontSize: '14px', padding: '10px', borderRadius: '4px', borderColor: '#eb631c', backgroundColor: '#f9f9f9' }}
                     />
-
                 </Form.Group>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleSave}>Save</Button>
+            <Modal.Footer style={{ borderTop: '1px solid #eb631c', backgroundColor: '#f0f0f0' }}>
+                <Button variant="secondary" onClick={onHide} style={{ backgroundColor: '#666', borderColor: '#666', color: '#fff', borderRadius: '4px' }}>Cancel</Button>
+                <Button variant="primary" onClick={handleSave} style={{ backgroundColor: '#eb631c', borderColor: '#eb631c', color: '#fff', borderRadius: '4px' }}>Save</Button>
             </Modal.Footer>
         </Modal>
     );
