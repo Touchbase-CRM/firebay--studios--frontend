@@ -97,7 +97,7 @@ function ProcessSection() {
   );
 
   const [voiceOptions, setVoiceOptions] = useState([]);
-  const [isFormSubmitted, setFormSubmitted] = useState(false);
+  const isFormSubmitted = false;
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
@@ -169,10 +169,6 @@ function ProcessSection() {
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showOptions, setShowOptions] = useState(false); // State to control options visibility
   const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
-
-
-  const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
-  const speechRateMax = 100;
 
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
