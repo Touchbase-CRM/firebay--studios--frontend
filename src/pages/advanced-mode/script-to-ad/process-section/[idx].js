@@ -27,6 +27,8 @@ import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 import FireToggle from '@/components/foundation-components/fire-toggle';
@@ -75,6 +77,7 @@ function ProcessSection() {
     numSectionsIdentified,
     setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
@@ -879,6 +882,14 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
   };
 
+  const handleToggleFreeStyle = (event) => {
+    const isToggled = event.target.checked;
+    setS2aAdvancedFreeStyleStatus(isToggled);
+    if (isToggled) {
+      toast.warn("Your spot might go over the intended length");
+    }
+  };
+
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
       <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
@@ -889,6 +900,7 @@ function ProcessSection() {
             <Card className="p-2 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
               <Card.Body className="d-flex flex-column">
                 <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
+                <ToastContainer position="top-center" autoClose={5000} />
                 <Form.Group controlId="script" className="position-relative">
                   <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
                   <Form.Control
@@ -1046,6 +1058,19 @@ function ProcessSection() {
                     </div>
                   )}
                 </Form.Group>
+                <Form.Group controlId="freeStyleToggle" className="d-flex align-items-center mt-2">
+                  <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Free Style Mode</Form.Label>
+                  <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: Enable free-style mode to lift up chatacter limits</Tooltip>}>
+                    <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
+                  </OverlayTrigger>
+                  <FireToggle
+                    id="freeStyleToggleSwitch"
+                    checked={s2aAdvancedFreeStyleStatus}
+                    onChange={handleToggleFreeStyle}
+                    color="#eb631c"
+                  />
+                </Form.Group>
+
                 <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
                   <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
                   <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
@@ -1057,6 +1082,7 @@ function ProcessSection() {
                     onChange={handleDragonBreathEnhancementChange}
                     color="#eb631c"
                   />
+
                 </Form.Group>
                 {!localCurrentSectionObj.getDragonBreathEnhancement() && (
                   <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
@@ -1151,6 +1177,6 @@ function ProcessSection() {
 
 }
 
-// export default withAuth(ProcessSection);
-export default ProcessSection;
+export default withAuth(ProcessSection);
+// export default ProcessSection;
 
