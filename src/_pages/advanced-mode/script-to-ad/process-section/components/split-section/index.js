@@ -105,16 +105,16 @@ const SplitSection = ({
             </Modal.Header>
             <Modal.Body style={{ padding: '20px', backgroundColor: '#ffffff' }}>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-                    <strong>Existing content for section {localCurrentSectionObj.getIndex() + 1}:</strong>
+                    <strong>Existing section ({localCurrentSectionObj.getIndex() + 1}) content:</strong>
                     <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
                         {displayedContent}
                     </span>
                 </p>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-                    <strong>Existing content character count:</strong> {displayedCharCount}
+                    <strong>Existing section character count:</strong> {displayedCharCount}
                 </p>
                 <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-                    <strong>Typed character count:</strong> {totalTypedChars} / {displayedCharCount}
+                    <strong>Redistributed character count:</strong> {totalTypedChars} / {displayedCharCount}
                 </p>
                 <div className="d-flex align-items-center mb-3" style={{ marginBottom: '15px' }}>
                     <span className="me-2" style={{ fontSize: '14px', color: '#666' }}>Free Style Mode</span>
