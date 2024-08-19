@@ -113,7 +113,7 @@ const SplitSection = ({
     };
 
     return (
-        <Modal show={show} onHide={onHide} style={{ color: '#333', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
+        <Modal show={show} onHide={onHide} size="lg" style={{ color: '#333', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
             <ToastContainer position="top-center" autoClose={5000} />
             <Modal.Header closeButton style={{ borderBottom: '1px solid #eb631c' }}>
                 <Modal.Title style={{ fontWeight: 'bold', color: '#000000' }}>
@@ -172,7 +172,7 @@ const SplitSection = ({
 
                 {/* Display Notes Section */}
                 <p style={{ marginBottom: '10px', marginTop: '10px', fontSize: '14px', color: '#666' }}>
-                    <strong>Notes:</strong>
+                    <strong>Section notes:</strong>
                     <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
                         {showFullNotes ? localCurrentSectionObj.getNotes() || "No notes available" : limitedNotes}
                         {localCurrentSectionObj.getNotes()?.length > 400 && (
