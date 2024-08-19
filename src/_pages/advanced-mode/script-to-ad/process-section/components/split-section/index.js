@@ -18,6 +18,8 @@ const SplitSection = ({
     const [totalTypedChars, setTotalTypedChars] = useState(0);
     const [showFullNotes, setShowFullNotes] = useState(false);
     const [limitedNotes, setLimitedNotes] = useState("");
+    const [contentCopied, setContentCopied] = useState(false); // State to track clipboard icon flip
+    const [notesCopied, setNotesCopied] = useState(false); // State to track clipboard icon flip for notes
 
     const {
         s2aAdvancedFreeStyleStatus,
@@ -35,6 +37,8 @@ const SplitSection = ({
             setTotalTypedChars(0);
             setS2aAdvancedFreeStyleStatus(s2aAdvancedFreeStyleStatus);
             updateNotesDisplay();
+            setContentCopied(false); // Reset clipboard icon state
+            setNotesCopied(false); // Reset clipboard icon state for notes
         }
     }, [show, currentSectionContent, currentSectionCharCount]);
 
@@ -112,9 +116,17 @@ const SplitSection = ({
         onHide();
     };
 
+    const handleCopyContent = (text, setCopied) => {
+        navigator.clipboard.writeText(text);
+        toast.success('Content copied to clipboard!', {
+            onClose: () => setCopied(false) // Reset icon state when toast disappears
+        });
+        setCopied(true); // Set the clipboard icon state to "filled"
+    };
+
     return (
         <Modal show={show} onHide={onHide} size="lg" style={{ color: '#333', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
-            <ToastContainer position="top-center" autoClose={5000} />
+            <ToastContainer position="top-center" autoClose={1000} />
             <Modal.Header closeButton style={{ borderBottom: '1px solid #eb631c' }}>
                 <Modal.Title style={{ fontWeight: 'bold', color: '#000000' }}>
                     Split Section {localCurrentSectionObj.getIndex() + 1}
@@ -123,8 +135,13 @@ const SplitSection = ({
             <Modal.Body style={{ padding: '20px', backgroundColor: '#ffffff' }}>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
                     <strong>Section {localCurrentSectionObj.getIndex() + 1} latest content:</strong>
-                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
+                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px', position: 'relative' }}>
                         {displayedContent}
+                        <i
+                            className={`bi ${contentCopied ? 'bi-clipboard-fill' : 'bi-clipboard'}`}
+                            style={{ position: 'absolute', right: '10px', top: '10px', cursor: 'pointer', color: '#eb631c' }}
+                            onClick={() => handleCopyContent(displayedContent, setContentCopied)}
+                        ></i>
                     </span>
                 </p>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
@@ -173,7 +190,7 @@ const SplitSection = ({
                 {/* Display Notes Section */}
                 <p style={{ marginBottom: '10px', marginTop: '10px', fontSize: '14px', color: '#666' }}>
                     <strong>Section notes:</strong>
-                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
+                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px', position: 'relative' }}>
                         {showFullNotes ? localCurrentSectionObj.getNotes() || "No notes available" : limitedNotes}
                         {localCurrentSectionObj.getNotes()?.length > 400 && (
                             <span
@@ -183,6 +200,11 @@ const SplitSection = ({
                                 {showFullNotes ? '...see less' : '...see more'}
                             </span>
                         )}
+                        <i
+                            className={`bi ${notesCopied ? 'bi-clipboard-fill' : 'bi-clipboard'}`}
+                            style={{ position: 'absolute', right: '10px', top: '10px', cursor: 'pointer', color: '#eb631c' }}
+                            onClick={() => handleCopyContent(localCurrentSectionObj.getNotes() || "No notes available", setNotesCopied)}
+                        ></i>
                     </span>
                 </p>
             </Modal.Body>
