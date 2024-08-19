@@ -84,6 +84,7 @@ const SplitSection = ({
         localCurrentSectionObj.setCurrentContent(newContent);
         localCurrentSectionObj.setCurrentWords(newContent.split(" "));
         localCurrentSectionObj.setCurrentTransformations({});
+        localCurrentSectionObj.setGeneratedVoiceUrl("");
         setTransformedWords({});
         setLocalSectionHistoryObj(null);
 

@@ -351,6 +351,7 @@ function ProcessSection() {
   };
 
   const handleAddNewSection = () => {
+    setShowAudioPlayer(false);
     setShowSplitSectionModal(true);
   };
 
