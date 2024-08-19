@@ -97,7 +97,6 @@ function ProcessSection() {
   );
 
   const [voiceOptions, setVoiceOptions] = useState([]);
-  const isFormSubmitted = false;
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
@@ -261,12 +260,6 @@ function ProcessSection() {
     }
     return removedData;
   };
-
-  useEffect(() => {
-    if (isFormSubmitted) {
-      router.push("/advanced-mode/script-to-ad/stitch-sections");
-    }
-  }, [isFormSubmitted, router]);
 
   useEffect(() => {
     const fetchVoiceOptions = async () => {
