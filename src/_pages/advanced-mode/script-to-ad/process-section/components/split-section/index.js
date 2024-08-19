@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { Section } from "@/data-structures/section";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-
-const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj, localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified, setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData }) => {
+const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj, localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified, setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData, s2aAdvancedFreeStyleStatus }) => {
     const [newContent, setNewContent] = useState("");
     const [newSectionContent, setNewSectionContent] = useState("");
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
@@ -21,18 +22,23 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
 
     const handleSave = () => {
         const totalCharCount = newContent.length + newSectionContent.length;
+
+        if (!s2aAdvancedFreeStyleStatus && totalCharCount !== displayedCharCount) {
+            toast.error("The total character count of the new sections must equal the original section's character count.");
+            return;
+        }
+
         if (totalCharCount <= displayedCharCount) {
             if (newContent) {
                 processScriptChange(newContent);
                 localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
                 localCurrentSectionObj.setCurrentContent(newContent);
                 localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-                // Reset the transformations
                 localCurrentSectionObj.setCurrentTransformations({});
                 setTransformedWords({});
                 setLocalSectionHistoryObj(null); // reset the history
 
-                // Create the new section
+                // Create and setup the new section
                 const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
                 const section = new Section(
                     newSectionIndex,
@@ -41,6 +47,7 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
                     null,
                     0
                 );
+                // Copy attributes from the current section
                 section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
                 section.setVoiceId(localCurrentSectionObj.getVoiceId());
                 section.setVoiceName(localCurrentSectionObj.getVoiceName());
@@ -56,7 +63,6 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
                 }
                 updatedSections.splice(newSectionIndex, 0, section);
 
-                // Update the state with the new sections array
                 setLocalSectionsArray(updatedSections);
                 setNumSectionsIdentified(numSectionsIdentified + 1);
 
@@ -64,13 +70,17 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
                 localPushData(
                     `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
                 );
+
+                onHide();
             }
-            onHide();
+        } else {
+            toast.error("Total characters exceed the original count.");
         }
     };
 
     return (
         <Modal show={show} onHide={onHide}>
+            <ToastContainer position="top-center" autoClose={5000} />
             <Modal.Header closeButton>
                 <Modal.Title>Split Section</Modal.Title>
             </Modal.Header>
@@ -99,7 +109,7 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleSave} disabled={newContent.length + newSectionContent.length > displayedCharCount}>Save</Button>
+                <Button variant="primary" onClick={handleSave} >Save</Button>
             </Modal.Footer>
         </Modal>
     );

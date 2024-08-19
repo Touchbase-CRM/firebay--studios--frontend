@@ -1152,6 +1152,7 @@ function ProcessSection() {
         setLocalSectionHistoryObj={setLocalSectionHistoryObj}
         processScriptChange={processScriptChange}
         localPushData={localPushData}
+        s2aAdvancedFreeStyleStatus={s2aAdvancedFreeStyleStatus}
       />
 
     </div>
