@@ -1139,13 +1139,10 @@ function ProcessSection() {
         localCurrentSectionObj={localCurrentSectionObj}
         localSectionsArray={localSectionsArray}
         setLocalSectionsArray={setLocalSectionsArray}
-        setNumSectionsIdentified={setNumSectionsIdentified}
-        numSectionsIdentified={numSectionsIdentified}
         setTransformedWords={setTransformedWords}
         setLocalSectionHistoryObj={setLocalSectionHistoryObj}
         processScriptChange={processScriptChange}
         localPushData={localPushData}
-        s2aAdvancedFreeStyleStatus={s2aAdvancedFreeStyleStatus}
       />
 
     </div>

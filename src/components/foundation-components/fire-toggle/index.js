@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const FireToggle = ({ id, checked, onChange, color }) => {
     const backgroundColor = checked ? color : "white";
     const borderColor = checked ? color : "#adb5bd";
