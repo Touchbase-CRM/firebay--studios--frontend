@@ -52,47 +52,51 @@ const SplitSection = ({
             return;
         }
 
-        if (newContent) {
-            processScriptChange(newContent);
-            localCurrentSectionObj.setHistoryItemId(null);
-            localCurrentSectionObj.setCurrentContent(newContent);
-            localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-            localCurrentSectionObj.setCurrentTransformations({});
-            setTransformedWords({});
-            setLocalSectionHistoryObj(null);
-
-            if (newSectionContent) {
-                const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
-                const section = new Section(
-                    newSectionIndex,
-                    newSectionContent,
-                    newSectionContent,
-                    null,
-                    0
-                );
-                section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
-                section.setVoiceId(localCurrentSectionObj.getVoiceId());
-                section.setVoiceName(localCurrentSectionObj.getVoiceName());
-                section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
-                section.setModelId(localCurrentSectionObj.getModelId());
-                section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
-                section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
-
-                const updatedSections = [...localSectionsArray];
-                for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
-                    updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
-                }
-                updatedSections.splice(newSectionIndex, 0, section);
-
-                setLocalSectionsArray(updatedSections);
-                setNumSectionsIdentified(numSectionsIdentified + 1);
-            }
-
-            localPushData(`/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`);
-            onHide();
-        } else {
+        if (!newContent.trim()) {
             toast.error("Please enter content for the current section.");
+            return;
         }
+
+        if (!newSectionContent.trim()) {
+            toast.error("No content defined for the new section.");
+            return;
+        }
+
+        processScriptChange(newContent);
+        localCurrentSectionObj.setHistoryItemId(null);
+        localCurrentSectionObj.setCurrentContent(newContent);
+        localCurrentSectionObj.setCurrentWords(newContent.split(" "));
+        localCurrentSectionObj.setCurrentTransformations({});
+        setTransformedWords({});
+        setLocalSectionHistoryObj(null);
+
+        const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
+        const section = new Section(
+            newSectionIndex,
+            newSectionContent,
+            newSectionContent,
+            null,
+            0
+        );
+        section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
+        section.setVoiceId(localCurrentSectionObj.getVoiceId());
+        section.setVoiceName(localCurrentSectionObj.getVoiceName());
+        section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
+        section.setModelId(localCurrentSectionObj.getModelId());
+        section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
+        section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
+
+        const updatedSections = [...localSectionsArray];
+        for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
+            updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
+        }
+        updatedSections.splice(newSectionIndex, 0, section);
+
+        setLocalSectionsArray(updatedSections);
+        setNumSectionsIdentified(numSectionsIdentified + 1);
+
+        localPushData(`/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`);
+        onHide();
     };
 
     return (
