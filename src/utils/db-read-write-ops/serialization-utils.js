@@ -6,7 +6,7 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
-import app from "../../firebase"; // Update the import path as necessary
+import app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";

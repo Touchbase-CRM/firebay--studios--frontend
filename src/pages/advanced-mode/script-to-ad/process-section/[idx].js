@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Row,
-  Col,
   Card,
   Form,
   Button,
@@ -10,7 +8,8 @@ import {
   Alert,
   OverlayTrigger,
   Tooltip,
-  Offcanvas,
+  Dropdown,
+  DropdownButton,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
@@ -19,7 +18,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  updateDoc,
   query,
   collection,
   where,
@@ -29,24 +27,31 @@ import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import RenameModal from "@/components/rename-modal";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
+
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
-import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
-import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
-import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
+import { calculateCharCount } from "@/utils/string-ops/string-properties";
 
+import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
+import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
+import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
+import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
   const posthog = usePostHog();
@@ -70,9 +75,10 @@ function ProcessSection() {
     setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
+    setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
+    setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
-    navigationStack,
   } = useUserInputsStore();
 
   const saveFeatureSpecificStates = {
@@ -94,14 +100,12 @@ function ProcessSection() {
   );
 
   const [voiceOptions, setVoiceOptions] = useState([]);
-  const [isFormSubmitted, setFormSubmitted] = useState(false);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
     return sectionsArray?.[currentSectionIndex].clone() || null;
   });
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
@@ -115,15 +119,17 @@ function ProcessSection() {
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
   const showOffcanvas = () => {
-    setShowMenu(false); // Ensure dropdown is closed when offcanvas opens
     setOffcanvasVisibility(true);
   };
 
   const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
   const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
 
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [showNotePad, setShowNotePad] = useState(false);
+
+  const handleShowNotePad = () => setShowNotePad(true);
+  const handleCloseNotePad = () => setShowNotePad(false);
+
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
@@ -164,10 +170,7 @@ function ProcessSection() {
   const [newSpotName, setNewSpotName] = useState(spotName);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showOptions, setShowOptions] = useState(false); // State to control options visibility
-
-
-  const speechRateMin = s2aAdvancedFreeStyleStatus ? -50 : 0;
-  const speechRateMax = 100;
+  const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
 
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
@@ -262,12 +265,6 @@ function ProcessSection() {
   };
 
   useEffect(() => {
-    if (isFormSubmitted) {
-      router.push("/advanced-mode/script-to-ad/stitch-sections");
-    }
-  }, [isFormSubmitted, router]);
-
-  useEffect(() => {
     const fetchVoiceOptions = async () => {
       const voicesDocRef = doc(
         getFirestore(app),
@@ -351,8 +348,13 @@ function ProcessSection() {
 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
-    setShowMenu(true);
   };
+
+  const handleAddNewSection = () => {
+    setShowAudioPlayer(false);
+    setShowSplitSectionModal(true);
+  };
+
 
   const transformWord = (action) => {
     let currentWord =
@@ -392,7 +394,6 @@ function ProcessSection() {
     }
 
     setTransformedWords(newTransformedWords); // Update the state with the new object
-    setShowMenu(false);
     setSelectedWordIndex(null);
     setShowOptions(false); // Hide the options and show the words again
   };
@@ -402,10 +403,9 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  const handleScriptChange = (e) => {
-    const updatedScript = e.target.value;
-    setTypedText(updatedScript);
-    const newWords = updatedScript.split(" ");
+  const processScriptChange = (newScript) => {
+    setTypedText(newScript);
+    const newWords = newScript.split(" ");
     const newTransformedWords = {};
 
     newWords.forEach((word, index) => {
@@ -416,6 +416,11 @@ function ProcessSection() {
 
     setOgScriptWordsArray(newWords);
     setTransformedWords(newTransformedWords);
+  };
+
+  const handleScriptChange = (e) => {
+    const updatedScript = e.target.value;
+    processScriptChange(updatedScript);
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
@@ -568,7 +573,7 @@ function ProcessSection() {
       setSectionsArray(localSectionsArray);
       handleSaveState();
 
-      if (currentSectionIndex >= sectionsArray.length - 1) {
+      if (currentSectionIndex >= localSectionsArray.length - 1) {
         router.push("/advanced-mode/script-to-ad/stitch-sections");
       } else {
         router.push(
@@ -874,6 +879,17 @@ function ProcessSection() {
     handleSpeechRate(0); // Or however you want to reset the speech rate
   };
 
+  const handleSaveNotesProp = () => {
+    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
+  };
+
+  const handleToggleFreeStyle = (event) => {
+    const isToggled = event.target.checked;
+    setS2aAdvancedFreeStyleStatus(isToggled);
+    if (isToggled) {
+      toast.warn("Your spot might go over the intended length");
+    }
+  };
 
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
@@ -885,6 +901,7 @@ function ProcessSection() {
             <Card className="p-2 h-100" style={{ borderRadius: "1rem", borderColor: "#eb631c", color: "black", height: "calc(100vh - 60px)" }}>
               <Card.Body className="d-flex flex-column">
                 <Card.Title style={{ fontSize: "1.25rem" }}>Section Editor</Card.Title>
+                <ToastContainer position="top-center" autoClose={5000} />
                 <Form.Group controlId="script" className="position-relative">
                   <Form.Label style={{ fontSize: "0.875rem" }}>Edit section</Form.Label>
                   <Form.Control
@@ -905,52 +922,30 @@ function ProcessSection() {
                     }}
                   />
                   <div className="d-flex justify-content-between mt-2 flex-wrap">
-                    <Button
-                      onClick={showOffcanvas}
-                      variant="outline-secondary"
-                      className="mb-2"
-                      style={{
-                        borderColor: "#FDA942",
-                        color: "black",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      Change Emphasis
-                    </Button>
-                    <Button
-                      onClick={handleGenerateVoice}
-                      disabled={isGeneratingVoice}
-                      className="mb-2 mx-2"
-                      style={{
-                        backgroundColor: "#EB631C",
-                        borderColor: "#EB631C",
-                        color: "white",
-                        minWidth: "150px",
-                        maxWidth: "250px", // Setting a max-width
-                        flex: "1 1 auto" // Allow flex to grow and shrink
-                      }}
-                    >
-                      {isGeneratingVoice ? (
-                        <>
-                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
-                        </>
-                      ) : (
-                        "Generate Voice"
-                      )}
-                    </Button>
-                    <Button
-                      onClick={handleReadReplayButton}
-                      variant="outline-secondary"
-                      className="mb-2"
-                      style={{
-                        borderColor: "#FDA942",
-                        color: "black",
-                        backgroundColor: "white",
-                      }}
-                      disabled={localCurrentSectionObj.getGeneratedVoiceUrl() === ""}
-                    >
-                      Latest Read
-                    </Button>
+                    <div className="d-flex justify-content-center w-100">
+                      <Button
+                        onClick={handleGenerateVoice}
+                        disabled={isGeneratingVoice}
+                        className="mb-2"
+                        style={{
+                          backgroundColor: "#EB631C",
+                          borderColor: "#EB631C",
+                          color: "white",
+                          minWidth: "150px",
+                          maxWidth: "250px", // Setting a max-width
+                          flex: "1 1 auto", // Allow flex to grow and shrink
+                          textAlign: "center",
+                        }}
+                      >
+                        {isGeneratingVoice ? (
+                          <>
+                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Generating...
+                          </>
+                        ) : (
+                          "Generate Voice"
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <div
                     className="position-absolute"
@@ -983,17 +978,41 @@ function ProcessSection() {
                 Next
               </Button>
               <SecondaryActionButton onClick={handleSaveState} initialText="Save" clickedText="Saved!" duration={1000} className="me-3 mt-3" />
-              <SecondaryActionButton
-                onClick={showHistoryOffcanvas}
-                initialText="History"
-                clickedText="History!"
-                duration={1000}
-                disabled={
-                  !(localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && localSectionHistoryObj && localSectionHistoryObj[currentSectionIndex] !== null)
-                }
+              <DropdownButton
+                variant="outline-secondary"
+                title="Actions"
                 className="mt-3"
-              />
-              <HistoryCanvas show={historyOffcanvasVisible} handleClose={hideHistoryOffcanvas} localSectionHistoryObj={localSectionHistoryObj} playAudioUrl={playAudioUrl} changeCurrentSectionObj={changeCurrentSectionObj} />
+                style={{
+                  borderColor: "#FDA942",
+                  color: "black",
+                  backgroundColor: "white",
+                }}
+
+                drop="up"
+              >
+                <Dropdown.Item onClick={showOffcanvas}>
+                  Change Emphasis
+                </Dropdown.Item>
+                {localCurrentSectionObj.getGeneratedVoiceUrl() !== "" && (
+                  <>
+                    <Dropdown.Item onClick={showHistoryOffcanvas}>
+                      History
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleReadReplayButton}>
+                      Play Latest Read
+                    </Dropdown.Item>
+                  </>
+                )}
+
+                <Dropdown.Item onClick={handleShowNotePad}>
+                  Script Notes
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleAddNewSection}>
+                  Split Current Section
+                </Dropdown.Item>
+
+              </DropdownButton>
+
             </div>
           </div>
           {/* Right Card for Progress Bar and Voice Editor */}
@@ -1040,25 +1059,31 @@ function ProcessSection() {
                     </div>
                   )}
                 </Form.Group>
+                <Form.Group controlId="freeStyleToggle" className="d-flex align-items-center mt-2">
+                  <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Free Style Mode</Form.Label>
+                  <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: Enable free-style mode to lift up chatacter limits</Tooltip>}>
+                    <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
+                  </OverlayTrigger>
+                  <FireToggle
+                    id="freeStyleToggleSwitch"
+                    checked={s2aAdvancedFreeStyleStatus}
+                    onChange={handleToggleFreeStyle}
+                    color="#eb631c"
+                  />
+                </Form.Group>
+
                 <Form.Group controlId="dragonBreathToggle" className="d-flex align-items-center mt-2">
                   <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Dragon's Breath Enhancement</Form.Label>
                   <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
                     <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
                   </OverlayTrigger>
-                  <div className="form-check form-switch">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="dragonBreathEnhancementSwitch"
-                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                      onChange={handleDragonBreathEnhancementChange}
-                      style={{
-                        backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
-                        borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
-                      }}
-                    />
-                  </div>
+                  <FireToggle
+                    id="dragonBreathEnhancementSwitch"
+                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                    onChange={handleDragonBreathEnhancementChange}
+                    color="#eb631c"
+                  />
+
                 </Form.Group>
                 {!localCurrentSectionObj.getDragonBreathEnhancement() && (
                   <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>
@@ -1119,9 +1144,40 @@ function ProcessSection() {
           typedText={typedText}
           transformedWords={transformedWords}
         />
+        <HistoryCanvas
+          show={historyOffcanvasVisible}
+          handleClose={hideHistoryOffcanvas}
+          localSectionHistoryObj={localSectionHistoryObj}
+          playAudioUrl={playAudioUrl}
+          changeCurrentSectionObj={changeCurrentSectionObj}
+        />
       </div>
+      <NotePad
+        show={showNotePad}
+        handleClose={handleCloseNotePad}
+        localCurrentSectionObj={localCurrentSectionObj}
+        onSaveNotes={handleSaveNotesProp} // Pass the function to NotePad
+      />
+      <SplitSection
+        show={showSplitSectionModal}
+        onHide={() => setShowSplitSectionModal(false)}
+        currentSectionContent={typedText}
+        currentSectionCharCount={calculateCharCount(typedText)}
+        localCurrentSectionObj={localCurrentSectionObj}
+        localSectionsArray={localSectionsArray}
+        setLocalSectionsArray={setLocalSectionsArray}
+        setTransformedWords={setTransformedWords}
+        setLocalSectionHistoryObj={setLocalSectionHistoryObj}
+        processScriptChange={processScriptChange}
+        localPushData={localPushData}
+      />
+
     </div>
   );
+
+
 }
 
 export default withAuth(ProcessSection);
+// export default ProcessSection;
+
