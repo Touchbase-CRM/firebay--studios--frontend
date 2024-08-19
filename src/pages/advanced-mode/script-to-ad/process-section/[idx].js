@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Row,
-  Col,
   Card,
   Form,
   Button,
@@ -10,7 +8,6 @@ import {
   Alert,
   OverlayTrigger,
   Tooltip,
-  Offcanvas,
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
@@ -21,7 +18,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  updateDoc,
   query,
   collection,
   where,
@@ -39,16 +35,18 @@ import SimpleAudioPlayer from "@/components/simple-audio-player";
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import RenameModal from "@/components/rename-modal";
+import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import { Section } from "@/data-structures/section";
+
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
+
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
-import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
@@ -78,7 +76,6 @@ function ProcessSection() {
     setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
-    navigationStack,
   } = useUserInputsStore();
 
   const saveFeatureSpecificStates = {
@@ -120,7 +117,6 @@ function ProcessSection() {
 
   const hideOffcanvas = () => setOffcanvasVisibility(false);
   const showOffcanvas = () => {
-    setShowMenu(false); // Ensure dropdown is closed when offcanvas opens
     setOffcanvasVisibility(true);
   };
 
@@ -132,8 +128,6 @@ function ProcessSection() {
   const handleShowNotePad = () => setShowNotePad(true);
   const handleCloseNotePad = () => setShowNotePad(false);
 
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(
@@ -362,7 +356,6 @@ function ProcessSection() {
 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
-    setShowMenu(true);
   };
 
   const handleAddNewSection = () => {
@@ -408,7 +401,6 @@ function ProcessSection() {
     }
 
     setTransformedWords(newTransformedWords); // Update the state with the new object
-    setShowMenu(false);
     setSelectedWordIndex(null);
     setShowOptions(false); // Hide the options and show the words again
   };
