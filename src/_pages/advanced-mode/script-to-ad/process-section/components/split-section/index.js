@@ -16,6 +16,9 @@ const SplitSection = ({
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
     const [displayedCharCount, setDisplayedCharCount] = useState(currentSectionCharCount);
     const [totalTypedChars, setTotalTypedChars] = useState(0);
+    const [showFullNotes, setShowFullNotes] = useState(false);
+    const [limitedNotes, setLimitedNotes] = useState("");
+
     const {
         s2aAdvancedFreeStyleStatus,
         setS2aAdvancedFreeStyleStatus,
@@ -31,12 +34,22 @@ const SplitSection = ({
             setDisplayedCharCount(currentSectionCharCount);
             setTotalTypedChars(0);
             setS2aAdvancedFreeStyleStatus(s2aAdvancedFreeStyleStatus);
+            updateNotesDisplay();
         }
     }, [show, currentSectionContent, currentSectionCharCount]);
 
     useEffect(() => {
         setTotalTypedChars(newContent.length + newSectionContent.length);
     }, [newContent, newSectionContent]);
+
+    const updateNotesDisplay = () => {
+        const notes = localCurrentSectionObj.getNotes() || "No notes available";
+        if (notes.length > 400) {
+            setLimitedNotes(notes.substring(0, 400) + "...");
+        } else {
+            setLimitedNotes(notes);
+        }
+    };
 
     const handleToggleFreeStyle = (event) => {
         const isToggled = event.target.checked;
@@ -109,17 +122,18 @@ const SplitSection = ({
             </Modal.Header>
             <Modal.Body style={{ padding: '20px', backgroundColor: '#ffffff' }}>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-                    <strong>Existing section ({localCurrentSectionObj.getIndex() + 1}) content:</strong>
+                    <strong>Section {localCurrentSectionObj.getIndex() + 1} latest content:</strong>
                     <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
                         {displayedContent}
                     </span>
                 </p>
                 <p style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-                    <strong>Existing section character count:</strong> {displayedCharCount}
+                    <strong>Section {localCurrentSectionObj.getIndex() + 1} latest character count:</strong> {displayedCharCount}
                 </p>
                 <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
                     <strong>Redistributed character count:</strong> {totalTypedChars} / {displayedCharCount}
                 </p>
+
                 <div className="d-flex align-items-center mb-3" style={{ marginBottom: '15px' }}>
                     <span className="me-2" style={{ fontSize: '14px', color: '#666' }}>Free Style Mode</span>
                     <FireToggle
@@ -155,7 +169,24 @@ const SplitSection = ({
                         style={{ fontSize: '14px', padding: '10px', borderRadius: '4px', borderColor: '#eb631c', backgroundColor: '#f9f9f9' }}
                     />
                 </Form.Group>
+
+                {/* Display Notes Section */}
+                <p style={{ marginBottom: '10px', marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                    <strong>Notes:</strong>
+                    <span style={{ display: 'block', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '5px' }}>
+                        {showFullNotes ? localCurrentSectionObj.getNotes() || "No notes available" : limitedNotes}
+                        {localCurrentSectionObj.getNotes()?.length > 400 && (
+                            <span
+                                onClick={() => setShowFullNotes(!showFullNotes)}
+                                style={{ color: '#eb631c', cursor: 'pointer', marginLeft: '5px' }}
+                            >
+                                {showFullNotes ? '...see less' : '...see more'}
+                            </span>
+                        )}
+                    </span>
+                </p>
             </Modal.Body>
+
             <Modal.Footer style={{ borderTop: '1px solid #eb631c', backgroundColor: '#f0f0f0' }}>
                 <Button variant="secondary" onClick={onHide} style={{ backgroundColor: '#666', borderColor: '#666', color: '#fff', borderRadius: '4px' }}>Cancel</Button>
                 <Button variant="primary" onClick={handleSave} style={{ backgroundColor: '#eb631c', borderColor: '#eb631c', color: '#fff', borderRadius: '4px' }}>Save</Button>

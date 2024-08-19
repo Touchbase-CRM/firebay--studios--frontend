@@ -23,13 +23,13 @@ function NotePad({ show, handleClose, localCurrentSectionObj, onSaveNotes }) {
             </Offcanvas.Header>
             <Offcanvas.Body>
                 <Form.Group controlId="notesInput">
-                    <Form.Label> Notes</Form.Label>
+                    <Form.Label> Section Notes</Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={6}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Add your notes here..."
+                        placeholder="Add your notes for this section here..."
                         style={{ fontSize: "1rem", height: "900px" }}
                     />
                 </Form.Group>
