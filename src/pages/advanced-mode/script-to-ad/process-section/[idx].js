@@ -40,7 +40,6 @@ import { SecondaryActionButton } from "@/components/buttons/secondary-action-but
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
-import { Section } from "@/data-structures/section";
 
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
@@ -1152,7 +1151,9 @@ function ProcessSection() {
         setTransformedWords={setTransformedWords}
         setLocalSectionHistoryObj={setLocalSectionHistoryObj}
         processScriptChange={processScriptChange}
+        localPushData={localPushData}
       />
+
     </div>
   );
 

@@ -3,7 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { Section } from "@/data-structures/section";
 
 
-const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj, localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified, setTransformedWords, setLocalSectionHistoryObj, processScriptChange }) => {
+const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj, localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified, setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData }) => {
     const [newContent, setNewContent] = useState("");
     const [newSectionContent, setNewSectionContent] = useState("");
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
@@ -59,6 +59,11 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
                 // Update the state with the new sections array
                 setLocalSectionsArray(updatedSections);
                 setNumSectionsIdentified(numSectionsIdentified + 1);
+
+                // Add the new section to the navigation stack
+                localPushData(
+                    `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
+                );
             }
             onHide();
         }
