@@ -28,54 +28,51 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
             return;
         }
 
-        if (totalCharCount <= displayedCharCount) {
-            if (newContent) {
-                processScriptChange(newContent);
-                localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
-                localCurrentSectionObj.setCurrentContent(newContent);
-                localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-                localCurrentSectionObj.setCurrentTransformations({});
-                setTransformedWords({});
-                setLocalSectionHistoryObj(null); // reset the history
+        if (newContent) {
+            processScriptChange(newContent);
+            localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
+            localCurrentSectionObj.setCurrentContent(newContent);
+            localCurrentSectionObj.setCurrentWords(newContent.split(" "));
+            localCurrentSectionObj.setCurrentTransformations({});
+            setTransformedWords({});
+            setLocalSectionHistoryObj(null); // reset the history
 
-                // Create and setup the new section
-                const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
-                const section = new Section(
-                    newSectionIndex,
-                    newSectionContent,
-                    newSectionContent,
-                    null,
-                    0
-                );
-                // Copy attributes from the current section
-                section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
-                section.setVoiceId(localCurrentSectionObj.getVoiceId());
-                section.setVoiceName(localCurrentSectionObj.getVoiceName());
-                section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
-                section.setModelId(localCurrentSectionObj.getModelId());
-                section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
-                section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
+            // Create and setup the new section
+            const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
+            const section = new Section(
+                newSectionIndex,
+                newSectionContent,
+                newSectionContent,
+                null,
+                0
+            );
+            // Copy attributes from the current section
+            section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
+            section.setVoiceId(localCurrentSectionObj.getVoiceId());
+            section.setVoiceName(localCurrentSectionObj.getVoiceName());
+            section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
+            section.setModelId(localCurrentSectionObj.getModelId());
+            section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
+            section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
 
-                // Shift the existing sections and insert the new section
-                const updatedSections = [...localSectionsArray];
-                for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
-                    updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
-                }
-                updatedSections.splice(newSectionIndex, 0, section);
-
-                setLocalSectionsArray(updatedSections);
-                setNumSectionsIdentified(numSectionsIdentified + 1);
-
-                // Add the new section to the navigation stack
-                localPushData(
-                    `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
-                );
-
-                onHide();
+            // Shift the existing sections and insert the new section
+            const updatedSections = [...localSectionsArray];
+            for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
+                updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
             }
-        } else {
-            toast.error("Total characters exceed the original count.");
+            updatedSections.splice(newSectionIndex, 0, section);
+
+            setLocalSectionsArray(updatedSections);
+            setNumSectionsIdentified(numSectionsIdentified + 1);
+
+            // Add the new section to the navigation stack
+            localPushData(
+                `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
+            );
+
+            onHide();
         }
+
     };
 
     return (
