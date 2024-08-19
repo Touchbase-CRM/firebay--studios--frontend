@@ -879,49 +879,6 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
   };
 
-  const handleSplitSectionSave = (newContent, newSectionContent) => {
-    if (newContent) {
-      processScriptChange(newContent);
-      localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
-      localCurrentSectionObj.setCurrentContent(newContent);
-      localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-      // Reset the transformations
-      localCurrentSectionObj.setCurrentTransformations({});
-      setTransformedWords({});
-      setLocalSectionHistoryObj(null); // reset the history
-
-      // Create the new section
-      const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
-      const section = new Section(
-        newSectionIndex,
-        newSectionContent,
-        newSectionContent,
-        null,
-        0
-      );
-      section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
-      section.setVoiceId(localCurrentSectionObj.getVoiceId());
-      section.setVoiceName(localCurrentSectionObj.getVoiceName());
-      section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
-      section.setModelId(localCurrentSectionObj.getModelId());
-      section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
-      section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
-
-      // Shift the existing sections and insert the new section
-      const updatedSections = [...localSectionsArray];
-      for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
-        updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
-      }
-      updatedSections.splice(newSectionIndex, 0, section);
-
-      // Update the state with the new sections array
-      setLocalSectionsArray(updatedSections);
-      setNumSectionsIdentified(numSectionsIdentified + 1);
-    }
-    setShowSplitSectionModal(false);
-  };
-
-
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
       <NavBar links={[]} logoutHandler={handleLogout} saveHandler={handleSaveState} />
@@ -1187,9 +1144,15 @@ function ProcessSection() {
         onHide={() => setShowSplitSectionModal(false)}
         currentSectionContent={typedText}
         currentSectionCharCount={calculateCharCount(typedText)}
-        onSave={handleSplitSectionSave}
+        localCurrentSectionObj={localCurrentSectionObj}
+        localSectionsArray={localSectionsArray}
+        setLocalSectionsArray={setLocalSectionsArray}
+        setNumSectionsIdentified={setNumSectionsIdentified}
+        numSectionsIdentified={numSectionsIdentified}
+        setTransformedWords={setTransformedWords}
+        setLocalSectionHistoryObj={setLocalSectionHistoryObj}
+        processScriptChange={processScriptChange}
       />
-
     </div>
   );
 
