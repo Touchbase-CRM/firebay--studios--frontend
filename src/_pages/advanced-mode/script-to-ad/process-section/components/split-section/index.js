@@ -6,13 +6,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import FireToggle from '@/components/foundation-components/fire-toggle';
 import useUserInputsStore from "@/store/user-inputs";
 
-
 const SplitSection = ({
     show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj,
     localSectionsArray, setLocalSectionsArray,
     setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData
 }) => {
-    const [newContent, setNewContent] = useState("");
+    const [newContent, setNewContent] = useState(currentSectionContent || ""); // Set the initial value to currentSectionContent
     const [newSectionContent, setNewSectionContent] = useState("");
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
     const [displayedCharCount, setDisplayedCharCount] = useState(currentSectionCharCount);
@@ -23,9 +22,10 @@ const SplitSection = ({
         numSectionsIdentified,
         setNumSectionsIdentified,
     } = useUserInputsStore();
+
     useEffect(() => {
         if (show) {
-            setNewContent("");
+            setNewContent(currentSectionContent || ""); // Reset the value when the modal is shown
             setNewSectionContent("");
             setDisplayedContent(currentSectionContent);
             setDisplayedCharCount(currentSectionCharCount);
@@ -54,7 +54,6 @@ const SplitSection = ({
             return;
         }
 
-        // Proceed if new content for the current section is provided
         if (newContent) {
             processScriptChange(newContent);
             localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
@@ -105,17 +104,15 @@ const SplitSection = ({
         }
     };
 
-
     return (
         <Modal show={show} onHide={onHide}>
             <ToastContainer position="top-center" autoClose={5000} />
             <Modal.Header closeButton>
-                <Modal.Title>Split Section</Modal.Title>
+                <Modal.Title>Split Section {localCurrentSectionObj.getIndex() + 1}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Existing Section Content:</p>
-                <p>{displayedContent}</p>
-                <p>Character Count: {displayedCharCount}</p>
+                <p>Existing content for section {localCurrentSectionObj.getIndex() + 1}: {displayedContent}</p>
+                <p>Existing content character Count: {displayedCharCount}</p>
                 <p>Typed Character Count: {totalTypedChars} / {displayedCharCount}</p>
                 <div className="d-flex align-items-center mb-3">
                     <span className="me-2">Free Style Mode</span>
@@ -123,26 +120,30 @@ const SplitSection = ({
                         id="free-style-toggle"
                         checked={s2aAdvancedFreeStyleStatus}
                         onChange={handleToggleFreeStyle}
-                        color="#eb631c" // Assuming this is the brand color for your toggles
+                        color="#eb631c"
                     />
                 </div>
                 <Form.Group>
-                    <Form.Label>Content for this Section</Form.Label>
+                    <Form.Label>Updated content for the current section</Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
                         value={newContent}
                         onChange={(e) => setNewContent(e.target.value)}
+                        placeholder={`Enter your content for section ${localCurrentSectionObj.getIndex() + 1}`}
+
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>Content for New Section</Form.Label>
+                    <Form.Label>Updated content for the new section</Form.Label>
                     <Form.Control
                         as="textarea"
                         rows={3}
                         value={newSectionContent}
                         onChange={(e) => setNewSectionContent(e.target.value)}
+                        placeholder={`Enter your content for section ${localCurrentSectionObj.getIndex() + 2}`}
                     />
+
                 </Form.Group>
             </Modal.Body>
             <Modal.Footer>
