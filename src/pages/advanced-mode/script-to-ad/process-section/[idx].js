@@ -29,6 +29,7 @@ import { usePostHog } from "posthog-js/react";
 import Swal from "sweetalert2";
 
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
@@ -1050,20 +1051,12 @@ function ProcessSection() {
                   <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: 10X the energy of the selected voice as if a sword forged by dragon's breath</Tooltip>}>
                     <i className="bi bi-info-circle me-3" style={{ cursor: "pointer" }}></i>
                   </OverlayTrigger>
-                  <div className="form-check form-switch">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="dragonBreathEnhancementSwitch"
-                      checked={localCurrentSectionObj.getDragonBreathEnhancement()}
-                      onChange={handleDragonBreathEnhancementChange}
-                      style={{
-                        backgroundColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "white",
-                        borderColor: localCurrentSectionObj.getDragonBreathEnhancement() ? "#eb631c" : "#adb5bd",
-                      }}
-                    />
-                  </div>
+                  <FireToggle
+                    id="dragonBreathEnhancementSwitch"
+                    checked={localCurrentSectionObj.getDragonBreathEnhancement()}
+                    onChange={handleDragonBreathEnhancementChange}
+                    color="#eb631c"
+                  />
                 </Form.Group>
                 {!localCurrentSectionObj.getDragonBreathEnhancement() && (
                   <Alert variant="info" className="mt-1 p-1" style={{ fontSize: "10px" }}>

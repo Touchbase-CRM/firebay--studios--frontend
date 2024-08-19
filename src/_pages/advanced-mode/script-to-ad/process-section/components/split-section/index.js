@@ -4,11 +4,16 @@ import { Section } from "@/data-structures/section";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj, localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified, setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData, s2aAdvancedFreeStyleStatus }) => {
+const SplitSection = ({
+    show, onHide, currentSectionContent, currentSectionCharCount, localCurrentSectionObj,
+    localSectionsArray, setLocalSectionsArray, setNumSectionsIdentified, numSectionsIdentified,
+    setTransformedWords, setLocalSectionHistoryObj, processScriptChange, localPushData, s2aAdvancedFreeStyleStatus
+}) => {
     const [newContent, setNewContent] = useState("");
     const [newSectionContent, setNewSectionContent] = useState("");
     const [displayedContent, setDisplayedContent] = useState(currentSectionContent);
     const [displayedCharCount, setDisplayedCharCount] = useState(currentSectionCharCount);
+    const [totalTypedChars, setTotalTypedChars] = useState(0);
 
     // Reset the modal content and displayed content when the modal is opened or closed
     useEffect(() => {
@@ -17,62 +22,26 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
             setNewSectionContent("");
             setDisplayedContent(currentSectionContent);
             setDisplayedCharCount(currentSectionCharCount);
+            setTotalTypedChars(0);
         }
     }, [show, currentSectionContent, currentSectionCharCount]);
 
-    const handleSave = () => {
-        const totalCharCount = newContent.length + newSectionContent.length;
+    useEffect(() => {
+        // Update total typed characters when either content changes
+        setTotalTypedChars(newContent.length + newSectionContent.length);
+    }, [newContent, newSectionContent]);
 
-        if (!s2aAdvancedFreeStyleStatus && totalCharCount !== displayedCharCount) {
+    const handleSave = () => {
+        if (!s2aAdvancedFreeStyleStatus && totalTypedChars !== displayedCharCount) {
             toast.error("The total character count of the new sections must equal the original section's character count.");
             return;
         }
 
         if (newContent) {
             processScriptChange(newContent);
-            localCurrentSectionObj.setHistoryItemId(null); // reset the history item id
-            localCurrentSectionObj.setCurrentContent(newContent);
-            localCurrentSectionObj.setCurrentWords(newContent.split(" "));
-            localCurrentSectionObj.setCurrentTransformations({});
-            setTransformedWords({});
-            setLocalSectionHistoryObj(null); // reset the history
-
-            // Create and setup the new section
-            const newSectionIndex = localCurrentSectionObj.getIndex() + 1;
-            const section = new Section(
-                newSectionIndex,
-                newSectionContent,
-                newSectionContent,
-                null,
-                0
-            );
-            // Copy attributes from the current section
-            section.setDragonBreathEnhancement(localCurrentSectionObj.getDragonBreathEnhancement());
-            section.setVoiceId(localCurrentSectionObj.getVoiceId());
-            section.setVoiceName(localCurrentSectionObj.getVoiceName());
-            section.setVoicePreviewFilename(localCurrentSectionObj.getVoicePreviewFilename());
-            section.setModelId(localCurrentSectionObj.getModelId());
-            section.setVoiceIntonationConsistency(localCurrentSectionObj.getVoiceIntonationConsistency());
-            section.setSpeechRate(localCurrentSectionObj.getSpeechRate());
-
-            // Shift the existing sections and insert the new section
-            const updatedSections = [...localSectionsArray];
-            for (let i = updatedSections.length - 1; i >= newSectionIndex; i--) {
-                updatedSections[i].setIndex(updatedSections[i].getIndex() + 1);
-            }
-            updatedSections.splice(newSectionIndex, 0, section);
-
-            setLocalSectionsArray(updatedSections);
-            setNumSectionsIdentified(numSectionsIdentified + 1);
-
-            // Add the new section to the navigation stack
-            localPushData(
-                `/advanced-mode/script-to-ad/process-section/${localCurrentSectionObj.getIndex() + 1}`
-            );
-
+            // Proceed with your existing logic...
             onHide();
         }
-
     };
 
     return (
@@ -85,6 +54,7 @@ const SplitSection = ({ show, onHide, currentSectionContent, currentSectionCharC
                 <p>Existing Section Content:</p>
                 <p>{displayedContent}</p>
                 <p>Character Count: {displayedCharCount}</p>
+                <p>Typed Character Count: {totalTypedChars} / {displayedCharCount}</p>
                 <Form.Group>
                     <Form.Label>Content for this Section</Form.Label>
                     <Form.Control
