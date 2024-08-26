@@ -115,10 +115,10 @@ function ProcessSection() {
     adLength,
   };
 
-  // Router query
+  // Router queries
   const { idx } = router.query;
 
-  // States
+  // local states
   const [currentSectionIndex, setCurrentSectionIndex] = useState(parseInt(idx, 10));
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
@@ -299,50 +299,10 @@ function ProcessSection() {
     });
   };
 
-  // ======= Legacy and Voice Management =======
-  const manageLegacySpeechRate = (legacyValue) => {
-    const legacyMapping = {
-      Normal: 0,
-      "1.25x": 25,
-      "1.5x": 50,
-      "1.75x": 75,
-      "2x": 100,
-    };
-
-    if (legacyMapping.hasOwnProperty(legacyValue)) {
-      return legacyMapping[legacyValue];
-    }
-
-    const numericValue = Number(legacyValue);
-    if (!isNaN(numericValue) && numericValue >= -50 && numericValue <= 100) {
-      return numericValue;
-    }
-
-    // If the value is neither a legacy string nor a valid number, return 0 by default
-    return 0;
-  };
-
-  const handleVoicePreviewPlayButton = () => {
-    setAllowDownload(false);
-    setShowAudioPlayer(true);
-    setForceRenderKey(Math.random());
-    setGeneratedVoiceUrl(
-      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
-    );
-  };
-
-  // #region ======= Word Click and Section Handling =======
+  // #region ======= Word Transformation Handling ======= 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
-
-  const handleAddNewSection = () => {
-    setShowAudioPlayer(false);
-    setShowSplitSectionModal(true);
-  };
-  // #endregion
-
-  // #region ======= Word Transformation Handling ======= 
   const transformWord = (action) => {
     let currentWord =
       transformedWords[selectedWordIndex] ||
@@ -677,7 +637,7 @@ function ProcessSection() {
   }
 
 
-  // Voice Generation and Processing
+  // Voice Generation Management
   async function generateVoiceWithCustomPreprocess(
     script,
     voiceId,
@@ -753,6 +713,37 @@ function ProcessSection() {
     }
   }
 
+  const manageLegacySpeechRate = (legacyValue) => {
+    const legacyMapping = {
+      Normal: 0,
+      "1.25x": 25,
+      "1.5x": 50,
+      "1.75x": 75,
+      "2x": 100,
+    };
+
+    if (legacyMapping.hasOwnProperty(legacyValue)) {
+      return legacyMapping[legacyValue];
+    }
+
+    const numericValue = Number(legacyValue);
+    if (!isNaN(numericValue) && numericValue >= -50 && numericValue <= 100) {
+      return numericValue;
+    }
+
+    // If the value is neither a legacy string nor a valid number, return 0 by default
+    return 0;
+  };
+
+  const handleVoicePreviewPlayButton = () => {
+    setAllowDownload(false);
+    setShowAudioPlayer(true);
+    setForceRenderKey(Math.random());
+    setGeneratedVoiceUrl(
+      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+    );
+  };
+
   // Audio Handling
   function getAudioDuration(url) {
     return new Promise((resolve, reject) => {
@@ -772,6 +763,11 @@ function ProcessSection() {
   };
 
   //  #region =======  Section Management  =======
+  const handleAddNewSection = () => {
+    setShowAudioPlayer(false);
+    setShowSplitSectionModal(true);
+  };
+
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
