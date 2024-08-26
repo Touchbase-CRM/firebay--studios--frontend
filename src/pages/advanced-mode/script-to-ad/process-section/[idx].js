@@ -70,11 +70,11 @@ import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/compone
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
-  // Hooks
-  const posthog = usePostHog();
-  const auth = getAuth();
-  const router = useRouter();
-  const voiceAudioPlayerRef = useRef(null);
+  // Function Instantiation
+  const posthog = usePostHog();  // Hook
+  const auth = getAuth();        // Function call
+  const router = useRouter();    // Hook
+  const voiceAudioPlayerRef = useRef(null);  // Hook
 
   // Environment-specific URL
   const audioProcessingWebServiceUrl =
@@ -223,42 +223,6 @@ function ProcessSection() {
     return removedData;
   };
 
-  // ======= Section Update and Details Management =======
-  const updateSectionDetails = (sectionToUpdate) => {
-    const currentIdx = sectionToUpdate.getIndex();
-
-    // Update dependent states based on the new current section
-    setOgScriptWordsArray(
-      sectionToUpdate.getOriginalContent()
-        ? sectionToUpdate.getCurrentWords()
-        : []
-    );
-    setTypedText(
-      sectionToUpdate.getOriginalContent()
-        ? sectionToUpdate.getCurrentWords().join(" ")
-        : ""
-    );
-    setTransformedWords(sectionToUpdate.getCurrentTransformations());
-
-    // Calculate progress and time left
-    const previousSectionsTotalDuration = sectionsArray
-      .slice(0, currentIdx)
-      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-    const newProgressBarPercentage = Math.round(
-      ((previousSectionsTotalDuration +
-        sectionToUpdate.getSectionDurationSeconds()) /
-        adLength) *
-      100
-    );
-    const newSecondsLeft =
-      adLength -
-      (previousSectionsTotalDuration +
-        sectionToUpdate.getSectionDurationSeconds());
-
-    setProgressBarPercentage(newProgressBarPercentage);
-    setSecondsYouHaveLeft(newSecondsLeft);
-    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
-  };
 
   // ======= Effect Hooks for Initialization and Updates =======
   useEffect(() => {
@@ -367,7 +331,7 @@ function ProcessSection() {
     );
   };
 
-  // ======= Word Click and Section Handling =======
+  // #region ======= Word Click and Section Handling =======
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
@@ -376,8 +340,9 @@ function ProcessSection() {
     setShowAudioPlayer(false);
     setShowSplitSectionModal(true);
   };
+  // #endregion
 
-  // ======= Word Transformation Handling =======
+  // #region ======= Word Transformation Handling ======= 
   const transformWord = (action) => {
     let currentWord =
       transformedWords[selectedWordIndex] ||
@@ -419,6 +384,7 @@ function ProcessSection() {
     setSelectedWordIndex(null);
     setShowOptions(false); // Hide the options and show the words again
   };
+  // #endregion
 
 
   // Handle speech rate and script processing
@@ -805,7 +771,7 @@ function ProcessSection() {
     setGeneratedVoiceUrl(audioUrl);
   };
 
-  // Section Management and Navigation
+  //  #region =======  Section Management  =======
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
@@ -871,7 +837,45 @@ function ProcessSection() {
     });
   };
 
-  // UI Handling and State Management
+  const updateSectionDetails = (sectionToUpdate) => {
+    const currentIdx = sectionToUpdate.getIndex();
+
+    // Update dependent states based on the new current section
+    setOgScriptWordsArray(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords()
+        : []
+    );
+    setTypedText(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords().join(" ")
+        : ""
+    );
+    setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+    // Calculate progress and time left
+    const previousSectionsTotalDuration = sectionsArray
+      .slice(0, currentIdx)
+      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    const newProgressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds()) /
+        adLength) *
+      100
+    );
+    const newSecondsLeft =
+      adLength -
+      (previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds());
+
+    setProgressBarPercentage(newProgressBarPercentage);
+    setSecondsYouHaveLeft(newSecondsLeft);
+    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+  };
+  // #endregion
+
+
+  // #region =======================UI Handling and State Management======================
   const handleDragonBreathEnhancementChange = (e) => {
     const newValue = e.target.checked;
     localCurrentSectionObj.setDragonBreathEnhancement(newValue);
@@ -905,6 +909,7 @@ function ProcessSection() {
       toast.warn("Your spot might go over the intended length");
     }
   };
+  // #endregion
 
 
   return (
