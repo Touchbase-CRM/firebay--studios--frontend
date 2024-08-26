@@ -1055,7 +1055,7 @@ function ProcessSection() {
                   <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
                   <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
                 </Form.Group>
-                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
+                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouHaveLeft)} sec left out of {adLength} sec</div>
                 <Form.Group controlId="voice" className="mt-2">
                   <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
                   {voiceOptions.length === 0 ? (
@@ -1145,7 +1145,7 @@ function ProcessSection() {
                     containerStyle={{ marginTop: "18px" }}
                     leftInfoMessage="Slower"
                     rightInfoMessage="Faster"
-                    reset={resetSpeechRate}
+                    reset={() => handleSpeechRate(0)}
                   />
                 </Form.Group>
               </Form>
