@@ -1,4 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { usePostHog } from "posthog-js/react";
+import Swal from "sweetalert2";
+import _ from "lodash";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+// Firebase imports
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import app from "@/firebase";
+
+// React Bootstrap components
 import {
   Card,
   Form,
@@ -11,58 +33,58 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import { useRouter } from "next/router";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  collection,
-  where,
-} from "firebase/firestore";
-import _ from "lodash";
-import { getAuth } from "firebase/auth";
-import app from "@/firebase";
-import { usePostHog } from "posthog-js/react";
-import Swal from "sweetalert2";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+// Foundation components
 import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
-import SimpleAudioPlayer from "@/components/simple-audio-player";
+
+// Button components
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
-import RenameModal from "@/components/rename-modal";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-import useUserInputsStore from "@/store/user-inputs";
-import withAuth from "@/hocs/with-auth";
-import { Stack } from "@/data-structures/stack";
+// Other components
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import RenameModal from "@/components/rename-modal";
 
+// Utility functions
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
 
+// Store and HOCs
+import useUserInputsStore from "@/store/user-inputs";
+import withAuth from "@/hocs/with-auth";
+
+// Data structures
+import { Stack } from "@/data-structures/stack";
+
+// Middleware
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+
+// Advanced mode components
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
+  // Hooks
   const posthog = usePostHog();
   const auth = getAuth();
-
   const router = useRouter();
   const voiceAudioPlayerRef = useRef(null);
-  // prettier-ignore
-  const audioProcessingWebServiceUrl = process.env.NODE_ENV === "development"
-    ? "http://localhost:8000"
-    : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+
+  // Environment-specific URL
+  const audioProcessingWebServiceUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8000"
+      : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+
+  const baseVoicePreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
 
   // Zustand store hooks
   const {
@@ -75,7 +97,6 @@ function ProcessSection() {
     setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
-    setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
@@ -94,41 +115,26 @@ function ProcessSection() {
     adLength,
   };
 
+  // Router query
   const { idx } = router.query;
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(
-    parseInt(idx, 10)
-  );
 
+  // States
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(parseInt(idx, 10));
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
-    return sectionsArray?.[currentSectionIndex].clone() || null;
+    return sectionsArray?.[currentSectionIndex]?.clone() || null;
   });
-
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
-  const [localStack, setLocalStack] = useState(() => new Stack()); //@TODO: Rename this variable to localNavigationStack
-  const syncStackWithGlobal = useUserInputsStore(
-    (state) => state.setNavigationStack
-  );
+  const [localStack, setLocalStack] = useState(() => new Stack()); // TODO: Rename this variable to localNavigationStack
+  const syncStackWithGlobal = useUserInputsStore((state) => state.setNavigationStack);
 
   const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
   const [historyOffcanvasVisible, setHistoryOffcanvasVisibility] = useState(false);
-
-  const hideOffcanvas = () => setOffcanvasVisibility(false);
-  const showOffcanvas = () => {
-    setOffcanvasVisibility(true);
-  };
-
-  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
-  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
-
   const [showNotePad, setShowNotePad] = useState(false);
-
-  const handleShowNotePad = () => setShowNotePad(true);
-  const handleCloseNotePad = () => setShowNotePad(false);
 
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
@@ -154,7 +160,7 @@ function ProcessSection() {
       100
     )
   );
-  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+  const [secondsYouHaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
     (previousSectionsTotalDuration +
       localCurrentSectionObj.getSectionDurationSeconds())
@@ -163,20 +169,34 @@ function ProcessSection() {
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [allowDownload, setAllowDownload] = useState(false);
+
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
 
-  // State for managing modal visibility and spot name editing
+  // Modal and option states
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showOptions, setShowOptions] = useState(false); // State to control options visibility
   const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
 
+  // Constants
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-  const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined.
+  const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined
   const SECTOMILLISEC = 1000;
 
+  // Offcanvas handlers
+  const hideOffcanvas = () => setOffcanvasVisibility(false);
+  const showOffcanvas = () => setOffcanvasVisibility(true);
+
+  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
+  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
+
+  const handleShowNotePad = () => setShowNotePad(true);
+  const handleCloseNotePad = () => setShowNotePad(false);
+
+
+  // ======= Stack Management Functions =======
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
@@ -184,6 +204,26 @@ function ProcessSection() {
     setLocalStack(newStack);
   };
 
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const localPopData = (newData, clone = false) => {
+    let removedData = localStack.pop();
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+    return removedData;
+  };
+
+  // ======= Section Update and Details Management =======
   const updateSectionDetails = (sectionToUpdate) => {
     const currentIdx = sectionToUpdate.getIndex();
 
@@ -220,6 +260,7 @@ function ProcessSection() {
     setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
   };
 
+  // ======= Effect Hooks for Initialization and Updates =======
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
     syncStackAfterNavigation();
@@ -245,25 +286,6 @@ function ProcessSection() {
     updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
-  const localPushData = (newData, clone = false) => {
-    localStack.push(newData);
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-  };
-
-  const localPopData = (newData, clone = false) => {
-    let removedData = localStack.pop();
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-    return removedData;
-  };
-
   useEffect(() => {
     const fetchVoiceOptions = async () => {
       const voicesDocRef = doc(
@@ -286,9 +308,7 @@ function ProcessSection() {
     fetchVoiceOptions();
   }, []);
 
-  const baseVoicePreviewsUrl =
-    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
-
+  // ======= Script Validation and Alerts =======
   const validateScript = (script, charLimit, onSuccess, onFailure) => {
     const scriptWOApostrophe = script.replace(/'/g, "");
 
@@ -315,6 +335,7 @@ function ProcessSection() {
     });
   };
 
+  // ======= Legacy and Voice Management =======
   const manageLegacySpeechRate = (legacyValue) => {
     const legacyMapping = {
       Normal: 0,
@@ -346,6 +367,7 @@ function ProcessSection() {
     );
   };
 
+  // ======= Word Click and Section Handling =======
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
@@ -355,7 +377,7 @@ function ProcessSection() {
     setShowSplitSectionModal(true);
   };
 
-
+  // ======= Word Transformation Handling =======
   const transformWord = (action) => {
     let currentWord =
       transformedWords[selectedWordIndex] ||
@@ -398,6 +420,8 @@ function ProcessSection() {
     setShowOptions(false); // Hide the options and show the words again
   };
 
+
+  // Handle speech rate and script processing
   const handleSpeechRate = (value) => {
     localCurrentSectionObj.setSpeechRate(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
@@ -423,6 +447,7 @@ function ProcessSection() {
     processScriptChange(updatedScript);
   };
 
+  // Handle voice metadata and change
   const fetchVoiceMetaData = async (voiceName) => {
     const db = getFirestore(app);
     const voiceQuery = query(
@@ -463,30 +488,20 @@ function ProcessSection() {
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
       localCurrentSectionObj.setVoiceName(selectedVoiceName);
-      localCurrentSectionObj.setVoicePreviewFilename(
-        metadata.newVoicePreviewFilename
-      );
-      localCurrentSectionObj.setVoiceIntonationConsistency(
-        metadata.newVoiceIntonationConsistency
-      );
+      localCurrentSectionObj.setVoicePreviewFilename(metadata.newVoicePreviewFilename);
+      localCurrentSectionObj.setVoiceIntonationConsistency(metadata.newVoiceIntonationConsistency);
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
 
-      // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
-      setGeneratedVoiceUrl(
-        baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
-      );
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename());
     } else {
       // Handle the case when no metadata is found
-      console.log(
-        "No metadata found for the selected voice:",
-        selectedVoiceName
-      );
+      console.log("No metadata found for the selected voice:", selectedVoiceName);
     }
 
-    // Assuming you want to play the new voice preview immediately
+    // Play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
-      const previewUrl =
-        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      const previewUrl = baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
       if (voiceAudioPlayerRef.current) {
         voiceAudioPlayerRef.current.src = previewUrl;
         voiceAudioPlayerRef.current.load();
@@ -495,6 +510,7 @@ function ProcessSection() {
     }
   };
 
+  // Syncing data with global states
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
@@ -510,13 +526,11 @@ function ProcessSection() {
   };
 
   const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
-    const updatedArray = addCurrentSectionHistoryToArray(
-      index,
-      newSectionHistoryObj
-    );
+    const updatedArray = addCurrentSectionHistoryToArray(index, newSectionHistoryObj);
     setSectionHistoryArray(updatedArray);
   };
 
+  // Handling voice updates across all sections
   const updateVoiceForAllSections = (currentIndex) => {
     localSectionsArray.forEach((section, index) => {
       if (index > currentIndex && localSectionsArray[currentIndex + 1]?.getHistoryItemId() !== null) {
@@ -535,33 +549,27 @@ function ProcessSection() {
     });
   };
 
+  // Form submission handling
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!localCurrentSectionObj.getHistoryItemId()) {
-      showAlert(
-        "info",
-        "Action Required",
-        "Please generate the voice audio before proceeding further."
-      );
+      showAlert("info", "Action Required", "Please generate the voice audio before proceeding further.");
       return;
     }
 
-    // sync the local history with global.
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
+    // Sync the local history with global
+    syncSectionHistoryArrayWithZustand(currentSectionIndex, localSectionHistoryObj);
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
 
     if (localStack.size() > 0) {
       console.log("Stack not empty, continue processing");
-      // save the section we are working on
+      // Save the section we are working on
       localSectionsArray[index] = localCurrentSectionObj;
       setLocalSectionsArray(localSectionsArray);
 
-      // load the next section
+      // Load the next section
       let lastInUrl = localPopData();
       syncLocalStackWithGlobal();
       handleSaveState();
@@ -578,13 +586,13 @@ function ProcessSection() {
       } else {
         router.push(
           "/advanced-mode/script-to-ad/process-section/[idx]",
-          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1
-          }`
+          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1}`
         );
       }
     }
   };
 
+  // User authentication handling
   const handleLogout = () => {
     resetUserInputsStore();
     localStorage.removeItem("user");
@@ -598,6 +606,7 @@ function ProcessSection() {
       });
   };
 
+  // Script and history management
   const getFinalScript = () => {
     return ogScriptWordsArray
       .map((word, index) => transformedWords[index] || word)
@@ -614,6 +623,7 @@ function ProcessSection() {
     });
   };
 
+  // Voice generation handling
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
@@ -700,6 +710,8 @@ function ProcessSection() {
     }
   }
 
+
+  // Voice Generation and Processing
   async function generateVoiceWithCustomPreprocess(
     script,
     voiceId,
@@ -775,6 +787,7 @@ function ProcessSection() {
     }
   }
 
+  // Audio Handling
   function getAudioDuration(url) {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);
@@ -785,12 +798,14 @@ function ProcessSection() {
     });
   }
 
-  const handleDragonBreathEnhancementChange = (e) => {
-    const newValue = e.target.checked;
-    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  const playAudioUrl = (audioUrl) => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(audioUrl);
   };
 
+  // Section Management and Navigation
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
@@ -819,20 +834,6 @@ function ProcessSection() {
     } else {
       router.push("/advanced-mode/script-to-ad/create-sections");
     }
-  };
-
-  const handleReadReplayButton = () => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
-    setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
-  };
-
-  const playAudioUrl = (audioUrl) => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
-    setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(audioUrl);
   };
 
   const changeCurrentSectionObj = (newSectionObj) => {
@@ -870,6 +871,20 @@ function ProcessSection() {
     });
   };
 
+  // UI Handling and State Management
+  const handleDragonBreathEnhancementChange = (e) => {
+    const newValue = e.target.checked;
+    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
+  const handleReadReplayButton = () => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+  };
+
   const handleIntonationChange = (value) => {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
@@ -890,6 +905,7 @@ function ProcessSection() {
       toast.warn("Your spot might go over the intended length");
     }
   };
+
 
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
