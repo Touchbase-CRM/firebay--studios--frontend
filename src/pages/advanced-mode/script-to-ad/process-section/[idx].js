@@ -1,5 +1,5 @@
 // Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
-// =======================Generic  imports========================
+// ======================= Generic  imports ========================
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { usePostHog } from "posthog-js/react";
@@ -9,7 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-// ========================Firebase imports=======================
+// ======================== Firebase imports =======================
 import {
   getFirestore,
   doc,
@@ -22,7 +22,7 @@ import {
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 
-// ====================React Bootstrap components==================
+// ==================== React Bootstrap components ==================
 import {
   Card,
   Form,
@@ -36,49 +36,49 @@ import {
   DropdownButton,
 } from "react-bootstrap";
 
-// =========================Foundation components=================
+// ========================= Foundation components =================
 import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
 
-// ====================Button components=======================
+// ==================== Button components =======================
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-// ======================Misc components==========================
+// ====================== Misc components ==========================
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import RenameModal from "@/components/rename-modal";
 
-// ========================Utility functions================
+// ======================== Utility functions ================
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
 
-// ====================Store and HOCs=====================
+// ==================== Store and HOCs =====================
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 
-// ============Data structures==========================
+// ============ Data structures ==========================
 import { Stack } from "@/data-structures/stack";
 
-// ===========================Middleware================
+// =========================== Middleware ================
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
-// ===================Advanced mode components===========
+// =================== Advanced mode components ===========
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
-  // =================Function Instantiation===================
+  // ================= Function Instantiation ===================
   const posthog = usePostHog();  // Hook
   const auth = getAuth();        // Function call
   const router = useRouter();    // Hook
   const voiceAudioPlayerRef = useRef(null);  // Hook
 
-  // ========================Environment-specific URL=========================
+  // ======================== Environment-specific URL =========================
   const audioProcessingWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -88,7 +88,7 @@ function ProcessSection() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
 
-  // =============Zustand store hooks========================
+  // ============= Zustand store hooks ========================
   const {
     spotId,
     spotName,
@@ -105,7 +105,7 @@ function ProcessSection() {
   } = useUserInputsStore();
 
 
-  // ========================states to be saved in the database=========================
+  // ======================== States to be saved in the database=========================
   const saveFeatureSpecificStates = {
     sectionsArray,
     sectionHistoryArray,
@@ -119,7 +119,7 @@ function ProcessSection() {
     adLength,
   };
 
-  // ===========================Router queries
+  // =========================== Router queries ============================
   const { idx } = router.query;
 
   // #region =========================== Local states=======================================
@@ -204,36 +204,6 @@ function ProcessSection() {
 
   const handleShowNotePad = () => setShowNotePad(true);
   const handleCloseNotePad = () => setShowNotePad(false);
-
-
-  // #region ======= Stack Management Functions =======
-  const syncStackAfterNavigation = () => {
-    const globalStack = useUserInputsStore.getState().navigationStack;
-    const newStack = new Stack();
-    newStack.items = [...globalStack.items];
-    setLocalStack(newStack);
-  };
-
-  const localPushData = (newData, clone = false) => {
-    localStack.push(newData);
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-  };
-
-  const localPopData = (newData, clone = false) => {
-    let removedData = localStack.pop();
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-    return removedData;
-  };
-
-  // #endregion
 
 
   // #region : ======= Effect Hooks =======
@@ -375,7 +345,7 @@ function ProcessSection() {
     processScriptChange(updatedScript);
   };
 
-  // ===============================Change voices============================
+  // =============================== Change voices ============================
   const fetchVoiceMetaData = async (voiceName) => {
     const db = getFirestore(app);
     const voiceQuery = query(
@@ -437,7 +407,32 @@ function ProcessSection() {
     }
   };
 
-  // ===============================Page navigation==========================
+  // #region =============================== Page navigation ==========================
+  const syncStackAfterNavigation = () => {
+    const globalStack = useUserInputsStore.getState().navigationStack;
+    const newStack = new Stack();
+    newStack.items = [...globalStack.items];
+    setLocalStack(newStack);
+  };
+
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const localPopData = (newData, clone = false) => {
+    let removedData = localStack.pop();
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+    return removedData;
+  };
   const handleGoBack = () => {
     // save the current work
     const currentSectionIdx = localCurrentSectionObj.getIndex();
@@ -556,7 +551,9 @@ function ProcessSection() {
     }
   };
 
-  // =============================Voice generation================
+  // #endregion
+
+  // ============================= Voice generation ================
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
@@ -718,7 +715,7 @@ function ProcessSection() {
     }
   }
 
-  // ===============================Speech Rate==========================
+  // =============================== Speech Rate ==========================
   const manageLegacySpeechRate = (legacyValue) => {
     const legacyMapping = {
       Normal: 0,
@@ -746,13 +743,13 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  // ======================Add new section==========================
+  // ====================== Add a new section ==========================
   const handleAddNewSection = () => {
     setShowAudioPlayer(false);
     setShowSplitSectionModal(true);
   };
 
-  // ======================Replay last read=========================
+  // ====================== Replay last read =========================
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
@@ -762,7 +759,7 @@ function ProcessSection() {
     );
   };
 
-  // #region : ============== History ==================
+  // #region : ============== Section History ==================
   const changeCurrentSectionObj = (newSectionObj) => {
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("process-section-history-read-used", {
@@ -806,7 +803,7 @@ function ProcessSection() {
   // #endregion
 
 
-  // ===============Dragon Breath enhancement ==============
+  // =============== Dragon Breath enhancement ==============
   const handleDragonBreathEnhancementChange = (e) => {
     const newValue = e.target.checked;
     localCurrentSectionObj.setDragonBreathEnhancement(newValue);
@@ -815,20 +812,20 @@ function ProcessSection() {
 
 
 
-  // ================Intonation consistency=======================
+  // ================ Intonation consistency =======================
   const handleIntonationChange = (value) => {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
 
-  // ===========================Notes=======================
+  // =========================== Notes =======================
   const handleSaveNotesProp = () => {
     setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
   };
 
 
-  // =================Free style===================
+  // ================= Free style mode ====================
   const handleToggleFreeStyle = (event) => {
     const isToggled = event.target.checked;
     setS2aAdvancedFreeStyleStatus(isToggled);
