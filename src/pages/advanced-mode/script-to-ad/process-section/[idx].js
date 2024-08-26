@@ -1,3 +1,5 @@
+// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
+// =======================Generic  imports========================
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { usePostHog } from "posthog-js/react";
@@ -7,7 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-// Firebase imports
+// ========================Firebase imports=======================
 import {
   getFirestore,
   doc,
@@ -20,7 +22,7 @@ import {
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 
-// React Bootstrap components
+// ====================React Bootstrap components==================
 import {
   Card,
   Form,
@@ -34,49 +36,49 @@ import {
   DropdownButton,
 } from "react-bootstrap";
 
-// Foundation components
+// =========================Foundation components=================
 import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
 
-// Button components
+// ====================Button components=======================
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-// Misc components
+// ======================Misc components==========================
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import RenameModal from "@/components/rename-modal";
 
-// Utility functions
+// ========================Utility functions================
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
 
-// Store and HOCs
+// ====================Store and HOCs=====================
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 
-// Data structures
+// ============Data structures==========================
 import { Stack } from "@/data-structures/stack";
 
-// Middleware
+// ===========================Middleware================
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
-// Advanced mode components
+// ===================Advanced mode components===========
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
-  // Function Instantiation
+  // =================Function Instantiation===================
   const posthog = usePostHog();  // Hook
   const auth = getAuth();        // Function call
   const router = useRouter();    // Hook
   const voiceAudioPlayerRef = useRef(null);  // Hook
 
-  // Environment-specific URL
+  // ========================Environment-specific URL=========================
   const audioProcessingWebServiceUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
@@ -86,7 +88,7 @@ function ProcessSection() {
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
 
-  // Zustand store hooks
+  // =============Zustand store hooks========================
   const {
     spotId,
     spotName,
@@ -103,7 +105,7 @@ function ProcessSection() {
   } = useUserInputsStore();
 
 
-  // states to be saved in the database
+  // ========================states to be saved in the database=========================
   const saveFeatureSpecificStates = {
     sectionsArray,
     sectionHistoryArray,
@@ -117,7 +119,7 @@ function ProcessSection() {
     adLength,
   };
 
-  // Router queries
+  // ===========================Router queries
   const { idx } = router.query;
 
   // #region =========================== Local states=======================================
@@ -187,13 +189,13 @@ function ProcessSection() {
 
   // #endregion
 
-  // Constants
+  // ===============================Constants================================
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
   const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined
   const SECTOMILLISEC = 1000;
 
-  // #region : Offcanvas handlers
+  // ========================= Offcanvas Handlers =========================
   const hideOffcanvas = () => setOffcanvasVisibility(false);
   const showOffcanvas = () => setOffcanvasVisibility(true);
 
@@ -202,8 +204,6 @@ function ProcessSection() {
 
   const handleShowNotePad = () => setShowNotePad(true);
   const handleCloseNotePad = () => setShowNotePad(false);
-
-  // #endregion
 
 
   // #region ======= Stack Management Functions =======
@@ -286,34 +286,8 @@ function ProcessSection() {
 
   // #endregion
 
-  // ======= Script Validation and Alerts =======
-  const validateScript = (script, charLimit, onSuccess, onFailure) => {
-    const scriptWOApostrophe = script.replace(/'/g, "");
 
-    if (
-      !s2aAdvancedFreeStyleStatus &&
-      scriptWOApostrophe.replace(/'/g, "").length > charLimit
-    ) {
-      onFailure("error", "Oops...", "You have too many characters!");
-      return false; // Indicate failure
-    }
-    if (scriptWOApostrophe.length < 1) {
-      onFailure("error", "Oops...", "You cannot have an empty script!");
-      return false; // Indicate failure
-    }
-    onSuccess();
-    return true; // Indicate success
-  };
-
-  const showAlert = (icon, title, text) => {
-    Swal.fire({
-      icon: icon,
-      title: title,
-      text: text,
-    });
-  };
-
-  // #region ======= Word Smith Functions ======= 
+  // #region ======= Word Smith ======= 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
@@ -361,11 +335,25 @@ function ProcessSection() {
   // #endregion
 
 
-  // Handle speech rate and script processing
-  const handleSpeechRate = (value) => {
-    localCurrentSectionObj.setSpeechRate(value);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  // =================================Typing on script============================
+  const validateScript = (script, charLimit, onSuccess, onFailure) => {
+    const scriptWOApostrophe = script.replace(/'/g, "");
+
+    if (
+      !s2aAdvancedFreeStyleStatus &&
+      scriptWOApostrophe.replace(/'/g, "").length > charLimit
+    ) {
+      onFailure("error", "Oops...", "You have too many characters!");
+      return false; // Indicate failure
+    }
+    if (scriptWOApostrophe.length < 1) {
+      onFailure("error", "Oops...", "You cannot have an empty script!");
+      return false; // Indicate failure
+    }
+    onSuccess();
+    return true; // Indicate success
   };
+
 
   const processScriptChange = (newScript) => {
     setTypedText(newScript);
@@ -387,7 +375,7 @@ function ProcessSection() {
     processScriptChange(updatedScript);
   };
 
-  // Handle voice metadata and change
+  // ===============================Change voices============================
   const fetchVoiceMetaData = async (voiceName) => {
     const db = getFirestore(app);
     const voiceQuery = query(
@@ -414,7 +402,6 @@ function ProcessSection() {
       return {}; // Return an empty object in case of error
     }
   };
-
   const handleVoiceChange = async (e) => {
     const selectedVoiceName = e.target.value;
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
@@ -450,27 +437,65 @@ function ProcessSection() {
     }
   };
 
-  // Syncing data with global states
+  // ===============================Page navigation==========================
+  const handleGoBack = () => {
+    // save the current work
+    const currentSectionIdx = localCurrentSectionObj.getIndex();
+    updateLocalSectionHistoryObj({
+      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+    });
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+
+    // save the current url in the stack
+    localPushData(
+      `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
+    );
+    syncLocalStackWithGlobal();
+    handleSaveState();
+    // move to the new url
+    if (currentSectionIdx > 0) {
+      router.push(
+        "/advanced-mode/script-to-ad/process-section/[idx]",
+        `/advanced-mode/script-to-ad/process-section/${currentSectionIdx - 1}`
+      );
+    } else {
+      router.push("/advanced-mode/script-to-ad/create-sections");
+    }
+  };
+
+
+  const handleSaveState = () => {
+    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    const tmpHistoryArray = addCurrentSectionHistoryToArray(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
+
+    updateExistingSpotInDb({
+      spotId: spotId,
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
   };
 
-  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
-    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
-    const updatedArray = [
-      ...currentArray.slice(0, index),
-      newSectionHistoryObj,
-      ...currentArray.slice(index + 1),
-    ];
-    return updatedArray;
-  };
-
-  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
-    const updatedArray = addCurrentSectionHistoryToArray(index, newSectionHistoryObj);
-    setSectionHistoryArray(updatedArray);
-  };
-
-  // Handling voice updates across all sections
   const updateVoiceForAllSections = (currentIndex) => {
     localSectionsArray.forEach((section, index) => {
       if (index > currentIndex && localSectionsArray[currentIndex + 1]?.getHistoryItemId() !== null) {
@@ -489,7 +514,6 @@ function ProcessSection() {
     });
   };
 
-  // Form submission handling
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!localCurrentSectionObj.getHistoryItemId()) {
@@ -532,38 +556,7 @@ function ProcessSection() {
     }
   };
 
-  // User authentication handling
-  const handleLogout = () => {
-    resetUserInputsStore();
-    localStorage.removeItem("user");
-    auth
-      .signOut()
-      .then(() => {
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.error("Logout Error:", error);
-      });
-  };
-
-  // Script and history management
-  const getFinalScript = () => {
-    return ogScriptWordsArray
-      .map((word, index) => transformedWords[index] || word)
-      .join(" ");
-  };
-
-  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
-    setLocalSectionHistoryObj((prevMap) => {
-      const updatedMap = new Map(prevMap);
-      for (const [key, value] of Object.entries(newKeyValuePair)) {
-        updatedMap.set(key, value);
-      }
-      return updatedMap;
-    });
-  };
-
-  // Voice generation handling
+  // =============================Voice generation================
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
@@ -650,8 +643,6 @@ function ProcessSection() {
     }
   }
 
-
-  // Voice Generation Management
   async function generateVoiceWithCustomPreprocess(
     script,
     voiceId,
@@ -727,6 +718,7 @@ function ProcessSection() {
     }
   }
 
+  // ===============================Speech Rate==========================
   const manageLegacySpeechRate = (legacyValue) => {
     const legacyMapping = {
       Normal: 0,
@@ -749,6 +741,18 @@ function ProcessSection() {
     return 0;
   };
 
+  const handleSpeechRate = (value) => {
+    localCurrentSectionObj.setSpeechRate(value);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
+  // ======================Add new section==========================
+  const handleAddNewSection = () => {
+    setShowAudioPlayer(false);
+    setShowSplitSectionModal(true);
+  };
+
+  // ======================Replay last read=========================
   const handleVoicePreviewPlayButton = () => {
     setAllowDownload(false);
     setShowAudioPlayer(true);
@@ -758,60 +762,7 @@ function ProcessSection() {
     );
   };
 
-  // Audio Handling
-  function getAudioDuration(url) {
-    return new Promise((resolve, reject) => {
-      const audio = new Audio(url);
-      audio.addEventListener("loadedmetadata", () => {
-        resolve(audio.duration);
-      });
-      audio.addEventListener("error", reject);
-    });
-  }
-
-  const playAudioUrl = (audioUrl) => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
-    setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(audioUrl);
-  };
-
-  //  #region =======  Section Management  =======
-  const handleAddNewSection = () => {
-    setShowAudioPlayer(false);
-    setShowSplitSectionModal(true);
-  };
-
-  const handleGoBack = () => {
-    // save the current work
-    const currentSectionIdx = localCurrentSectionObj.getIndex();
-    updateLocalSectionHistoryObj({
-      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
-    });
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
-    setSectionsArray(localSectionsArray);
-
-    // save the current url in the stack
-    localPushData(
-      `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
-    );
-    syncLocalStackWithGlobal();
-    handleSaveState();
-    // move to the new url
-    if (currentSectionIdx > 0) {
-      router.push(
-        "/advanced-mode/script-to-ad/process-section/[idx]",
-        `/advanced-mode/script-to-ad/process-section/${currentSectionIdx - 1}`
-      );
-    } else {
-      router.push("/advanced-mode/script-to-ad/create-sections");
-    }
-  };
-
+  // #region : ============== History ==================
   const changeCurrentSectionObj = (newSectionObj) => {
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("process-section-history-read-used", {
@@ -822,31 +773,117 @@ function ProcessSection() {
     }
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
-
-  const handleSaveState = () => {
-    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
-    setSectionsArray(localSectionsArray);
-    // can't wait for above function to finish so repeat it without saving to zustand.
-    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    // can't wait for above function to finish so repeat it without saving to zustand.
-    const tmpHistoryArray = addCurrentSectionHistoryToArray(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
-
-    updateExistingSpotInDb({
-      spotId: spotId,
-      mode: "advanced-script-to-ad",
-      modeSpecificStates: saveFeatureSpecificStates,
-      sharedStates: saveSharedStates,
-    });
+  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
+    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
+    const updatedArray = [
+      ...currentArray.slice(0, index),
+      newSectionHistoryObj,
+      ...currentArray.slice(index + 1),
+    ];
+    return updatedArray;
   };
 
+  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
+    const updatedArray = addCurrentSectionHistoryToArray(index, newSectionHistoryObj);
+    setSectionHistoryArray(updatedArray);
+  };
+
+  const playAudioUrl = (audioUrl) => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(audioUrl);
+  };
+  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
+    setLocalSectionHistoryObj((prevMap) => {
+      const updatedMap = new Map(prevMap);
+      for (const [key, value] of Object.entries(newKeyValuePair)) {
+        updatedMap.set(key, value);
+      }
+      return updatedMap;
+    });
+  };
+  // #endregion
+
+
+  // ===============Dragon Breath enhancement ==============
+  const handleDragonBreathEnhancementChange = (e) => {
+    const newValue = e.target.checked;
+    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
+
+
+  // ================Intonation consistency=======================
+  const handleIntonationChange = (value) => {
+    localCurrentSectionObj.setVoiceIntonationConsistency(value);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
+
+  // ===========================Notes=======================
+  const handleSaveNotesProp = () => {
+    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
+  };
+
+
+  // =================Free style===================
+  const handleToggleFreeStyle = (event) => {
+    const isToggled = event.target.checked;
+    setS2aAdvancedFreeStyleStatus(isToggled);
+    if (isToggled) {
+      toast.warn("Your spot might go over the intended length");
+    }
+  };
+
+
+  // ===============Replay Last Read =================
+  const handleReadReplayButton = () => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+  };
+
+
+  // #region : ============== Misc functions ================
+  function getAudioDuration(url) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(url);
+      audio.addEventListener("loadedmetadata", () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", reject);
+    });
+  }
+
+  const handleLogout = () => {
+    resetUserInputsStore();
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
+
+  const getFinalScript = () => {
+    return ogScriptWordsArray
+      .map((word, index) => transformedWords[index] || word)
+      .join(" ");
+  };
+
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+    });
+  };
   const updateSectionDetails = (sectionToUpdate) => {
     const currentIdx = sectionToUpdate.getIndex();
 
@@ -881,43 +918,6 @@ function ProcessSection() {
     setProgressBarPercentage(newProgressBarPercentage);
     setSecondsYouHaveLeft(newSecondsLeft);
     setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
-  };
-  // #endregion
-
-
-  // #region =======================UI Handling and State Management======================
-  const handleDragonBreathEnhancementChange = (e) => {
-    const newValue = e.target.checked;
-    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-  };
-
-  const handleReadReplayButton = () => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
-    setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
-  };
-
-  const handleIntonationChange = (value) => {
-    localCurrentSectionObj.setVoiceIntonationConsistency(value);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-  };
-
-  const resetSpeechRate = () => {
-    handleSpeechRate(0); // Or however you want to reset the speech rate
-  };
-
-  const handleSaveNotesProp = () => {
-    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
-  };
-
-  const handleToggleFreeStyle = (event) => {
-    const isToggled = event.target.checked;
-    setS2aAdvancedFreeStyleStatus(isToggled);
-    if (isToggled) {
-      toast.warn("Your spot might go over the intended length");
-    }
   };
   // #endregion
 
