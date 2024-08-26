@@ -122,7 +122,7 @@ function ProcessSection() {
   // =========================== Router queries ============================
   const { idx } = router.query;
 
-  // #region =========================== Local states=======================================
+  // #region =========================== Use states (local states) =======================================
   const [currentSectionIndex, setCurrentSectionIndex] = useState(parseInt(idx, 10));
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
@@ -195,17 +195,6 @@ function ProcessSection() {
   const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined
   const SECTOMILLISEC = 1000;
 
-  // ========================= Offcanvas Handlers =========================
-  const hideOffcanvas = () => setOffcanvasVisibility(false);
-  const showOffcanvas = () => setOffcanvasVisibility(true);
-
-  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
-  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
-
-  const handleShowNotePad = () => setShowNotePad(true);
-  const handleCloseNotePad = () => setShowNotePad(false);
-
-
   // #region : ======= Effect Hooks =======
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
@@ -258,6 +247,9 @@ function ProcessSection() {
 
 
   // #region ======= Word Smith ======= 
+  const hideOffcanvas = () => setOffcanvasVisibility(false);
+  const showOffcanvas = () => setOffcanvasVisibility(true);
+
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
@@ -324,7 +316,6 @@ function ProcessSection() {
     return true; // Indicate success
   };
 
-
   const processScriptChange = (newScript) => {
     setTypedText(newScript);
     const newWords = newScript.split(" ");
@@ -345,7 +336,7 @@ function ProcessSection() {
     processScriptChange(updatedScript);
   };
 
-  // =============================== Change voices ============================
+  // =============================== Change voices ================================
   const fetchVoiceMetaData = async (voiceName) => {
     const db = getFirestore(app);
     const voiceQuery = query(
@@ -760,6 +751,9 @@ function ProcessSection() {
   };
 
   // #region : ============== Section History ==================
+  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
+  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
+
   const changeCurrentSectionObj = (newSectionObj) => {
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("process-section-history-read-used", {
@@ -820,6 +814,9 @@ function ProcessSection() {
 
 
   // =========================== Notes =======================
+  const handleShowNotePad = () => setShowNotePad(true);
+  const handleCloseNotePad = () => setShowNotePad(false);
+
   const handleSaveNotesProp = () => {
     setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
   };
