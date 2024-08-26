@@ -44,7 +44,7 @@ import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-// Other components
+// Misc components
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import RenameModal from "@/components/rename-modal";
 
@@ -102,6 +102,8 @@ function ProcessSection() {
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+
+  // states to be saved in the database
   const saveFeatureSpecificStates = {
     sectionsArray,
     sectionHistoryArray,
@@ -118,7 +120,7 @@ function ProcessSection() {
   // Router queries
   const { idx } = router.query;
 
-  // local states
+  // #region =========================== Local states=======================================
   const [currentSectionIndex, setCurrentSectionIndex] = useState(parseInt(idx, 10));
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
@@ -172,12 +174,18 @@ function ProcessSection() {
 
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
 
-  // Modal and option states
+  // Modal states
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
+
+  const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
+
+  // Misc states
   const [forceRenderKey, setForceRenderKey] = useState(0);
   const [showOptions, setShowOptions] = useState(false); // State to control options visibility
-  const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
+
+
+  // #endregion
 
   // Constants
   const restrictedVoices = ["Evan (Cloned)"];
@@ -185,7 +193,7 @@ function ProcessSection() {
   const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined
   const SECTOMILLISEC = 1000;
 
-  // Offcanvas handlers
+  // #region : Offcanvas handlers
   const hideOffcanvas = () => setOffcanvasVisibility(false);
   const showOffcanvas = () => setOffcanvasVisibility(true);
 
@@ -195,8 +203,10 @@ function ProcessSection() {
   const handleShowNotePad = () => setShowNotePad(true);
   const handleCloseNotePad = () => setShowNotePad(false);
 
+  // #endregion
 
-  // ======= Stack Management Functions =======
+
+  // #region ======= Stack Management Functions =======
   const syncStackAfterNavigation = () => {
     const globalStack = useUserInputsStore.getState().navigationStack;
     const newStack = new Stack();
@@ -223,8 +233,10 @@ function ProcessSection() {
     return removedData;
   };
 
+  // #endregion
 
-  // ======= Effect Hooks for Initialization and Updates =======
+
+  // #region : ======= Effect Hooks =======
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
     syncStackAfterNavigation();
@@ -272,6 +284,8 @@ function ProcessSection() {
     fetchVoiceOptions();
   }, []);
 
+  // #endregion
+
   // ======= Script Validation and Alerts =======
   const validateScript = (script, charLimit, onSuccess, onFailure) => {
     const scriptWOApostrophe = script.replace(/'/g, "");
@@ -299,7 +313,7 @@ function ProcessSection() {
     });
   };
 
-  // #region ======= Word Transformation Handling ======= 
+  // #region ======= Word Smith Functions ======= 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
