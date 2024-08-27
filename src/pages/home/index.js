@@ -463,7 +463,7 @@ const Home = () => {
       }}
     >
       {/* <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} /> */}
-      <Sidebar onCreateClick={handleCreateAdClick} />
+      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} />
       <Container
         fluid
         style={{

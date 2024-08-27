@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { Nav, Dropdown } from 'react-bootstrap';
 
-const Sidebar = ({ onCreateClick }) => {
+const Sidebar = ({ onCreateClick, onLogoutClick }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
     const toggleCollapse = () => {
         setCollapsed(!collapsed);
         console.log('Sidebar collapsed:', !collapsed);
-    };
-
-    const handleCreateClick = () => {
-        console.log('Create clicked');
     };
 
     const handleHomeClick = () => {
@@ -46,11 +42,6 @@ const Sidebar = ({ onCreateClick }) => {
         setShowDropdown(!showDropdown);
         console.log('Profile clicked');
     };
-
-    const handleSignOutClick = () => {
-        console.log('Sign out clicked');
-    };
-
     return (
         <div style={{ position: 'relative', display: 'flex' }}>
             <Nav
@@ -245,7 +236,7 @@ const Sidebar = ({ onCreateClick }) => {
                             {!collapsed && <span>Kaveen Jayamanna</span>}
                         </div>
                         <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
-                            <Dropdown.Item onClick={handleSignOutClick}>
+                            <Dropdown.Item onClick={onLogoutClick}>
                                 <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
                                 Sign out
                             </Dropdown.Item>
