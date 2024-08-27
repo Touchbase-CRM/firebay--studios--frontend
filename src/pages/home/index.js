@@ -462,8 +462,7 @@ const Home = () => {
         flexDirection: "row",
       }}
     >
-      {/* <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} /> */}
-      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} />
+      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification} />
       <Container
         fluid
         style={{

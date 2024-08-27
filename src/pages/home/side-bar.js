@@ -1,9 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Nav, Dropdown } from 'react-bootstrap';
+import { NotificationsPad } from "./notifications-pad";
 
-const Sidebar = ({ onCreateClick, onLogoutClick }) => {
+
+const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [internalNotifications, setInternalNotifications] = useState(notifications || []);
+
+    const handleClose = () => setShowNotifications(false);
+    const handleShow = () => setShowNotifications(true);
+
+    useEffect(() => {
+        if (notifications) {
+            setInternalNotifications(notifications);
+        }
+    }, [notifications]);
+
 
     const toggleCollapse = () => {
         setCollapsed(!collapsed);
@@ -154,8 +168,8 @@ const Sidebar = ({ onCreateClick, onLogoutClick }) => {
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link
-                        onClick={handleNotificationsClick}
-                        className="d-flex align-items-center"
+                        onClick={handleShow}
+                        className="d-flex align-items-center position-relative"
                         style={{
                             color: '#000000',
                             padding: '10px 20px',
@@ -165,9 +179,25 @@ const Sidebar = ({ onCreateClick, onLogoutClick }) => {
                         }}
                     >
                         <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                        {internalNotifications.length > 0 && (
+                            <span
+                                className="badge text-bg-secondary"
+                                style={{
+                                    position: 'absolute',
+                                    top: '8px', // Adjusted top position for better alignment
+                                    right: collapsed ? '10px' : '30px', // Adjusted right position for better alignment
+                                    fontSize: '12px',
+                                    padding: '4px 6px', // Added padding for a more consistent look
+                                    borderRadius: '10px', // Making the badge circular
+                                }}
+                            >
+                                {internalNotifications.length}
+                            </span>
+                        )}
                         {!collapsed && 'Notifications'}
                     </Nav.Link>
                 </Nav.Item>
+
                 <hr style={{ width: collapsed ? '50px' : '220px' }} />
                 <Nav.Item>
                     <Nav.Link
@@ -271,6 +301,14 @@ const Sidebar = ({ onCreateClick, onLogoutClick }) => {
                     }}
                 ></i>
             </div>
+            {notifications && (
+                <NotificationsPad
+                    show={showNotifications}
+                    handleClose={handleClose}
+                    notifications={internalNotifications}
+                    deleteNotification={deleteNotification}
+                />
+            )}
         </div>
     );
 };
