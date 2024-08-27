@@ -58,10 +58,10 @@ const Sidebar = () => {
             >
                 <Nav.Item className="mb-3">
                     <img
-                        src="/White mic horizontal.png"
+                        src={collapsed ? "/fire.png" : "/White mic horizontal.png"}
                         alt="Firebay Studios Logo"
                         style={{
-                            width: collapsed ? '60px' : '200px',
+                            width: collapsed ? '40px' : '150px', // Adjust these values as needed
                             marginBottom: '0px',
                             transition: 'width 0.3s',
                             display: 'block',
@@ -70,6 +70,7 @@ const Sidebar = () => {
                         }}
                     />
                 </Nav.Item>
+
                 {!collapsed && (
                     <Nav.Item className="mb-3">
                         <button
@@ -94,7 +95,7 @@ const Sidebar = () => {
                         onClick={handleHomeClick}
                         className="d-flex align-items-center"
                         style={{
-                            backgroundColor: '#f6f6f6',
+                            // backgroundColor: '#f6f6f6',
                             color: '#000000',
                             padding: '10px 20px',
                             borderRadius: '5px',
@@ -170,7 +171,7 @@ const Sidebar = () => {
                         {!collapsed && 'Notifications'}
                     </Nav.Link>
                 </Nav.Item>
-                <hr />
+                <hr style={{ width: collapsed ? '50px' : '220px' }} />
                 <Nav.Item>
                     <Nav.Link
                         onClick={handleSettingsClick}
