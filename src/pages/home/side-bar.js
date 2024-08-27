@@ -224,7 +224,8 @@ const Sidebar = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                marginRight: collapsed ? '0' : '10px',
+                                marginRight: collapsed ? '0px' : '10px',
+                                marginLeft: "-6px",
                                 color: '#000000',
                                 fontWeight: 'bold',
                             }}
@@ -238,10 +239,10 @@ const Sidebar = () => {
             <div
                 style={{
                     position: 'absolute',
-                    bottom: '20px',
+                    bottom: '25px',
                     right: collapsed ? '-20px' : '-10px',
-                    width: '40px',
-                    height: '40px',
+                    width: '30px',
+                    height: '30px',
                     borderRadius: '50%',
                     backgroundColor: '#eb631c',
                     display: 'flex',
@@ -255,7 +256,7 @@ const Sidebar = () => {
                 <i
                     className={`bi ${collapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}
                     style={{
-                        fontSize: '24px',
+                        fontSize: '20px',
                         color: '#ffffff',
                     }}
                 ></i>
