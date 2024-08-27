@@ -4,6 +4,8 @@ import { Table, Dropdown, DropdownButton, Row, Col, Alert, Button } from "react-
 import { GenericModal } from "@/components/foundation-components/modal";
 import { DownloadLogsModal } from "./download-logs-modal";
 
+const { useState } = React;
+
 const SpotTable = ({
   spots,
   handleSpotActions,
@@ -33,6 +35,8 @@ const SpotTable = ({
   downloadLogs,
   unitPrice,
 }) => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
   const handleNextPage = () => {
     if (currentTableIndex + pageSize < totalSpots) {
       setCurrentTableIndex(currentTableIndex + pageSize);
@@ -43,6 +47,9 @@ const SpotTable = ({
     if (currentTableIndex - pageSize >= 0) {
       setCurrentTableIndex(currentTableIndex - pageSize);
     }
+  };
+  const handleDropdownToggle = (index) => {
+    setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
   };
 
   return (
@@ -73,21 +80,43 @@ const SpotTable = ({
                 <td>{spot.duration || "-"}</td>
                 <td>{spot.created || "-"}</td>
                 <td>
-                  <DropdownButton
-                    id="dropdown-basic-button"
-                    title="⋮"
-                    variant="link"
-                    onSelect={(eventKey) => handleSpotActions[eventKey](spot.id)}
+                  <Dropdown
+                    drop="up"
+                    show={activeDropdown === index}
+                    onToggle={() => { }}
                   >
-                    <Dropdown.Item eventKey="downloadHistory">Download Logs</Dropdown.Item>
-                    <Dropdown.Item eventKey="copy">Duplicate Spot</Dropdown.Item>
-                    <Dropdown.Item eventKey="rename">Rename Spot</Dropdown.Item>
-                    <Dropdown.Item eventKey="edit">Edit Spot</Dropdown.Item>
-                    <Dropdown.Item eventKey="delete">Delete Spot</Dropdown.Item>
-                  </DropdownButton>
+                    <div
+                      onClick={() => handleDropdownToggle(index)}
+                      style={{
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <i className="bi bi-three-dots"></i>
+                    </div>
+                    <Dropdown.Menu align="up-centered" style={{ bottom: '100%' }}>
+                      <Dropdown.Item onClick={() => handleSpotActions["downloadHistory"](spot.id)}>
+                        Download Logs
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSpotActions["copy"](spot.id)}>
+                        Duplicate Spot
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSpotActions["rename"](spot.id)}>
+                        Rename Spot
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSpotActions["edit"](spot.id)}>
+                        Edit Spot
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSpotActions["delete"](spot.id)}>
+                        Delete Spot
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </td>
               </tr>
             ))}
+
           </tbody>
         </Table>
       )}
