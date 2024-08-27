@@ -141,8 +141,8 @@ const Sidebar = () => {
                             fontSize: '14px',
                         }}
                     >
-                        <i className="bi bi-star" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                        {!collapsed && 'Starred'}
+                        <i className="bi bi-tags" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                        {!collapsed && 'Tagging'}
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
