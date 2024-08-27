@@ -59,7 +59,7 @@ const Sidebar = () => {
                     width: collapsed ? '80px' : '250px',
                     backgroundColor: '#ffffff',
                     borderRight: '1px solid #e0e0e0',
-                    transition: 'width 0.1s',
+                    transition: 'width 0s',
                     width: collapsed ? '90px' : '250px',
                 }}
             >
