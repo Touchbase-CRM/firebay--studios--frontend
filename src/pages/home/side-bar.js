@@ -240,7 +240,7 @@ const Sidebar = () => {
                 style={{
                     position: 'absolute',
                     bottom: '25px',
-                    right: collapsed ? '-20px' : '-10px',
+                    right: '-15px',
                     width: '30px',
                     height: '30px',
                     borderRadius: '50%',
