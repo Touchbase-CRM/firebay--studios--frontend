@@ -65,8 +65,8 @@ const Sidebar = () => {
                             marginBottom: '0px',
                             transition: 'width 0.3s',
                             display: 'block',
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
+                            marginLeft: collapsed ? '8px' : 'auto', // Adjust the left margin when collapsed
+                            marginRight: collapsed ? '15px' : 'auto', // Adjust the right margin when collapsed
                         }}
                     />
                 </Nav.Item>
