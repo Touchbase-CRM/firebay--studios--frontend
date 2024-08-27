@@ -48,6 +48,7 @@ const SpotTable = ({
       setCurrentTableIndex(currentTableIndex - pageSize);
     }
   };
+
   const handleDropdownToggle = (index) => {
     setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
   };
@@ -59,8 +60,8 @@ const SpotTable = ({
           Welcome to Pyro! Click on the "Create a new Spot" button above to get started!
         </Alert>
       ) : (
-        <Table style={{ padding: 0, margin: 0 }}>
-          <thead>
+        <Table style={{ padding: 0, margin: 0 }} borderless>
+          <thead style={{ borderBottom: "3px solid black" }}>
             <tr>
               <th>#</th>
               <th>Ad Name</th>
@@ -71,15 +72,15 @@ const SpotTable = ({
             </tr>
           </thead>
 
-          <tbody>
+          <tbody style={{ border: "none" }}>
             {spots.map((spot, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{spot.spotName || "-"}</td>
-                <td>{spot.voice || "-"}</td>
-                <td>{spot.duration || "-"}</td>
-                <td>{spot.created || "-"}</td>
-                <td>
+              <tr key={index} style={{ border: "none" }}>
+                <td style={{ border: "none" }}>{index + 1}</td>
+                <td style={{ border: "none" }}>{spot.spotName || "-"}</td>
+                <td style={{ border: "none" }}>{spot.voice || "-"}</td>
+                <td style={{ border: "none" }}>{spot.duration || "-"}</td>
+                <td style={{ border: "none" }}>{spot.created || "-"}</td>
+                <td style={{ border: "none" }}>
                   <Dropdown
                     drop="up"
                     show={activeDropdown === index}
@@ -116,7 +117,6 @@ const SpotTable = ({
                 </td>
               </tr>
             ))}
-
           </tbody>
         </Table>
       )}
