@@ -529,8 +529,6 @@ const Home = () => {
               pageSize={pageSize}
               totalSpots={spots.length}
               totalDownloads={totalDownloads}
-            />
-            <ManageSpotTableActions
               showCopyModal={showCopyModal}
               showRenameModal={showRenameModal}
               newSpotName={newSpotName}
@@ -552,6 +550,7 @@ const Home = () => {
               downloadLogs={downloadLogs}
               unitPrice={unitPrice}
             />
+
           </>
         )}
       </Container>

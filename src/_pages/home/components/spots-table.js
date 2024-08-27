@@ -1,5 +1,8 @@
+// relative path: src/_pages/home/components/spots-table.js. Please do not remove this comment.
 import React from "react";
 import { Table, Button, Row, Col, Alert } from "react-bootstrap";
+import { GenericModal } from "@/components/foundation-components/modal";
+import { DownloadLogsModal } from "./download-logs-modal";
 
 const SpotTable = ({
   spots,
@@ -9,6 +12,26 @@ const SpotTable = ({
   pageSize,
   totalSpots,
   totalDownloads,
+  showCopyModal,
+  showRenameModal,
+  newSpotName,
+  setNewSpotName,
+  showCreateAdModal,
+  adName,
+  setAdName,
+  setShowCreateAdModal,
+  handleNextOnCreateAd,
+  setShowCopyModal,
+  newCopySpotName,
+  setNewCopySpotName,
+  handleCloseModal,
+  updateSpotName,
+  handleSaveCopy,
+  setShowRenameModal,
+  showDownloadLogsModal,
+  setShowDownloadLogsModal,
+  downloadLogs,
+  unitPrice,
 }) => {
   const handleNextPage = () => {
     if (currentTableIndex + pageSize < totalSpots) {
@@ -169,6 +192,69 @@ const SpotTable = ({
           )}
         </Col>
       </Row>
+
+      <DownloadLogsModal
+        show={showDownloadLogsModal}
+        handleClose={() => setShowDownloadLogsModal(false)}
+        downloadLogs={downloadLogs}
+        unitPrice={unitPrice}
+      />
+
+      <GenericModal
+        show={showCopyModal}
+        onHide={() => setShowCopyModal(false)}
+        title="Copy Spot"
+        onSave={handleSaveCopy}
+        closeButtonLabel="Cancel"
+        saveButtonLabel="Copy"
+      >
+        <input
+          type="text"
+          value={newCopySpotName}
+          onChange={(e) => setNewCopySpotName(e.target.value)}
+          className="form-control"
+          placeholder="Enter the new Spot name"
+        />
+      </GenericModal>
+
+      <GenericModal
+        show={showRenameModal}
+        onHide={() => {
+          setShowRenameModal(false);
+          setNewSpotName("");
+        }}
+        title="Rename Spot"
+        onSave={updateSpotName}
+        closeButtonLabel="Cancel"
+        saveButtonLabel="Save"
+        maxLength={30}
+      >
+        <input
+          type="text"
+          value={newSpotName}
+          onChange={(e) => setNewSpotName(e.target.value)}
+          className="form-control"
+          placeholder="Enter the new Spot name"
+        />
+      </GenericModal>
+
+      <GenericModal
+        show={showCreateAdModal}
+        onHide={() => setShowCreateAdModal(false)}
+        title="Enter Spot Name"
+        onSave={handleNextOnCreateAd}
+        closeButtonLabel="Discard"
+        saveButtonLabel="Next"
+        maxLength={30}
+      >
+        <input
+          type="text"
+          value={adName}
+          onChange={(e) => setAdName(e.target.value)}
+          className="form-control"
+          placeholder="Type the Spot name here"
+        />
+      </GenericModal>
     </div>
   );
 };
