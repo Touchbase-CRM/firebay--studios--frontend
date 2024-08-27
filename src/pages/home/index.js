@@ -33,7 +33,8 @@ import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
-import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
+import Spinner from "@/components/spinner/spinner";
+import Sidebar from './side-bar';
 
 const Home = () => {
   const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
@@ -453,10 +454,11 @@ const Home = () => {
         backgroundColor: "#FFFFFF",
         minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
       }}
     >
-      <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} />
+      {/* <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} /> */}
+      <Sidebar />
       <Container
         fluid
         style={{
@@ -571,4 +573,6 @@ const Home = () => {
   );
 };
 
-export default withAuth(Home);
+// export default withAuth(Home);
+export default Home;
+
