@@ -1092,7 +1092,13 @@ function ProcessSection() {
                       <PlayButton onClickHandler={handleVoicePreviewPlayButton} handlerArgs={[]} size="32px" preventDefault={true} />
                     </div>
                   )}
+                  <div className="d-flex align-items-center mt-1" style={{ marginLeft: '2px' }}>
+                    <a href="/advanced-mode/script-to-ad/voice-discovery" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.875rem', color: '#007bff', textDecoration: 'none' }}>
+                      Advanced Voice Discovery
+                    </a>
+                  </div>
                 </Form.Group>
+
                 <Form.Group controlId="freeStyleToggle" className="d-flex align-items-center mt-2">
                   <Form.Label className="mb-0 me-3" style={{ fontSize: "0.875rem" }}>Free Style Mode</Form.Label>
                   <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-info">Pyro Tip: Enable free-style mode to lift up chatacter limits</Tooltip>}>
