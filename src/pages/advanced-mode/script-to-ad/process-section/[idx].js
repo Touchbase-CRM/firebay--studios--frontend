@@ -1,4 +1,37 @@
+
+/* DO NOT DELETE THIS COMMENT under any circumstance.
+Title: How src/pages/advanced-mode/script-to-ad/process-section/[idx].js should be organized when you update it.
+In this file, ===== xxxx ====== indicates the theme of the code block. 
+When you are adding a new feature, create a new theme that explains the feature you are building.
+For example, if you are adding a new audio filter, create a new theme called "Audio Filter" and add all the parent code blocks under it.
+Shared code blocks should be organized under the "Misc Functions" theme. Existing themes must be maintained.
+Any theme that is too long to read without scrolling, must be place within #region :  <theme name> #endregion to make it compact.
+*/
+
+// ======================= Generic  imports ========================
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { usePostHog } from "posthog-js/react";
+import Swal from "sweetalert2";
+import _ from "lodash";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+// ======================== Firebase imports =======================
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import app from "@/firebase";
+
+// ==================== React Bootstrap components ==================
 import {
   Card,
   Form,
@@ -11,60 +44,60 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import { useRouter } from "next/router";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  collection,
-  where,
-} from "firebase/firestore";
-import _ from "lodash";
-import { getAuth } from "firebase/auth";
-import app from "@/firebase";
-import { usePostHog } from "posthog-js/react";
-import Swal from "sweetalert2";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+// ========================= Foundation components =================
 import FireToggle from '@/components/foundation-components/fire-toggle';
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import FireSlider from "@/components/foundation-components/slider";
-import SimpleAudioPlayer from "@/components/simple-audio-player";
+
+// ==================== Button components =======================
 import BackButton from "@/components/buttons/back-button";
 import { PlayButton } from "@/components/buttons/play-button/play";
-import RenameModal from "@/components/rename-modal";
 import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
 
-import useUserInputsStore from "@/store/user-inputs";
-import withAuth from "@/hocs/with-auth";
-import { Stack } from "@/data-structures/stack";
+// ====================== Misc components ==========================
+import SimpleAudioPlayer from "@/components/simple-audio-player";
+import RenameModal from "@/components/rename-modal";
 
+// ======================== Utility functions ================
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
 
+// ==================== Store and HOCs =====================
+import useUserInputsStore from "@/store/user-inputs";
+import withAuth from "@/hocs/with-auth";
+
+// ============ Data structures ==========================
+import { Stack } from "@/data-structures/stack";
+
+// =========================== Middleware ================
+import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
+
+// =================== Advanced mode components ===========
 import { HistoryCanvas } from "@/_pages/advanced-mode/script-to-ad/process-section/components/history-canvas";
 import WordSmithOffcanvas from "@/_pages/advanced-mode/script-to-ad/process-section/components/word-smith";
 import NotePad from "@/_pages/advanced-mode/script-to-ad/process-section/components/note-pad";
 import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 
 function ProcessSection() {
-  const posthog = usePostHog();
-  const auth = getAuth();
+  // ================= Function Instantiation ===================
+  const posthog = usePostHog();  // Hook
+  const auth = getAuth();        // Function call
+  const router = useRouter();    // Hook
+  const voiceAudioPlayerRef = useRef(null);  // Hook
 
-  const router = useRouter();
-  const voiceAudioPlayerRef = useRef(null);
-  // prettier-ignore
-  const audioProcessingWebServiceUrl = process.env.NODE_ENV === "development"
-    ? "http://localhost:8000"
-    : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+  // ======================== Environment-specific URL =========================
+  const audioProcessingWebServiceUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8000"
+      : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 
-  // Zustand store hooks
+  const baseVoicePreviewsUrl =
+    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
+
+  // ============= Zustand store hooks ========================
   const {
     spotId,
     spotName,
@@ -75,12 +108,13 @@ function ProcessSection() {
     setSectionHistoryArray,
     adLength,
     numSectionsIdentified,
-    setNumSectionsIdentified,
     s2aAdvancedFreeStyleStatus,
     setS2aAdvancedFreeStyleStatus,
     reset: resetUserInputsStore,
   } = useUserInputsStore();
 
+
+  // ======================== States to be saved in the database=========================
   const saveFeatureSpecificStates = {
     sectionsArray,
     sectionHistoryArray,
@@ -94,41 +128,26 @@ function ProcessSection() {
     adLength,
   };
 
+  // =========================== Router queries ============================
   const { idx } = router.query;
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(
-    parseInt(idx, 10)
-  );
 
+  // #region =========================== Use states (local states) =======================================
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(parseInt(idx, 10));
   const [voiceOptions, setVoiceOptions] = useState([]);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(() => {
-    return sectionsArray?.[currentSectionIndex].clone() || null;
+    return sectionsArray?.[currentSectionIndex]?.clone() || null;
   });
-
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
   const [localSectionHistoryObj, setLocalSectionHistoryObj] = useState(
     sectionHistoryArray[currentSectionIndex] || null
   );
-  const [localStack, setLocalStack] = useState(() => new Stack()); //@TODO: Rename this variable to localNavigationStack
-  const syncStackWithGlobal = useUserInputsStore(
-    (state) => state.setNavigationStack
-  );
+  const [localStack, setLocalStack] = useState(() => new Stack()); // TODO: Rename this variable to localNavigationStack
+  const syncStackWithGlobal = useUserInputsStore((state) => state.setNavigationStack);
 
   const [offcanvasVisible, setOffcanvasVisibility] = useState(false);
   const [historyOffcanvasVisible, setHistoryOffcanvasVisibility] = useState(false);
-
-  const hideOffcanvas = () => setOffcanvasVisibility(false);
-  const showOffcanvas = () => {
-    setOffcanvasVisibility(true);
-  };
-
-  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
-  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
-
   const [showNotePad, setShowNotePad] = useState(false);
-
-  const handleShowNotePad = () => setShowNotePad(true);
-  const handleCloseNotePad = () => setShowNotePad(false);
 
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
@@ -154,7 +173,7 @@ function ProcessSection() {
       100
     )
   );
-  const [secondsYouhaveLeft, setSecondsYouHaveLeft] = useState(
+  const [secondsYouHaveLeft, setSecondsYouHaveLeft] = useState(
     adLength -
     (previousSectionsTotalDuration +
       localCurrentSectionObj.getSectionDurationSeconds())
@@ -163,63 +182,29 @@ function ProcessSection() {
   const [generatedVoiceUrl, setGeneratedVoiceUrl] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [allowDownload, setAllowDownload] = useState(false);
+
   var charLimit = localCurrentSectionObj.getOriginalCharCount(); // Calculate character limit based on the ad length
 
-  // State for managing modal visibility and spot name editing
+  // Modal states
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
-  const [forceRenderKey, setForceRenderKey] = useState(0);
-  const [showOptions, setShowOptions] = useState(false); // State to control options visibility
+
   const [showSplitSectionModal, setShowSplitSectionModal] = useState(false);
 
+  // Misc states
+  const [forceRenderKey, setForceRenderKey] = useState(0);
+  const [showOptions, setShowOptions] = useState(false); // State to control options visibility
+
+
+  // #endregion
+
+  // ===============================Constants================================
   const restrictedVoices = ["Evan (Cloned)"];
   const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
-  const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined.
+  const ADDITIONALWAITTIME = 6000; // 5 seconds; Experimentally determined
   const SECTOMILLISEC = 1000;
 
-  const syncStackAfterNavigation = () => {
-    const globalStack = useUserInputsStore.getState().navigationStack;
-    const newStack = new Stack();
-    newStack.items = [...globalStack.items];
-    setLocalStack(newStack);
-  };
-
-  const updateSectionDetails = (sectionToUpdate) => {
-    const currentIdx = sectionToUpdate.getIndex();
-
-    // Update dependent states based on the new current section
-    setOgScriptWordsArray(
-      sectionToUpdate.getOriginalContent()
-        ? sectionToUpdate.getCurrentWords()
-        : []
-    );
-    setTypedText(
-      sectionToUpdate.getOriginalContent()
-        ? sectionToUpdate.getCurrentWords().join(" ")
-        : ""
-    );
-    setTransformedWords(sectionToUpdate.getCurrentTransformations());
-
-    // Calculate progress and time left
-    const previousSectionsTotalDuration = sectionsArray
-      .slice(0, currentIdx)
-      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
-    const newProgressBarPercentage = Math.round(
-      ((previousSectionsTotalDuration +
-        sectionToUpdate.getSectionDurationSeconds()) /
-        adLength) *
-      100
-    );
-    const newSecondsLeft =
-      adLength -
-      (previousSectionsTotalDuration +
-        sectionToUpdate.getSectionDurationSeconds());
-
-    setProgressBarPercentage(newProgressBarPercentage);
-    setSecondsYouHaveLeft(newSecondsLeft);
-    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
-  };
-
+  // #region : ======= Effect Hooks =======
   useEffect(() => {
     const currentIdx = parseInt(idx, 10);
     syncStackAfterNavigation();
@@ -245,25 +230,6 @@ function ProcessSection() {
     updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj.getGeneratedVoiceUrl()]);
 
-  const localPushData = (newData, clone = false) => {
-    localStack.push(newData);
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-  };
-
-  const localPopData = (newData, clone = false) => {
-    let removedData = localStack.pop();
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
-    return removedData;
-  };
-
   useEffect(() => {
     const fetchVoiceOptions = async () => {
       const voicesDocRef = doc(
@@ -286,76 +252,16 @@ function ProcessSection() {
     fetchVoiceOptions();
   }, []);
 
-  const baseVoicePreviewsUrl =
-    "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+  // #endregion
 
-  const validateScript = (script, charLimit, onSuccess, onFailure) => {
-    const scriptWOApostrophe = script.replace(/'/g, "");
 
-    if (
-      !s2aAdvancedFreeStyleStatus &&
-      scriptWOApostrophe.replace(/'/g, "").length > charLimit
-    ) {
-      onFailure("error", "Oops...", "You have too many characters!");
-      return false; // Indicate failure
-    }
-    if (scriptWOApostrophe.length < 1) {
-      onFailure("error", "Oops...", "You cannot have an empty script!");
-      return false; // Indicate failure
-    }
-    onSuccess();
-    return true; // Indicate success
-  };
-
-  const showAlert = (icon, title, text) => {
-    Swal.fire({
-      icon: icon,
-      title: title,
-      text: text,
-    });
-  };
-
-  const manageLegacySpeechRate = (legacyValue) => {
-    const legacyMapping = {
-      Normal: 0,
-      "1.25x": 25,
-      "1.5x": 50,
-      "1.75x": 75,
-      "2x": 100,
-    };
-
-    if (legacyMapping.hasOwnProperty(legacyValue)) {
-      return legacyMapping[legacyValue];
-    }
-
-    const numericValue = Number(legacyValue);
-    if (!isNaN(numericValue) && numericValue >= -50 && numericValue <= 100) {
-      return numericValue;
-    }
-
-    // If the value is neither a legacy string nor a valid number, return 0 by default
-    return 0;
-  };
-
-  const handleVoicePreviewPlayButton = () => {
-    setAllowDownload(false);
-    setShowAudioPlayer(true);
-    setForceRenderKey(Math.random());
-    setGeneratedVoiceUrl(
-      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
-    );
-  };
+  // #region ======= Word Smith ======= 
+  const hideOffcanvas = () => setOffcanvasVisibility(false);
+  const showOffcanvas = () => setOffcanvasVisibility(true);
 
   const handleWordClick = (index) => {
     setSelectedWordIndex(index);
   };
-
-  const handleAddNewSection = () => {
-    setShowAudioPlayer(false);
-    setShowSplitSectionModal(true);
-  };
-
-
   const transformWord = (action) => {
     let currentWord =
       transformedWords[selectedWordIndex] ||
@@ -397,10 +303,26 @@ function ProcessSection() {
     setSelectedWordIndex(null);
     setShowOptions(false); // Hide the options and show the words again
   };
+  // #endregion
 
-  const handleSpeechRate = (value) => {
-    localCurrentSectionObj.setSpeechRate(value);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+
+  // =================================Typing on script============================
+  const validateScript = (script, charLimit, onSuccess, onFailure) => {
+    const scriptWOApostrophe = script.replace(/'/g, "");
+
+    if (
+      !s2aAdvancedFreeStyleStatus &&
+      scriptWOApostrophe.replace(/'/g, "").length > charLimit
+    ) {
+      onFailure("error", "Oops...", "You have too many characters!");
+      return false; // Indicate failure
+    }
+    if (scriptWOApostrophe.length < 1) {
+      onFailure("error", "Oops...", "You cannot have an empty script!");
+      return false; // Indicate failure
+    }
+    onSuccess();
+    return true; // Indicate success
   };
 
   const processScriptChange = (newScript) => {
@@ -423,6 +345,7 @@ function ProcessSection() {
     processScriptChange(updatedScript);
   };
 
+  // =============================== Change voices ================================
   const fetchVoiceMetaData = async (voiceName) => {
     const db = getFirestore(app);
     const voiceQuery = query(
@@ -449,7 +372,6 @@ function ProcessSection() {
       return {}; // Return an empty object in case of error
     }
   };
-
   const handleVoiceChange = async (e) => {
     const selectedVoiceName = e.target.value;
     const metadata = await fetchVoiceMetaData(selectedVoiceName);
@@ -463,30 +385,20 @@ function ProcessSection() {
       localCurrentSectionObj.setModelId(metadata.newVoiceModelId);
       localCurrentSectionObj.setVoiceId(metadata.newVoiceId);
       localCurrentSectionObj.setVoiceName(selectedVoiceName);
-      localCurrentSectionObj.setVoicePreviewFilename(
-        metadata.newVoicePreviewFilename
-      );
-      localCurrentSectionObj.setVoiceIntonationConsistency(
-        metadata.newVoiceIntonationConsistency
-      );
+      localCurrentSectionObj.setVoicePreviewFilename(metadata.newVoicePreviewFilename);
+      localCurrentSectionObj.setVoiceIntonationConsistency(metadata.newVoiceIntonationConsistency);
       setLocalCurrentSectionObj(localCurrentSectionObj.clone());
 
-      // // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
-      setGeneratedVoiceUrl(
-        baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
-      );
+      // Reset the generatedVoiceUrl to force the audio player to use the new voice preview
+      setGeneratedVoiceUrl(baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename());
     } else {
       // Handle the case when no metadata is found
-      console.log(
-        "No metadata found for the selected voice:",
-        selectedVoiceName
-      );
+      console.log("No metadata found for the selected voice:", selectedVoiceName);
     }
 
-    // Assuming you want to play the new voice preview immediately
+    // Play the new voice preview immediately
     if (metadata.newVoicePreviewFilename) {
-      const previewUrl =
-        baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
+      const previewUrl = baseVoicePreviewsUrl + metadata.newVoicePreviewFilename;
       if (voiceAudioPlayerRef.current) {
         voiceAudioPlayerRef.current.src = previewUrl;
         voiceAudioPlayerRef.current.load();
@@ -495,26 +407,88 @@ function ProcessSection() {
     }
   };
 
+  // #region =============================== Page navigation ==========================
+  const syncStackAfterNavigation = () => {
+    const globalStack = useUserInputsStore.getState().navigationStack;
+    const newStack = new Stack();
+    newStack.items = [...globalStack.items];
+    setLocalStack(newStack);
+  };
+
+  const localPushData = (newData, clone = false) => {
+    localStack.push(newData);
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+  };
+
+  const localPopData = (newData, clone = false) => {
+    let removedData = localStack.pop();
+    if (clone) {
+      setLocalStack(localStack.clone());
+    } else {
+      setLocalStack(localStack);
+    }
+    return removedData;
+  };
+  const handleGoBack = () => {
+    // save the current work
+    const currentSectionIdx = localCurrentSectionObj.getIndex();
+    updateLocalSectionHistoryObj({
+      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
+    });
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+
+    // save the current url in the stack
+    localPushData(
+      `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
+    );
+    syncLocalStackWithGlobal();
+    handleSaveState();
+    // move to the new url
+    if (currentSectionIdx > 0) {
+      router.push(
+        "/advanced-mode/script-to-ad/process-section/[idx]",
+        `/advanced-mode/script-to-ad/process-section/${currentSectionIdx - 1}`
+      );
+    } else {
+      router.push("/advanced-mode/script-to-ad/create-sections");
+    }
+  };
+
+
+  const handleSaveState = () => {
+    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    setSectionsArray(localSectionsArray);
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
+    syncSectionHistoryArrayWithZustand(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    // can't wait for above function to finish so repeat it without saving to zustand.
+    const tmpHistoryArray = addCurrentSectionHistoryToArray(
+      currentSectionIndex,
+      localSectionHistoryObj
+    );
+    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
+
+    updateExistingSpotInDb({
+      spotId: spotId,
+      mode: "advanced-script-to-ad",
+      modeSpecificStates: saveFeatureSpecificStates,
+      sharedStates: saveSharedStates,
+    });
+  };
   const syncLocalStackWithGlobal = () => {
     syncStackWithGlobal(localStack);
-  };
-
-  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
-    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
-    const updatedArray = [
-      ...currentArray.slice(0, index),
-      newSectionHistoryObj,
-      ...currentArray.slice(index + 1),
-    ];
-    return updatedArray;
-  };
-
-  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
-    const updatedArray = addCurrentSectionHistoryToArray(
-      index,
-      newSectionHistoryObj
-    );
-    setSectionHistoryArray(updatedArray);
   };
 
   const updateVoiceForAllSections = (currentIndex) => {
@@ -538,30 +512,23 @@ function ProcessSection() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!localCurrentSectionObj.getHistoryItemId()) {
-      showAlert(
-        "info",
-        "Action Required",
-        "Please generate the voice audio before proceeding further."
-      );
+      showAlert("info", "Action Required", "Please generate the voice audio before proceeding further.");
       return;
     }
 
-    // sync the local history with global.
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
+    // Sync the local history with global
+    syncSectionHistoryArrayWithZustand(currentSectionIndex, localSectionHistoryObj);
     localCurrentSectionObj.setCurrentTransformations(transformedWords);
     localCurrentSectionObj.setCurrentWords(ogScriptWordsArray);
     const index = localCurrentSectionObj.getIndex();
 
     if (localStack.size() > 0) {
       console.log("Stack not empty, continue processing");
-      // save the section we are working on
+      // Save the section we are working on
       localSectionsArray[index] = localCurrentSectionObj;
       setLocalSectionsArray(localSectionsArray);
 
-      // load the next section
+      // Load the next section
       let lastInUrl = localPopData();
       syncLocalStackWithGlobal();
       handleSaveState();
@@ -578,42 +545,15 @@ function ProcessSection() {
       } else {
         router.push(
           "/advanced-mode/script-to-ad/process-section/[idx]",
-          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1
-          }`
+          `/advanced-mode/script-to-ad/process-section/${currentSectionIndex + 1}`
         );
       }
     }
   };
 
-  const handleLogout = () => {
-    resetUserInputsStore();
-    localStorage.removeItem("user");
-    auth
-      .signOut()
-      .then(() => {
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.error("Logout Error:", error);
-      });
-  };
+  // #endregion
 
-  const getFinalScript = () => {
-    return ogScriptWordsArray
-      .map((word, index) => transformedWords[index] || word)
-      .join(" ");
-  };
-
-  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
-    setLocalSectionHistoryObj((prevMap) => {
-      const updatedMap = new Map(prevMap);
-      for (const [key, value] of Object.entries(newKeyValuePair)) {
-        updatedMap.set(key, value);
-      }
-      return updatedMap;
-    });
-  };
-
+  // ============================= Voice generation ================
   async function handleGenerateVoice() {
     const isValid = validateScript(typedText, charLimit, () => { }, showAlert);
 
@@ -775,65 +715,53 @@ function ProcessSection() {
     }
   }
 
-  function getAudioDuration(url) {
-    return new Promise((resolve, reject) => {
-      const audio = new Audio(url);
-      audio.addEventListener("loadedmetadata", () => {
-        resolve(audio.duration);
-      });
-      audio.addEventListener("error", reject);
-    });
-  }
+  // =============================== Speech Rate ==========================
+  const manageLegacySpeechRate = (legacyValue) => {
+    const legacyMapping = {
+      Normal: 0,
+      "1.25x": 25,
+      "1.5x": 50,
+      "1.75x": 75,
+      "2x": 100,
+    };
 
-  const handleDragonBreathEnhancementChange = (e) => {
-    const newValue = e.target.checked;
-    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+    if (legacyMapping.hasOwnProperty(legacyValue)) {
+      return legacyMapping[legacyValue];
+    }
+
+    const numericValue = Number(legacyValue);
+    if (!isNaN(numericValue) && numericValue >= -50 && numericValue <= 100) {
+      return numericValue;
+    }
+
+    // If the value is neither a legacy string nor a valid number, return 0 by default
+    return 0;
+  };
+
+  const handleSpeechRate = (value) => {
+    localCurrentSectionObj.setSpeechRate(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  const handleGoBack = () => {
-    // save the current work
-    const currentSectionIdx = localCurrentSectionObj.getIndex();
-    updateLocalSectionHistoryObj({
-      [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj,
-    });
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    localSectionsArray[currentSectionIdx] = localCurrentSectionObj;
-    setSectionsArray(localSectionsArray);
-
-    // save the current url in the stack
-    localPushData(
-      `/advanced-mode/script-to-ad/process-section/${currentSectionIdx}`
-    );
-    syncLocalStackWithGlobal();
-    handleSaveState();
-    // move to the new url
-    if (currentSectionIdx > 0) {
-      router.push(
-        "/advanced-mode/script-to-ad/process-section/[idx]",
-        `/advanced-mode/script-to-ad/process-section/${currentSectionIdx - 1}`
-      );
-    } else {
-      router.push("/advanced-mode/script-to-ad/create-sections");
-    }
+  // ====================== Add a new section ==========================
+  const handleAddNewSection = () => {
+    setShowAudioPlayer(false);
+    setShowSplitSectionModal(true);
   };
 
-  const handleReadReplayButton = () => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
+  // ====================== Replay last read =========================
+  const handleVoicePreviewPlayButton = () => {
+    setAllowDownload(false);
     setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+    setForceRenderKey(Math.random());
+    setGeneratedVoiceUrl(
+      baseVoicePreviewsUrl + localCurrentSectionObj.getVoicePreviewFilename()
+    );
   };
 
-  const playAudioUrl = (audioUrl) => {
-    setForceRenderKey(Math.random());
-    setAllowDownload(true);
-    setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(audioUrl);
-  };
+  // #region : ============== Section History ==================
+  const hideHistoryOffcanvas = () => setHistoryOffcanvasVisibility(false);
+  const showHistoryOffcanvas = () => setHistoryOffcanvasVisibility(true);
 
   const changeCurrentSectionObj = (newSectionObj) => {
     if (process.env.NODE_ENV !== "development") {
@@ -845,44 +773,65 @@ function ProcessSection() {
     }
     setLocalCurrentSectionObj(newSectionObj.clone());
   };
-
-  const handleSaveState = () => {
-    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
-    setSectionsArray(localSectionsArray);
-    // can't wait for above function to finish so repeat it without saving to zustand.
-    saveFeatureSpecificStates.sectionsArray = localSectionsArray;
-    syncSectionHistoryArrayWithZustand(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    // can't wait for above function to finish so repeat it without saving to zustand.
-    const tmpHistoryArray = addCurrentSectionHistoryToArray(
-      currentSectionIndex,
-      localSectionHistoryObj
-    );
-    saveFeatureSpecificStates.sectionHistoryArray = tmpHistoryArray;
-
-    updateExistingSpotInDb({
-      spotId: spotId,
-      mode: "advanced-script-to-ad",
-      modeSpecificStates: saveFeatureSpecificStates,
-      sharedStates: saveSharedStates,
-    });
+  const addCurrentSectionHistoryToArray = (index, newSectionHistoryObj) => {
+    const currentArray = useUserInputsStore.getState().sectionHistoryArray;
+    const updatedArray = [
+      ...currentArray.slice(0, index),
+      newSectionHistoryObj,
+      ...currentArray.slice(index + 1),
+    ];
+    return updatedArray;
   };
 
+  const syncSectionHistoryArrayWithZustand = (index, newSectionHistoryObj) => {
+    const updatedArray = addCurrentSectionHistoryToArray(index, newSectionHistoryObj);
+    setSectionHistoryArray(updatedArray);
+  };
+
+  const playAudioUrl = (audioUrl) => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(audioUrl);
+  };
+  const updateLocalSectionHistoryObj = (newKeyValuePair) => {
+    setLocalSectionHistoryObj((prevMap) => {
+      const updatedMap = new Map(prevMap);
+      for (const [key, value] of Object.entries(newKeyValuePair)) {
+        updatedMap.set(key, value);
+      }
+      return updatedMap;
+    });
+  };
+  // #endregion
+
+
+  // =============== Dragon Breath enhancement ==============
+  const handleDragonBreathEnhancementChange = (e) => {
+    const newValue = e.target.checked;
+    localCurrentSectionObj.setDragonBreathEnhancement(newValue);
+    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
+  };
+
+
+
+  // ================ Intonation consistency =======================
   const handleIntonationChange = (value) => {
     localCurrentSectionObj.setVoiceIntonationConsistency(value);
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  const resetSpeechRate = () => {
-    handleSpeechRate(0); // Or however you want to reset the speech rate
-  };
+
+  // =========================== Notes =======================
+  const handleShowNotePad = () => setShowNotePad(true);
+  const handleCloseNotePad = () => setShowNotePad(false);
 
   const handleSaveNotesProp = () => {
-    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
+    setLocalCurrentSectionObj(localCurrentSectionObj);
   };
 
+
+  // ================= Free style mode ====================
   const handleToggleFreeStyle = (event) => {
     const isToggled = event.target.checked;
     setS2aAdvancedFreeStyleStatus(isToggled);
@@ -890,6 +839,91 @@ function ProcessSection() {
       toast.warn("Your spot might go over the intended length");
     }
   };
+
+
+  // ===============Replay Last Read =================
+  const handleReadReplayButton = () => {
+    setForceRenderKey(Math.random());
+    setAllowDownload(true);
+    setShowAudioPlayer(true);
+    setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
+  };
+
+
+  // #region : ============== Misc functions ================
+  function getAudioDuration(url) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(url);
+      audio.addEventListener("loadedmetadata", () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", reject);
+    });
+  }
+
+  const handleLogout = () => {
+    resetUserInputsStore();
+    localStorage.removeItem("user");
+    auth
+      .signOut()
+      .then(() => {
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Logout Error:", error);
+      });
+  };
+
+  const getFinalScript = () => {
+    return ogScriptWordsArray
+      .map((word, index) => transformedWords[index] || word)
+      .join(" ");
+  };
+
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+    });
+  };
+  const updateSectionDetails = (sectionToUpdate) => {
+    const currentIdx = sectionToUpdate.getIndex();
+
+    // Update dependent states based on the new current section
+    setOgScriptWordsArray(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords()
+        : []
+    );
+    setTypedText(
+      sectionToUpdate.getOriginalContent()
+        ? sectionToUpdate.getCurrentWords().join(" ")
+        : ""
+    );
+    setTransformedWords(sectionToUpdate.getCurrentTransformations());
+
+    // Calculate progress and time left
+    const previousSectionsTotalDuration = sectionsArray
+      .slice(0, currentIdx)
+      .reduce((sum, section) => sum + section.getSectionDurationSeconds(), 0);
+    const newProgressBarPercentage = Math.round(
+      ((previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds()) /
+        adLength) *
+      100
+    );
+    const newSecondsLeft =
+      adLength -
+      (previousSectionsTotalDuration +
+        sectionToUpdate.getSectionDurationSeconds());
+
+    setProgressBarPercentage(newProgressBarPercentage);
+    setSecondsYouHaveLeft(newSecondsLeft);
+    setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+  };
+  // #endregion
+
 
   return (
     <div style={{ backgroundColor: "#FFFFFF", minHeight: "100vh", overflow: "hidden" }}>
@@ -1034,7 +1068,7 @@ function ProcessSection() {
                   <Form.Label style={{ fontSize: "0.875rem" }}>Voiceover Progress</Form.Label>
                   <ProgressBar now={progressBarPercentage} label={`${progressBarPercentage}%`} />
                 </Form.Group>
-                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouhaveLeft)} sec left out of {adLength} sec</div>
+                <div style={{ fontSize: "0.875rem" }}>Roughly {Math.round(secondsYouHaveLeft)} sec left out of {adLength} sec</div>
                 <Form.Group controlId="voice" className="mt-2">
                   <Form.Label style={{ fontSize: "0.875rem" }}>Voice</Form.Label>
                   {voiceOptions.length === 0 ? (
@@ -1124,7 +1158,7 @@ function ProcessSection() {
                     containerStyle={{ marginTop: "18px" }}
                     leftInfoMessage="Slower"
                     rightInfoMessage="Faster"
-                    reset={resetSpeechRate}
+                    reset={() => handleSpeechRate(0)}
                   />
                 </Form.Group>
               </Form>
