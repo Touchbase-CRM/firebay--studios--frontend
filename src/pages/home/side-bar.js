@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Nav } from 'react-bootstrap';
+import { Nav, Dropdown } from 'react-bootstrap';
 
 const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
 
     const toggleCollapse = () => {
         setCollapsed(!collapsed);
@@ -42,7 +43,12 @@ const Sidebar = () => {
     };
 
     const handleProfileClick = () => {
+        setShowDropdown(!showDropdown);
         console.log('Profile clicked');
+    };
+
+    const handleSignOutClick = () => {
+        console.log('Sign out clicked');
     };
 
     return (
@@ -54,6 +60,7 @@ const Sidebar = () => {
                     backgroundColor: '#ffffff',
                     borderRight: '1px solid #e0e0e0',
                     transition: 'width 0.3s',
+                    width: collapsed ? '90px' : '250px',
                 }}
             >
                 <Nav.Item className="mb-3">
@@ -205,35 +212,47 @@ const Sidebar = () => {
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item className="mt-auto">
-                    <Nav.Link
-                        onClick={handleProfileClick}
-                        className="d-flex align-items-center"
-                        style={{
-                            color: '#000000',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            fontSize: '14px',
-                        }}
-                    >
-                        <div
+                    <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
+                        <Dropdown.Toggle
+                            as="div"
+                            id="dropdown-profile"
+                            onClick={handleProfileClick}
                             style={{
-                                width: '30px',
-                                height: '30px',
-                                borderRadius: '50%',
-                                backgroundColor: '#f0c6b2',
+                                color: '#000000',
+                                padding: '10px 20px',
+                                borderRadius: '5px',
+                                fontSize: '14px',
+                                cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                marginRight: collapsed ? '0px' : '10px',
-                                marginLeft: "-6px",
-                                color: '#000000',
-                                fontWeight: 'bold',
                             }}
                         >
-                            K
-                        </div>
-                        {!collapsed && <span>Kaveen Jayamanna</span>}
-                    </Nav.Link>
+                            <div
+                                style={{
+                                    width: '30px',
+                                    height: '30px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#f0c6b2',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: collapsed ? '0px' : '10px',
+                                    marginLeft: "-6px",
+                                    color: '#000000',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                K
+                            </div>
+                            {!collapsed && <span>Kaveen Jayamanna</span>}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu align="up">
+                            <Dropdown.Item onClick={handleSignOutClick}>
+                                <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
+                                Sign out
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
                 </Nav.Item>
             </Nav>
             <div
