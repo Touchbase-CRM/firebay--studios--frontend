@@ -448,6 +448,11 @@ const Home = () => {
       });
   };
 
+  const handleCreateAdClick = () => {
+    setShowCreateAdModal(true);
+    reset();
+  };
+
   return (
     <div
       style={{
@@ -458,7 +463,7 @@ const Home = () => {
       }}
     >
       {/* <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} /> */}
-      <Sidebar />
+      <Sidebar onCreateClick={handleCreateAdClick} />
       <Container
         fluid
         style={{
@@ -516,24 +521,6 @@ const Home = () => {
                 marginBottom: "1rem",
               }}
             >
-              <Col xs={12}>
-                <Button
-                  variant="warning"
-                  style={{
-                    backgroundColor: "#eb631c",
-                    borderColor: "#eb631c",
-                    color: "white",
-                    width: "160px",
-                    height: "40px",
-                  }}
-                  onClick={() => {
-                    setShowCreateAdModal(true);
-                    reset();
-                  }}
-                >
-                  Create a new Spot
-                </Button>
-              </Col>
             </Row>
             <SpotTable
               spots={paginatedSpots}

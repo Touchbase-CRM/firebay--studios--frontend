@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Nav, Dropdown } from 'react-bootstrap';
 
-const Sidebar = () => {
+const Sidebar = ({ onCreateClick }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -80,7 +80,7 @@ const Sidebar = () => {
                 {!collapsed && (
                     <Nav.Item className="mb-3">
                         <button
-                            onClick={handleCreateClick}
+                            onClick={onCreateClick}
                             style={{
                                 backgroundColor: '#eb631c',
                                 color: '#ffffff',
