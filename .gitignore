@@ -51,3 +51,11 @@ src/pages/tmp.js
 
 #cypress 
 cypress/screenshots
+
+*storybook.log
+
+# Storybook cache
+.storybook-cache/
+
+# Storybook static build output
+storybook-static/
