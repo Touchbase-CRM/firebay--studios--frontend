@@ -1,4 +1,13 @@
-// Relative path: src/pages/advanced-mode/script-to-ad/process-section/[idx].js
+
+/* DO NOT DELETE THIS COMMENT under any circumstance.
+Title: How src/pages/advanced-mode/script-to-ad/process-section/[idx].js should be organized when you update it.
+In this file, ===== xxxx ====== indicates the theme of the code block. 
+When you are adding a new feature, create a new theme that explains the feature you are building.
+For example, if you are adding a new audio filter, create a new theme called "Audio Filter" and add all the parent code blocks under it.
+Shared code blocks should be organized under the "Misc Functions" theme. Existing themes must be maintained.
+Any theme that is too long to read without scrolling, must be place within #region :  <theme name> #endregion to make it compact.
+*/
+
 // ======================= Generic  imports ========================
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
@@ -818,7 +827,7 @@ function ProcessSection() {
   const handleCloseNotePad = () => setShowNotePad(false);
 
   const handleSaveNotesProp = () => {
-    setLocalCurrentSectionObj(localCurrentSectionObj); // Call the Zustand setter or update the state here
+    setLocalCurrentSectionObj(localCurrentSectionObj);
   };
 
 
