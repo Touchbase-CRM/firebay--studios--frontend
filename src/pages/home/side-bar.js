@@ -60,7 +60,6 @@ const Sidebar = () => {
                     backgroundColor: '#ffffff',
                     borderRight: '1px solid #e0e0e0',
                     transition: 'width 0s',
-                    width: collapsed ? '90px' : '250px',
                 }}
             >
                 <Nav.Item className="mb-3">
@@ -213,8 +212,7 @@ const Sidebar = () => {
                 </Nav.Item>
                 <Nav.Item className="mt-auto">
                     <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
-                        <Dropdown.Toggle
-                            as="div"
+                        <div
                             id="dropdown-profile"
                             onClick={handleProfileClick}
                             style={{
@@ -245,14 +243,16 @@ const Sidebar = () => {
                                 K
                             </div>
                             {!collapsed && <span>Kaveen Jayamanna</span>}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu align="up">
+                        </div>
+                        <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
                             <Dropdown.Item onClick={handleSignOutClick}>
                                 <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
                                 Sign out
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
+
+
                 </Nav.Item>
             </Nav>
             <div
