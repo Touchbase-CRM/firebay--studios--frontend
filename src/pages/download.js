@@ -98,6 +98,7 @@ const DownloadManager = () => {
       newValue: {
         downloadFileName: fileName + ".mp3",
         downloadTime: capturedTimestamp,
+        voiceName: determineVoice(),
       },
     });
 
@@ -147,6 +148,15 @@ const DownloadManager = () => {
 
   const handleRenameClick = () => {
     setShowRenameModal(true);
+  };
+
+  const determineVoice = (sectionsArray) => {
+    const voiceNames = sectionsArray.map((section) => section.getVoiceName());
+    if (voiceNames.length === new Set(voiceNames).size) {
+      return voiceNames[0];
+    } else {
+      return "Multiple";
+    }
   };
 
   const dropdownItems = [
