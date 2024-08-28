@@ -242,7 +242,12 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                             {!collapsed && <span>Kaveen Jayamanna</span>}
                         </div>
                         <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
-                            <Dropdown.Item onClick={onLogoutClick}>
+                            <Dropdown.Item onClick={onLogoutClick} style={{
+                                outline: "none",
+                                backgroundColor: "#f8f9fa",
+                                color: "#495057",
+                                boxShadow: "none",
+                            }}>
                                 <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
                                 Sign out
                             </Dropdown.Item>
