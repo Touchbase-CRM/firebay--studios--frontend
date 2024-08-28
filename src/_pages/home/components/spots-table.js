@@ -95,27 +95,6 @@ const SpotTable = ({
                   >
                     Edit
                   </Button>
-                  <Button
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      borderColor: "#dee2e6",
-                      borderRadius: "20px",
-                      padding: "6px 12px",
-                      fontSize: "14px",
-                      color: "#495057"
-                    }}
-                  >
-                    Share
-                  </Button>
-                  <i
-                    className={`bi ${spot.favorite ? "bi-star-fill" : "bi-star"}`}
-                    style={{
-                      cursor: "pointer",
-                      color: spot.favorite ? "#eb631c" : "#6c757d",
-                      fontSize: "18px",
-                    }}
-                    onClick={() => handleSpotActions["toggleFavorite"](spot.id)}
-                  />
                   <div className="dropdown">
                     <i
                       className="bi bi-three-dots"
@@ -186,6 +165,19 @@ const SpotTable = ({
                             }}
                           >
                             Delete Spot
+                          </span>
+                        </li>
+                        <li onClick={() => handleSpotActions["share"](spot.id)}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Share
                           </span>
                         </li>
                         <li>
