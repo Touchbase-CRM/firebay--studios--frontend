@@ -22,48 +22,29 @@ export const appendToFirestoreArray = async ({
   }
 };
 
-export const addNewFirestoreField = async ({
+export const setFirestoreField = async ({
   collectionName,
   docId,
   fieldName,
   newValue,
+  createIfNotExists = true,
 }) => {
   try {
-    // Reference to the document
     const docRef = doc(db, collectionName, docId);
-    // Set the new field in the document
-    await updateDoc(docRef, {
-      [fieldName]: newValue,
-    });
-  } catch (error) {
-    console.error(`Error adding field in ${collectionName}:`, error);
-    throw error; // Rethrow the error for upstream handling
-  }
-};
 
-export const updateExistingFirestoreField = async ({
-  collectionName,
-  docId,
-  fieldName,
-  newValue,
-}) => {
-  try {
-    // Reference to the document
-    const docRef = doc(db, collectionName, docId);
-    // Get the document snapshot to check if the field exists
-    const docSnapshot = await getDoc(docRef);
-
-    if (docSnapshot.exists() && docSnapshot.data().hasOwnProperty(fieldName)) {
-      // Update the existing field
-      await updateDoc(docRef, {
-        [fieldName]: newValue,
-      });
-    } else {
-      throw new Error(`Field "${fieldName}" does not exist in document ${docId}`);
+    if (!createIfNotExists) {
+      const docSnapshot = await getDoc(docRef);
+      if (!docSnapshot.exists() || !docSnapshot.data()[fieldName]) {
+        throw new Error(`Field "${fieldName}" does not exist in document ${docId}`);
+      }
     }
+
+    await updateDoc(docRef, { [fieldName]: newValue });
   } catch (error) {
-    console.error(`Error updating existing field in ${collectionName}:`, error);
-    throw error; // Rethrow the error for upstream handling
+    console.error(`Error setting field in ${collectionName}:`, error);
+    throw error;
   }
 };
+
+
 

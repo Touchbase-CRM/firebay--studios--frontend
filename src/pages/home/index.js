@@ -56,7 +56,6 @@ const Home = () => {
   const [downloadLogs, setDownloadLogs] = useState([]);
   const [editLoading, setEditLoading] = useState(false); // New state for edit button loading
   const [notifications, setNotifications] = useState([]); // State for notifications
-
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -413,12 +412,6 @@ const Home = () => {
         icon: "error",
       });
     }
-  };
-
-  const cancelLoading = () => {
-    setIsLoading(false);
-    setEditLoading(false); // Hide the loading spinner
-    router.push("/home");
   };
 
   useEffect(() => {

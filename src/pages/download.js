@@ -13,7 +13,7 @@ import { useAuth } from "../context/auth";
 import app from "@/firebase";
 import withAuth from "@/hocs/with-auth";
 import useUserInputsStore from "@/store/user-inputs";
-import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
+import { appendToFirestoreArray, setFirestoreField } from "@/utils/db-read-write-ops/update.js";
 import { captureCurrentTimestamp } from "@/utils/time/current-timestamp.js";
 import RenameModal from "@/components/rename-modal";
 
@@ -98,8 +98,14 @@ const DownloadManager = () => {
       newValue: {
         downloadFileName: fileName + ".mp3",
         downloadTime: capturedTimestamp,
-        voiceName: determineVoice(),
       },
+    });
+
+    setFirestoreField({
+      collectionName: "spots_meta_data",
+      docId: spotId,
+      fieldName: "voiceName",
+      newValue: determineVoice(sectionsArray),
     });
 
     link.click();
@@ -152,8 +158,9 @@ const DownloadManager = () => {
 
   const determineVoice = (sectionsArray) => {
     const voiceNames = sectionsArray.map((section) => section.getVoiceName());
-    if (voiceNames.length === new Set(voiceNames).size) {
-      return voiceNames[0];
+    const uniqueVoiceNames = new Set(voiceNames);
+    if (uniqueVoiceNames.size === 1) {
+      return Array.from(uniqueVoiceNames)[0];
     } else {
       return "Multiple";
     }

@@ -10,7 +10,6 @@ const SpotTable = ({
   setCurrentTableIndex,
   pageSize,
   totalSpots,
-  totalDownloads,
   showCopyModal,
   showRenameModal,
   newSpotName,
@@ -78,8 +77,8 @@ const SpotTable = ({
               <tr key={index} style={{ borderBottom: "none", height: "48px" }}>
                 <td>{currentTableIndex + index + 1}</td>
                 <td>{spot.spotName || "-"}</td>
-                <td>{spot.voice || "-"}</td>
-                <td>{spot.duration || "-"}</td>
+                <td>{spot.voiceName || "-"}</td>
+                <td>{spot.adLength || "-"}</td>
                 <td>{spot.created || "-"}</td>
                 <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Button
