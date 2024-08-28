@@ -1,6 +1,5 @@
-// relative path: src/_pages/home/components/spots-table.js. Please do not remove this comment.
 import React from "react";
-import { Table, Dropdown, DropdownButton, Row, Col, Alert, Button } from "react-bootstrap";
+import { Table, Dropdown, Row, Col, Alert, Button } from "react-bootstrap";
 import { GenericModal } from "@/components/foundation-components/modal";
 import { DownloadLogsModal } from "./download-logs-modal";
 
@@ -61,7 +60,7 @@ const SpotTable = ({
         </Alert>
       ) : (
         <Table style={{ padding: 0, margin: 0 }} borderless>
-          <thead style={{ borderBottom: "3px solid black" }}>
+          <thead style={{ borderBottom: "3px solid #dee2e6" }}>
             <tr>
               <th>#</th>
               <th>Ad Name</th>
@@ -72,15 +71,49 @@ const SpotTable = ({
             </tr>
           </thead>
 
-          <tbody style={{ border: "none" }}>
+          <tbody>
             {spots.map((spot, index) => (
-              <tr key={index} style={{ border: "none" }}>
-                <td style={{ border: "none" }}>{index + 1}</td>
-                <td style={{ border: "none" }}>{spot.spotName || "-"}</td>
-                <td style={{ border: "none" }}>{spot.voice || "-"}</td>
-                <td style={{ border: "none" }}>{spot.duration || "-"}</td>
-                <td style={{ border: "none" }}>{spot.created || "-"}</td>
-                <td style={{ border: "none" }}>
+              <tr key={index} style={{ borderBottom: "none", height: "48px" }}>
+                <td>{index + 1}</td>
+                <td>{spot.spotName || "-"}</td>
+                <td>{spot.voice || "-"}</td>
+                <td>{spot.duration || "-"}</td>
+                <td>{spot.created || "-"}</td>
+                <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Button
+                    style={{
+                      backgroundColor: "#eb631c",
+                      color: "white",
+                      borderRadius: "20px",
+                      padding: "6px 12px",
+                      fontSize: "14px",
+                      borderColor: "#eb631c",
+                    }}
+                    onClick={() => handleSpotActions["edit"](spot.id)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      borderColor: "#dee2e6",
+                      borderRadius: "20px",
+                      padding: "6px 12px",
+                      fontSize: "14px",
+                      color: "#495057"
+                    }}
+                  >
+                    Share
+                  </Button>
+                  <i
+                    className={`bi ${spot.favorite ? "bi-star-fill" : "bi-star"}`}
+                    style={{
+                      cursor: "pointer",
+                      color: spot.favorite ? "#eb631c" : "#6c757d",
+                      fontSize: "18px",
+                    }}
+                    onClick={() => handleSpotActions["toggleFavorite"](spot.id)}
+                  />
                   <Dropdown
                     drop="up"
                     show={activeDropdown === index}
@@ -105,9 +138,6 @@ const SpotTable = ({
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => handleSpotActions["rename"](spot.id)}>
                         Rename Spot
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleSpotActions["edit"](spot.id)}>
-                        Edit Spot
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => handleSpotActions["delete"](spot.id)}>
                         Delete Spot
