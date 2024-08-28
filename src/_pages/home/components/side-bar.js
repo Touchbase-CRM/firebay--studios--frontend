@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Nav, Dropdown, Spinner } from 'react-bootstrap';
 import { NotificationsPad } from "./notifications-pad";
 
-
 const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification, totalDownloads }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -18,7 +17,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
             setInternalNotifications(notifications);
         }
     }, [notifications]);
-
 
     const toggleCollapse = () => {
         setLoading(true);  // Start loading before the transition
@@ -37,7 +35,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
         console.log('Shared with me clicked');
     };
 
-
     const handleRequestServiceClick = () => {
         console.log('Request full service clicked');
     };
@@ -46,6 +43,7 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
         setShowDropdown(!showDropdown);
         console.log('Profile clicked');
     };
+
     return (
         <div style={{ position: 'relative', display: 'flex' }}>
             <Nav
@@ -83,7 +81,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                             }}
                         />
                     )}
-
                 </Nav.Item>
 
                 {!collapsed && (
@@ -110,7 +107,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                         onClick={handleHomeClick}
                         className="d-flex align-items-center"
                         style={{
-                            // backgroundColor: '#f6f6f6',
                             color: '#000000',
                             padding: '10px 20px',
                             borderRadius: '5px',
@@ -185,8 +181,9 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                         {!collapsed && 'Notifications'}
                     </Nav.Link>
                 </Nav.Item>
-                {!collapsed && (
-                    <Nav.Item className="mb-3">
+
+                <Nav.Item className="mt-auto mb-3">
+                    {!collapsed && (
                         <div style={{
                             backgroundColor: '#f8f9fa',
                             border: '1px solid #e0e0e0',
@@ -199,12 +196,11 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                         }}>
                             <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Downloads this month</p>
                             <p style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>{totalDownloads}</p>
-
                         </div>
-                    </Nav.Item>
-                )}
+                    )}
+                </Nav.Item>
 
-                <Nav.Item className="mt-auto">
+                <Nav.Item>
                     <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
                         <div
                             id="dropdown-profile"
@@ -250,8 +246,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-
-
                 </Nav.Item>
             </Nav>
             <div
