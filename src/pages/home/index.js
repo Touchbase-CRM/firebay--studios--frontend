@@ -6,7 +6,6 @@ import {
   deserializeAndLoadModeData,
   readFromFirestore,
 } from "@/utils/db-read-write-ops/deserialization-utils";
-import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
 
 import { getAuth } from "firebase/auth";
@@ -30,11 +29,10 @@ import {
   updateQuickV2AState,
 } from "@/_pages/home/utils/update-state";
 import SpotTable from "@/_pages/home/components/spots-table";
-import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
 import Spinner from "@/components/spinner/spinner";
-import Sidebar from './side-bar';
+import Sidebar from '../../_pages/home/components/side-bar';
 
 const Home = () => {
   const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
@@ -466,7 +464,7 @@ const Home = () => {
         flexDirection: "row",
       }}
     >
-      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification} />
+      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification} totalDownloads={totalDownloads} />
       <Container
         fluid
         style={{
@@ -532,7 +530,6 @@ const Home = () => {
               setCurrentTableIndex={setCurrentTableIndex}
               pageSize={pageSize}
               totalSpots={spots.length}
-              totalDownloads={totalDownloads}
               showCopyModal={showCopyModal}
               showRenameModal={showRenameModal}
               newSpotName={newSpotName}

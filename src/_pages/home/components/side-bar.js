@@ -3,7 +3,7 @@ import { Nav, Dropdown, Spinner } from 'react-bootstrap';
 import { NotificationsPad } from "./notifications-pad";
 
 
-const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification }) => {
+const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification, totalDownloads }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -40,10 +40,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
 
     const handleRequestServiceClick = () => {
         console.log('Request full service clicked');
-    };
-
-    const handleHelpClick = () => {
-        console.log('Help clicked');
     };
 
     const handleProfileClick = () => {
@@ -189,24 +185,25 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                         {!collapsed && 'Notifications'}
                     </Nav.Link>
                 </Nav.Item>
+                {!collapsed && (
+                    <Nav.Item className="mb-3">
+                        <div style={{
+                            backgroundColor: '#f8f9fa',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '8px',
+                            padding: '15px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Downloads this month</p>
+                            <p style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>{totalDownloads}</p>
 
-                <hr style={{ width: collapsed ? '50px' : '220px' }} />
-                <Nav.Item>
-                    <Nav.Link
-                        onClick={handleHelpClick}
-                        className="d-flex align-items-center"
-                        style={{
-                            color: '#000000',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            marginBottom: '10px',
-                            fontSize: '14px',
-                        }}
-                    >
-                        <i className="bi bi-question-circle" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                        {!collapsed && 'Help'}
-                    </Nav.Link>
-                </Nav.Item>
+                        </div>
+                    </Nav.Item>
+                )}
+
                 <Nav.Item className="mt-auto">
                     <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
                         <div

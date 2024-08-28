@@ -27,7 +27,7 @@ const DownloadManager = () => {
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [showAudioPlayer, setShowAudioPlayer] = useState(true);
-  const { reset, generatedVoiceUrl, spotName, setSpotName, spotId } =
+  const { reset, generatedVoiceUrl, spotName, setSpotName, spotId, sectionsArray } =
     useUserInputsStore();
   const [capturedTimestamp, setCapturedTimestamp] = useState(
     captureCurrentTimestamp()

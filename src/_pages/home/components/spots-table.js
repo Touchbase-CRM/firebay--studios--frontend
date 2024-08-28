@@ -224,22 +224,6 @@ const SpotTable = ({
             {">"}
           </Button>
         </Col>
-        <Col className="text-right">
-          {totalDownloads !== null && totalDownloads > 0 && (
-            <p
-              style={{
-                fontWeight: "bold",
-                textAlign: "right",
-                marginRight: "0px",
-                fontSize: "18px",
-                color: "#495057",
-                fontFamily: "'Open Sans', sans-serif",
-              }}
-            >
-              Total chargeable downloads this month: {totalDownloads}
-            </p>
-          )}
-        </Col>
       </Row>
 
       <DownloadLogsModal
