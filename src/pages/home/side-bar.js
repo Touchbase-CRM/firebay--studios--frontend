@@ -37,20 +37,9 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
         console.log('Shared with me clicked');
     };
 
-    const handleStarredClick = () => {
-        console.log('Starred clicked');
-    };
 
     const handleRequestServiceClick = () => {
         console.log('Request full service clicked');
-    };
-
-    const handleNotificationsClick = () => {
-        console.log('Notifications clicked');
-    };
-
-    const handleSettingsClick = () => {
-        console.log('Settings clicked');
     };
 
     const handleHelpClick = () => {
@@ -202,22 +191,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                 </Nav.Item>
 
                 <hr style={{ width: collapsed ? '50px' : '220px' }} />
-                <Nav.Item>
-                    <Nav.Link
-                        onClick={handleSettingsClick}
-                        className="d-flex align-items-center"
-                        style={{
-                            color: '#000000',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            marginBottom: '10px',
-                            fontSize: '14px',
-                        }}
-                    >
-                        <i className="bi bi-gear" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                        {!collapsed && 'Settings'}
-                    </Nav.Link>
-                </Nav.Item>
                 <Nav.Item>
                     <Nav.Link
                         onClick={handleHelpClick}
