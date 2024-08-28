@@ -76,7 +76,7 @@ const SpotTable = ({
           <tbody>
             {spots.map((spot, index) => (
               <tr key={index} style={{ borderBottom: "none", height: "48px" }}>
-                <td>{index + 1}</td>
+                <td>{currentTableIndex + index + 1}</td>
                 <td>{spot.spotName || "-"}</td>
                 <td>{spot.voice || "-"}</td>
                 <td>{spot.duration || "-"}</td>
