@@ -1,9 +1,7 @@
-import React from "react";
-import { Table, Dropdown, Row, Col, Alert, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Table, Button, Alert, Row, Col } from "react-bootstrap";
 import { GenericModal } from "@/components/foundation-components/modal";
 import { DownloadLogsModal } from "./download-logs-modal";
-
-const { useState } = React;
 
 const SpotTable = ({
   spots,
@@ -50,6 +48,10 @@ const SpotTable = ({
 
   const handleDropdownToggle = (index) => {
     setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const closeDropdown = () => {
+    setActiveDropdown(null);
   };
 
   return (
@@ -114,36 +116,98 @@ const SpotTable = ({
                     }}
                     onClick={() => handleSpotActions["toggleFavorite"](spot.id)}
                   />
-                  <Dropdown
-                    drop="up"
-                    show={activeDropdown === index}
-                    onToggle={() => { }}
-                  >
-                    <div
+                  <div className="dropdown">
+                    <i
+                      className="bi bi-three-dots"
+                      style={{ cursor: 'pointer' }}
                       onClick={() => handleDropdownToggle(index)}
-                      style={{
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <i className="bi bi-three-dots"></i>
-                    </div>
-                    <Dropdown.Menu align="up-centered" style={{ bottom: '100%' }}>
-                      <Dropdown.Item onClick={() => handleSpotActions["downloadHistory"](spot.id)}>
-                        Download Logs
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleSpotActions["copy"](spot.id)}>
-                        Duplicate Spot
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleSpotActions["rename"](spot.id)}>
-                        Rename Spot
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleSpotActions["delete"](spot.id)}>
-                        Delete Spot
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
+                      aria-expanded={activeDropdown === index}
+                    ></i>
+                    {activeDropdown === index && (
+                      <ul
+                        className="dropdown-menu show"
+                        style={{
+                          position: "absolute",
+                          transform: "translate3d(0, 0, 0)",
+                          top: "100%",
+                          left: "auto",
+                          right: 0,
+                          zIndex: 1000,
+                        }}
+                        onClick={closeDropdown}
+                      >
+                        <li onClick={() => handleSpotActions["downloadHistory"](spot.id)}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Download Logs
+                          </span>
+                        </li>
+                        <li onClick={() => handleSpotActions["copy"](spot.id)}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Duplicate Spot
+                          </span>
+                        </li>
+                        <li onClick={() => handleSpotActions["rename"](spot.id)}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Rename Spot
+                          </span>
+                        </li>
+                        <li onClick={() => handleSpotActions["delete"](spot.id)}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Delete Spot
+                          </span>
+                        </li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li onClick={closeDropdown}>
+                          <span
+                            className="dropdown-item"
+                            style={{
+                              outline: "none",
+                              backgroundColor: "#f8f9fa",
+                              color: "#495057",
+                              boxShadow: "none",
+                            }}
+                          >
+                            Cancel
+                          </span>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+
                 </td>
               </tr>
             ))}
