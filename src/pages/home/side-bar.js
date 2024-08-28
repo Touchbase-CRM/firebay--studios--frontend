@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Nav, Dropdown } from 'react-bootstrap';
+import { Nav, Dropdown, Spinner } from 'react-bootstrap';
 import { NotificationsPad } from "./notifications-pad";
 
 
 const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification }) => {
     const [collapsed, setCollapsed] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [internalNotifications, setInternalNotifications] = useState(notifications || []);
@@ -20,8 +21,12 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
 
 
     const toggleCollapse = () => {
-        setCollapsed(!collapsed);
-        console.log('Sidebar collapsed:', !collapsed);
+        setLoading(true);  // Start loading before the transition
+        setTimeout(() => {
+            setCollapsed(!collapsed);
+            setLoading(false);  // End loading after the transition
+            console.log('Sidebar collapsed:', !collapsed);
+        }, 300); // Adjust this timeout duration as needed to match the transition duration
     };
 
     const handleHomeClick = () => {
@@ -68,18 +73,32 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                 }}
             >
                 <Nav.Item className="mb-3">
-                    <img
-                        src={collapsed ? "/fire.png" : "/White mic horizontal.png"}
-                        alt="Firebay Studios Logo"
-                        style={{
-                            width: collapsed ? '40px' : '150px', // Adjust these values as needed
-                            marginBottom: '0px',
-                            transition: 'width 0.3s',
-                            display: 'block',
-                            marginLeft: collapsed ? '8px' : 'auto', // Adjust the left margin when collapsed
-                            marginRight: collapsed ? '15px' : 'auto', // Adjust the right margin when collapsed
-                        }}
-                    />
+                    {loading ? (
+                        <Spinner
+                            animation="border"
+                            style={{
+                                marginBottom: '0px',
+                                marginLeft: collapsed ? '8px' : 'auto',
+                                marginRight: collapsed ? '15px' : 'auto',
+                                borderColor: '#EB631C', // Set the border color of the spinner
+                                borderRightColor: 'transparent' // Hide one side to create the spinning effect
+                            }}
+                        />
+                    ) : (
+                        <img
+                            src={collapsed ? "/fire.png" : "/White mic horizontal.png"}
+                            alt="Firebay Studios Logo"
+                            style={{
+                                width: collapsed ? '40px' : '150px',
+                                marginBottom: '0px',
+                                transition: 'width 0.3s',
+                                display: 'block',
+                                marginLeft: collapsed ? '8px' : 'auto',
+                                marginRight: collapsed ? '15px' : 'auto',
+                            }}
+                        />
+                    )}
+
                 </Nav.Item>
 
                 {!collapsed && (
@@ -136,22 +155,6 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link
-                        onClick={handleStarredClick}
-                        className="d-flex align-items-center"
-                        style={{
-                            color: '#000000',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            marginBottom: '10px',
-                            fontSize: '14px',
-                        }}
-                    >
-                        <i className="bi bi-tags" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                        {!collapsed && 'Tagging'}
-                    </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link
                         onClick={handleRequestServiceClick}
                         className="d-flex align-items-center"
                         style={{
@@ -163,7 +166,7 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                         }}
                     >
                         <i className="bi bi-check-circle" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                        {!collapsed && 'Request full service'}
+                        {!collapsed && 'Request white glove'}
                     </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
