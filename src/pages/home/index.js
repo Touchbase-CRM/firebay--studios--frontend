@@ -240,6 +240,10 @@ const Home = () => {
   }
 
   const handleSpotActions = {
+    share: (spotId) => {
+      setSelectedSpotId(spotId);
+      console.log("Share clicked");
+    },
     downloadHistory: (spotId) => {
       findDownloadLogs(spotId);
       setShowDownloadLogsModal(true);

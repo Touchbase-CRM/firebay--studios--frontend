@@ -65,7 +65,7 @@ const SpotTable = ({
           <thead style={{ borderBottom: "3px solid #dee2e6" }}>
             <tr>
               <th>#</th>
-              <th>Ad Name</th>
+              <th>Spot Name</th>
               <th>Voice</th>
               <th>Duration</th>
               <th>Date created</th>
