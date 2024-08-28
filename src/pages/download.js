@@ -101,13 +101,6 @@ const DownloadManager = () => {
       },
     });
 
-    setFirestoreField({
-      collectionName: "spots_meta_data",
-      docId: spotId,
-      fieldName: "voiceName",
-      newValue: determineVoice(sectionsArray),
-    });
-
     link.click();
     setIsDownloading(false);
   };
@@ -154,16 +147,6 @@ const DownloadManager = () => {
 
   const handleRenameClick = () => {
     setShowRenameModal(true);
-  };
-
-  const determineVoice = (sectionsArray) => {
-    const voiceNames = sectionsArray.map((section) => section.getVoiceName());
-    const uniqueVoiceNames = new Set(voiceNames);
-    if (uniqueVoiceNames.size === 1) {
-      return Array.from(uniqueVoiceNames)[0];
-    } else {
-      return "Multiple";
-    }
   };
 
   const dropdownItems = [

@@ -63,6 +63,7 @@ import RenameModal from "@/components/rename-modal";
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import { calculateCharCount } from "@/utils/string-ops/string-properties";
+import { setFirestoreField } from "@/utils/db-read-write-ops/update.js";
 
 // ==================== Store and HOCs =====================
 import useUserInputsStore from "@/store/user-inputs";
@@ -485,6 +486,13 @@ function ProcessSection() {
       mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
       sharedStates: saveSharedStates,
+    });
+    //update the voiceName
+    setFirestoreField({
+      collectionName: "spots_meta_data",
+      docId: spotId,
+      fieldName: "voiceName",
+      newValue: determineVoice(localSectionsArray),
     });
   };
   const syncLocalStackWithGlobal = () => {
@@ -921,6 +929,16 @@ function ProcessSection() {
     setProgressBarPercentage(newProgressBarPercentage);
     setSecondsYouHaveLeft(newSecondsLeft);
     setGeneratedVoiceUrl(sectionToUpdate.getGeneratedVoiceUrl());
+  };
+
+  const determineVoice = (sectionsArray) => {
+    const voiceNames = sectionsArray.map((section) => section.getVoiceName());
+    const uniqueVoiceNames = new Set(voiceNames);
+    if (uniqueVoiceNames.size === 1) {
+      return Array.from(uniqueVoiceNames)[0];
+    } else {
+      return "Multiple";
+    }
   };
   // #endregion
 
