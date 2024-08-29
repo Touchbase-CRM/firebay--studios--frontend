@@ -932,7 +932,9 @@ function ProcessSection() {
   };
 
   const determineVoice = (sectionsArray) => {
-    const voiceNames = sectionsArray.map((section) => section.getVoiceName());
+    const voiceNames = sectionsArray
+      .filter((section) => section.getHistoryItemId() !== null)
+      .map((section) => section.getVoiceName());
     const uniqueVoiceNames = new Set(voiceNames);
     if (uniqueVoiceNames.size === 1) {
       return Array.from(uniqueVoiceNames)[0];
