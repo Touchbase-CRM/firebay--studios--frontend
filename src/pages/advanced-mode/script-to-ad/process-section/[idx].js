@@ -1019,14 +1019,11 @@ function ProcessSection() {
                 </Form.Group>
               </Card.Body>
               {showAudioPlayer && (
+
                 <SimpleAudioPlayer
                   audioSrc={generatedVoiceUrl}
-                  audioTitle={localCurrentSectionObj.getVoiceName()}
-                  allowDownload={allowDownload}
-                  autoplay={true}
-                  forceRender={forceRenderKey}
-                  setShowAudioPlayer={setShowAudioPlayer}
                 />
+
               )}
             </Card>
             <div className="d-flex justify-content-start align-items-center mt-3 flex-wrap">

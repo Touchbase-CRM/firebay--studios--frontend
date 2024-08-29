@@ -1,172 +1,158 @@
-import React, { useCallback } from "react";
-import AudioPlayer, { RHAP_UI } from "react-h5-audio-player";
-import "react-h5-audio-player/lib/styles.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { getAuth } from "firebase/auth";
-import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
-import app from "@/firebase";
-import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
-import useUserInputsStore from "@/store/user-inputs";
-import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update.js";
+import React, { useState, useRef, useEffect } from 'react';
+import ReactPlayer from 'react-player';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+const SimpleAudioPlayer = ({ audioSrc }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState('0:00');
+  const [duration, setDuration] = useState('0:00');
+  const playerRef = useRef(null);
+  const animationRef = useRef(null);
 
-export default function SimpleAudioPlayer({
-  audioTitle,
-  audioSrc,
-  forceRender = 0,
-  autoplay = false,
-  allowDownload = false,
-  setShowAudioPlayer, // Optional prop
-}) {
-  const { spotName, spotId } = useUserInputsStore();
-  const capturedTimestamp = captureCurrentTimestamp();
-
-  const downloadFileName = `${spotName}--${capturedTimestamp}.mp3`;
-
-  const incrementMonthlyDownloads = useCallback(async () => {
-    if (!allowDownload) {
-      return;
+  useEffect(() => {
+    if (isPlaying) {
+      animationRef.current = requestAnimationFrame(updateProgress);
+    } else {
+      cancelAnimationFrame(animationRef.current);
     }
 
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
-    const user = auth.currentUser;
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [isPlaying]);
 
-    if (user) {
-      const uid = user.uid;
-      appendToFirestoreArray({
-        collectionName: "spots_meta_data",
-        docId: spotId,
-        fieldName: "downloadLogs",
-        newValue: {
-          downloadFileName: downloadFileName,
-          downloadTime: capturedTimestamp,
-        },
-      });
-      const docRef = doc(firestore, "uid_to_org", uid);
-      const docSnap = await getDoc(docRef);
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
 
-      if (docSnap.exists() && docSnap.data().monthly_downloads !== undefined) {
-        await updateDoc(docRef, {
-          monthly_downloads: docSnap.data().monthly_downloads + 1,
-        });
+  const restartAudio = () => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(0);
+      setProgress(0);
+      setElapsedTime('0:00');
+      setIsPlaying(true);
+    }
+  };
+
+  const updateProgress = () => {
+    if (playerRef.current) {
+      const currentProgress = playerRef.current.getCurrentTime() / playerRef.current.getDuration();
+      setProgress(currentProgress * 100);
+      setElapsedTime(formatTime(playerRef.current.getCurrentTime()));
+      if (currentProgress === 1) {
+        onTrackEnd();
+      } else {
+        animationRef.current = requestAnimationFrame(updateProgress);
       }
     }
-  }, [allowDownload]);
+  };
+
+  const seekAudio = (event) => {
+    if (playerRef.current) {
+      const { left, width } = event.currentTarget.getBoundingClientRect();
+      const clickPosition = event.clientX - left;
+      const clickPercentage = clickPosition / width;
+      playerRef.current.seekTo(clickPercentage);
+      setProgress(clickPercentage * 100);
+      setElapsedTime(formatTime(playerRef.current.getCurrentTime()));
+    }
+  };
+
+  const onTrackEnd = () => {
+    setIsPlaying(false);
+    setProgress(0);
+    setElapsedTime('0:00');
+    if (playerRef.current) {
+      playerRef.current.seekTo(0);
+    }
+  };
+
+  const onDuration = (durationInSeconds) => {
+    setDuration(formatTime(durationInSeconds));
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
-    <>
-      <div style={styles.audioPlayerContainer}>
-        <div style={styles.audioPlayerContent}>
-          <div style={styles.infoRow}>
-            <div style={styles.audioTitle}>Now playing: {audioTitle}</div>
-            <div>
-              {allowDownload && (
-                <a
-                  href={audioSrc}
-                  download={downloadFileName}
-                  style={styles.downloadBtn}
-                  onClick={incrementMonthlyDownloads}
-                >
-                  <i className="bi bi-download"></i>
-                </a>
-              )}
-              {setShowAudioPlayer && (
-                <button
-                  onClick={() => setShowAudioPlayer(false)}
-                  style={styles.closeBtn}
-                >
-                  <i className="bi bi-x"></i>
-                </button>
-              )}
-            </div>
-          </div>
-          <AudioPlayer
-            key={forceRender}
-            src={audioSrc || undefined}
-            autoPlay={autoplay}
-            header={null}
-            showJumpControls={true}
-            customAdditionalControls={[]}
-            customVolumeControls={[]}
-            customProgressBarSection={[
-              RHAP_UI.CURRENT_TIME,
-              RHAP_UI.PROGRESS_BAR,
-              RHAP_UI.DURATION,
-            ]}
-            customControlsSection={[
-              RHAP_UI.ADDITIONAL_CONTROLS,
-              RHAP_UI.MAIN_CONTROLS,
-              RHAP_UI.VOLUME_CONTROLS,
-            ]}
-            progressJumpSteps={{
-              forward: 2000,
-              backward: 2000
-            }}
-            style={styles.audioPlayer}
-          />
-        </div>
+    <div style={styles.audioPlayerContainer}>
+      <ReactPlayer
+        ref={playerRef}
+        url={audioSrc}
+        playing={isPlaying}
+        controls={false}
+        width="0"
+        height="0"
+        onEnded={onTrackEnd}
+        onDuration={onDuration}
+      />
+      <button onClick={togglePlay} style={styles.controlBtn}>
+        <i className={isPlaying ? "bi bi-pause-fill" : "bi bi-play-fill"}></i>
+      </button>
+      <button onClick={restartAudio} style={styles.controlBtn}>
+        <i className="bi bi-arrow-counterclockwise"></i>
+      </button>
+      <div style={styles.timeDisplay}>
+        {elapsedTime} / {duration}
       </div>
-    </>
+      <div style={styles.progressContainer} onClick={seekAudio}>
+        <div
+          style={{
+            ...styles.progressBar,
+            width: `${progress}%`,
+          }}
+        />
+      </div>
+    </div>
   );
-}
+};
 
 const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 999,
-  },
   audioPlayerContainer: {
-    background: "#ffffff",
-    boxShadow: "0px 0px 15px rgba(0, 0, 0, 0.1)",
-    borderRadius: "10px 10px 0 0", // Remove bottom border radius to align with the bottom of the page
-    position: "fixed",
-    bottom: "0px",
-    width: "calc(100% - 20px)", // Adjust width to leave some margin
-    maxWidth: "900px",
-    left: "50%",
-    transform: "translateX(-50%)", // Center it horizontally
-    zIndex: 1000,
-    padding: "10px",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '10px',
+    borderRadius: '5px',
+    backgroundColor: '#f3f3f3',
+    width: '100%',
+    maxWidth: '100%',
+    position: 'fixed',
+    bottom: '0',
+    left: '0',
+    zIndex: '1000', // Ensures the audio player is above other content
+    boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
   },
-  audioPlayerContent: {
-    padding: "10px",
+  controlBtn: {
+    fontSize: '24px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: 'black',
+    cursor: 'pointer',
+    marginRight: '10px',
+    padding: '5px',
   },
-  infoRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "10px",
+  timeDisplay: {
+    fontSize: '14px',
+    color: 'black',
+    marginRight: '10px',
+    whiteSpace: 'nowrap',
   },
-  audioTitle: {
-    fontWeight: "bold",
-    color: "#333",
+  progressContainer: {
+    flexGrow: 1,
+    height: '6px',
+    backgroundColor: '#ddd',
+    borderRadius: '3px',
+    position: 'relative',
+    cursor: 'pointer',
   },
-  closeBtn: {
-    fontSize: "1.5em",
-    color: "black",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-  },
-  downloadRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: "10px",
-  },
-  downloadBtn: {
-    fontSize: "1.5em",
-    color: "#EB631C",
-    textDecoration: "none",
-    marginRight: "10px", // Add some margin to separate from the close button
-  },
-  audioPlayer: {
-    background: "transparent",
-    boxShadow: "none",
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#EB631C', // Orange color
+    borderRadius: '3px',
   },
 };
+
+export default SimpleAudioPlayer;
