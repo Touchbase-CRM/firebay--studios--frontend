@@ -87,7 +87,6 @@ const SpotTable = ({
                 <td>{spot.spotName || "-"}</td>
                 <td>{spot.voiceName || "-"}</td>
                 <td style={{ textAlign: "left", fontSize: "16px" }}>
-                  {console.log(formatDuration(spot.adLength) + spot.adLength)}
                   {spot.adLength ? formatDuration(spot.adLength) : "-"}
                 </td>
                 <td>{spot.created || "-"}</td>

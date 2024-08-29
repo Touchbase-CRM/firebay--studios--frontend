@@ -936,8 +936,10 @@ function ProcessSection() {
       .filter((section) => section.getHistoryItemId() !== null)
       .map((section) => section.getVoiceName());
     const uniqueVoiceNames = new Set(voiceNames);
-    if (uniqueVoiceNames.size === 1) {
-      return Array.from(uniqueVoiceNames)[0];
+    if (uniqueVoiceNames.size === 0) {
+      return localCurrentSectionObj.getVoiceName(); // default voice
+    } else if (uniqueVoiceNames.size === 1) {
+      return Array.from(uniqueVoiceNames)[0]; // single voice (not default voice)
     } else {
       return "Multiple";
     }
