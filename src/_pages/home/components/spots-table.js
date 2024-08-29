@@ -82,22 +82,22 @@ const SpotTable = ({
 
           <tbody>
             {spots.map((spot, index) => (
-              <tr key={index} style={{ borderBottom: "none", height: "48px" }}>
-                <td>{currentTableIndex + index + 1}</td>
-                <td>{spot.spotName || "-"}</td>
-                <td>{spot.voiceName || "TBD"}</td>
-                <td style={{ textAlign: "left", fontSize: "16px" }}>
+              <tr key={index} style={{ borderBottom: "none" }}>
+                <td style={{ padding: "6px 10px", fontSize: "15px" }}>{currentTableIndex + index + 1}</td>
+                <td style={{ padding: "6px 10px", fontSize: "15px" }}>{spot.spotName || "-"}</td>
+                <td style={{ padding: "6px 10px", fontSize: "15px" }}>{spot.voiceName || "TBD"}</td>
+                <td style={{ textAlign: "left", padding: "6px 10px", fontSize: "15px" }}>
                   {spot.adLength ? formatDuration(spot.adLength) : "-"}
                 </td>
-                <td>{spot.created || "-"}</td>
-                <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <td style={{ padding: "6px 10px", fontSize: "15px" }}>{spot.created || "-"}</td>
+                <td style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: "6px 10px" }}>
                   <Button
                     style={{
                       backgroundColor: "#eb631c",
                       color: "white",
-                      borderRadius: "20px",
-                      padding: "6px 12px",
-                      fontSize: "14px",
+                      borderRadius: "18px",
+                      padding: "5px 10px",
+                      fontSize: "13px",
                       borderColor: "#eb631c",
                     }}
                     onClick={() => handleSpotActions["edit"](spot.id)}
@@ -107,7 +107,7 @@ const SpotTable = ({
                   <div className="dropdown">
                     <i
                       className="bi bi-three-dots"
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', fontSize: '16px' }}
                       onClick={() => handleDropdownToggle(index)}
                       aria-expanded={activeDropdown === index}
                     ></i>
@@ -128,10 +128,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Download Logs
@@ -141,10 +141,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Duplicate Spot
@@ -154,10 +154,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Rename Spot
@@ -167,10 +167,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Delete Spot
@@ -180,10 +180,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Share
@@ -196,10 +196,10 @@ const SpotTable = ({
                           <span
                             className="dropdown-item"
                             style={{
-                              outline: "none",
+                              padding: "6px 10px",
+                              fontSize: "15px",
                               backgroundColor: "#f8f9fa",
                               color: "#495057",
-                              boxShadow: "none",
                             }}
                           >
                             Cancel
@@ -208,11 +208,13 @@ const SpotTable = ({
                       </ul>
                     )}
                   </div>
-
                 </td>
               </tr>
             ))}
           </tbody>
+
+
+
         </Table>
       )}
 
