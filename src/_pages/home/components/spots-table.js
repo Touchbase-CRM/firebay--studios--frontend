@@ -85,7 +85,7 @@ const SpotTable = ({
               <tr key={index} style={{ borderBottom: "none", height: "48px" }}>
                 <td>{currentTableIndex + index + 1}</td>
                 <td>{spot.spotName || "-"}</td>
-                <td>{spot.voiceName || "-"}</td>
+                <td>{spot.voiceName || "TBD"}</td>
                 <td style={{ textAlign: "left", fontSize: "16px" }}>
                   {spot.adLength ? formatDuration(spot.adLength) : "-"}
                 </td>

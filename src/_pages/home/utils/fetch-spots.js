@@ -22,7 +22,7 @@ export async function fetchSpots(db, userId, setSpots, setIsLoading) {
       return {
         id: doc.id,
         spotName: data.spotName || "-",
-        voiceName: data.voiceName || "-",
+        voiceName: data.voiceName || "TBD",
         adLength: data.adLength || "-",
         createdRaw: createdDate,
         created: createdDate ? createdDate.toLocaleString() : "-",
