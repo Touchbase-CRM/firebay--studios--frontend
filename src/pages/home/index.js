@@ -478,31 +478,6 @@ const Home = () => {
                   variant="primary"
                   style={{ marginBottom: "200px" }}
                 />
-
-                <Card
-                  className="p-4"
-                  style={{
-                    marginTop: "600px",
-                    marginRight: "130px",
-                    borderRadius: "1rem",
-                    border: "2px solid #eb631c",
-                    color: "black",
-                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <p
-                    className="ml-3 mb-0"
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "24px",
-                      color: "black",
-                      textShadow: "2px 2px 2px rgba(0,0,0,0.2)",
-                      fontFamily: "'Cinzel', serif",
-                    }}
-                  >
-                    Loading Data...
-                  </p>
-                </Card>
               </div>
             </Col>
           </Row>
