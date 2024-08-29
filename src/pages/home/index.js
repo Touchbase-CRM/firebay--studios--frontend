@@ -463,16 +463,15 @@ const Home = () => {
         style={{
           backgroundColor: "white",
           padding: "20px",
-          // height: "calc(100vh - 90px)", // Adjust height considering the navbar height
           overflowY: "auto",
         }}
       >
-        {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
+        {isLoading || editLoading ? (
           <Row className="justify-content-center">
             <Col xs={12} className="text-center">
               <div
                 className="d-flex align-items-center justify-content-center flex-column"
-                style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
+                style={{ minHeight: "700px", backgroundColor: "#FFFFFF" }}
               >
                 <Spinner
                   animation="border"
@@ -483,7 +482,8 @@ const Home = () => {
                 <Card
                   className="p-4"
                   style={{
-                    marginTop: "100px",
+                    marginTop: "600px",
+                    marginRight: "130px",
                     borderRadius: "1rem",
                     border: "2px solid #eb631c",
                     color: "black",
