@@ -19,6 +19,8 @@ import DetectedSections from "@/_pages/advanced-mode/script-to-ad/create-section
 import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
 import withAuth from "@/hocs/with-auth";
+import { setFirestoreField } from "@/utils/db-read-write-ops/update.js";
+
 
 function CreateSections() {
   const auth = getAuth();
@@ -26,6 +28,7 @@ function CreateSections() {
 
   // Zustand store hooks
   const {
+    spotId,
     adLength,
     setAdLength,
     sectionsArray,
@@ -126,6 +129,12 @@ function CreateSections() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFirestoreField({
+      collectionName: "spots_meta_data",
+      docId: spotId,
+      fieldName: "adLength",
+      newValue: adLength,
+    });
 
     const isValid = validateScript(
       originalScriptForSectionSplit,

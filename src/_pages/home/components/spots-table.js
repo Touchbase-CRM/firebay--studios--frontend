@@ -44,6 +44,14 @@ const SpotTable = ({
       setCurrentTableIndex(currentTableIndex - pageSize);
     }
   };
+  const formatDuration = (seconds) => {
+    if (seconds === '-') {
+      return "--:--";
+    }
+    const mins = Math.floor(parseInt(seconds) / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   const handleDropdownToggle = (index) => {
     setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
@@ -78,7 +86,10 @@ const SpotTable = ({
                 <td>{currentTableIndex + index + 1}</td>
                 <td>{spot.spotName || "-"}</td>
                 <td>{spot.voiceName || "-"}</td>
-                <td>{spot.adLength || "-"}</td>
+                <td style={{ textAlign: "left", fontSize: "16px" }}>
+                  {console.log(formatDuration(spot.adLength) + spot.adLength)}
+                  {spot.adLength ? formatDuration(spot.adLength) : "-"}
+                </td>
                 <td>{spot.created || "-"}</td>
                 <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Button
