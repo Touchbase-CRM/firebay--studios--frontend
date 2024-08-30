@@ -725,7 +725,7 @@ const Home = () => {
             overflowY: "auto",
           }}
         >
-          {isLoading || editLoading ? (
+          {editLoading || isLoading ? (
             <Row className="justify-content-center">
               <Col xs={12} className="text-center">
                 <div
@@ -734,9 +734,15 @@ const Home = () => {
                 >
                   <Spinner
                     animation="border"
-                    variant="primary"
-                    style={{ marginBottom: "200px" }}
+                    role="status"
+                    style={{
+                      width: "10rem",
+                      height: "10rem",
+                      borderColor: "#EB621D",
+                      borderRightColor: "transparent"
+                    }}
                   />
+
                 </div>
               </Col>
             </Row>
