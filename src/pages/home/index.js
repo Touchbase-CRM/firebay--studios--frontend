@@ -61,6 +61,7 @@ const Home = () => {
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
   const [pageSize, setPageSize] = useState(10); // Updated state for pageSize
+  const [userName, setUserName] = useState([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -105,6 +106,7 @@ const Home = () => {
           const data = await readFromFirestore("uid_to_org", currentUser.uid);
           const downloads = data?.monthly_downloads;
           const unitPrice = data?.unit_price;
+          setUserName([data?.first_name, data?.last_name]);
           setTotalDownloads(downloads !== undefined ? downloads : null);
           setUnitPrice(unitPrice !== undefined ? unitPrice : null);
 
@@ -457,7 +459,8 @@ const Home = () => {
         flexDirection: "row",
       }}
     >
-      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification} totalDownloads={totalDownloads} />
+      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification}
+        totalDownloads={totalDownloads} firstName={userName[0]} lastName={userName[1]} />
       <Container
         fluid
         style={{

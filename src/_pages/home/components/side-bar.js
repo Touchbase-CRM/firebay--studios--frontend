@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Nav, Dropdown, Spinner } from 'react-bootstrap';
 import { NotificationsPad } from "./notifications-pad";
 
-const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification, totalDownloads }) => {
+const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotification, totalDownloads, firstName = "Pyro", lastName = "User" }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -230,9 +230,9 @@ const Sidebar = ({ onCreateClick, onLogoutClick, notifications, deleteNotificati
                                     fontWeight: 'bold',
                                 }}
                             >
-                                K
+                                {firstName.slice(0, 1).toUpperCase()}
                             </div>
-                            {!collapsed && <span>Kaveen Jayamanna</span>}
+                            {!collapsed && <span>{firstName} {lastName}</span>}
                         </div>
                         <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
                             <Dropdown.Item onClick={onLogoutClick} style={{
