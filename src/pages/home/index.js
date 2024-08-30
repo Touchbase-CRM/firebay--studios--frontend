@@ -62,8 +62,6 @@ const Home = () => {
   const db = getFirestore(app);
   const [pageSize, setPageSize] = useState(10);
   const [userName, setUserName] = useState([]);
-  const [collapsed, setCollapsed] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
@@ -448,15 +446,6 @@ const Home = () => {
     reset();
   };
 
-  const toggleCollapse = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setCollapsed(!collapsed);
-      setLoading(false);
-      console.log('Sidebar collapsed:', !collapsed);
-    }, 300);
-  };
-
   const handleProfileClick = () => {
     setShowDropdown(!showDropdown);
     console.log('Profile clicked');
@@ -468,255 +457,193 @@ const Home = () => {
         className="d-flex"
         style={{ backgroundColor: "white", minHeight: "100vh" }}
       >
-        <div style={{ position: 'relative', display: 'flex' }}>
-          <Nav
-            variant="pills"
-            className="d-flex flex-column vh-100 p-3"
-            style={{
-              width: collapsed ? '80px' : '250px',
-              backgroundColor: '#ffffff',
-              borderRight: '1px solid #e0e0e0',
-              transition: 'width 0.3s',
-            }}
-          >
-            <Nav.Item className="mb-3">
-              {loading ? (
-                <Spinner
-                  animation="border"
-                  style={{
-                    marginBottom: '0px',
-                    marginLeft: collapsed ? '8px' : 'auto',
-                    marginRight: collapsed ? '15px' : 'auto',
-                    borderColor: '#EB631C',
-                    borderRightColor: 'transparent'
-                  }}
-                />
-              ) : (
-                <img
-                  src={collapsed ? "/fire.png" : "/White mic horizontal.png"}
-                  alt="Firebay Studios Logo"
-                  style={{
-                    width: collapsed ? '40px' : '150px',
-                    marginBottom: '0px',
-                    transition: 'width 0.3s',
-                    display: 'block',
-                    marginLeft: collapsed ? '8px' : 'auto',
-                    marginRight: collapsed ? '15px' : 'auto',
-                  }}
-                />
-              )}
-            </Nav.Item>
+        <Nav
+          variant="pills"
+          className="d-flex flex-column vh-100 p-3"
+          style={{
+            width: '250px',
+            backgroundColor: '#ffffff',
+            borderRight: '1px solid #e0e0e0',
+          }}
+        >
+          <Nav.Item className="mb-3">
+            <img
+              src="/White mic horizontal.png"
+              alt="Firebay Studios Logo"
+              style={{
+                width: '150px',
+                marginBottom: '0px',
+                display: 'block',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            />
+          </Nav.Item>
 
-            {!collapsed && (
-              <Nav.Item className="mb-3">
-                <Button
-                  variant="outline-primary"
-                  className="mb-3 w-100"
+          <Nav.Item className="mb-3">
+            <Button
+              variant="outline-primary"
+              className="mb-3 w-100"
+              style={{
+                backgroundColor: "#eb631c",
+                border: "none",
+                color: "white",
+                borderRadius: "5px",
+              }}
+              onClick={handleCreateAdClick}
+            >
+              <i className="bi bi-plus-circle"></i> Create
+            </Button>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              eventKey="yourAds"
+              className={`d-flex align-items-center ${styles.navLink}`}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <i className="bi bi-house" style={{ marginRight: '10px' }}></i>
+              Home
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              eventKey="sharedWithMe"
+              className={`d-flex align-items-center ${styles.navLink}`}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <i className="bi bi-people" style={{ marginRight: '10px' }}></i>
+              Shared with me
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              eventKey="notifications"
+              className={`d-flex align-items-center ${styles.navLink}`}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+                position: 'relative',
+              }}
+              onClick={() => setShowNotifications(true)}
+            >
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <i className="bi bi-bell" style={{ marginRight: '10px' }}></i>
+              </div>
+              Notifications
+              {notifications.length > 0 && (
+                <span
+                  className="badge text-bg-secondary"
                   style={{
-                    backgroundColor: "#eb631c",
-                    border: "none",
-                    color: "white",
-                    borderRadius: "5px",
-                  }}
-                  onClick={handleCreateAdClick}
-                >
-                  <i className="bi bi-plus-circle"></i> Create
-                </Button>
-              </Nav.Item>
-            )}
-            <Nav.Item>
-              <Nav.Link
-                eventKey="yourAds"
-                className={`d-flex align-items-center ${styles.navLink}`}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '5px',
-                  marginBottom: '10px',
-                  fontSize: '14px',
-                }}
-              >
-                <i className="bi bi-house" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                {!collapsed && 'Home'}
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                eventKey="sharedWithMe"
-                className={`d-flex align-items-center ${styles.navLink}`}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '5px',
-                  marginBottom: '10px',
-                  fontSize: '14px',
-                }}
-              >
-                <i className="bi bi-people" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                {!collapsed && 'Shared with me'}
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                eventKey="notifications"
-                className={`d-flex align-items-center ${styles.navLink}`}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '5px',
-                  marginBottom: '10px',
-                  fontSize: '14px',
-                  position: 'relative',
-                }}
-                onClick={() => setShowNotifications(true)}
-              >
-                <div style={{ position: 'relative', display: 'inline-block' }}>
-                  <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                  {collapsed && notifications.length > 0 && (
-                    <span
-                      className="badge text-bg-secondary"
-                      style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        right: '-12px',
-                        fontSize: '10px',
-                        padding: '2px 5px',
-                        borderRadius: '10px',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                      }}
-                    >
-                      {notifications.length}
-                    </span>
-                  )}
-                </div>
-                {!collapsed && (
-                  <>
-                    Notifications
-                    {notifications.length > 0 && (
-                      <span
-                        className="badge text-bg-secondary"
-                        style={{
-                          marginLeft: '5px',
-                          fontSize: '12px',
-                          padding: '2px 6px',
-                          borderRadius: '10px',
-                          backgroundColor: '#dc3545',
-                          color: 'white',
-                        }}
-                      >
-                        {notifications.length}
-                      </span>
-                    )}
-                  </>
-                )}
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                eventKey="requestFullService"
-                className={`d-flex align-items-center ${styles.navLink}`}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: '5px',
-                  marginBottom: '10px',
-                  fontSize: '14px',
-                }}
-              >
-                <i className="bi bi-check-circle" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                {!collapsed && 'Request white glove'}
-              </Nav.Link>
-            </Nav.Item>
-
-            <Nav.Item className="mt-auto mb-3">
-              {!collapsed && (
-                <div style={{
-                  backgroundColor: '#f8f9fa',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Downloads this month</p>
-                  <p style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>{totalDownloads}</p>
-                </div>
-              )}
-            </Nav.Item>
-
-            <Nav.Item>
-              <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
-                <div
-                  id="dropdown-profile"
-                  onClick={handleProfileClick}
-                  style={{
-                    color: '#000000',
-                    padding: '10px 20px',
-                    borderRadius: '5px',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
+                    marginLeft: '5px',
+                    fontSize: '12px',
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
                   }}
                 >
-                  <div
-                    style={{
-                      width: '30px',
-                      height: '30px',
-                      borderRadius: '50%',
-                      backgroundColor: '#f0c6b2',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: collapsed ? '0px' : '10px',
-                      marginLeft: "-6px",
-                      color: '#000000',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {userName[0]?.slice(0, 1).toUpperCase()}
-                  </div>
-                  {!collapsed && <span>{userName.join(" ")}</span>}
-                </div>
-                <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
-                  <Dropdown.Item onClick={handleLogout} style={{
-                    outline: "none",
-                    backgroundColor: "#f8f9fa",
-                    color: "#495057",
-                    boxShadow: "none",
-                  }}>
-                    <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
-                    Sign out
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </Nav.Item>
-          </Nav>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '25px',
-              right: '-15px',
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              backgroundColor: '#eb631c',
+                  {notifications.length}
+                </span>
+              )}
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              eventKey="requestFullService"
+              className={`d-flex align-items-center ${styles.navLink}`}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <i className="bi bi-check-circle" style={{ marginRight: '10px' }}></i>
+              Request white glove
+            </Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item className="mt-auto mb-3">
+            <div style={{
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              padding: '15px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-            }}
-            onClick={toggleCollapse}
-          >
-            <i
-              className={`bi ${collapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}
-              style={{
-                fontSize: '20px',
-                color: '#ffffff',
-              }}
-            ></i>
-          </div>
-        </div>
+            }}>
+              <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Downloads this month</p>
+              <p style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>{totalDownloads}</p>
+            </div>
+          </Nav.Item>
+
+          <Nav.Item>
+            <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
+              <div
+                id="dropdown-profile"
+                onClick={handleProfileClick}
+                style={{
+                  color: '#000000',
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <div
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '50%',
+                    backgroundColor: '#f0c6b2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: '10px',
+                    marginLeft: "-6px",
+                    color: '#000000',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {userName[0]?.slice(0, 1).toUpperCase()}
+                </div>
+                <span>{userName.join(" ")}</span>
+              </div>
+              <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
+                <Dropdown.Item onClick={handleLogout} style={{
+                  outline: "none",
+                  backgroundColor: "#f8f9fa",
+                  color: "#495057",
+                  boxShadow: "none",
+                }}>
+                  <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
+                  Sign out
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Nav.Item>
+        </Nav>
         <Container
           fluid
           style={{
@@ -742,7 +669,6 @@ const Home = () => {
                       borderRightColor: "transparent"
                     }}
                   />
-
                 </div>
               </Col>
             </Row>
@@ -798,6 +724,7 @@ const Home = () => {
       </div>
     </Tab.Container>
   );
+
 };
 
 export default Home;
