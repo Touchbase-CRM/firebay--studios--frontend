@@ -29,6 +29,8 @@ const SignupPage = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   useEffect(() => {
     if (router.query.email) {
@@ -120,11 +122,21 @@ const SignupPage = () => {
       return;
     }
 
+    if (!firstName || !lastName) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Information",
+        text: "Please fill in both your first name and last name.",
+      });
+      setIsLoading(false); // Stop loading
+      return;
+    }
+
     const validUser = isEmployee
       ? await validateEmployeeStatus(email)
       : isTrialUser
-      ? await validateTrialUser(email)
-      : await validateInvoiceNumber(invoiceNumber);
+        ? await validateTrialUser(email)
+        : await validateInvoiceNumber(invoiceNumber);
 
     if (!validUser) {
       setIsLoading(false); // Stop loading
@@ -144,6 +156,8 @@ const SignupPage = () => {
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
       batch.set(uidToOrgRef, {
         work_email: email,
+        first_name: firstName,
+        last_name: lastName,
         monthly_downloads: -1,
         unit_price: 0,
       });
@@ -184,53 +198,52 @@ const SignupPage = () => {
     }
   };
 
+
   return (
     <Container
       fluid
-      className="vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#FFFFFF" }}
+      className="d-flex justify-content-center align-items-center"
+      style={{ minHeight: "90vh", backgroundColor: "#FFFFFF" }}
     >
-      {isLoading && (
+      {isLoading ? (
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
+            height: "100%",
             textAlign: "center",
           }}
         >
           <div
             style={{
               position: "relative",
-              width: "120px",
-              height: "120px",
+              width: "80px",
+              height: "80px",
             }}
           >
             <Spinner />
           </div>
-          <p style={{ marginTop: "20px", color: "black" }}>{statusMessage}</p>
+          <p style={{ marginTop: "100px", marginLeft: "90px", color: "black" }}>{statusMessage}</p>
         </div>
-      )}
-      {!isLoading && (
+      ) : (
         <Row className="w-100">
-          <Col md={6} className="mx-auto">
+          <Col md={8} lg={6} className="mx-auto">
             <Card
-              className="my-5 mx-1 p-4"
+              className="my-3 mx-1 p-3"
               style={{
                 borderColor: "#eb631c",
-                borderRadius: "1rem",
+                borderRadius: "0.5rem",
                 color: "black",
                 position: "relative",
               }}
             >
-              {/* Step indicator */}
               <div
                 style={{
                   position: "absolute",
-                  top: "10px",
-                  left: "10px",
+                  top: "5px",
+                  left: "5px",
                   fontSize: "small",
                 }}
               >
@@ -239,15 +252,47 @@ const SignupPage = () => {
               <Image
                 src="/fire.png"
                 alt="Firebay Studios"
-                width={100}
-                height={100}
-                className="d-block mx-auto mb-3"
+                width={80}
+                height={80}
+                className="d-block mx-auto mb-2"
               />
-              <h2 className="text-center mb-4">Pyro Sign Up</h2>
-              <p className="text-center mb-5">Let's get you started!</p>
+              <h4 className="text-center mb-3">Pyro Sign Up</h4>
+              <p className="text-center mb-4">Let's get you started!</p>
 
               <Form>
-                <Form.Group controlId="workEmail" className="mb-3">
+                <Form.Group controlId="firstName" className="mb-2">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your first name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    style={{
+                      borderColor: "#e4e4e4",
+                      backgroundColor: "#e4e4e4",
+                      color: "black",
+                    }}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="lastName" className="mb-2">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your last name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    style={{
+                      borderColor: "#e4e4e4",
+                      backgroundColor: "#e4e4e4",
+                      color: "black",
+                    }}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="workEmail" className="mb-2">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
@@ -263,7 +308,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="password" className="mb-3">
+                <Form.Group controlId="password" className="mb-2">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
@@ -280,7 +325,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="confirmPassword" className="mb-3">
+                <Form.Group controlId="confirmPassword" className="mb-2">
                   <Form.Label>Confirm Password</Form.Label>
                   <Form.Control
                     type="password"
@@ -297,7 +342,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="invoiceNumber" className="mb-3">
+                <Form.Group controlId="invoiceNumber" className="mb-2">
                   <Form.Label>Payment Invoice Number</Form.Label>
                   <Form.Control
                     type="text"
@@ -316,7 +361,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="isEmployee" className="mb-3">
+                <Form.Group controlId="isEmployee" className="mb-2">
                   <Form.Check
                     type="checkbox"
                     label="I am a Firebay Studios Employee"
@@ -325,7 +370,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="isTrialUser" className="mb-3">
+                <Form.Group controlId="isTrialUser" className="mb-2">
                   <Form.Check
                     type="checkbox"
                     label="I am a Trial User"
@@ -334,7 +379,7 @@ const SignupPage = () => {
                   />
                 </Form.Group>
 
-                <div className="my-3 text-left" style={{ fontSize: "small" }}>
+                <div className="my-2 text-left" style={{ fontSize: "small" }}>
                   By clicking the Sign Up button below, you agree to our&nbsp;
                   <a
                     href="https://www.firebaystudios.com/terms-of-service"
@@ -367,7 +412,7 @@ const SignupPage = () => {
                   style={{ backgroundColor: "#EB631C" }}
                   variant="outline-light"
                   type="submit"
-                  size="lg"
+                  size="md"
                   onClick={handleSignUp}
                 >
                   Sign Up
@@ -375,12 +420,12 @@ const SignupPage = () => {
               </Form>
 
               {error && (
-                <div className="mt-3">
+                <div className="mt-2">
                   <p className="text-center text-danger">{error}</p>
                 </div>
               )}
 
-              <div className="my-3">
+              <div className="my-2">
                 <p className="text-center">
                   Already a subscriber?{" "}
                   <a
@@ -395,8 +440,8 @@ const SignupPage = () => {
               <div
                 style={{
                   position: "absolute",
-                  bottom: "10px",
-                  right: "10px",
+                  bottom: "5px",
+                  right: "5px",
                   fontSize: "small",
                   fontWeight: "bold",
                   fontStyle: "italic",
