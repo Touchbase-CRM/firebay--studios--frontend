@@ -30,7 +30,8 @@ import {
 import SpotTable from "@/_pages/home/components/spots-table";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
-import styles from "@/styles/home.module.css";  // Import the CSS module
+import styles from "@/styles/home.module.css";
+import { NotificationsPad } from "@/_pages/home/components/notifications-pad";  // Import the NotificationsPad component
 
 const Home = () => {
   const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
@@ -54,6 +55,7 @@ const Home = () => {
   const [downloadLogs, setDownloadLogs] = useState([]);
   const [editLoading, setEditLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
@@ -63,8 +65,6 @@ const Home = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [internalNotifications, setInternalNotifications] = useState(notifications || []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -324,7 +324,7 @@ const Home = () => {
         ...spotSnap.data(),
         spotName: newCopySpotName,
         created: now,
-        downloadLogs: [], // Set downloadLogs to an empty array
+        downloadLogs: [],
       });
 
       const newAdRef = doc(db, "ads", newSpotMetaRef.id);
@@ -564,9 +564,10 @@ const Home = () => {
                   marginBottom: '10px',
                   fontSize: '14px',
                 }}
+                onClick={() => setShowNotifications(true)} // This will show the NotificationsPad when clicked
               >
                 <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                {internalNotifications.length > 0 && (
+                {notifications.length > 0 && (
                   <span
                     className="badge text-bg-secondary"
                     style={{
@@ -578,7 +579,7 @@ const Home = () => {
                       borderRadius: '10px',
                     }}
                   >
-                    {internalNotifications.length}
+                    {notifications.length}
                   </span>
                 )}
                 {!collapsed && 'Notifications'}
@@ -751,7 +752,12 @@ const Home = () => {
                 <div>Shared With Me Component</div>
               </Tab.Pane>
               <Tab.Pane eventKey="notifications">
-                <div>Notifications Component</div>
+                <NotificationsPad
+                  show={showNotifications}
+                  handleClose={() => setShowNotifications(false)}
+                  notifications={notifications}
+                  deleteNotification={deleteNotification}
+                />
               </Tab.Pane>
               <Tab.Pane eventKey="requestFullService">
                 <div>Request Full Service Component</div>
