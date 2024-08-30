@@ -563,26 +563,50 @@ const Home = () => {
                   borderRadius: '5px',
                   marginBottom: '10px',
                   fontSize: '14px',
+                  position: 'relative',
                 }}
-                onClick={() => setShowNotifications(true)} // This will show the NotificationsPad when clicked
+                onClick={() => setShowNotifications(true)}
               >
-                <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
-                {notifications.length > 0 && (
-                  <span
-                    className="badge text-bg-secondary"
-                    style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: collapsed ? '10px' : '30px',
-                      fontSize: '12px',
-                      padding: '4px 6px',
-                      borderRadius: '10px',
-                    }}
-                  >
-                    {notifications.length}
-                  </span>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                  {collapsed && notifications.length > 0 && (
+                    <span
+                      className="badge text-bg-secondary"
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        right: '-12px',
+                        fontSize: '10px',
+                        padding: '2px 5px',
+                        borderRadius: '10px',
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                      }}
+                    >
+                      {notifications.length}
+                    </span>
+                  )}
+                </div>
+                {!collapsed && (
+                  <>
+                    Notifications
+                    {notifications.length > 0 && (
+                      <span
+                        className="badge text-bg-secondary"
+                        style={{
+                          marginLeft: '5px',
+                          fontSize: '12px',
+                          padding: '2px 6px',
+                          borderRadius: '10px',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                        }}
+                      >
+                        {notifications.length}
+                      </span>
+                    )}
+                  </>
                 )}
-                {!collapsed && 'Notifications'}
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
