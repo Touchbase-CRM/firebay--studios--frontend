@@ -1,0 +1,15 @@
+.navLink {
+    color: #333 !important;
+    font-weight: 500 !important;
+    background-color: transparent !important;
+}
+
+.navLink:global(.active) {
+    color: #000 !important;
+    background-color: #fce8dd !important;
+    border-radius: 5px !important;
+}
+
+.navLink:hover:not(:global(.active)) {
+    background-color: #edede9 !important;
+}

@@ -1,4 +1,4 @@
-import { Button, Container, Row, Col, Card } from "react-bootstrap";
+import { Button, Container, Row, Col, Nav, Tab, Spinner, Dropdown } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -7,7 +7,6 @@ import {
   readFromFirestore,
 } from "@/utils/db-read-write-ops/deserialization-utils";
 import withAuth from "@/hocs/with-auth";
-
 import { getAuth } from "firebase/auth";
 import app from "@/firebase";
 import {
@@ -31,8 +30,7 @@ import {
 import SpotTable from "@/_pages/home/components/spots-table";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
-import Spinner from "@/components/spinner/spinner";
-import Sidebar from '../../_pages/home/components/side-bar';
+import styles from "@/styles/home.module.css";  // Import the CSS module
 
 const Home = () => {
   const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
@@ -54,30 +52,35 @@ const Home = () => {
   const [copySpotId, setCopySpotId] = useState("");
   const [showDownloadLogsModal, setShowDownloadLogsModal] = useState(false);
   const [downloadLogs, setDownloadLogs] = useState([]);
-  const [editLoading, setEditLoading] = useState(false); // New state for edit button loading
-  const [notifications, setNotifications] = useState([]); // State for notifications
+  const [editLoading, setEditLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const router = useRouter();
   const auth = getAuth(app);
   const currentUser = auth.currentUser;
   const db = getFirestore(app);
-  const [pageSize, setPageSize] = useState(10); // Updated state for pageSize
+  const [pageSize, setPageSize] = useState(10);
   const [userName, setUserName] = useState([]);
+  const [collapsed, setCollapsed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [internalNotifications, setInternalNotifications] = useState(notifications || []);
 
   useEffect(() => {
     const handleResize = () => {
       const height = window.innerHeight;
       if (height >= 1300) {
-        setPageSize(16); // xxl
+        setPageSize(16);
       } else if (height >= 1100) {
-        setPageSize(13); // xl
+        setPageSize(13);
       } else if (height >= 900) {
-        setPageSize(10); // lg
+        setPageSize(10);
       } else if (height >= 700) {
-        setPageSize(6); // md
+        setPageSize(6);
       } else if (height >= 500) {
-        setPageSize(3); // sm
+        setPageSize(3);
       } else {
-        setPageSize(1); // xs
+        setPageSize(1);
       }
     };
 
@@ -99,10 +102,8 @@ const Home = () => {
     const fetchData = async () => {
       if (currentUser) {
         try {
-          // Fetch spots
           fetchSpots(db, currentUser.uid, setSpots, setIsLoading);
 
-          // Fetch downloads and unit price
           const data = await readFromFirestore("uid_to_org", currentUser.uid);
           const downloads = data?.monthly_downloads;
           const unitPrice = data?.unit_price;
@@ -110,11 +111,9 @@ const Home = () => {
           setTotalDownloads(downloads !== undefined ? downloads : null);
           setUnitPrice(unitPrice !== undefined ? unitPrice : null);
 
-          // Fetch notifications
           const q = query(
             collection(db, "notifications"),
-            where("userId", "==", currentUser.uid),
-            // where("read", "==", false)
+            where("userId", "==", currentUser.uid)
           );
           const querySnapshot = await getDocs(q);
           const notificationsData = querySnapshot.docs.map((doc) => ({
@@ -186,7 +185,7 @@ const Home = () => {
   };
 
   async function handleEditSpot(spotId) {
-    setEditLoading(true); // Show loading spinner
+    setEditLoading(true);
     try {
       const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
       switch (mode) {
@@ -343,10 +342,9 @@ const Home = () => {
         spotName: newCopySpotName,
         created: now.toLocaleString(),
         createdRaw: now,
-        downloadLogs: [], // Initialize downloadLogs as an empty array
+        downloadLogs: [],
       };
 
-      // Ensure all spots have `createdRaw` and sort by created date
       const updatedSpots = [
         ...spots.map((spot) => ({
           ...spot,
@@ -427,7 +425,7 @@ const Home = () => {
           text: "Failed to load data, please try again.",
           icon: "error",
         });
-      }, 60000); // 60 seconds
+      }, 60000);
     }
     return () => clearTimeout(timeout);
   }, [isLoading, editLoading]);
@@ -450,86 +448,320 @@ const Home = () => {
     reset();
   };
 
+  const toggleCollapse = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setCollapsed(!collapsed);
+      setLoading(false);
+      console.log('Sidebar collapsed:', !collapsed);
+    }, 300);
+  };
+
+  const handleProfileClick = () => {
+    setShowDropdown(!showDropdown);
+    console.log('Profile clicked');
+  };
+
   return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <Sidebar onCreateClick={handleCreateAdClick} onLogoutClick={handleLogout} notifications={notifications} deleteNotification={deleteNotification}
-        totalDownloads={totalDownloads} firstName={userName[0]} lastName={userName[1]} />
-      <Container
-        fluid
-        style={{
-          backgroundColor: "white",
-          padding: "20px",
-          overflowY: "auto",
-        }}
+    <Tab.Container defaultActiveKey="yourAds">
+      <div
+        className="d-flex"
+        style={{ backgroundColor: "white", minHeight: "100vh" }}
       >
-        {isLoading || editLoading ? (
-          <Row className="justify-content-center">
-            <Col xs={12} className="text-center">
-              <div
-                className="d-flex align-items-center justify-content-center flex-column"
-                style={{ minHeight: "700px", backgroundColor: "#FFFFFF" }}
-              >
+        <div style={{ position: 'relative', display: 'flex' }}>
+          <Nav
+            variant="pills"
+            className="d-flex flex-column vh-100 p-3"
+            style={{
+              width: collapsed ? '80px' : '250px',
+              backgroundColor: '#ffffff',
+              borderRight: '1px solid #e0e0e0',
+              transition: 'width 0.3s',
+            }}
+          >
+            <Nav.Item className="mb-3">
+              {loading ? (
                 <Spinner
                   animation="border"
-                  variant="primary"
-                  style={{ marginBottom: "200px" }}
+                  style={{
+                    marginBottom: '0px',
+                    marginLeft: collapsed ? '8px' : 'auto',
+                    marginRight: collapsed ? '15px' : 'auto',
+                    borderColor: '#EB631C',
+                    borderRightColor: 'transparent'
+                  }}
                 />
-              </div>
-            </Col>
-          </Row>
-        ) : (
-          <>
-            <Row
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: "1rem",
-              }}
-            >
-            </Row>
-            <SpotTable
-              spots={paginatedSpots}
-              handleSpotActions={handleSpotActions}
-              currentTableIndex={currentTableIndex}
-              setCurrentTableIndex={setCurrentTableIndex}
-              pageSize={pageSize}
-              totalSpots={spots.length}
-              showCopyModal={showCopyModal}
-              showRenameModal={showRenameModal}
-              newSpotName={newSpotName}
-              setNewSpotName={setNewSpotName}
-              showCreateAdModal={showCreateAdModal}
-              adName={adName}
-              setAdName={setAdName}
-              setShowCreateAdModal={setShowCreateAdModal}
-              handleNextOnCreateAd={handleNextOnCreateAd}
-              setShowCopyModal={setShowCopyModal}
-              newCopySpotName={newCopySpotName}
-              setNewCopySpotName={setNewCopySpotName}
-              handleCloseModal={handleCloseModal}
-              updateSpotName={updateSpotName}
-              handleSaveCopy={() => handleSaveCopy(copySpotId)}
-              setShowRenameModal={setShowRenameModal}
-              showDownloadLogsModal={showDownloadLogsModal}
-              setShowDownloadLogsModal={setShowDownloadLogsModal}
-              downloadLogs={downloadLogs}
-              unitPrice={unitPrice}
-            />
+              ) : (
+                <img
+                  src={collapsed ? "/fire.png" : "/White mic horizontal.png"}
+                  alt="Firebay Studios Logo"
+                  style={{
+                    width: collapsed ? '40px' : '150px',
+                    marginBottom: '0px',
+                    transition: 'width 0.3s',
+                    display: 'block',
+                    marginLeft: collapsed ? '8px' : 'auto',
+                    marginRight: collapsed ? '15px' : 'auto',
+                  }}
+                />
+              )}
+            </Nav.Item>
 
-          </>
-        )}
-      </Container>
-    </div>
+            {!collapsed && (
+              <Nav.Item className="mb-3">
+                <Button
+                  variant="outline-primary"
+                  className="mb-3 w-100"
+                  style={{
+                    backgroundColor: "#eb631c",
+                    border: "none",
+                    color: "white",
+                    borderRadius: "5px",
+                  }}
+                  onClick={handleCreateAdClick}
+                >
+                  <i className="bi bi-plus-circle"></i> Create
+                </Button>
+              </Nav.Item>
+            )}
+            <Nav.Item>
+              <Nav.Link
+                eventKey="yourAds"
+                className={`d-flex align-items-center ${styles.navLink}`}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  marginBottom: '10px',
+                  fontSize: '14px',
+                }}
+              >
+                <i className="bi bi-house" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                {!collapsed && 'Home'}
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link
+                eventKey="sharedWithMe"
+                className={`d-flex align-items-center ${styles.navLink}`}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  marginBottom: '10px',
+                  fontSize: '14px',
+                }}
+              >
+                <i className="bi bi-people" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                {!collapsed && 'Shared with me'}
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link
+                eventKey="notifications"
+                className={`d-flex align-items-center ${styles.navLink}`}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  marginBottom: '10px',
+                  fontSize: '14px',
+                }}
+              >
+                <i className="bi bi-bell" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                {internalNotifications.length > 0 && (
+                  <span
+                    className="badge text-bg-secondary"
+                    style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: collapsed ? '10px' : '30px',
+                      fontSize: '12px',
+                      padding: '4px 6px',
+                      borderRadius: '10px',
+                    }}
+                  >
+                    {internalNotifications.length}
+                  </span>
+                )}
+                {!collapsed && 'Notifications'}
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link
+                eventKey="requestFullService"
+                className={`d-flex align-items-center ${styles.navLink}`}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  marginBottom: '10px',
+                  fontSize: '14px',
+                }}
+              >
+                <i className="bi bi-check-circle" style={{ marginRight: collapsed ? '0' : '10px' }}></i>
+                {!collapsed && 'Request white glove'}
+              </Nav.Link>
+            </Nav.Item>
+
+            <Nav.Item className="mt-auto mb-3">
+              {!collapsed && (
+                <div style={{
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  padding: '15px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Downloads this month</p>
+                  <p style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>{totalDownloads}</p>
+                </div>
+              )}
+            </Nav.Item>
+
+            <Nav.Item>
+              <Dropdown drop='up' show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
+                <div
+                  id="dropdown-profile"
+                  onClick={handleProfileClick}
+                  style={{
+                    color: '#000000',
+                    padding: '10px 20px',
+                    borderRadius: '5px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '50%',
+                      backgroundColor: '#f0c6b2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: collapsed ? '0px' : '10px',
+                      marginLeft: "-6px",
+                      color: '#000000',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {userName[0]?.slice(0, 1).toUpperCase()}
+                  </div>
+                  {!collapsed && <span>{userName.join(" ")}</span>}
+                </div>
+                <Dropdown.Menu align="end" style={{ bottom: '100%' }}>
+                  <Dropdown.Item onClick={handleLogout} style={{
+                    outline: "none",
+                    backgroundColor: "#f8f9fa",
+                    color: "#495057",
+                    boxShadow: "none",
+                  }}>
+                    <i className="bi bi-box-arrow-right" style={{ marginRight: '10px' }}></i>
+                    Sign out
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Nav.Item>
+          </Nav>
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '25px',
+              right: '-15px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '50%',
+              backgroundColor: '#eb631c',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            }}
+            onClick={toggleCollapse}
+          >
+            <i
+              className={`bi ${collapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}
+              style={{
+                fontSize: '20px',
+                color: '#ffffff',
+              }}
+            ></i>
+          </div>
+        </div>
+        <Container
+          fluid
+          style={{
+            backgroundColor: "white",
+            padding: "20px",
+            overflowY: "auto",
+          }}
+        >
+          {isLoading || editLoading ? (
+            <Row className="justify-content-center">
+              <Col xs={12} className="text-center">
+                <div
+                  className="d-flex align-items-center justify-content-center flex-column"
+                  style={{ minHeight: "700px", backgroundColor: "#FFFFFF" }}
+                >
+                  <Spinner
+                    animation="border"
+                    variant="primary"
+                    style={{ marginBottom: "200px" }}
+                  />
+                </div>
+              </Col>
+            </Row>
+          ) : (
+            <Tab.Content>
+              <Tab.Pane eventKey="yourAds">
+                <SpotTable
+                  spots={paginatedSpots}
+                  handleSpotActions={handleSpotActions}
+                  currentTableIndex={currentTableIndex}
+                  setCurrentTableIndex={setCurrentTableIndex}
+                  pageSize={pageSize}
+                  totalSpots={spots.length}
+                  showCopyModal={showCopyModal}
+                  showRenameModal={showRenameModal}
+                  newSpotName={newSpotName}
+                  setNewSpotName={setNewSpotName}
+                  showCreateAdModal={showCreateAdModal}
+                  adName={adName}
+                  setAdName={setAdName}
+                  setShowCreateAdModal={setShowCreateAdModal}
+                  handleNextOnCreateAd={handleNextOnCreateAd}
+                  setShowCopyModal={setShowCopyModal}
+                  newCopySpotName={newCopySpotName}
+                  setNewCopySpotName={setNewCopySpotName}
+                  handleCloseModal={handleCloseModal}
+                  updateSpotName={updateSpotName}
+                  handleSaveCopy={() => handleSaveCopy(copySpotId)}
+                  setShowRenameModal={setShowRenameModal}
+                  showDownloadLogsModal={showDownloadLogsModal}
+                  setShowDownloadLogsModal={setShowDownloadLogsModal}
+                  downloadLogs={downloadLogs}
+                  unitPrice={unitPrice}
+                />
+              </Tab.Pane>
+              <Tab.Pane eventKey="sharedWithMe">
+                <div>Shared With Me Component</div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="notifications">
+                <div>Notifications Component</div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="requestFullService">
+                <div>Request Full Service Component</div>
+              </Tab.Pane>
+            </Tab.Content>
+          )}
+        </Container>
+      </div>
+    </Tab.Container>
   );
 };
 
-// export default withAuth(Home);
 export default Home;
-
