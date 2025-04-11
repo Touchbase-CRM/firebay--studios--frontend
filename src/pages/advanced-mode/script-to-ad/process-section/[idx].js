@@ -93,6 +93,8 @@ function ProcessSection() {
       ? "http://localhost:8000"
       : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 
+  // const audioProcessingWebServiceUrl = "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
+
   const baseVoicePreviewsUrl =
     "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 
@@ -679,9 +681,10 @@ function ProcessSection() {
             model_id: modelId,
             voice_gender: voiceGender,
             user_id: userId,
-            dragons_breath_mode: dragonsBreathMode,
+            dragons_breath_mode: dragonsBreathMode,// This will be merged with emotion in later iterations.
             speech_rate: talkSpeed,
             legal_disclaimer: legalDisclaimer,
+            emotion: "enthusiastically",// hardcoded for now
           }),
         }
       );
