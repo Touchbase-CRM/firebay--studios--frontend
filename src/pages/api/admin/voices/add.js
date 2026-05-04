@@ -108,7 +108,6 @@ export default async function handler(req, res) {
         Key: key,
         Body: body,
         ContentType: "audio/mpeg",
-        ACL: "public-read",
       })
     );
   } catch (e) {

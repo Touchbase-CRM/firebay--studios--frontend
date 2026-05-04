@@ -152,7 +152,6 @@ export default async function handler(req, res) {
           Key: newKey,
           Body: body,
           ContentType: "audio/mpeg",
-          ACL: "public-read",
         })
       );
       didS3Mutation = true;
@@ -167,7 +166,6 @@ export default async function handler(req, res) {
           Bucket: PREVIEWS_BUCKET,
           CopySource: `/${PREVIEWS_BUCKET}/${oldKey}`,
           Key: newKey,
-          ACL: "public-read",
           MetadataDirective: "COPY",
         })
       );
