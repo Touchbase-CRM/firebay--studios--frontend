@@ -542,6 +542,17 @@ function StitchSections() {
         )}
       </PageContent>
 
+      {showAudioPlayer && (
+        <SimpleAudioPlayer
+          audioSrc={nowPlayingUrl}
+          audioTitle={audioTitle}
+          forceRender={forceRenderKey}
+          autoplay
+          allowDownload={!!combinedVoiceoverUrl}
+          setShowAudioPlayer={setShowAudioPlayer}
+        />
+      )}
+
       <RenameModal
         show={showRenameModal}
         onHide={() => setShowRenameModal(false)}
