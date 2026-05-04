@@ -102,6 +102,17 @@ button {
   width: 600px !important;
 }
 
+/* Hide the number-input spinner arrows globally — we use right-side adornments
+ * instead, which the native arrows otherwise collide with. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* React-toastify — re-pointed to tokens */
 .Toastify__toast {
   border-radius: var(--radius-md) !important;

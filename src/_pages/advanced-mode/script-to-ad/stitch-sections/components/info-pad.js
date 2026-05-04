@@ -46,20 +46,21 @@ const InfoPad = ({
         </span>
       </div>
       {overBudget && <Badge tone="warning">Over budget</Badge>}
-      <Button
-        variant="secondary"
-        leftIcon={<i className="bi bi-play-fill" />}
-        onClick={(e) => {
-          e.stopPropagation();
-          setForceRenderKey(Math.random().toString());
-          setShowAudioPlayer(true);
-          setNowPlayingUrl(combinedVoiceoverUrl);
-          setAudioTitle("Final Cut");
-        }}
-        disabled={!combinedVoiceoverUrl}
-      >
-        Replay final cut
-      </Button>
+      {combinedVoiceoverUrl && (
+        <Button
+          variant="secondary"
+          leftIcon={<i className="bi bi-play-fill" />}
+          onClick={(e) => {
+            e.stopPropagation();
+            setForceRenderKey(Math.random().toString());
+            setShowAudioPlayer(true);
+            setNowPlayingUrl(combinedVoiceoverUrl);
+            setAudioTitle("Final Cut");
+          }}
+        >
+          Replay final cut
+        </Button>
+      )}
     </div>
   );
 };

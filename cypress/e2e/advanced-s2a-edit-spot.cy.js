@@ -54,8 +54,8 @@ describe("Edit advanced s2a spot workflow", () => {
     cy.contains("button", /Continue to stitch/i).click();
     cy.url().should("include", "/advanced-mode/script-to-ad/stitch-sections");
 
-    // Kick off the stitch
-    cy.contains("button", "Stitch sections").click();
+    // Kick off the final cut
+    cy.contains("button", "Generate final cut").click();
 
     // After stitching, the inline Export panel shows up
     cy.contains("Export your spot", { timeout: 60000 }).should("be.visible");
