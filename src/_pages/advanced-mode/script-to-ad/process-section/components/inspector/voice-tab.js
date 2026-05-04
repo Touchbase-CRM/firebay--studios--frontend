@@ -111,7 +111,6 @@ export function VoiceTab({
           showPercentage
           width="100%"
           height="6px"
-          reset={() => onSpeechRateChange(0)}
         />
       </div>
     </div>

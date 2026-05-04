@@ -36,13 +36,18 @@ export function Inspector({
     >
       <div
         style={{
-          padding: "var(--space-4) var(--space-5) 0",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-3)",
+          borderBottom: "1px solid var(--border-subtle)",
+          paddingTop: "var(--space-4)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "0 var(--space-5)",
+          }}
+        >
           <Tabs
             value={active}
             onChange={setActive}
@@ -53,7 +58,7 @@ export function Inspector({
               badge,
               disabled,
             }))}
-            style={{ flex: 1 }}
+            style={{ flex: 1, border: "none" }}
           />
           {headerActions && (
             <div style={{ display: "flex", gap: "var(--space-1)", paddingLeft: "var(--space-3)" }}>
@@ -67,6 +72,7 @@ export function Inspector({
           flex: 1,
           minHeight: 0,
           overflowY: "auto",
+          overflowX: "hidden",
           padding: "var(--space-5)",
         }}
       >
