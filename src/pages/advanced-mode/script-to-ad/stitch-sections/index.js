@@ -465,7 +465,7 @@ function StitchSections() {
               Save
             </Button>
             <Button onClick={handleStitch} rightIcon={<i className="bi bi-arrow-right" />}>
-              Stitch sections
+              Generate final cut
             </Button>
           </div>
         ) : (
@@ -488,7 +488,7 @@ function StitchSections() {
                 </Button>
                 <div style={{ display: "flex", gap: "var(--space-2)" }}>
                   <Button variant="secondary" onClick={handleStitch}>
-                    Re-stitch
+                    Re-generate
                   </Button>
                   <Button onClick={handleDownload} loading={isDownloading} leftIcon={<i className="bi bi-download" />}>
                     Download

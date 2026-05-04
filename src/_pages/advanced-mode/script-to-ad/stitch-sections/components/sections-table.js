@@ -91,12 +91,14 @@ const SectionsTable = ({
                 </td>
                 <td style={{ textAlign: "right" }}>
                   <div style={{ display: "inline-flex", gap: "var(--space-1)" }}>
-                    <PlayButton
-                      onClickHandler={() =>
-                        handleSectionPreviewPlay(localSectionsArray[absoluteIdx])
-                      }
-                      size="28px"
-                    />
+                    {section.getHistoryItemId() ? (
+                      <PlayButton
+                        onClickHandler={() =>
+                          handleSectionPreviewPlay(localSectionsArray[absoluteIdx])
+                        }
+                        size="28px"
+                      />
+                    ) : null}
                     <EditButton
                       onClickHandler={() =>
                         handleEditSection(localSectionsArray[absoluteIdx])
