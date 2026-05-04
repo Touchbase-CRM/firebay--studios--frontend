@@ -450,14 +450,17 @@ function ProcessSection() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`HTTP ${response.status}${text ? `: ${text.slice(0, 200)}` : ""}`);
+    }
     const data = await response.json();
-    if (!data?.pyro_history_item_id) throw new Error("pyro_history_item_id not found in response");
+    if (!data?.pyro_history_item_id) {
+      throw new Error(data?.error || "pyro_history_item_id not found in response");
+    }
     const pyroHistoryItemId = data.pyro_history_item_id;
-    const estimatedTime =
-      (1 / CHARACTERS_PER_SEC) * localCurrentSectionObj.getCurrentCharCount() * SEC_TO_MS +
-      ADDITIONAL_WAIT_TIME_MS;
-    const audioUrl = await fetchAudioFromPyroBackendDistribution(pyroHistoryItemId, estimatedTime);
+    // Backend uploads to S3 before returning, so no pre-fetch wait is needed.
+    const audioUrl = await fetchAudioFromPyroBackendDistribution(pyroHistoryItemId, 0);
     return { audioUrl, localHistoryItemId: pyroHistoryItemId };
   }
 
@@ -501,9 +504,13 @@ function ProcessSection() {
       updateLocalSectionHistoryObj({ [localCurrentSectionObj.getHistoryItemId()]: localCurrentSectionObj });
     } catch (error) {
       console.error("Error generating voice:", error);
-      if (error.message?.includes?.("Failed to fetch audio URL from API")) {
-        Swal.fire({ icon: "error", title: "Too much demand", text: "We're swamped right now, please try again shortly." });
-      }
+      Swal.fire({
+        icon: "error",
+        title: "Couldn't generate the voice",
+        text:
+          error?.message ||
+          "Something went wrong while generating. Try again in a moment.",
+      });
     } finally {
       setIsGeneratingVoice(false);
     }
