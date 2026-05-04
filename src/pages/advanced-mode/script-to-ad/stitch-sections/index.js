@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-import { getAuth } from "firebase/auth";
+import React, { useEffect, useRef, useState } from "react";
+import { getAuth } from "@/firebase";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Swal from "sweetalert2";
-import _ from "lodash";
 import { usePostHog } from "posthog-js/react";
-import { Card, Button, Modal } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+
 import RenameModal from "@/components/rename-modal";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import useUserInputsStore from "@/store/user-inputs";
+import app from "@/firebase";
 import {
   fetchAudioFromPyroBackendDistribution,
   fetchAudioFromElevenLabs,
@@ -21,11 +21,29 @@ import {
   updateExistingSpotInDb,
   writeToFirestore,
 } from "@/utils/db-read-write-ops/serialization-utils";
+import { appendToFirestoreArray } from "@/utils/db-read-write-ops/update";
+import { captureCurrentTimestamp } from "@/utils/time/current-timestamp";
+import { isUiPreviewMode } from "@/firebase";
+
 import LoadingScreen from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/loading-screen";
 import SectionsTable from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/sections-table";
 import NavigationButtons from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/navigation-buttons";
 import InfoPad from "@/_pages/advanced-mode/script-to-ad/stitch-sections/components/info-pad";
-import { SecondaryActionButton } from "@/components/buttons/secondary-action-button";
+
+import { PageShell, PageContent } from "@/components/ui/page-shell";
+import { Stepper } from "@/components/ui/stepper";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Toolbar } from "@/components/ui/toolbar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
+import { Badge } from "@/components/ui/badge";
+
+const STEPS = [
+  { label: "Script" },
+  { label: "Sections" },
+  { label: "Stitch & export" },
+];
 
 function StitchSections() {
   const auth = getAuth();
@@ -46,30 +64,19 @@ function StitchSections() {
     spotId,
   } = useUserInputsStore();
 
-  const saveFeatureSpecificStates = {
-    sectionsArray,
-    stitchedAudioPyroHistoryItemId,
-  };
-
-  const saveSharedStates = {
-    spotId,
-    adLength,
-    generatedVoiceUrl,
-  };
+  const saveFeatureSpecificStates = { sectionsArray, stitchedAudioPyroHistoryItemId };
+  const saveSharedStates = { spotId, adLength, generatedVoiceUrl };
 
   const [localStack, setLocalStack] = useState(() => new Stack());
-  const syncStackWithGlobal = useUserInputsStore(
-    (state) => state.setNavigationStack
-  );
+  const syncStackWithGlobal = useUserInputsStore((s) => s.setNavigationStack);
+
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
   const [isEditPauseModalVisible, setEditPauseModalVisible] = useState(false);
-  const [currentEditingSectionIndex, setCurrentEditingSectionIndex] =
-    useState(null);
+  const [currentEditingSectionIndex, setCurrentEditingSectionIndex] = useState(null);
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
-  const [selectedSection, setSelectedSection] = useState(null);
   const [pendingAdvertisement, setPendingAdvertisement] = useState(false);
   const [combinedVoiceoverUrl, setCombinedVoiceoverUrl] = useState(null);
   const [nowPlayingUrl, setNowPlayingUrl] = useState("");
@@ -79,18 +86,22 @@ function StitchSections() {
   const [showContentModal, setShowContentModal] = useState(false);
   const [contentModalText, setContentModalText] = useState("");
 
-  const getPageSize = () => {
-    const height = window.innerHeight;
-    if (height < 768) return 3; // Example: 2 rows per page for medium screens
-    if (height < 992) return 4; // Example: 3 rows per page for large screens
-    if (height < 1200) return 7; // Example: 4 rows per page for extra large screens
-    return 10; // Example: 5 rows per page for extra extra large screens
-  };
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [exportFileName, setExportFileName] = useState("");
 
+  const getPageSize = () => {
+    if (typeof window === "undefined") return 6;
+    const h = window.innerHeight;
+    if (h < 768) return 4;
+    if (h < 992) return 6;
+    if (h < 1200) return 8;
+    return 10;
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(getPageSize());
 
-  const musicGenWebServiceUrl =
+  const stitchUrl =
     process.env.NODE_ENV === "development"
       ? "http://localhost:8000"
       : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
@@ -98,179 +109,110 @@ function StitchSections() {
   const cancelTokenSourceRef = useRef(null);
 
   useEffect(() => {
-    calculateTotalDuration();
-  }, [localSectionsArray]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-
-    const handleBackButton = async () => {
-      handleLogout();
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.onpopstate = handleBackButton;
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.onpopstate = null;
-    };
-  }, [router]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setPageSize(getPageSize());
-    };
-
+    const handleResize = () => setPageSize(getPageSize());
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page when page size changes
+    setCurrentPage(1);
   }, [pageSize]);
 
-  const calculateTotalDuration = () => {
-    const totalDurationWithoutPauses = localSectionsArray.reduce(
-      (acc, section) => acc + section.sectionDurationSeconds,
-      0
-    );
+  useEffect(() => {
+    if (combinedVoiceoverUrl) {
+      const safe = (spotName || "spot").replace(/[^a-z0-9-_]/gi, "-");
+      setExportFileName(`${safe}-${captureCurrentTimestamp()}`);
+    }
+  }, [combinedVoiceoverUrl, spotName]);
 
-    const totalDurationWithPauses = localSectionsArray.reduce(
-      (acc, section) =>
-        acc +
-        section.sectionDurationSeconds +
-        section.getEndOfSectionPauseDurationSeconds(),
-      0
-    );
-
-    return {
-      totalDurationWithoutPauses,
-      totalDurationWithPauses,
-    };
-  };
-
-  const showEditPauseDurationModal = (sectionIndex) => {
-    setCurrentEditingSectionIndex(sectionIndex);
+  const showEditPauseDurationModal = (idx) => {
+    setCurrentEditingSectionIndex(idx);
     setEditPauseModalVisible(true);
   };
 
   const updatePauseDuration = (index, newDuration) => {
-    let newArray = [...localSectionsArray];
-    let sectionToUpdate = newArray[index];
-
-    const validDuration =
-      isNaN(parseFloat(newDuration)) || newDuration === ""
-        ? 0
-        : parseFloat(newDuration);
-    sectionToUpdate.setEndOfSectionPauseDurationSeconds(validDuration);
-
-    const totalDurationWithPauses = newArray.reduce(
-      (acc, section) =>
-        acc +
-        section.sectionDurationSeconds +
-        section.getEndOfSectionPauseDurationSeconds(),
+    const next = [...localSectionsArray];
+    const target = next[index];
+    const valid = isNaN(parseFloat(newDuration)) || newDuration === "" ? 0 : parseFloat(newDuration);
+    target.setEndOfSectionPauseDurationSeconds(valid);
+    const totalWith = next.reduce(
+      (acc, s) => acc + s.sectionDurationSeconds + s.getEndOfSectionPauseDurationSeconds(),
       0
     );
-
-    if (totalDurationWithPauses > adLength) {
+    if (totalWith > adLength) {
       Swal.fire({
-        title: "Exceeded Ad Length",
-        text: `Added pause will exceed your overall ad length, so it is reverted to 0 seconds.`,
+        title: "Over the budget",
+        text: "That pause would push the spot over the ad length. Reverted to 0s.",
         icon: "warning",
-        confirmButtonText: "Ok",
       });
-
-      sectionToUpdate.setEndOfSectionPauseDurationSeconds(0);
+      target.setEndOfSectionPauseDurationSeconds(0);
     }
-
-    setLocalSectionsArray(newArray);
-  };
-
-  const fetchAudioFromElevenLabsWrapper = async (historyItemId) => {
-    const audioUrl = await fetchAudioFromElevenLabs(historyItemId);
-    setShowAudioPlayer(true);
-    setAudioUrl(audioUrl);
-    setNowPlayingUrl(audioUrl);
+    setLocalSectionsArray(next);
   };
 
   const handleSaveState = () => {
     updateExistingSpotInDb({
-      spotId: spotId,
+      spotId,
       mode: "advanced-script-to-ad",
       modeSpecificStates: saveFeatureSpecificStates,
       sharedStates: saveSharedStates,
     });
   };
 
-  const handleNext = (e) => {
-    e.preventDefault();
-    setGeneratedVoiceUrl(combinedVoiceoverUrl);
-    handleSaveState();
-    router.push("/add-music");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleStitch = async (e) => {
+    if (e) e.preventDefault();
+    if (isUiPreviewMode) {
+      // Simulate a successful stitch so the export panel renders.
+      setPendingAdvertisement(true);
+      setTimeout(() => {
+        const fakeUrl = "https://www.soundjay.com/buttons/sounds/button-3.mp3";
+        setShowAudioPlayer(true);
+        setCombinedVoiceoverUrl(fakeUrl);
+        setNowPlayingUrl(fakeUrl);
+        setAudioTitle("Final cut");
+        setForceRenderKey(Math.random().toString());
+        setPendingAdvertisement(false);
+      }, 600);
+      return;
+    }
     setPendingAdvertisement(true);
 
     const userId = auth.currentUser ? auth.currentUser.uid : "anonymous";
-
     if (process.env.NODE_ENV !== "development") {
       posthog.capture("stitch-sections-finalize-voiceover-button-clicked", {
-        userId: userId,
+        userId,
         userEmail: auth.currentUser ? auth.currentUser.email : "anonymous",
-        script: sectionsArray
-          .map((section) => section.getCurrentContent())
-          .join(". "),
+        script: sectionsArray.map((s) => s.getCurrentContent()).join(". "),
       });
     }
     cancelTokenSourceRef.current = axios.CancelToken.source();
 
-    const historyItemIds = sectionsArray.map((section) =>
-      section.getHistoryItemId()
-    );
-    const endOfSectionsPausesArray = localSectionsArray.map((section) =>
-      section.getEndOfSectionPauseDurationSeconds()
+    const historyItemIds = sectionsArray.map((s) => s.getHistoryItemId());
+    const endOfSectionsPausesArray = localSectionsArray.map((s) =>
+      s.getEndOfSectionPauseDurationSeconds()
     );
     const payload = {
       user_id: userId,
       history_item_id_list: historyItemIds,
       end_of_section_pause_duration_list: endOfSectionsPausesArray,
     };
-    const url = `${musicGenWebServiceUrl}/stitch-sections`;
+
     try {
-      const response = await axios.post(url, payload, {
+      const response = await axios.post(`${stitchUrl}/stitch-sections`, payload, {
         cancelToken: cancelTokenSourceRef.current.token,
       });
       if (response.data.pyro_history_item_id) {
         const pyroHistoryItemId = response.data.pyro_history_item_id;
-        if (!pyroHistoryItemId) {
-          throw new Error("Failed to preprocess voiceover");
-        }
-
-        const audioUrl = await fetchAudioFromPyroBackendDistribution(
-          pyroHistoryItemId,
-          0
-        );
+        const url = await fetchAudioFromPyroBackendDistribution(pyroHistoryItemId, 0);
         setShowAudioPlayer(true);
-        setCombinedVoiceoverUrl(audioUrl);
-        setNowPlayingUrl(audioUrl);
-        setAudioTitle("Final Cut");
+        setCombinedVoiceoverUrl(url);
+        setNowPlayingUrl(url);
+        setAudioTitle("Final cut");
         setForceRenderKey(Math.random().toString());
         setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
+        setGeneratedVoiceUrl(url);
       } else if (response.data.error) {
-        console.error(
-          "API returned an error:",
-          response.data.error,
-          response.data.details ? response.data.details : ""
-        );
+        console.error("Stitch API error:", response.data.error, response.data.details || "");
       }
     } catch (error) {
       console.error("Error fetching pyro_history_item_id:", error);
@@ -278,31 +220,31 @@ function StitchSections() {
       setPendingAdvertisement(false);
     }
     setSectionsArray(localSectionsArray);
-    await writeToFirestore(
-      "spots_meta_data",
-      { historyItemId: stitchedAudioPyroHistoryItemId },
-      spotId
-    )
-      .then(() => console.log("History item ID saved successfully."))
-      .catch((error) => console.error("Error saving document.:", error));
+    try {
+      await writeToFirestore(
+        "spots_meta_data",
+        { historyItemId: stitchedAudioPyroHistoryItemId },
+        spotId
+      );
+    } catch (error) {
+      console.error("Error saving stitched history id:", error);
+    }
   };
 
   const cancelLoading = () => {
     setPendingAdvertisement(false);
     if (cancelTokenSourceRef.current) {
-      cancelTokenSourceRef.current.cancel("Request canceled by the user.");
+      cancelTokenSourceRef.current.cancel("Cancelled by user.");
     }
     Swal.fire({
       icon: "info",
-      title: "Submission Cancelled",
-      text: 'Your submission has been cancelled. Click "OK" to redirect to the Home page...',
-      showConfirmButton: true,
+      title: "Cancelled",
+      text: "Returning to home.",
       confirmButtonText: "OK",
       allowOutsideClick: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
+    }).then((r) => {
+      if (r.isConfirmed) {
         resetUserInputsStore();
-
         router.push("/home");
       }
     });
@@ -310,15 +252,12 @@ function StitchSections() {
 
   const cancelAndRetryLoading = () => {
     if (cancelTokenSourceRef.current) {
-      cancelTokenSourceRef.current.cancel(
-        "Request canceled by the user for retry."
-      );
+      cancelTokenSourceRef.current.cancel("Cancelled by user for retry.");
     }
-
     Swal.fire({
       icon: "info",
-      title: "Submission Cancelled",
-      text: "Your previous submission has been cancelled. You can retry submitting again if you wish.",
+      title: "Cancelled",
+      text: "Submit again whenever you're ready.",
       confirmButtonText: "OK",
       allowOutsideClick: false,
     });
@@ -329,44 +268,32 @@ function StitchSections() {
     localStorage.removeItem("user");
     auth
       .signOut()
-      .then(() => {
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.error("Logout Error:", error);
-      });
+      .then(() => router.push("/login"))
+      .catch((error) => console.error("Logout Error:", error));
   };
 
   const handleSectionPreviewPlay = async (section) => {
-    let historyItemId = "";
-    setSelectedSection(section);
+    const historyItemId = section.getHistoryItemId();
     setAudioTitle(`Section ${section.getIndex() + 1}`);
-    historyItemId = section.getHistoryItemId();
     if (historyItemId.substring(0, 4) === "pyro") {
-      const audioUrl = await fetchAudioFromPyroBackendDistribution(
-        historyItemId,
-        0
-      );
+      const url = await fetchAudioFromPyroBackendDistribution(historyItemId, 0);
       setShowAudioPlayer(true);
-      setAudioUrl(audioUrl);
-      setNowPlayingUrl(audioUrl);
+      setAudioUrl(url);
+      setNowPlayingUrl(url);
     } else {
-      await fetchAudioFromElevenLabsWrapper(historyItemId);
+      const url = await fetchAudioFromElevenLabs(historyItemId);
+      setShowAudioPlayer(true);
+      setAudioUrl(url);
+      setNowPlayingUrl(url);
     }
   };
 
-  const localPushData = (newData, clone = false) => {
+  const localPushData = (newData) => {
     localStack.push(newData);
-    if (clone) {
-      setLocalStack(localStack.clone());
-    } else {
-      setLocalStack(localStack);
-    }
+    setLocalStack(localStack);
   };
 
-  const syncLocalStackWithGlobal = () => {
-    syncStackWithGlobal(localStack);
-  };
+  const syncLocalStackWithGlobal = () => syncStackWithGlobal(localStack);
 
   const handleEditSection = (section) => {
     if (generatedVoiceUrl) {
@@ -375,9 +302,7 @@ function StitchSections() {
     }
     localPushData("/advanced-mode/script-to-ad/stitch-sections");
     syncLocalStackWithGlobal();
-
     handleSaveState();
-
     router.push(
       "/advanced-mode/script-to-ad/process-section/[idx]",
       `/advanced-mode/script-to-ad/process-section/${section.getIndex()}`
@@ -389,90 +314,107 @@ function StitchSections() {
     setShowContentModal(true);
   };
 
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handleStepClick = (idx) => {
+    if (idx === 0) router.push("/advanced-mode/script-to-ad/create-sections");
+    else if (idx === 1)
+      router.push("/advanced-mode/script-to-ad/process-section/0");
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+  const handleDownload = async () => {
+    if (!combinedVoiceoverUrl) return;
+    setIsDownloading(true);
+    const userId = auth.currentUser?.uid;
+    const userEmail = auth.currentUser?.email;
+
+    if (process.env.NODE_ENV !== "development") {
+      posthog.capture("stitch-sections-download-clicked", {
+        date: new Date().toISOString(),
+        userId,
+        userEmail,
+      });
     }
+
+    if (userId) {
+      try {
+        const firestore = getFirestore(app);
+        const docRef = doc(firestore, "uid_to_org", userId);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && snap.data().monthly_downloads !== undefined) {
+          await updateDoc(docRef, { monthly_downloads: snap.data().monthly_downloads + 1 });
+        }
+      } catch (error) {
+        console.error("Failed to increment monthly_downloads:", error);
+      }
+    }
+
+    const link = document.createElement("a");
+    link.href = combinedVoiceoverUrl;
+    link.download = `${exportFileName || "spot"}.mp3`;
+
+    try {
+      await appendToFirestoreArray({
+        collectionName: "spots_meta_data",
+        docId: spotId,
+        fieldName: "downloadLogs",
+        newValue: {
+          downloadFileName: `${exportFileName || "spot"}.mp3`,
+          downloadTime: captureCurrentTimestamp(),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to append download log:", error);
+    }
+
+    link.click();
+    setIsDownloading(false);
+    setHasDownloaded(true);
+  };
+
+  const handleNewSpot = () => {
+    resetUserInputsStore();
+    router.push("/home");
   };
 
   if (pendingAdvertisement) {
-    return (
-      <LoadingScreen
-        cancelLoading={cancelLoading}
-        cancelAndRetryLoading={cancelAndRetryLoading}
-      />
-    );
+    return <LoadingScreen cancelLoading={cancelLoading} cancelAndRetryLoading={cancelAndRetryLoading} />;
   }
 
   const indexOfLastSection = currentPage * pageSize;
   const indexOfFirstSection = indexOfLastSection - pageSize;
-  const currentSections = localSectionsArray.slice(
-    indexOfFirstSection,
-    indexOfLastSection
-  );
+  const currentSections = localSectionsArray.slice(indexOfFirstSection, indexOfLastSection);
   const totalPages = Math.ceil(localSectionsArray.length / pageSize);
 
-  return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "Arial, sans-serif",
-        color: "#333",
-      }}
-    >
-      <NavBar
-        links={[]}
-        logoutHandler={handleLogout}
-        saveHandler={handleSaveState}
-      />
+  const stitched = !!combinedVoiceoverUrl;
 
-      <Card
-        style={{
-          margin: "20px",
-          borderRadius: "1rem",
-          borderColor: "#eb631c",
-          color: "black",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontWeight: "bold",
-            fontSize: "1.3em",
-            marginTop: "20px",
-            color: "#333",
-          }}
-        >
-          <i
-            className="bi bi-pencil-square"
-            style={{
-              cursor: "pointer",
-              marginRight: "10px",
-              marginLeft: "10px",
-              fontSize: "1em",
-            }}
-            onClick={() => setShowRenameModal(true)}
-          ></i>
-          {spotName}
-        </div>
-        <Card.Body>
-          <div
-            style={{
-              overflowY: "auto",
-              maxHeight: "700px",
-              overflowX: "hidden",
-            }}
-          >
+  return (
+    <PageShell>
+      <NavBar links={[]} logoutHandler={handleLogout} />
+      <Stepper steps={STEPS} current={2} onStepClick={handleStepClick} />
+
+      <PageContent style={{ paddingBottom: showAudioPlayer ? 120 : undefined }}>
+        <Toolbar
+          title={spotName || "Untitled spot"}
+          description="Review section pauses, then stitch and export."
+          actions={
+            <Button
+              variant="ghost"
+              onClick={() => setShowRenameModal(true)}
+              leftIcon={<i className="bi bi-pencil" />}
+            >
+              Rename
+            </Button>
+          }
+          style={{ padding: "var(--space-2) 0 var(--space-5)" }}
+        />
+
+        <Card padding="0">
+          <div style={{ padding: "var(--space-5) var(--space-5) 0" }}>
+            <CardHeader
+              title="Sections"
+              description="Adjust the pause after each section. Total duration must fit within the ad length."
+            />
+          </div>
+          <div style={{ padding: "0 var(--space-5)" }}>
             <SectionsTable
               currentSections={currentSections}
               indexOfFirstSection={indexOfFirstSection}
@@ -488,62 +430,118 @@ function StitchSections() {
               handleEditSection={handleEditSection}
             />
           </div>
-          <NavigationButtons
-            handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
-          <InfoPad
-            localSectionsArray={localSectionsArray}
-            adLength={adLength}
-            combinedVoiceoverUrl={combinedVoiceoverUrl}
-            setForceRenderKey={setForceRenderKey}
-            setShowAudioPlayer={setShowAudioPlayer}
-            setNowPlayingUrl={setNowPlayingUrl}
-            setAudioTitle={setAudioTitle}
-          />
-        </Card.Body>
-      </Card>
+          <div style={{ padding: "0 var(--space-5) var(--space-5)" }}>
+            <NavigationButtons
+              handlePreviousPage={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              handleNextPage={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              currentPage={currentPage}
+              totalPages={totalPages}
+            />
+            <InfoPad
+              localSectionsArray={localSectionsArray}
+              adLength={adLength}
+              combinedVoiceoverUrl={combinedVoiceoverUrl}
+              setForceRenderKey={setForceRenderKey}
+              setShowAudioPlayer={setShowAudioPlayer}
+              setNowPlayingUrl={setNowPlayingUrl}
+              setAudioTitle={setAudioTitle}
+            />
+          </div>
+        </Card>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "10px 20px",
-          margin: "20px 0 0",
-        }}
-      >
-        <Button
-          onClick={combinedVoiceoverUrl === null ? handleSubmit : handleNext}
-          style={{
-            width: "200px",
-            backgroundColor: "#eb631c",
-            borderColor: "#eb631c",
-          }}
-        >
-          {combinedVoiceoverUrl === null ? "Finalize" : "Next"}
-        </Button>
-        <SecondaryActionButton
-          initialText="Save"
-          clickedText="Saved!"
-          borderColor="#FDA942"
-          onClick={handleSaveState}
-        />
-      </div>
-
-      <div style={{ position: "relative" }}>
-        {showAudioPlayer && (
-          <SimpleAudioPlayer
-            audioSrc={nowPlayingUrl}
-            audioTitle={audioTitle}
-            forceRender={forceRenderKey}
-            autoplay={true}
-            allowDownload={true}
-            setShowAudioPlayer={setShowAudioPlayer}
-          />
+        {/* Stitch / Export panel */}
+        {!stitched ? (
+          <div
+            style={{
+              marginTop: "var(--space-6)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button variant="secondary" onClick={handleSaveState} feedback="Saved">
+              Save
+            </Button>
+            <Button onClick={handleStitch} rightIcon={<i className="bi bi-arrow-right" />}>
+              Stitch sections
+            </Button>
+          </div>
+        ) : (
+          <Card padding="var(--space-6)" style={{ marginTop: "var(--space-6)" }}>
+            <CardHeader
+              title="Export your spot"
+              description="Stitch complete. Play it from the bar below, then download or start a new one."
+              actions={<Badge tone="success">Stitched</Badge>}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <Input
+                label="File name"
+                value={exportFileName}
+                onChange={(e) => setExportFileName(e.target.value)}
+                rightAdornment={<span style={{ fontSize: "var(--text-xs)" }}>.mp3</span>}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-2)" }}>
+                <Button variant="secondary" onClick={() => router.push("/home")}>
+                  Back to spots
+                </Button>
+                <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                  <Button variant="secondary" onClick={handleStitch}>
+                    Re-stitch
+                  </Button>
+                  <Button onClick={handleDownload} loading={isDownloading} leftIcon={<i className="bi bi-download" />}>
+                    Download
+                  </Button>
+                </div>
+              </div>
+              {hasDownloaded && (
+                <div
+                  style={{
+                    marginTop: "var(--space-2)",
+                    padding: "var(--space-4)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "var(--radius-md)",
+                    backgroundColor: "var(--surface-inset)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "var(--space-3)",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "var(--text-sm)",
+                        fontWeight: "var(--font-weight-semibold)",
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      Downloaded. What's next?
+                    </div>
+                    <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                      Make another spot, or head back to the list.
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                    <Button variant="secondary" onClick={() => router.push("/home")}>
+                      Back to spots
+                    </Button>
+                    <Button onClick={handleNewSpot} leftIcon={<i className="bi bi-plus-lg" />}>
+                      Create another spot
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                Each download counts toward this month's billing.
+              </div>
+            </div>
+          </Card>
         )}
-      </div>
+      </PageContent>
+
       <RenameModal
         show={showRenameModal}
         onHide={() => setShowRenameModal(false)}
@@ -552,18 +550,18 @@ function StitchSections() {
         spotId={spotId}
         setSpotName={setSpotName}
       />
-      <Modal show={showContentModal} onHide={() => setShowContentModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Section Content</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{contentModalText}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowContentModal(false)}>
-            Cancel
-          </Button>
-        </Modal.Footer>
+
+      <Modal
+        show={showContentModal}
+        onHide={() => setShowContentModal(false)}
+        title="Section content"
+        primaryAction={{ label: "Close", variant: "secondary", onClick: () => setShowContentModal(false) }}
+      >
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+          {contentModalText}
+        </div>
       </Modal>
-    </div>
+    </PageShell>
   );
 }
 

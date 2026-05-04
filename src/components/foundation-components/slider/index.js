@@ -5,17 +5,17 @@ const FireSlider = ({
   min = 0,
   max = 100,
   width = "100%",
-  height = "10px",
+  height = "6px",
   containerStyle = {},
-  thumbColor = "#eb631c", // default thumb color
-  trackColor = "#f0f0f0", // lighter default track color
-  fillColor = "#eb631c", // default fill color
+  thumbColor = "var(--accent-500)",
+  trackColor = "var(--gray-200)",
+  fillColor = "var(--accent-500)",
   showPercentage = false, // flag for showing percentage
   disabled = false, // flag for disabling the slider
   value,
   onValueChange, // handler for the final value change
-  leftInfoMessage = "Left info message", // default left info message
-  rightInfoMessage = "Right info message", // default right info message
+  leftInfoMessage = "", // optional — render only when truthy
+  rightInfoMessage = "", // optional — render only when truthy
   reset, // optional reset callback
 }) => {
   const [tempValue, setTempValue] = useState(value);
@@ -64,22 +64,22 @@ const FireSlider = ({
       const thumbStyle = `
         -webkit-appearance: none;
         appearance: none;
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
         background: ${thumbColor};
         cursor: ${disabled ? "not-allowed" : "pointer"};
-        border-radius: 0px; /* Square edges */
+        border-radius: 50%;
         position: relative;
-        top: ${parseInt(height) / 2 - 10}px; /* Adjust to align properly */
+        top: ${parseInt(height) / 2 - 8}px;
         border: 2px solid white;
-        transition: transform 0.3s; /* Add transition for animation */
+        box-shadow: 0 1px 3px rgba(16,24,40,0.18);
+        transition: transform 0.15s ease-out;
       `;
 
       const thumbHoverStyle = disabled
         ? ""
         : `
-        transform: scale(1.2); /* Scale up on hover */
-        border-radius: 0px; /* Square edges */
+        transform: scale(1.12);
       `;
 
       const styleElement = document.createElement("style");
@@ -179,22 +179,26 @@ const FireSlider = ({
       style={{ ...styles.sliderContainer, width, ...containerStyle }}
       ref={sliderRef}
     >
-      <div style={styles.leftInfoIconContainer}>
-        <OverlayTrigger
-          placement="top"
-          overlay={<Tooltip id="left-tooltip">{leftInfoMessage}</Tooltip>}
-        >
-          <i className="bi bi-info-circle" style={styles.infoIcon}></i>
-        </OverlayTrigger>
-      </div>
-      <div style={styles.rightInfoIconContainer}>
-        <OverlayTrigger
-          placement="top"
-          overlay={<Tooltip id="right-tooltip">{rightInfoMessage}</Tooltip>}
-        >
-          <i className="bi bi-info-circle" style={styles.infoIcon}></i>
-        </OverlayTrigger>
-      </div>
+      {leftInfoMessage && (
+        <div style={styles.leftInfoIconContainer}>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id="left-tooltip">{leftInfoMessage}</Tooltip>}
+          >
+            <i className="bi bi-info-circle" style={styles.infoIcon}></i>
+          </OverlayTrigger>
+        </div>
+      )}
+      {rightInfoMessage && (
+        <div style={styles.rightInfoIconContainer}>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id="right-tooltip">{rightInfoMessage}</Tooltip>}
+          >
+            <i className="bi bi-info-circle" style={styles.infoIcon}></i>
+          </OverlayTrigger>
+        </div>
+      )}
       <OverlayTrigger
         placement="top"
         show={showTooltip}
@@ -246,7 +250,7 @@ const FireSlider = ({
             variant="link"
             onClick={() => reset(0)}
             style={{
-              color: "#eb631c",
+              color: "var(--accent-500)",
               textDecoration: "underline",
               padding: 0,
               fontSize: "11px",

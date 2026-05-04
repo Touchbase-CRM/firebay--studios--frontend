@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 export const CopyBox = ({ text }) => {
   const [hasCopied, setHasCopied] = useState(false);
@@ -10,62 +10,52 @@ export const CopyBox = ({ text }) => {
       .writeText(text)
       .then(() => {
         setHasCopied(true);
-        setTimeout(() => setHasCopied(false), 500);
+        setTimeout(() => setHasCopied(false), 1100);
       })
-      .catch(() => {
-        setHasCopied(false);
-      });
+      .catch(() => setHasCopied(false));
   };
 
-  const renderTooltip = (props) => (
-    <Tooltip {...props}>
-      {hasCopied ? "Copied!" : "Copy the mock script"}
-    </Tooltip>
+  const tooltip = (props) => (
+    <Tooltip {...props}>{hasCopied ? "Copied" : "Copy example"}</Tooltip>
   );
 
   return (
     <div
       style={{
         position: "relative",
-        backgroundColor: "#f8f9fa",
-        padding: "15px",
-        borderRadius: "5px",
-        fontFamily: "'Courier New', Courier, monospace",
-        fontSize: "16px",
-        marginTop: "20px",
-        marginBottom: "20px",
-        width: "550px",
+        backgroundColor: "var(--gray-100)",
+        border: "1px solid var(--border-subtle)",
+        padding: "var(--space-3) var(--space-9) var(--space-3) var(--space-3)",
+        borderRadius: "var(--radius-md)",
+        fontFamily: "var(--font-mono)",
+        fontSize: "var(--text-sm)",
+        color: "var(--text-primary)",
+        lineHeight: 1.55,
       }}
     >
       {text}
-      <OverlayTrigger placement="top" overlay={renderTooltip}>
+      <OverlayTrigger placement="top" overlay={tooltip}>
         <button
+          type="button"
           onClick={copyToClipboard}
+          aria-label="Copy"
           style={{
             backgroundColor: "transparent",
-            borderColor: "transparent",
-            color: "currentColor",
-            padding: "0",
+            border: "none",
+            position: "absolute",
+            top: 6,
+            right: 6,
+            width: 28,
+            height: 28,
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
-            position: "absolute",
-            top: "2px",
-            right: "2px",
-            width: "25px",
-            height: "25px",
+            color: hasCopied ? "var(--success-500)" : "var(--text-muted)",
+            cursor: "pointer",
+            borderRadius: "var(--radius-sm)",
           }}
-          className="btn"
         >
-          <i
-            className={
-              hasCopied ? "bi bi-clipboard2-check-fill" : "bi bi-clipboard2"
-            }
-            style={{
-              color: "#EB631C",
-              fontSize: "1rem",
-            }}
-          ></i>
+          <i className={hasCopied ? "bi bi-clipboard2-check-fill" : "bi bi-clipboard2"} />
         </button>
       </OverlayTrigger>
     </div>

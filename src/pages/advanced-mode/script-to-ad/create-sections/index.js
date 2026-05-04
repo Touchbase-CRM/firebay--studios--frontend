@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Alert,
-  Offcanvas,
-} from "react-bootstrap";
-import { getAuth } from "firebase/auth";
+import React, { useEffect, useMemo, useState } from "react";
+import { getAuth } from "@/firebase";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 
@@ -20,11 +11,38 @@ import useUserInputsStore from "@/store/user-inputs";
 import { Section } from "@/data-structures/section";
 import withAuth from "@/hocs/with-auth";
 
+import { PageShell, PageContent } from "@/components/ui/page-shell";
+import { Stepper } from "@/components/ui/stepper";
+import { Toolbar } from "@/components/ui/toolbar";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Drawer } from "@/components/ui/drawer";
+import { Badge } from "@/components/ui/badge";
+
+const CHARACTER_OVERFLOW_THRESHOLD = 15;
+const CHARACTERS_PER_SEC = 15.2;
+
+const STEPS = [
+  { label: "Script" },
+  { label: "Sections" },
+  { label: "Stitch & export" },
+];
+
+const AD_LENGTHS = [10, 15, 30, 45, 60, 90, 120].map((s) => ({
+  value: String(s),
+  label: `${s} seconds`,
+}));
+
+function splitScriptIntoSections(script) {
+  return script.split(/\s*\/\/\s*/).filter(Boolean);
+}
+
 function CreateSections() {
   const auth = getAuth();
   const router = useRouter();
 
-  // Zustand store hooks
   const {
     adLength,
     setAdLength,
@@ -38,110 +56,60 @@ function CreateSections() {
   } = useUserInputsStore();
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  const [isFormSubmitted, setFormSubmitted] = useState(false);
-  const [originalScriptForSectionSplit, setOriginalScriptForSectionSplit] =
-    useState("");
-  const CHACRACTEROVERFLOWTHRESHOLD = 15; // This is the threshold we will use to avoid overflow
-  const CHARACTERSPERSEC = 15.2; // Experimentally determined characters per second
+  const [originalScript, setOriginalScript] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
-  const [showOffCanvas, setShowOffCanvas] = useState(false); // New state for off-canvas
+  const [showSectionsDrawer, setShowSectionsDrawer] = useState(false);
 
-  var charLimit = Math.round(parseInt(adLength) * CHARACTERSPERSEC); // Calculate character limit based on the ad length
-  charLimit = charLimit - CHACRACTEROVERFLOWTHRESHOLD; // subtracting a threshold to avoid overflow
+  const charLimit = useMemo(() => {
+    return Math.round(parseInt(adLength, 10) * CHARACTERS_PER_SEC) - CHARACTER_OVERFLOW_THRESHOLD;
+  }, [adLength]);
+
+  const charCount = originalScript.length;
+  const overLimit = charCount > charLimit;
 
   useEffect(() => {
-    // prevent back button
     const handleBeforeUnload = (e) => {
       e.preventDefault();
-      e.returnValue = ""; // Chrome requires returnValue to be set
+      e.returnValue = "";
     };
-
-    const handleBackButton = async () => {
-      handleLogout();
-    };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
-    window.onpopstate = handleBackButton;
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.onpopstate = null;
-    };
-  }, [router]);
-
-  useEffect(() => {
-    if (isFormSubmitted) {
-      router.push("/advanced-mode/script-to-ad/process-section/0");
-    }
-  }, [isFormSubmitted, router]);
-
-  const validateScript = (script, charLimit, onSuccess, onFailure) => {
-    if (!s2aAdvancedFreeStyleStatus && script.length > charLimit) {
-      onFailure("error", "Oops...", "You have too many characters!");
-      return false; // Indicate failure
-    }
-    if (script.length < 1) {
-      onFailure("error", "Oops...", "You cannot have an empty script!");
-      return false; // Indicate failure
-    }
-    onSuccess();
-    return true; // Indicate success
-  };
-
-  const showAlert = (icon, title, text) => {
-    Swal.fire({
-      icon: icon,
-      title: title,
-      text: text,
-    });
+  const handleScriptChange = (e) => {
+    const value = e.target.value;
+    setOriginalScript(value);
+    const extractedSections = splitScriptIntoSections(value);
+    setNumSectionsIdentified(extractedSections.length);
+    setLocalSectionsArray(
+      extractedSections.map(
+        (content, idx) => new Section(idx, content, content, null, 0)
+      )
+    );
   };
 
   const handleClearScript = () => {
-    setOriginalScriptForSectionSplit("");
+    setOriginalScript("");
     setLocalSectionsArray([]);
     setNumSectionsIdentified(0);
   };
 
-  const handleScriptChange = (e) => {
-    const updatedScript = e.target.value;
-    setOriginalScriptForSectionSplit(updatedScript);
-    const extractedSections = updatedScript.split(/\s*\/\/\s*/).filter(Boolean);
-
-    setNumSectionsIdentified(extractedSections.length);
-    let tmpArray = [];
-    extractedSections.forEach((sectionContent, index) => {
-      const section = new Section(
-        index + 0,
-        sectionContent,
-        sectionContent,
-        null,
-        0
-      ); // +1 if you want to start indexing from 1
-      // Add the section to the tmpArray
-      tmpArray.push(section);
-    });
-
-    setLocalSectionsArray(tmpArray);
-  };
-
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (charCount < 1) {
+      Swal.fire({ icon: "error", title: "Script is empty", text: "Add some text before continuing." });
+      return;
+    }
 
-    const isValid = validateScript(
-      originalScriptForSectionSplit,
-      charLimit,
-      () => setFormSubmitted(true),
-      showAlert
-    );
-
-    if (!isValid) return;
-
-    // Update Zustand store with the local state before navigating
     setSectionsArray(localSectionsArray);
     setSectionHistoryArray(new Array(localSectionsArray.length).fill(null));
 
-    // Navigate to the first section if the section array is not empty
     if (localSectionsArray.length !== 0) {
+      router.push("/advanced-mode/script-to-ad/process-section/0");
+    } else {
+      const firstSection = new Section(0, originalScript, originalScript, null, 0);
+      setSectionsArray([firstSection]);
+      setSectionHistoryArray([null]);
       router.push("/advanced-mode/script-to-ad/process-section/0");
     }
   };
@@ -151,257 +119,104 @@ function CreateSections() {
     localStorage.removeItem("user");
     auth
       .signOut()
-      .then(() => {
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.error("Logout Error:", error);
-      });
+      .then(() => router.push("/login"))
+      .catch((error) => console.error("Logout Error:", error));
   };
 
-  const handleFreeStyleChange = (e) => {
-    const newValue = e.target.checked;
-    setS2aAdvancedFreeStyleStatus(newValue);
-  };
-  const handleTutorialClose = () => setShowTutorial(false);
-  const handleTutorialShow = () => setShowTutorial(true);
+  const counterText = (
+    <span style={{ color: overLimit ? "var(--danger-500)" : "var(--text-muted)" }}>
+      {charCount} / {charLimit}
+    </span>
+  );
 
-  const handleOffCanvasClose = () => setShowOffCanvas(false); // New function to handle closing the off-canvas
-  const handleOffCanvasShow = () => setShowOffCanvas(true); // New function to handle showing the off-canvas
+  const sectionCount = localSectionsArray.length;
+  const sectionsCta = originalScript === "" ? "Read tutorial" : "Inspect sections";
+  const onSectionsCtaClick = () =>
+    originalScript === "" ? setShowTutorial(true) : setShowSectionsDrawer(true);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#343a40",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#FFFFFF",
-      }}
-    >
+    <PageShell>
       <NavBar links={[]} logoutHandler={handleLogout} />
+      <Stepper steps={STEPS} current={0} />
+      <PageContent maxWidth="800px">
+        <Toolbar
+          title="Write your script"
+          description="Use // to mark section breaks. Each section becomes its own voice take."
+          style={{ padding: "var(--space-2) 0 var(--space-6)" }}
+        />
 
-      <Row className="m-0 p-0 mt-4 mt-md-5">
-        <Col md={10} className="mx-auto m-0 p-0"></Col>
-      </Row>
-      <Row className="m-0 p-0">
-        <Col md={10} className="mx-auto m-0 p-0">
-          <Card
-            className="p-2 p-md-3 m-0"
-            style={{
-              borderRadius: "1rem",
-              borderColor: "#eb631c",
-              color: "black",
-              marginBottom: "20px",
-              minWidth: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            <Card.Body className="p-0 p-md-1">
-              <Card.Title>Script Editor</Card.Title>
-              <Form.Group controlId="adLength" className="mt-2">
-                <Form.Label>Choose Ad Length</Form.Label>
-                <Form.Select
-                  aria-label="Ad length select"
-                  value={adLength}
-                  onChange={(e) => setAdLength(e.target.value)}
-                  style={{ color: "black", marginBottom: "10px" }}
-                >
-                  <option value="10">10 seconds</option>
-                  <option value="15">15 seconds</option>
-                  <option value="30">30 seconds</option>
-                  <option value="45">45 seconds</option>
-                  <option value="60">60 seconds</option>
-                  <option value="90">90 seconds</option>
-                  <option value="120">120 seconds</option>
-                </Form.Select>
-              </Form.Group>
+        <Card padding="var(--space-6)">
+          <CardHeader
+            title="Script editor"
+            description="Choose an ad length, then write your script. We'll split it on // marks."
+          />
 
-              <Form.Group
-                controlId="freeStyleToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "10px" }}
-              >
-                <Form.Label className="mb-0" style={{ marginRight: "10px" }}>
-                  Free Style Mode
-                </Form.Label>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="freeStyleSwitch"
-                    checked={s2aAdvancedFreeStyleStatus}
-                    onChange={handleFreeStyleChange}
-                    style={{
-                      backgroundColor: s2aAdvancedFreeStyleStatus
-                        ? "#eb631c"
-                        : "white",
-                      borderColor: s2aAdvancedFreeStyleStatus
-                        ? "#eb631c"
-                        : "#adb5bd",
-                    }}
-                  />
-                </div>
-              </Form.Group>
-              <Form.Group
-                controlId="dragonBreathToggle"
-                className="d-flex align-items-center"
-                style={{ marginTop: "5px" }}
-              >
-                <Alert
-                  style={{
-                    variant: "info",
-                    fontSize: "12px",
-                    padding: "5px 10px",
-                  }}
-                >
-                  Pyro Tip: If you are not concerned about sticking to the spot
-                  length of {adLength} Sec , you can enable free style mode to
-                  lift the character count restrictions. We will still display
-                  the character limit as a reccomendation which you may choose
-                  to ignore.
-                </Alert>
-              </Form.Group>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+            <div style={{ maxWidth: 240 }}>
+              <Select
+                label="Ad length"
+                value={adLength}
+                onChange={(e) => setAdLength(e.target.value)}
+                options={AD_LENGTHS}
+              />
+            </div>
 
-              <Form.Group controlId="script" style={{ position: "relative" }}>
-                <Form.Label>Script</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder={`Enter your script here (up to ${charLimit} characters)`}
-                  value={originalScriptForSectionSplit}
-                  onChange={handleScriptChange}
-                  style={{
-                    color: "black",
-                    height: "120px",
-                    marginBottom: "10px",
-                    resize: "none",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "48px",
-                    right: "0px",
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "0 5px",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {originalScriptForSectionSplit.length}/{charLimit}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button
-                    style={{
-                      backgroundColor: "#FDA942",
-                      borderColor: "#FDA942",
-                    }}
-                    onClick={handleClearScript}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={
-                      originalScriptForSectionSplit === ""
-                        ? handleTutorialShow
-                        : handleOffCanvasShow
-                    }
-                    style={{
-                      backgroundColor: "white",
-                      borderColor: "#FDA942",
-                      color: "black",
-                    }} // Adjusted to align horizontally with the Clear Script button
-                  >
-                    {originalScriptForSectionSplit === "" ? "Tutorial" : "View Sections"}
-                  </Button>
-                </div>
-              </Form.Group>
+            <Textarea
+              label="Script"
+              placeholder={`Write your ${adLength}-second spot. Use // between sections.`}
+              value={originalScript}
+              onChange={handleScriptChange}
+              rows={6}
+              counter={counterText}
+              hint={
+                overLimit
+                  ? `Heads up — ${charCount - charLimit} characters over the recommended cap for ${adLength}s. Your spot may run long.`
+                  : null
+              }
+            />
 
-
-              <br></br>
-              {/* Display the number of sections found */}
-              {localSectionsArray.length > 0 && (
-                <div
-                  className="alert alert-success"
-                  role="alert"
-                  style={{
-                    backgroundColor: "#d4edda",
-                    borderColor: "#c3e6cb",
-                    color: "#155724",
-                  }}
-                >
-                  We found {localSectionsArray.length} section
-                  {localSectionsArray.length !== 1 ? "s" : ""} in your script.
-                  You can{" "}
-                  <span
-                    onClick={handleOffCanvasShow}
-                    style={{
-                      color: "#155724",
-                      textDecoration: "underline",
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: "inherit",
-                    }}
-                  >
-                    view the sections here
-                  </span>
-                  . Next, you'll be prompted to produce the voice for these one
-                  by one. To ensure your ad fits the desired length, you'll be
-                  limited to the character count mentioned for each section.
-                </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-3)" }}>
+              <Button variant="ghost" onClick={onSectionsCtaClick}>
+                {sectionsCta}
+              </Button>
+              {sectionCount > 0 && (
+                <Badge tone="success">
+                  <i className="bi bi-check2-circle" />
+                  {sectionCount} section{sectionCount !== 1 ? "s" : ""} detected
+                </Badge>
               )}
-            </Card.Body>
-          </Card>
-
-          <div
-            style={{
-              fontSize: "small",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          >
-            <Button
-              className="mt-2"
-              style={{
-                marginRight: "10px",
-                backgroundColor: "#EB631C",
-                borderColor: "#EB631C",
-              }}
-              onClick={handleSubmit}
-            >
-              Next
-            </Button>
+            </div>
           </div>
-        </Col>
-      </Row>
+        </Card>
 
-      {/* Off-canvas for displaying sections as a numbered list group */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-2)", marginTop: "var(--space-6)" }}>
+          <Button variant="secondary" onClick={() => router.push("/home")}>
+            Save & exit
+          </Button>
+          <Button onClick={handleSubmit} disabled={charCount === 0}>
+            Continue
+            <i className="bi bi-arrow-right" />
+          </Button>
+        </div>
+      </PageContent>
+
       <DetectedSections
-        show={showOffCanvas}
-        handleClose={handleOffCanvasClose}
+        show={showSectionsDrawer}
+        handleClose={() => setShowSectionsDrawer(false)}
         sections={localSectionsArray}
       />
 
-      {/* Off-canvas for displaying tutorial */}
-      <Offcanvas
+      <Drawer
         show={showTutorial}
-        onHide={handleTutorialClose}
-        placement="end"
+        onHide={() => setShowTutorial(false)}
+        title="How to write a Pyro script"
+        description="A quick primer on the // section syntax."
+        width="480px"
       >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Tutorial</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <SectioningTutorial />
-        </Offcanvas.Body>
-      </Offcanvas>
-    </div>
+        <SectioningTutorial />
+      </Drawer>
+    </PageShell>
   );
-
 }
 
 export default withAuth(CreateSections);
-// export default CreateSections;

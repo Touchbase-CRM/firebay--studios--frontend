@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import app from "@/firebase"; // Ensure this is the updated firebase.js file
+import { onAuthStateChanged } from "firebase/auth";
+import app, { getAuth, isUiPreviewMode } from "@/firebase";
 
 const AuthContext = createContext();
 
@@ -8,26 +8,30 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
+const PREVIEW_USER = {
+  uid: "preview-user",
+  email: "preview@firebaystudios.com",
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(isUiPreviewMode ? PREVIEW_USER : null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const auth = getAuth(app); // Get the Auth instance from the Firebase app
+    if (isUiPreviewMode) return undefined;
+    const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => {
         setUser(user);
-        setError(null); // Reset error on user change
+        setError(null);
       },
       (error) => {
         setError(error);
       }
     );
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const value = {

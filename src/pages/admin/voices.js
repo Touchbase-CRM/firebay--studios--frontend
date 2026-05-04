@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { collection, getDocs, getFirestore, orderBy, query } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth } from "@/firebase";
 import Swal from "sweetalert2";
 import {
   Alert,

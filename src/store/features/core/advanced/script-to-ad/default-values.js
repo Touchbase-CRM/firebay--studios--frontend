@@ -2,7 +2,7 @@
 import { Stack } from "@/data-structures/stack";
 
 export const advancedScriptToAdDefaultValues = {
-  s2aAdvancedFreeStyleStatus: false,
+  s2aAdvancedFreeStyleStatus: true,
   navigationStack: new Stack(),
 
   sectionsArray: [], // Array for section objects

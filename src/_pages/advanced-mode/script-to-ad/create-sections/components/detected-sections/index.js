@@ -1,75 +1,56 @@
-// _pages/advanced-mode/script-to-ad/create-sections/components/detected-sections/index.js
-
 import React from "react";
-import { Offcanvas, ListGroup } from "react-bootstrap";
+import { Drawer } from "@/components/ui/drawer";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Badge } from "@/components/ui/badge";
 
 const DetectedSections = ({ show, handleClose, sections }) => {
   return (
-    <Offcanvas
+    <Drawer
       show={show}
       onHide={handleClose}
-      placement="end"
-      style={{ width: "auto", maxWidth: "90vw", backgroundColor: "#f8f9fa" }}
+      title="Detected sections"
+      description="Each section becomes its own voice take. Edit the script to change them."
+      width="520px"
     >
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Detected Sections</Offcanvas.Title>
-      </Offcanvas.Header>
-      <Offcanvas.Body>
-        {sections.length > 0 ? (
-          <ListGroup>
-            {sections.map((section, index) => (
-              <ListGroup.Item
-                key={index}
-                className="mb-3"
+      {sections.length === 0 ? (
+        <EmptyState
+          icon={<i className="bi bi-list-task" />}
+          title="No sections yet"
+          description="Add some text and use // marks to split it into sections."
+        />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+          {sections.map((section) => (
+            <div
+              key={section.getIndex()}
+              style={{
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-md)",
+                padding: "var(--space-4)",
+                backgroundColor: "var(--surface-card)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+                <Badge tone="accent">Section {section.getIndex() + 1}</Badge>
+                <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                  {section.getOriginalCharCount()} characters
+                </span>
+              </div>
+              <div
                 style={{
-                  border: "1px solid #eb631c",
-                  borderRadius: "5px",
-                  padding: "15px",
-                  backgroundColor: "white",
-                  fontFamily: "'Garamond', serif",
-                  fontSize: "16px",
-                  lineHeight: "1.6",
-                  color: "#333",
+                  fontSize: "var(--text-sm)",
+                  color: "var(--text-primary)",
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.55,
                 }}
               >
-                <div
-                  style={{
-                    fontWeight: "bold",
-                    color: "#eb631c",
-                    fontSize: "18px",
-                  }}
-                >
-                  Section {section.getIndex() + 1}
-                </div>
-                <div
-                  style={{
-                    marginTop: "10px",
-                    fontStyle: "italic",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {section.getOriginalContent()}
-                </div>
-                <div
-                  style={{
-                    marginTop: "10px",
-                    textAlign: "right",
-                    fontSize: "12px",
-                    color: "#666",
-                  }}
-                >
-                  Character count: {section.getOriginalCharCount()}
-                </div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        ) : (
-          <p style={{ color: "gray", fontStyle: "italic" }}>
-            No sections found
-          </p>
-        )}
-      </Offcanvas.Body>
-    </Offcanvas>
+                {section.getOriginalContent()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Drawer>
   );
 };
 

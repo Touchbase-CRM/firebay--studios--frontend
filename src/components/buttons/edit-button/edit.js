@@ -25,7 +25,7 @@ export const EditButton = ({
       style={{
         backgroundColor: "transparent",
         borderColor: "transparent",
-        color: isClicked ? "#eb631c" : "currentColor",
+        color: isClicked ? "var(--accent-500)" : "currentColor",
         padding: "0",
         display: "inline-flex",
         alignItems: "center",
@@ -36,7 +36,7 @@ export const EditButton = ({
       <i
         className={isClicked ? "bi bi-pencil-fill" : "bi bi-pencil"}
         style={{
-          color: "#eb631c",
+          color: "var(--accent-500)",
           fontSize: size,
         }}
       ></i>

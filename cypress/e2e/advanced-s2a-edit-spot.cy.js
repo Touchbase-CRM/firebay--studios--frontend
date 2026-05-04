@@ -1,137 +1,72 @@
 describe("Edit advanced s2a spot workflow", () => {
-  it("should log in, navigate to the home page, edit cypress--adv--s2a spot, generate voice with enhancements, finalize, and add music", () => {
-    // Log in to the application
+  const SPOT_NAME = "cypress--adv--s2a";
+
+  it("logs in, edits the spot, generates voices, stitches, and reaches the export panel", () => {
     cy.visit("http://localhost:3000");
+
+    // Login
     cy.get('input[type="email"]').type(Cypress.env("user_email"));
     cy.get('input[type="password"]').type(Cypress.env("user_password"));
-    cy.get("button").contains("Login").click();
-
-    // Ensure the login was successful
+    cy.contains("button", "Sign in").click();
     cy.url().should("not.include", "/login");
 
-    // Click the edit button for the cypress--adv--s2a spot
-    cy.get("td")
-      .contains("cypress--adv--s2a")
-      .parent("tr")
-      .find('button[title="Edit Spot"]')
-      .click();
+    // Click the spot row — row click is the edit affordance now
+    cy.get(`[data-cy="spot-row"][data-cy-spot-name="${SPOT_NAME}"]`).click();
 
-    // Verify that it navigates to the correct URL
     cy.url().should(
-      "eq",
-      "http://localhost:3000/advanced-mode/script-to-ad/process-section/0"
+      "match",
+      /\/advanced-mode\/script-to-ad\/process-section\/0$/
     );
 
-    // Click the "Generate Voice" button
-    cy.get("button").contains("Generate Voice").click();
+    // Generate the first take
+    cy.contains("button", "Generate voice").click();
 
-    cy.wait(2900); // Adjust the wait time as necessary
-
-    // Wait for the audio player to appear
-    cy.get('div[role="group"] audio')
+    // Audio bar appears once generation completes (real backend timing)
+    cy.get("audio", { timeout: 30000 })
       .should("have.attr", "src")
-      .then((src) => {
-        // Verify that the audio src is a blob URL
-        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-      });
+      .and("match", /^blob:http:\/\/localhost:3000\/.+/);
 
-    // Enable the "Dragon's Breath" checkbox
-    cy.get('input[type="checkbox"][id="dragonBreathEnhancementSwitch"]').check({
+    // Toggle Dragon's breath via the new inspector
+    cy.get('[data-cy="dragons-breath-toggle"] input[type="checkbox"]').check({
       force: true,
     });
 
-    // Click the "Generate Voice" button again
-    cy.get("button").contains("Generate Voice").click();
-
-    // Wait for the new audio player to appear
-    cy.get('div[role="group"] audio')
+    // Re-generate (button label flips after first generation)
+    cy.contains("button", /Re-generate/i).click();
+    cy.get("audio", { timeout: 30000 })
       .should("have.attr", "src")
-      .then((src) => {
-        // Verify that the new audio src is a blob URL
-        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-      });
-
-    // Wait for some time to ensure the second audio generation is complete
-    cy.wait(9000); // Adjust the wait time as necessary
-
-    // Click the "Next" button
-    cy.get("button.btn.btn-primary").contains("Next").click();
-
-    // Wait for the transition to happen
-    cy.wait(300);
-
-    // Verify that it navigates to the correct URL
-    cy.url().should(
-      "eq",
-      "http://localhost:3000/advanced-mode/script-to-ad/process-section/1"
-    );
-
-    // Click the "Generate Voice" button
-    cy.get("button").contains("Generate Voice").click();
-
-    // Wait for the new audio player to appear
-    cy.get('div[role="group"] audio')
-      .should("have.attr", "src")
-      .then((src) => {
-        // Verify that the new audio src is a blob URL
-        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-      });
-
-    // Wait for some time to ensure the second audio generation is complete
-    cy.wait(5000); // Adjust the wait time as necessary
-
-    // Click the "Next" button
-    cy.get("button.btn.btn-primary").contains("Next").click();
-
-    // Wait for the transition to happen
-    cy.wait(300);
-
-    // Verify that it navigates to the correct URL
-    cy.url().should(
-      "eq",
-      "http://localhost:3000/advanced-mode/script-to-ad/stitch-sections"
-    );
-
-    // Click the "Finalize" button
-    cy.get("button.btn.btn-primary").contains("Finalize").click();
-
-    // Wait for the audio player to appear with the finalized audio
-    cy.get('div[role="group"] audio')
-      .should("have.attr", "src")
-      .then((src) => {
-        // Verify that the finalized audio src is a blob URL
-        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-      });
-
-    // Verify that the download link appears and has the correct URL
-    cy.get('a[title="Download"]')
-      .should("have.attr", "href")
       .and("match", /^blob:http:\/\/localhost:3000\/.+/);
 
-    // Verify that the "Now playing: Final Cut" text appears
-    cy.get("span").contains("Now playing: Final Cut").should("be.visible");
+    // Advance to the next section
+    cy.contains("button", /Next section/i).click();
+    cy.url().should(
+      "match",
+      /\/advanced-mode\/script-to-ad\/process-section\/1$/
+    );
 
-    // Click the "Next" button to navigate to the add music page
-    cy.get("button.btn.btn-primary").contains("Next").click();
-
-    // Verify that it navigates to the correct URL
-    cy.url().should("eq", "http://localhost:3000/add-music");
-
-    // Click the "Submit" button
-    cy.get("button.btn.btn-primary").contains("Submit").click();
-
-    // Wait for the output to process
-    cy.wait(5000);
-
-    // Verify that there is a new blob audio player
-    cy.get('div[role="group"] audio')
+    // Generate take for section 2
+    cy.contains("button", "Generate voice").click();
+    cy.get("audio", { timeout: 30000 })
       .should("have.attr", "src")
-      .then((src) => {
-        // Verify that the audio src is a blob URL
-        expect(src).to.match(/^blob:http:\/\/localhost:3000\/.+/);
-      });
+      .and("match", /^blob:http:\/\/localhost:3000\/.+/);
 
-    // Verify that the "Now playing:" text appears
-    cy.get("span").contains("Now playing:").should("be.visible");
+    // Continue to stitch (last section's primary CTA)
+    cy.contains("button", /Continue to stitch/i).click();
+    cy.url().should("include", "/advanced-mode/script-to-ad/stitch-sections");
+
+    // Kick off the stitch
+    cy.contains("button", "Stitch sections").click();
+
+    // After stitching, the inline Export panel shows up
+    cy.contains("Export your spot", { timeout: 60000 }).should("be.visible");
+    cy.contains("Stitched").should("be.visible");
+
+    // The fixed-bottom audio player should be playing the final cut
+    cy.contains("Now playing").should("be.visible");
+    cy.contains(/Final cut/i).should("be.visible");
+
+    // Download button is present and the file-name input has a default value
+    cy.get('input').filter('[type="text"]').last().should("have.value", /./);
+    cy.contains("button", "Download").should("be.visible");
   });
 });

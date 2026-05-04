@@ -1,0 +1,136 @@
+/*
+ * Pyro design tokens — single source of truth for color, type, spacing,
+ * radius, and shadow. Stripe/Linear-leaning neutrals with a refined orange
+ * accent. Imported in src/pages/_app.js between bootstrap base and
+ * bootstrap-overrides.css.
+ */
+
+:root {
+  /* Neutrals — cool gray scale, Stripe-leaning */
+  --gray-50: #F7F8FA;
+  --gray-100: #F2F4F7;
+  --gray-200: #E4E7EC;
+  --gray-300: #D0D5DD;
+  --gray-400: #98A2B3;
+  --gray-500: #667085;
+  --gray-600: #475467;
+  --gray-700: #344054;
+  --gray-800: #1D2939;
+  --gray-900: #101828;
+
+  /* Surface */
+  --surface-canvas: var(--gray-50);
+  --surface-card: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-overlay: rgba(16, 24, 40, 0.45);
+  --surface-inset: var(--gray-100);
+
+  /* Border */
+  --border-subtle: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --border-focus: var(--accent-500);
+
+  /* Text */
+  --text-primary: var(--gray-800);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-500);
+  --text-inverse: #FFFFFF;
+  --text-link: var(--accent-600);
+
+  /* Accent — anchored on existing brand at --accent-500 */
+  --accent-50: #FFF4ED;
+  --accent-100: #FFE0CC;
+  --accent-200: #FFC299;
+  --accent-300: #FFA266;
+  --accent-400: #FA8333;
+  --accent-500: #EB631C;
+  --accent-600: #C24E10;
+  --accent-700: #99400D;
+  --accent-800: #70300A;
+  --accent-900: #4A2008;
+
+  /* Semantic */
+  --success-50: #ECFDF3;
+  --success-500: #16A34A;
+  --success-600: #15803D;
+  --warning-50: #FEF3C7;
+  --warning-500: #D97706;
+  --warning-600: #B45309;
+  --danger-50: #FEF2F2;
+  --danger-500: #DC2626;
+  --danger-600: #B91C1C;
+  --info-50: #EFF6FF;
+  --info-500: #2563EB;
+  --info-600: #1D4ED8;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+    'Roboto Mono', 'Source Code Pro', 'Fira Mono', monospace;
+
+  --text-xs: 12px;
+  --text-xs-lh: 16px;
+  --text-sm: 13px;
+  --text-sm-lh: 20px;
+  --text-base: 14px;
+  --text-base-lh: 22px;
+  --text-md: 16px;
+  --text-md-lh: 24px;
+  --text-lg: 18px;
+  --text-lg-lh: 28px;
+  --text-xl: 20px;
+  --text-xl-lh: 30px;
+  --text-2xl: 24px;
+  --text-2xl-lh: 32px;
+  --text-3xl: 30px;
+  --text-3xl-lh: 38px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --letter-spacing-tight: -0.011em;
+  --letter-spacing-tighter: -0.022em;
+
+  /* Spacing — 4px base */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 56px;
+  --space-11: 64px;
+  --space-12: 80px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Shadow — subtle, Linear-style */
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-focus: 0 0 0 3px rgba(235, 99, 28, 0.18);
+
+  /* Motion */
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-slow: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --max-content-width: 1200px;
+  --navbar-height: 64px;
+  --inspector-width: 360px;
+}

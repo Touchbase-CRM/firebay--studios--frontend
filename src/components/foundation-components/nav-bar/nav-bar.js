@@ -1,140 +1,120 @@
-import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container } from "react-bootstrap";
+import React from "react";
 import { useRouter } from "next/router";
-import { NotificationsPad } from "./notifications-pad";
 
-export const NavBar = ({ links, logoutHandler, disableHome = false, saveHandler = null, notifications, deleteNotification }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [internalNotifications, setInternalNotifications] = useState(notifications || []);
+const linkStyle = {
+  fontSize: "var(--text-sm)",
+  fontWeight: "var(--font-weight-medium)",
+  color: "var(--text-secondary)",
+  textDecoration: "none",
+  padding: "var(--space-2) var(--space-3)",
+  borderRadius: "var(--radius-md)",
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  transition: "background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out)",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--space-2)",
+};
 
+function NavLink({ children, onClick, ariaLabel }) {
+  const [hover, setHover] = React.useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        ...linkStyle,
+        backgroundColor: hover ? "var(--gray-100)" : "transparent",
+        color: hover ? "var(--text-primary)" : "var(--text-secondary)",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Stripe-style stylized wordmark — tighter letter-spacing, slight slant on a single
+// letter for character. Pure typography, no custom font required.
+function PyroWordmark() {
+  return (
+    <span
+      aria-label="Pyro"
+      style={{
+        fontFamily: "var(--font-display), var(--font-sans)",
+        fontSize: "var(--text-xl)",
+        fontWeight: 700,
+        color: "var(--text-primary)",
+        letterSpacing: "-0.03em",
+        lineHeight: 1,
+        display: "inline-flex",
+        alignItems: "baseline",
+      }}
+    >
+      Pyro
+    </span>
+  );
+}
+
+export const NavBar = ({ links = [], logoutHandler, showLogout = false }) => {
   const router = useRouter();
-
-  const navigate = (url) => {
-    if (saveHandler) {
-      saveHandler();
-    }
-    router.replace(url, undefined, { scroll: false });
-  };
-
-  const handleClose = () => setShowNotifications(false);
-  const handleShow = () => setShowNotifications(true);
-
-  useEffect(() => {
-    if (notifications) {
-      setInternalNotifications(notifications);
-    }
-  }, [notifications]);
+  const navigate = (url) => router.push(url, undefined, { scroll: false });
 
   return (
-    <>
-      <Navbar
-        expand="lg"
+    <nav
+      style={{
+        height: "var(--navbar-height)",
+        width: "100%",
+        backgroundColor: "var(--surface-card)",
+        borderBottom: "1px solid var(--border-subtle)",
+        display: "flex",
+        alignItems: "center",
+        padding: "0 var(--space-6)",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => navigate("/home")}
         style={{
-          backgroundColor: 'transparent',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          borderBottom: 'none',
-          borderRadius: '0 0 10px 10px',
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          height: "100%",
         }}
+        aria-label="Pyro home"
       >
-        <Container fluid>
-          <Navbar.Brand href="#">
-            <img
-              src="/fire.png"
-              width="50"
-              height="50"
-              className="d-inline-block align-top"
-              alt="Logo"
-            />
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="navbar-nav" />
-          <Navbar.Collapse
-            id="navbar-nav"
-            style={{
-              justifyContent: 'flex-end',
-            }}
-          >
-            <Nav className="me-auto">
-              {links.map((link, index) => (
-                <Nav.Link
-                  key={index}
-                  onClick={() => navigate(link.url)}
-                  style={{
-                    margin: '0 15px',
-                    color: '#343a40',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    letterSpacing: '0.5px'
-                  }}
-                >
-                  {link.label}
-                </Nav.Link>
-              ))}
-            </Nav>
+        <img src="/fire.png" width="28" height="28" alt="" style={{ display: "block" }} />
+        <PyroWordmark />
+      </button>
 
-            <Nav className="ms-auto align-items-center">
-              {!disableHome && (
-                <Nav.Link
-                  onClick={() => navigate('/home')}
-                  style={{
-                    margin: '0 15px',
-                    color: '#343a40',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    letterSpacing: '0.5px'
-                  }}
-                >
-                  <i className="bi bi-house"></i> Home
-                </Nav.Link>
-              )}
-              {notifications && (
-                <Nav.Link
-                  href="#"
-                  onClick={handleShow}
-                  style={{
-                    position: 'relative',
-                    padding: '0 15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: '#343a40',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    letterSpacing: '0.5px'
-                  }}
-                >
-                  <i className="bi bi-bell" style={{ fontSize: '20px', marginRight: '5px' }}></i>
-                  <span style={{ marginRight: '10px' }}>Notifications</span>
-                  {internalNotifications.length > 0 && (
-                    <span className="badge text-bg-secondary" style={{ position: 'absolute', top: '-5px', right: '-5px', fontSize: '12px' }}>
-                      {internalNotifications.length}
-                    </span>
-                  )}
-                </Nav.Link>
-              )}
-              <Nav.Link
-                onClick={logoutHandler}
-                style={{
-                  margin: '0 15px',
-                  color: '#343a40',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  letterSpacing: '0.5px'
-                }}
-              >
-                <i className="bi bi-box-arrow-right"></i> Logout
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-
-      {notifications && (
-        <NotificationsPad
-          show={showNotifications}
-          handleClose={handleClose}
-          notifications={internalNotifications}
-          deleteNotification={deleteNotification}
-        />
+      {links.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", marginLeft: "var(--space-7)" }}>
+          {links.map((link, idx) => (
+            <NavLink key={idx} onClick={() => navigate(link.url)}>
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
       )}
-    </>
+
+      {showLogout && logoutHandler && (
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+          <NavLink onClick={logoutHandler} ariaLabel="Logout">
+            <i className="bi bi-box-arrow-right" style={{ fontSize: 14 }}></i>
+            Logout
+          </NavLink>
+        </div>
+      )}
+    </nav>
   );
 };

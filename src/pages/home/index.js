@@ -1,4 +1,3 @@
-import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -9,7 +8,7 @@ import {
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import withAuth from "@/hocs/with-auth";
 
-import { getAuth } from "firebase/auth";
+import { getAuth } from "@/firebase";
 import app from "@/firebase";
 import {
   getFirestore,
@@ -21,22 +20,22 @@ import {
   setDoc,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 
-import {
-  updateAdvancedS2AState,
-  updateQuickS2AState,
-  updateQuickV2AState,
-} from "@/_pages/home/utils/update-state";
+import { updateAdvancedS2AState } from "@/_pages/home/utils/update-state";
+import { createNewSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
 import SpotTable from "@/_pages/home/components/spots-table";
 import ManageSpotTableActions from "@/_pages/home/components/manage-spots-table-actions";
 import { fetchSpots } from "@/_pages/home/utils/fetch-spots";
 import useUserInputsStore from "@/store/user-inputs";
-import Spinner from "@/components/spinner/spinner"; // Import the custom spinner
+import { PageShell, PageContent } from "@/components/ui/page-shell";
+import { Toolbar } from "@/components/ui/toolbar";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 const Home = () => {
-  const { setSpotName, reset: resetUserInputsStore } = useUserInputsStore();
+  const { setSpotName, setSpotId, setAdGenerationMethod, reset: resetUserInputsStore } = useUserInputsStore();
   const reset = useUserInputsStore((state) => state.reset);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -179,29 +178,52 @@ const Home = () => {
       return;
     }
 
-    router.push({
-      pathname: "/options/mode",
-      query: { spotName: adName, option: "mode" },
-    });
+    try {
+      const sharedStates = {
+        ...useUserInputsStore.getState(),
+        spotName: adName,
+        adGenerationMethod: "advanced-script-to-ad",
+      };
+      delete sharedStates.reset;
+      const newSpotId = await createNewSpotInDb({
+        spotName: adName,
+        mode: "advanced-script-to-ad",
+        modeSpecificStates: {
+          s2aAdvancedFreeStyleStatus: true,
+          sectionsArray: [],
+          sectionHistoryArray: [],
+          stitchedAudioPyroHistoryItemId: "",
+          numSectionsIdentified: 0,
+        },
+        sharedStates: {
+          ogScriptWordsArray: [],
+          originalScriptString: "",
+          transformedWords: {},
+          voiceId: sharedStates.voiceId,
+          voiceName: sharedStates.voiceName,
+          voicePreviewFilename: sharedStates.voicePreviewFilename,
+          adLength: sharedStates.adLength,
+          generatedVoiceUrl: "",
+          modelId: sharedStates.modelId,
+          adGenerationMethod: "advanced-script-to-ad",
+          spotId: "",
+          spotName: adName,
+        },
+      });
+      setSpotId(newSpotId);
+      setSpotName(adName);
+      setAdGenerationMethod("advanced-script-to-ad");
+      router.push("/advanced-mode/script-to-ad/create-sections");
+    } catch (error) {
+      console.error("Failed to create new spot:", error);
+      Swal.fire({ title: "Error", text: "Failed to create the spot. Please try again.", icon: "error" });
+    }
   };
 
   async function handleEditSpot(spotId) {
-    setEditLoading(true); // Show loading spinner
+    setEditLoading(true);
     try {
-      const mode = await readFromFirestore("spots_meta_data", spotId, "mode");
-      switch (mode) {
-        case "advanced-script-to-ad":
-          await manageAdvancedEditSpot(spotId);
-          break;
-        case "quick-script-to-ad":
-          await manageQuickScriptToAdSpot(spotId);
-          break;
-        case "quick-voice-to-ad":
-          await manageQuickVoiceToAdSpot(spotId);
-          break;
-        default:
-          throw new Error(`Unsupported mode: ${mode}`);
-      }
+      await manageAdvancedEditSpot(spotId);
     } catch (error) {
       console.error("Error handling the spot mode:", error);
     }
@@ -211,25 +233,11 @@ const Home = () => {
     const data = await deserializeAndLoadModeData({ spotId });
     setSpotName(data.sharedStates.spotName);
     await updateAdvancedS2AState(data);
-    if (data.featureSpecificStates.sectionsArray.length === 0) {
+    if ((data.featureSpecificStates?.sectionsArray ?? []).length === 0) {
       router.push("/advanced-mode/script-to-ad/create-sections");
     } else {
       router.push("/advanced-mode/script-to-ad/process-section/0");
     }
-  }
-
-  async function manageQuickScriptToAdSpot(spotId) {
-    const data = await deserializeAndLoadModeData({ spotId });
-    setSpotName(data.sharedStates.spotName);
-    await updateQuickS2AState(data);
-    router.push("/quick-mode/script-to-ad/create-ad");
-  }
-
-  async function manageQuickVoiceToAdSpot(spotId) {
-    const data = await deserializeAndLoadModeData({ spotId });
-    setSpotName(data.sharedStates.spotName);
-    await updateQuickV2AState(data);
-    router.push("/quick-mode/voice-to-ad/create-ad");
   }
 
   function findDownloadLogs(spotId) {
@@ -447,92 +455,44 @@ const Home = () => {
       });
   };
 
-  return (
-    <div
-      style={{
-        backgroundColor: "#FFFFFF",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <NavBar links={[]} logoutHandler={handleLogout} notifications={notifications} deleteNotification={deleteNotification} />
-      <Container
-        fluid
-        style={{
-          backgroundColor: "white",
-          padding: "20px",
-          // height: "calc(100vh - 90px)", // Adjust height considering the navbar height
-          overflowY: "auto",
-        }}
-      >
-        {isLoading || editLoading ? ( // Show loading spinner if either loading state is true
-          <Row className="justify-content-center">
-            <Col xs={12} className="text-center">
-              <div
-                className="d-flex align-items-center justify-content-center flex-column"
-                style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
-              >
-                <Spinner
-                  animation="border"
-                  variant="primary"
-                  style={{ marginBottom: "200px" }}
-                />
+  const openCreateModal = () => {
+    reset();
+    setAdName("");
+    setShowCreateAdModal(true);
+  };
 
-                <Card
-                  className="p-4"
-                  style={{
-                    marginTop: "100px",
-                    borderRadius: "1rem",
-                    border: "2px solid #eb631c",
-                    color: "black",
-                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <p
-                    className="ml-3 mb-0"
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "24px",
-                      color: "black",
-                      textShadow: "2px 2px 2px rgba(0,0,0,0.2)",
-                      fontFamily: "'Cinzel', serif",
-                    }}
-                  >
-                    Loading Data...
-                  </p>
-                </Card>
-              </div>
-            </Col>
-          </Row>
+  return (
+    <PageShell>
+      <NavBar links={[]} logoutHandler={handleLogout} showLogout />
+      <PageContent>
+        {isLoading || editLoading ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "var(--space-12) 0",
+              gap: "var(--space-4)",
+            }}
+          >
+            <Spinner size="lg" />
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+              Loading your spots…
+            </div>
+          </div>
         ) : (
           <>
-            <Row
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: "1rem",
-              }}
-            >
-              <Col xs={12}>
-                <Button
-                  variant="warning"
-                  style={{
-                    backgroundColor: "#eb631c",
-                    borderColor: "#eb631c",
-                    color: "white",
-                    width: "160px",
-                    height: "40px",
-                  }}
-                  onClick={() => {
-                    setShowCreateAdModal(true);
-                    reset();
-                  }}
-                >
-                  Create a new Spot
+            <Toolbar
+              title="Spots"
+              description="Pick up where you left off, or start something new."
+              actions={
+                <Button onClick={openCreateModal} leftIcon={<i className="bi bi-plus-lg" />}>
+                  New spot
                 </Button>
-              </Col>
-            </Row>
+              }
+              style={{ padding: "var(--space-2) 0 var(--space-6)" }}
+            />
             <SpotTable
               spots={paginatedSpots}
               handleSpotActions={handleSpotActions}
@@ -541,6 +501,7 @@ const Home = () => {
               pageSize={pageSize}
               totalSpots={spots.length}
               totalDownloads={totalDownloads}
+              onCreate={openCreateModal}
             />
             <ManageSpotTableActions
               showCopyModal={showCopyModal}
@@ -566,8 +527,8 @@ const Home = () => {
             />
           </>
         )}
-      </Container>
-    </div>
+      </PageContent>
+    </PageShell>
   );
 };
 
