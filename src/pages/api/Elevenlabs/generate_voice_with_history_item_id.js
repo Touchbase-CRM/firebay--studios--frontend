@@ -1,5 +1,17 @@
 import axios from "axios";
 
+async function streamToString(stream) {
+  if (!stream || typeof stream.on !== "function") {
+    if (stream == null) return "";
+    return typeof stream === "string" ? stream : JSON.stringify(stream);
+  }
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { historyItemId } = req.body;
@@ -25,13 +37,23 @@ export default async function handler(req, res) {
       // Stream the response data directly to the client
       response.data.pipe(res);
     } catch (err) {
-      console.error(err);
-      // If Axios catches an error, it will be part of the err.response object
-      const status = err.response ? err.response.status : 500;
-      const message = err.response
-        ? err.response.data
-        : "Failed to fetch audio from ElevenLabs";
-      res.status(status).json({ error: message });
+      let upstreamBody = "";
+      try {
+        upstreamBody = await streamToString(err.response?.data);
+      } catch (readErr) {
+        upstreamBody = err.message;
+      }
+      const upstreamStatus = err.response?.status ?? 500;
+      console.error("ElevenLabs proxy error (generate_voice_with_history_item_id)", {
+        status: upstreamStatus,
+        body: upstreamBody,
+        message: err.message,
+      });
+      res.status(upstreamStatus).json({
+        error: "Failed to fetch audio from ElevenLabs",
+        upstreamStatus,
+        upstreamMessage: upstreamBody || err.message,
+      });
     }
   } else {
     // Handle any non-POST requests
