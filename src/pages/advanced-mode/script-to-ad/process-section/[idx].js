@@ -28,7 +28,6 @@ import { isUiPreviewMode } from "@/firebase";
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
-import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
 import { VoiceTab } from "@/_pages/advanced-mode/script-to-ad/process-section/components/inspector/voice-tab";
 import { EmphasisTab } from "@/_pages/advanced-mode/script-to-ad/process-section/components/inspector/emphasis-tab";
@@ -431,21 +430,25 @@ function ProcessSection() {
       });
     }
     const voiceGender = localCurrentSectionObj.getVoicePreviewFilename().split("/")[0];
+    // Only include `emotion` when dragon's breath is on — otherwise the backend
+    // moodifies the script even for vanilla generations.
+    const payload = {
+      script,
+      voice: voiceId,
+      voice_intonation_consistency: voiceIntonationConsistency,
+      model_id: modelId,
+      voice_gender: voiceGender,
+      user_id: userId,
+      dragons_breath_mode: dragonsBreathMode,
+      speech_rate: talkSpeed,
+      legal_disclaimer: legalDisclaimer,
+    };
+    if (dragonsBreathMode) payload.emotion = "enthusiastically";
+
     const response = await fetch(`${PROCESSING_URL}/preprocess-voiceover`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        script,
-        voice: voiceId,
-        voice_intonation_consistency: voiceIntonationConsistency,
-        model_id: modelId,
-        voice_gender: voiceGender,
-        user_id: userId,
-        dragons_breath_mode: dragonsBreathMode,
-        speech_rate: talkSpeed,
-        legal_disclaimer: legalDisclaimer,
-        emotion: "enthusiastically",
-      }),
+      body: JSON.stringify(payload),
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
@@ -463,27 +466,21 @@ function ProcessSection() {
     setIsGeneratingVoice(true);
     try {
       const finalScript = getFinalScript();
-      const preprocessRequired =
-        localCurrentSectionObj.getDragonBreathEnhancement() ||
-        legacySpeechRate(localCurrentSectionObj.getSpeechRate()) !== 0;
 
-      const result = preprocessRequired
-        ? await generateVoiceWithCustomPreprocess(
-            finalScript,
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency(),
-            localCurrentSectionObj.getModelId(),
-            auth.currentUser.uid,
-            localCurrentSectionObj.getDragonBreathEnhancement(),
-            legacySpeechRate(localCurrentSectionObj.getSpeechRate()),
-            true
-          )
-        : await generateVoiceWithElevenLabsAPI(
-            finalScript,
-            localCurrentSectionObj.getModelId(),
-            localCurrentSectionObj.getVoiceId(),
-            localCurrentSectionObj.getVoiceIntonationConsistency()
-          );
+      // Always route through the backend so audio lands in our S3 with a
+      // pyro_* id. ElevenLabs' history isn't reliable to fetch from at stitch
+      // time (lower tiers don't persist history), which caused
+      // "Section N's audio couldn't be loaded" right after a fresh generate.
+      const result = await generateVoiceWithCustomPreprocess(
+        finalScript,
+        localCurrentSectionObj.getVoiceId(),
+        localCurrentSectionObj.getVoiceIntonationConsistency(),
+        localCurrentSectionObj.getModelId(),
+        auth.currentUser.uid,
+        localCurrentSectionObj.getDragonBreathEnhancement(),
+        legacySpeechRate(localCurrentSectionObj.getSpeechRate()),
+        true
+      );
 
       const { audioUrl, localHistoryItemId } = result;
       setAllowDownload(true);
