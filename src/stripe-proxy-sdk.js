@@ -1,5 +1,5 @@
 "use client";
-import { getAuth } from "firebase/auth";
+import { getAuth } from "@/firebase";
 import {
   addDoc,
   collection,

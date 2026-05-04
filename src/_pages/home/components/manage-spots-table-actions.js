@@ -1,6 +1,6 @@
-// Related path: src/pages/home/components/spots-manager.js
 import React from "react";
-import { GenericModal } from "@/components/foundation-components/modal";
+import { Modal } from "@/components/ui/modal";
+import { Input } from "@/components/ui/input";
 import { DownloadLogsModal } from "./download-logs-modal";
 
 const ManageSpotTableActions = ({
@@ -34,61 +34,76 @@ const ManageSpotTableActions = ({
         unitPrice={unitPrice}
       />
 
-      <GenericModal
+      <Modal
         show={showCopyModal}
         onHide={() => setShowCopyModal(false)}
-        title="Copy Spot"
-        onSave={handleSaveCopy}
-        closeButtonLabel="Cancel"
-        saveButtonLabel="Copy"
+        title="Duplicate spot"
+        description="Give the copy a unique name to keep your library tidy."
+        primaryAction={{ label: "Duplicate", onClick: handleSaveCopy }}
+        secondaryAction={{ label: "Cancel", onClick: () => setShowCopyModal(false) }}
       >
-        <input
-          type="text"
+        <Input
+          autoFocus
           value={newCopySpotName}
           onChange={(e) => setNewCopySpotName(e.target.value)}
-          className="form-control"
-          placeholder="Enter the new Spot name"
+          placeholder="Spot name"
+          maxLength={30}
         />
-      </GenericModal>
+      </Modal>
 
-      <GenericModal
+      <Modal
         show={showRenameModal}
         onHide={() => {
           setShowRenameModal(false);
           setNewSpotName("");
         }}
-        title="Rename Spot"
-        onSave={updateSpotName}
-        closeButtonLabel="Cancel"
-        saveButtonLabel="Save"
-        maxLength={30}
+        title="Rename spot"
+        primaryAction={{ label: "Save", onClick: updateSpotName }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => {
+            setShowRenameModal(false);
+            setNewSpotName("");
+          },
+        }}
       >
-        <input
-          type="text"
+        <Input
+          autoFocus
           value={newSpotName}
           onChange={(e) => setNewSpotName(e.target.value)}
-          className="form-control"
-          placeholder="Enter the new Spot name"
+          placeholder="Spot name"
+          maxLength={30}
         />
-      </GenericModal>
+      </Modal>
 
-      <GenericModal
+      <Modal
         show={showCreateAdModal}
-        onHide={() => setShowCreateAdModal(false)}
-        title="Enter Spot Name"
-        onSave={handleNextOnCreateAd}
-        closeButtonLabel="Discard"
-        saveButtonLabel="Next"
-        maxLength={30}
+        onHide={() => {
+          if (handleCloseModal) handleCloseModal();
+          else setShowCreateAdModal(false);
+        }}
+        title="Create a new spot"
+        description="Name your spot — you can change it any time."
+        primaryAction={{ label: "Continue", onClick: handleNextOnCreateAd }}
+        secondaryAction={{
+          label: "Discard",
+          onClick: () => {
+            if (handleCloseModal) handleCloseModal();
+            else setShowCreateAdModal(false);
+          },
+        }}
       >
-        <input
-          type="text"
+        <Input
+          autoFocus
           value={adName}
           onChange={(e) => setAdName(e.target.value)}
-          className="form-control"
-          placeholder="Type the Spot name here"
+          placeholder="e.g. Acme Q4 Radio"
+          maxLength={30}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleNextOnCreateAd();
+          }}
         />
-      </GenericModal>
+      </Modal>
     </>
   );
 };

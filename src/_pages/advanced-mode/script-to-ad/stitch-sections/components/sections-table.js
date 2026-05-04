@@ -1,200 +1,117 @@
-// src/_pages/advanced-mode/script-to-ad/stitch-sections/components/SectionsTable.js
-
 import React from "react";
-import { Table } from "react-bootstrap";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
 import { EditPauseDurationModal } from "./edit-pause-duration-modal/modal";
 
 const SectionsTable = ({
-    currentSections,
-    indexOfFirstSection,
-    handleContentClick,
-    showEditPauseDurationModal,
-    isEditPauseModalVisible,
-    setEditPauseModalVisible,
-    updatePauseDuration,
-    currentEditingSectionIndex,
-    adLength,
-    localSectionsArray,
-    handleSectionPreviewPlay,
-    handleEditSection,
+  currentSections,
+  indexOfFirstSection,
+  handleContentClick,
+  showEditPauseDurationModal,
+  isEditPauseModalVisible,
+  setEditPauseModalVisible,
+  updatePauseDuration,
+  currentEditingSectionIndex,
+  adLength,
+  localSectionsArray,
+  handleSectionPreviewPlay,
+  handleEditSection,
 }) => {
-    return (
-        <Table bordered hover style={{ borderColor: "#eb631c" }}>
-            <thead style={{ backgroundColor: "#eb631c", color: "white" }}>
-                <tr>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Section ID
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Voice Name
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Section Content
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Duration
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Section End Pause
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Play
-                    </th>
-                    <th style={{ borderColor: "#eb631c", textAlign: "center" }}>
-                        Edit
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {currentSections.map((section, index) => (
-                    <tr key={index}>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            {indexOfFirstSection + index + 1}
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            {section.getVoiceName()}
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                cursor: "pointer",
-                            }}
-                            onClick={() => handleContentClick(section.getCurrentContent())}
-                        >
-                            {section.getCurrentContent().length > 30 ? (
-                                <>
-                                    {`${section.getCurrentContent().substring(0, 30)}`}
-                                    <span
-                                        style={{
-                                            color: "#808080",
-                                            fontStyle: "italic",
-                                        }}
-                                    >
-                                        {" "}
-                                        ...see more
-                                    </span>
-                                </>
-                            ) : (
-                                section.getCurrentContent()
-                            )}
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            {section.getSectionDurationSeconds().toFixed(2)} sec
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                                padding: "0",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: "100%",
-                                }}
-                            >
-                                <span style={{ marginRight: "8px" }}>
-                                    {section.getEndOfSectionPauseDurationSeconds()} sec
-                                </span>
-                                <EditButton
-                                    onClickHandler={() =>
-                                        showEditPauseDurationModal(indexOfFirstSection + index)
-                                    }
-                                />
-                                <EditPauseDurationModal
-                                    show={isEditPauseModalVisible}
-                                    onHide={() => setEditPauseModalVisible(false)}
-                                    initialValue={section.getEndOfSectionPauseDurationSeconds()}
-                                    onSave={(newPauseDuration) => {
-                                        if (currentEditingSectionIndex !== null) {
-                                            updatePauseDuration(
-                                                currentEditingSectionIndex,
-                                                newPauseDuration
-                                            );
-                                        }
-                                        setEditPauseModalVisible(false);
-                                    }}
-                                    maxValue={Math.floor(
-                                        adLength -
-                                        localSectionsArray
-                                            .reduce(
-                                                (acc, section) =>
-                                                    acc +
-                                                    section.sectionDurationSeconds +
-                                                    section.getEndOfSectionPauseDurationSeconds(),
-                                                0
-                                            )
-                                            .toFixed(2)
-                                    )}
-                                />
-                            </div>
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            <PlayButton
-                                onClickHandler={() =>
-                                    handleSectionPreviewPlay(
-                                        localSectionsArray[indexOfFirstSection + index]
-                                    )
-                                }
-                                size="28px"
-                            />
-                        </td>
-                        <td
-                            style={{
-                                border: "1px solid #eb631c",
-                                textAlign: "center",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            <EditButton
-                                onClickHandler={() =>
-                                    handleEditSection(
-                                        localSectionsArray[indexOfFirstSection + index]
-                                    )
-                                }
-                                size="28px"
-                            />
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-    );
+  return (
+    <div style={{ overflow: "auto" }}>
+      <table className="table" style={{ marginBottom: 0 }}>
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>#</th>
+            <th>Voice</th>
+            <th>Content</th>
+            <th style={{ textAlign: "right" }}>Duration</th>
+            <th>End pause</th>
+            <th style={{ width: 100, textAlign: "right" }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentSections.map((section, idx) => {
+            const absoluteIdx = indexOfFirstSection + idx;
+            const content = section.getCurrentContent();
+            return (
+              <tr key={absoluteIdx}>
+                <td style={{ fontWeight: "var(--font-weight-medium)", color: "var(--text-secondary)" }}>
+                  {absoluteIdx + 1}
+                </td>
+                <td>{section.getVoiceName()}</td>
+                <td
+                  onClick={() => handleContentClick(content)}
+                  style={{ cursor: "pointer", maxWidth: 360 }}
+                >
+                  {content.length > 60 ? (
+                    <>
+                      <span style={{ color: "var(--text-primary)" }}>
+                        {content.substring(0, 60)}
+                      </span>
+                      <span style={{ color: "var(--text-muted)" }}> …see more</span>
+                    </>
+                  ) : (
+                    content
+                  )}
+                </td>
+                <td style={{ textAlign: "right", color: "var(--text-secondary)" }}>
+                  {section.getSectionDurationSeconds().toFixed(2)}s
+                </td>
+                <td>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {section.getEndOfSectionPauseDurationSeconds()}s
+                    </span>
+                    <EditButton
+                      onClickHandler={() => showEditPauseDurationModal(absoluteIdx)}
+                    />
+                    <EditPauseDurationModal
+                      show={isEditPauseModalVisible}
+                      onHide={() => setEditPauseModalVisible(false)}
+                      initialValue={section.getEndOfSectionPauseDurationSeconds()}
+                      onSave={(newPauseDuration) => {
+                        if (currentEditingSectionIndex !== null) {
+                          updatePauseDuration(currentEditingSectionIndex, newPauseDuration);
+                        }
+                        setEditPauseModalVisible(false);
+                      }}
+                      maxValue={Math.floor(
+                        adLength -
+                          localSectionsArray.reduce(
+                            (acc, s) =>
+                              acc +
+                              s.sectionDurationSeconds +
+                              s.getEndOfSectionPauseDurationSeconds(),
+                            0
+                          )
+                      )}
+                    />
+                  </div>
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <div style={{ display: "inline-flex", gap: "var(--space-1)" }}>
+                    <PlayButton
+                      onClickHandler={() =>
+                        handleSectionPreviewPlay(localSectionsArray[absoluteIdx])
+                      }
+                      size="28px"
+                    />
+                    <EditButton
+                      onClickHandler={() =>
+                        handleEditSection(localSectionsArray[absoluteIdx])
+                      }
+                      size="28px"
+                    />
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 export default SectionsTable;

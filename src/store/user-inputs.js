@@ -1,18 +1,6 @@
-// Relative path: src/store/user-inputs.js
 import { create } from "zustand";
 import { defaultState } from "./shared-default-values";
 import { UserInputMethods } from "./shared-setters";
-
-import {
-  quickVoiceToAdDefaultValues,
-  QuickVoiceToAdSetters,
-} from "@/store/features/core/quick/voice-to-ad";
-
-import {
-  quickScriptToAdDefaultValues,
-  QuickScriptToAdSetters,
-} from "./features/core/quick/script-to-ad";
-
 import {
   advancedScriptToAdDefaultValues,
   AdvancedScriptToAdSetters,
@@ -20,24 +8,16 @@ import {
 
 const useUserInputsStore = create((set) => {
   const userInputMethods = new UserInputMethods(set);
-  const quickVoiceToAdSetters = new QuickVoiceToAdSetters(set);
-  const quickScriptToAdSetters = new QuickScriptToAdSetters(set);
   const advancedScriptToAdSetters = new AdvancedScriptToAdSetters(set);
 
   return {
     ...defaultState,
-    ...quickVoiceToAdDefaultValues,
-    ...quickScriptToAdDefaultValues,
-    ...quickScriptToAdSetters,
-    ...quickVoiceToAdSetters,
     ...advancedScriptToAdDefaultValues,
     ...advancedScriptToAdSetters,
     ...userInputMethods,
     reset: () =>
       set({
         ...defaultState,
-        ...quickVoiceToAdDefaultValues,
-        ...quickScriptToAdDefaultValues,
         ...advancedScriptToAdDefaultValues,
       }),
   };

@@ -1,65 +1,63 @@
-import React, { useState } from "react";
-import Alert from "react-bootstrap/Alert";
+import React from "react";
 import { CopyBox } from "./copy-box";
+
 export const SectioningTutorial = () => {
   return (
-    <Alert
-      variant="info"
-      style={{
-        backgroundColor: "#d1ecf1",
-        borderColor: "#bee5eb",
-        padding: "20px",
-        borderRadius: "5px",
-        color: "#0c5460",
-      }}
-    >
-      <Alert.Heading
-        style={{
-          fontSize: "24px",
-          marginBottom: "20px",
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-        }}
-      >
-        Interactive Tutorial on How to Split into Sections
-      </Alert.Heading>
-      <p
-        style={{
-          fontSize: "16px",
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-        }}
-      >
-        <strong>What is a section?</strong>
-        <br />A section is a part of your script that shares the same voice,
-        energy, or other specific nuances. We recommend you to split your script
-        into as many sections as possible to get the best read.
-      </p>
-      <p
-        style={{
-          fontSize: "16px",
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-          marginTop: "20px",
-        }}
-      >
-        <strong>How to split into sections?</strong>
-        <br />
-        Imagine following is your script. Copy and paste it on the script text
-        box below, and observe that there is only one section.
-      </p>
-      {/* Reusable boxes with different texts */}
-      <CopyBox text="The quick brown fox jumps over the lazy dog." />
-      <p
-        style={{
-          fontSize: "16px",
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-          marginTop: "20px",
-        }}
-      >
-        Now we add double forward slashes (//) in places where we want to end a
-        section. Try out the following example below and observe that now you
-        have four sections.
-      </p>
-      <CopyBox text="The quick brown fox// jumps //over the lazy // dog." />
-      {/* You can add more <CopyBox /> components as needed */}
-    </Alert>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <section>
+        <h3
+          style={{
+            fontSize: "var(--text-md)",
+            fontWeight: "var(--font-weight-semibold)",
+            color: "var(--text-primary)",
+            margin: 0,
+            marginBottom: "var(--space-2)",
+          }}
+        >
+          What is a section?
+        </h3>
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
+          A section is a chunk of script that shares the same voice, energy, or pacing. The more
+          sections you create, the more control you have over each take.
+        </p>
+      </section>
+
+      <section>
+        <h3
+          style={{
+            fontSize: "var(--text-md)",
+            fontWeight: "var(--font-weight-semibold)",
+            color: "var(--text-primary)",
+            margin: 0,
+            marginBottom: "var(--space-2)",
+          }}
+        >
+          One section
+        </h3>
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: "0 0 var(--space-3)", lineHeight: 1.55 }}>
+          Without any breaks, the whole script is a single section.
+        </p>
+        <CopyBox text="The quick brown fox jumps over the lazy dog." />
+      </section>
+
+      <section>
+        <h3
+          style={{
+            fontSize: "var(--text-md)",
+            fontWeight: "var(--font-weight-semibold)",
+            color: "var(--text-primary)",
+            margin: 0,
+            marginBottom: "var(--space-2)",
+          }}
+        >
+          Multiple sections
+        </h3>
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: "0 0 var(--space-3)", lineHeight: 1.55 }}>
+          Add a <code style={{ background: "var(--gray-100)", padding: "0 6px", borderRadius: 4 }}>//</code>{" "}
+          wherever you want to break. The example below splits into four sections.
+        </p>
+        <CopyBox text="The quick brown fox// jumps //over the lazy // dog." />
+      </section>
+    </div>
   );
 };

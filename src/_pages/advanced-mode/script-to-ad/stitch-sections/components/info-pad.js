@@ -1,73 +1,67 @@
-// src/_pages/advanced-mode/script-to-ad/stitch-sections/components/InfoPad.js
-
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const InfoPad = ({
-    localSectionsArray,
-    adLength,
-    combinedVoiceoverUrl,
-    setForceRenderKey,
-    setShowAudioPlayer,
-    setNowPlayingUrl,
-    setAudioTitle,
+  localSectionsArray,
+  adLength,
+  combinedVoiceoverUrl,
+  setForceRenderKey,
+  setShowAudioPlayer,
+  setNowPlayingUrl,
+  setAudioTitle,
 }) => {
-    return (
-        <div
-            style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                backgroundColor: "#f9f9f9",
-                borderRadius: "10px",
-                fontSize: "1em",
-                color: "#333",
-            }}
-        >
-            <div style={{ marginBottom: "10px" }}>
-                Total duration without pauses:{" "}
-                {localSectionsArray
-                    .reduce((acc, section) => acc + section.sectionDurationSeconds, 0)
-                    .toFixed(2)}{" "}
-                seconds
-            </div>
-            <div>
-                Total duration with pauses:{" "}
-                {localSectionsArray
-                    .reduce(
-                        (acc, section) =>
-                            acc +
-                            section.sectionDurationSeconds +
-                            section.getEndOfSectionPauseDurationSeconds(),
-                        0
-                    )
-                    .toFixed(2)}{" "}
-                seconds
-            </div>
-            <div style={{ flex: 1, textAlign: "center" }}>
-                <Button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setForceRenderKey(Math.random().toString());
-                        setShowAudioPlayer(true);
-                        setNowPlayingUrl(combinedVoiceoverUrl);
-                        setAudioTitle("Final Cut");
-                    }}
-                    style={{
-                        backgroundColor: "#eb631c",
-                        borderColor: "#eb631c",
-                        color: "white",
-                        textDecoration: "none",
-                    }}
-                    disabled={!combinedVoiceoverUrl}
-                >
-                    <i className="bi bi-arrow-clockwise" style={{ verticalAlign: "middle" }}></i>
-                    <span style={{ verticalAlign: "middle", marginLeft: "8px" }}>
-                        Replay Final Cut
-                    </span>
-                </Button>
-            </div>
-        </div>
-    );
+  const totalNoPauses = localSectionsArray
+    .reduce((acc, s) => acc + s.sectionDurationSeconds, 0)
+    .toFixed(2);
+  const totalWithPauses = localSectionsArray
+    .reduce((acc, s) => acc + s.sectionDurationSeconds + s.getEndOfSectionPauseDurationSeconds(), 0)
+    .toFixed(2);
+  const overBudget = parseFloat(totalWithPauses) > adLength;
+
+  return (
+    <div
+      style={{
+        marginTop: "var(--space-5)",
+        padding: "var(--space-4)",
+        backgroundColor: "var(--surface-inset)",
+        borderRadius: "var(--radius-md)",
+        border: "1px solid var(--border-subtle)",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "var(--space-3)",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: "var(--font-weight-semibold)" }}>
+          Total duration
+        </span>
+        <span style={{ fontSize: "var(--text-md)", color: "var(--text-primary)", fontWeight: "var(--font-weight-semibold)" }}>
+          {totalWithPauses}s <span style={{ color: "var(--text-muted)", fontWeight: "var(--font-weight-regular)", fontSize: "var(--text-sm)" }}>/ {adLength}s budget</span>
+        </span>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+          Voice only: {totalNoPauses}s
+        </span>
+      </div>
+      {overBudget && <Badge tone="warning">Over budget</Badge>}
+      <Button
+        variant="secondary"
+        leftIcon={<i className="bi bi-play-fill" />}
+        onClick={(e) => {
+          e.stopPropagation();
+          setForceRenderKey(Math.random().toString());
+          setShowAudioPlayer(true);
+          setNowPlayingUrl(combinedVoiceoverUrl);
+          setAudioTitle("Final Cut");
+        }}
+        disabled={!combinedVoiceoverUrl}
+      >
+        Replay final cut
+      </Button>
+    </div>
+  );
 };
 
 export default InfoPad;

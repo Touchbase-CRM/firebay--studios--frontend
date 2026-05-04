@@ -1,7 +1,6 @@
-import Swal from "sweetalert2";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 import {
   getFirestore,
   doc,
@@ -9,12 +8,15 @@ import {
   writeBatch,
   collection,
 } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import Spinner from "../components/spinner/spinner";
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { getAuth } from "@/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { checkIfExistsInFirestore } from "@/utils/db-read-write-ops/deserialization-utils";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
+import { Spinner } from "@/components/ui/spinner";
 
-// Initialize Firebase services
 const db = getFirestore();
 const auth = getAuth();
 
@@ -26,389 +28,245 @@ const SignupPage = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [isEmployee, setIsEmployee] = useState(false);
   const [isTrialUser, setIsTrialUser] = useState(false);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
-    if (router.query.email) {
-      setEmail(router.query.email);
-    }
+    if (router.query.email) setEmail(router.query.email);
   }, [router.query.email]);
 
-  const handlePasswordChange = (event) => setPassword(event.target.value);
-
-  const handleConfirmPasswordChange = (event) =>
-    setConfirmPassword(event.target.value);
-
-  const handleInvoiceNumberChange = (event) =>
-    setInvoiceNumber(event.target.value);
-
-  const handleEmployeeCheck = (event) => {
-    setIsEmployee(event.target.checked);
-    if (event.target.checked) {
-      setInvoiceNumber("");
-    }
-  };
-
-  const handleTrialUserCheck = (event) => setIsTrialUser(event.target.checked);
-
-  async function validateInvoiceNumber(invoiceNumber) {
+  async function validateInvoiceNumber() {
     const response = await fetch("/api/Stripe/check-invoice", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ invoiceNumber }),
     });
-
     const data = await response.json();
-    if (data.valid) {
-      return true;
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Invoice Number",
-        text: "Please make sure you have entered the correct invoice number.",
-      });
-      return false;
-    }
+    if (data.valid) return true;
+    Swal.fire({ icon: "error", title: "Invalid invoice number", text: "Please check the invoice number and try again." });
+    return false;
   }
 
-  async function validateEmployeeStatus(email) {
-    const validEmployee = await checkIfExistsInFirestore("internal", email);
-    if (validEmployee) {
-      return validEmployee;
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Employee Email",
-        text: "Please make sure you have entered the correct email address.",
-      });
-      return false;
-    }
+  async function validateEmployeeStatus() {
+    const valid = await checkIfExistsInFirestore("internal", email);
+    if (valid) return true;
+    Swal.fire({ icon: "error", title: "Invalid employee email", text: "Please use a valid Firebay email." });
+    return false;
   }
 
-  async function validateTrialUser(email) {
+  async function validateTrialUser() {
     const docRef = doc(db, "pyro_trial_users", email);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return true;
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Trial User",
-        text: "The email address is not registered as a trial user.",
-      });
-      return false;
-    }
+    const snap = await getDoc(docRef);
+    if (snap.exists()) return true;
+    Swal.fire({ icon: "error", title: "Not a trial user", text: "This email isn't registered for trial access." });
+    return false;
   }
 
-  const handleSignUp = async (event) => {
-    event.preventDefault();
-
-    setIsLoading(true); // Start loading
-    setStatusMessage("Creating your Pyro account...");
+  const handleSignUp = async (e) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+    setStatusMessage("Creating your Pyro account…");
 
     if (password !== confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Passwords do not match",
-        text: "Please make sure your passwords match.",
-      });
-      setIsLoading(false); // Stop loading
+      Swal.fire({ icon: "error", title: "Passwords don't match", text: "Re-enter both passwords." });
+      setIsLoading(false);
       return;
     }
 
     const validUser = isEmployee
-      ? await validateEmployeeStatus(email)
+      ? await validateEmployeeStatus()
       : isTrialUser
-      ? await validateTrialUser(email)
-      : await validateInvoiceNumber(invoiceNumber);
+      ? await validateTrialUser()
+      : await validateInvoiceNumber();
 
     if (!validUser) {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
       return;
     }
 
     try {
-      // Directly attempt to create the user account
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       const batch = writeBatch(db);
       const uidToOrgRef = doc(db, "uid_to_org", user.uid);
-      batch.set(uidToOrgRef, {
-        work_email: email,
-        monthly_downloads: -1,
-        unit_price: 0,
-      });
+      batch.set(uidToOrgRef, { work_email: email, monthly_downloads: -1, unit_price: 0 });
 
-      // Ensure the parent document in 'customers' is created with a dummy field to avoid ghost docs
       const userDocRef = doc(db, "customers", user.uid);
-      batch.set(userDocRef, { email: email });
+      batch.set(userDocRef, { email });
 
-      // Create the subcollection 'subscriptions'
-      const subscriptionsRef = collection(userDocRef, "subscriptions");
-      const newSubscriptionRef = doc(subscriptionsRef);
-      batch.set(newSubscriptionRef, {
-        status: "active",
-      });
+      const subsRef = collection(userDocRef, "subscriptions");
+      const newSubRef = doc(subsRef);
+      batch.set(newSubRef, { status: "active" });
 
       await batch.commit();
-
-      setStatusMessage("Your Pyro account has been created.");
-
-      // Redirect to another page or perform further actions here
-      router.push("/login"); // Example redirection after successful signup
+      setStatusMessage("Account created.");
+      router.push("/login");
     } catch (error) {
       console.error("Signup error", error);
       if (error.code === "auth/email-already-in-use") {
-        Swal.fire({
-          icon: "error",
-          title: "Email Already in Use",
-          text: "The email address is already in use by another account.",
-        });
+        Swal.fire({ icon: "error", title: "Email already in use", text: "Try signing in instead." });
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Signup Failed",
-          text: error.message,
-        });
+        Swal.fire({ icon: "error", title: "Sign up failed", text: error.message });
       }
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--surface-canvas)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "var(--space-4)",
+        }}
+      >
+        <Spinner size="lg" />
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>{statusMessage}</p>
+      </div>
+    );
+  }
+
   return (
-    <Container
-      fluid
-      className="vh-100 d-flex justify-content-center align-items-center"
-      style={{ backgroundColor: "#FFFFFF" }}
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "var(--surface-canvas)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "var(--space-6)",
+      }}
     >
-      {isLoading && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            textAlign: "center",
-          }}
-        >
-          <div
+      <div style={{ width: "100%", maxWidth: 460 }}>
+        <div style={{ textAlign: "center", marginBottom: "var(--space-7)" }}>
+          <img src="/fire.png" alt="Pyro" width={48} height={48} style={{ marginBottom: "var(--space-3)" }} />
+          <h1
             style={{
-              position: "relative",
-              width: "120px",
-              height: "120px",
+              fontSize: "var(--text-2xl)",
+              fontWeight: "var(--font-weight-semibold)",
+              color: "var(--text-primary)",
+              margin: 0,
+              letterSpacing: "var(--letter-spacing-tight)",
             }}
           >
-            <Spinner />
-          </div>
-          <p style={{ marginTop: "20px", color: "black" }}>{statusMessage}</p>
+            Create your Pyro account
+          </h1>
+          <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+            A few details and you're in.
+          </p>
         </div>
-      )}
-      {!isLoading && (
-        <Row className="w-100">
-          <Col md={6} className="mx-auto">
-            <Card
-              className="my-5 mx-1 p-4"
-              style={{
-                borderColor: "#eb631c",
-                borderRadius: "1rem",
-                color: "black",
-                position: "relative",
-              }}
-            >
-              {/* Step indicator */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  left: "10px",
-                  fontSize: "small",
+
+        <Card padding="var(--space-6)">
+          <form onSubmit={handleSignUp} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            <Input
+              label="Email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="At least 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+            <Input
+              label="Confirm password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Repeat your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+            <Input
+              label="Invoice number"
+              type="text"
+              placeholder="B51DB03D-0002"
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+              pattern="[A-Z0-9]{8}-[0-9]{4}"
+              disabled={isEmployee || isTrialUser}
+              required={!isEmployee && !isTrialUser}
+              hint={isEmployee || isTrialUser ? "Not required for your account type." : "Provided in your subscription email."}
+            />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", padding: "var(--space-3)", backgroundColor: "var(--surface-inset)", borderRadius: "var(--radius-md)" }}>
+              <Toggle
+                checked={isEmployee}
+                onChange={(e) => {
+                  setIsEmployee(e.target.checked);
+                  if (e.target.checked) setInvoiceNumber("");
                 }}
-              >
-                Step 1 of 2
-              </div>
-              <Image
-                src="/fire.png"
-                alt="Firebay Studios"
-                width={100}
-                height={100}
-                className="d-block mx-auto mb-3"
+                label="Firebay Studios employee"
+                description="Skip the invoice check."
               />
-              <h2 className="text-center mb-4">Pyro Sign Up</h2>
-              <p className="text-center mb-5">Let's get you started!</p>
+              <Toggle
+                checked={isTrialUser}
+                onChange={(e) => setIsTrialUser(e.target.checked)}
+                label="Trial user"
+                description="Pre-approved for the free trial."
+              />
+            </div>
 
-              <Form>
-                <Form.Group controlId="workEmail" className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    style={{
-                      borderColor: "#e4e4e4",
-                      backgroundColor: "#e4e4e4",
-                      color: "black",
-                    }}
-                  />
-                </Form.Group>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.55 }}>
+              By creating an account, you agree to our{" "}
+              <a href="https://www.firebaystudios.com/terms-of-service" target="_blank" rel="noreferrer" style={{ color: "var(--text-link)" }}>
+                terms
+              </a>{" "}
+              and{" "}
+              <a href="https://www.firebaystudios.com/privacy-policy" target="_blank" rel="noreferrer" style={{ color: "var(--text-link)" }}>
+                privacy policy
+              </a>
+              .
+            </p>
 
-                <Form.Group controlId="password" className="mb-3">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    minLength={6}
-                    required
-                    style={{
-                      borderColor: "#e4e4e4",
-                      backgroundColor: "#e4e4e4",
-                      color: "black",
-                    }}
-                  />
-                </Form.Group>
+            <Button type="submit" style={{ width: "100%", justifyContent: "center" }}>
+              Create account
+            </Button>
+          </form>
+        </Card>
 
-                <Form.Group controlId="confirmPassword" className="mb-3">
-                  <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    minLength={6}
-                    required
-                    style={{
-                      borderColor: "#e4e4e4",
-                      backgroundColor: "#e4e4e4",
-                      color: "black",
-                    }}
-                  />
-                </Form.Group>
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "var(--space-5)",
+            fontSize: "var(--text-sm)",
+            color: "var(--text-secondary)",
+          }}
+        >
+          Already have an account?{" "}
+          <a href="/login" style={{ color: "var(--text-link)", fontWeight: "var(--font-weight-medium)" }}>
+            Sign in
+          </a>
+        </p>
 
-                <Form.Group controlId="invoiceNumber" className="mb-3">
-                  <Form.Label>Payment Invoice Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="B51DB03D-0002"
-                    value={invoiceNumber}
-                    onChange={handleInvoiceNumberChange}
-                    pattern="[A-Z0-9]{8}-[0-9]{4}"
-                    disabled={isEmployee || isTrialUser}
-                    required={!isEmployee && !isTrialUser}
-                    style={{
-                      borderColor: "#e4e4e4",
-                      backgroundColor:
-                        isEmployee || isTrialUser ? "#e9ecef" : "#e4e4e4",
-                      color: "black",
-                    }}
-                  />
-                </Form.Group>
-
-                <Form.Group controlId="isEmployee" className="mb-3">
-                  <Form.Check
-                    type="checkbox"
-                    label="I am a Firebay Studios Employee"
-                    checked={isEmployee}
-                    onChange={handleEmployeeCheck}
-                  />
-                </Form.Group>
-
-                <Form.Group controlId="isTrialUser" className="mb-3">
-                  <Form.Check
-                    type="checkbox"
-                    label="I am a Trial User"
-                    checked={isTrialUser}
-                    onChange={handleTrialUserCheck}
-                  />
-                </Form.Group>
-
-                <div className="my-3 text-left" style={{ fontSize: "small" }}>
-                  By clicking the Sign Up button below, you agree to our&nbsp;
-                  <a
-                    href="https://www.firebaystudios.com/terms-of-service"
-                    target="_blank"
-                    style={{
-                      textDecoration: "underline",
-                      color: "#0d6efd",
-                      marginRight: "4px",
-                    }}
-                  >
-                    terms and conditions
-                  </a>
-                  &nbsp;as well as our&nbsp;
-                  <a
-                    href="https://www.firebaystudios.com/privacy-policy"
-                    target="_blank"
-                    style={{
-                      textDecoration: "underline",
-                      color: "#0d6efd",
-                      marginRight: "4px",
-                    }}
-                  >
-                    privacy policy
-                  </a>
-                  .
-                </div>
-
-                <Button
-                  className="w-100"
-                  style={{ backgroundColor: "#EB631C" }}
-                  variant="outline-light"
-                  type="submit"
-                  size="lg"
-                  onClick={handleSignUp}
-                >
-                  Sign Up
-                </Button>
-              </Form>
-
-              {error && (
-                <div className="mt-3">
-                  <p className="text-center text-danger">{error}</p>
-                </div>
-              )}
-
-              <div className="my-3">
-                <p className="text-center">
-                  Already a subscriber?{" "}
-                  <a
-                    href="/login"
-                    style={{ color: "black", fontWeight: "bold" }}
-                  >
-                    Login
-                  </a>
-                </p>
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  right: "10px",
-                  fontSize: "small",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                }}
-              >
-                By Firebay Studios
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      )}
-    </Container>
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "var(--space-7)",
+            fontSize: "var(--text-xs)",
+            color: "var(--text-muted)",
+          }}
+        >
+          By Firebay Studios
+        </p>
+      </div>
+    </div>
   );
 };
 

@@ -1,66 +1,48 @@
-// src/_pages/advanced-mode/script-to-ad/stitch-sections/components/LoadingScreen.js
-
 import React from "react";
-import { Card, Button } from "react-bootstrap";
-import Spinner from "@/components/spinner/spinner";
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 
 const LoadingScreen = ({ cancelLoading, cancelAndRetryLoading }) => {
-    return (
-        <div
-            className="d-flex align-items-center justify-content-center flex-column"
-            style={{ height: "100vh", backgroundColor: "#FFFFFF" }}
+  return (
+    <div
+      style={{
+        height: "100vh",
+        backgroundColor: "var(--surface-canvas)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "var(--space-6)",
+        padding: "var(--space-6)",
+      }}
+    >
+      <Spinner size="xl" />
+      <div style={{ textAlign: "center", maxWidth: 480 }}>
+        <h2
+          style={{
+            fontSize: "var(--text-xl)",
+            fontWeight: "var(--font-weight-semibold)",
+            color: "var(--text-primary)",
+            margin: 0,
+            marginBottom: "var(--space-2)",
+          }}
         >
-            <Spinner
-                animation="border"
-                variant="primary"
-                style={{ marginBottom: "200px" }}
-            />
-
-            <Card
-                className="p-4"
-                style={{
-                    marginTop: "300px",
-                    borderRadius: "1rem",
-                    borderColor: "#eb631c",
-                    color: "black",
-                }}
-            >
-                <p
-                    className="ml-3 mb-0"
-                    style={{
-                        fontWeight: "bold",
-                        fontSize: "24px",
-                        color: "black",
-                        textShadow: "1px 1px 1px #000",
-                    }}
-                >
-                    Just a second. We are cooking up your final voice cut!
-                </p>
-            </Card>
-            <div className="mt-3">
-                <Button
-                    variant="danger"
-                    onClick={cancelLoading}
-                    style={{ marginRight: "20px", width: "200px" }}
-                    title="Stop the current operation and start from the beginning."
-                >
-                    Cancel and Start Over
-                </Button>
-
-                <Button
-                    onClick={cancelAndRetryLoading}
-                    style={{
-                        width: "200px",
-                        backgroundColor: "#FDA942",
-                        borderColor: "#FDA942",
-                    }}
-                    title="Stop the current order and retry with the same data."
-                >
-                    Cancel and Resubmit
-                </Button>
-            </div>
-        </div>
-    );
+          Cooking up your final cut
+        </h2>
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0 }}>
+          We're stitching your sections together. This usually takes a few seconds.
+        </p>
+      </div>
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <Button variant="secondary" onClick={cancelLoading}>
+          Cancel and start over
+        </Button>
+        <Button variant="primary" onClick={cancelAndRetryLoading}>
+          Cancel and retry
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export default LoadingScreen;

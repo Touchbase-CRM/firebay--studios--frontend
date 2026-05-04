@@ -7,10 +7,15 @@ import {
   setDoc,
 } from "firebase/firestore";
 import app from "../../firebase";
-import { getAuth } from "firebase/auth";
+import { getAuth } from "@/firebase";
 
 const isCustomClass = (obj) => obj?.signature === "fsCustomClass";
-const auth = getAuth(app);
+let auth;
+try {
+  auth = getAuth(app);
+} catch (e) {
+  auth = { currentUser: null };
+}
 
 export const writeToFirestore = async (collectionName, data, docId = null) => {
   const db = getFirestore(app);
