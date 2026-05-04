@@ -17,15 +17,12 @@ import {
 import { getAuth } from "@/firebase";
 import app from "@/firebase";
 
-import { Dropdown } from "react-bootstrap";
-
 import { NavBar } from "@/components/foundation-components/nav-bar";
 import SimpleAudioPlayer from "@/components/simple-audio-player";
 import RenameModal from "@/components/rename-modal";
 
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
-import { calculateCharCount } from "@/utils/string-ops/string-properties";
 import { isUiPreviewMode } from "@/firebase";
 
 import useUserInputsStore from "@/store/user-inputs";
@@ -33,7 +30,6 @@ import withAuth from "@/hocs/with-auth";
 import { Stack } from "@/data-structures/stack";
 import { generateVoiceWithElevenLabsAPI } from "@/middleware/tts";
 
-import SplitSection from "@/_pages/advanced-mode/script-to-ad/process-section/components/split-section";
 import { VoiceTab } from "@/_pages/advanced-mode/script-to-ad/process-section/components/inspector/voice-tab";
 import { EmphasisTab } from "@/_pages/advanced-mode/script-to-ad/process-section/components/inspector/emphasis-tab";
 import { HistoryTab } from "@/_pages/advanced-mode/script-to-ad/process-section/components/inspector/history-tab";
@@ -142,7 +138,6 @@ function ProcessSection() {
 
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
-  const [showSplitModal, setShowSplitModal] = useState(false);
 
   const charLimit = localCurrentSectionObj?.getOriginalCharCount() || 0;
   const charCount = typedText.replace(/'/g, "").length;
@@ -646,43 +641,6 @@ function ProcessSection() {
     },
   ];
 
-  const headerActions = (
-    <Dropdown align="end">
-      <Dropdown.Toggle
-        as="button"
-        bsPrefix="pyro-kebab"
-        aria-label="Section actions"
-        style={{
-          background: "transparent",
-          border: "none",
-          padding: "var(--space-1) var(--space-2)",
-          color: "var(--text-muted)",
-          cursor: "pointer",
-          borderRadius: "var(--radius-md)",
-        }}
-      >
-        <i className="bi bi-three-dots" style={{ fontSize: 16 }} />
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item onClick={() => setShowSplitModal(true)}>
-          <i className="bi bi-arrows-collapse-vertical" style={{ marginRight: 8 }} />
-          Split this section
-        </Dropdown.Item>
-        {localCurrentSectionObj.getGeneratedVoiceUrl() && (
-          <Dropdown.Item onClick={handleReadReplay}>
-            <i className="bi bi-play-fill" style={{ marginRight: 8 }} />
-            Play latest take
-          </Dropdown.Item>
-        )}
-        <Dropdown.Divider />
-        <Dropdown.Item onClick={() => setShowRenameModal(true)}>
-          <i className="bi bi-input-cursor-text" style={{ marginRight: 8 }} />
-          Rename spot
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-
   const sectionLabel = `Section ${localCurrentSectionObj.getIndex() + 1} of ${numSectionsIdentified || localSectionsArray.length}`;
 
   return (
@@ -887,7 +845,6 @@ function ProcessSection() {
           tabs={tabs}
           value={activeTab}
           onChange={setActiveTab}
-          headerActions={headerActions}
           style={{ alignSelf: "stretch" }}
         />
       </div>
@@ -899,19 +856,6 @@ function ProcessSection() {
         setNewSpotName={setNewSpotName}
         spotId={spotId}
         setSpotName={setSpotName}
-      />
-      <SplitSection
-        show={showSplitModal}
-        onHide={() => setShowSplitModal(false)}
-        currentSectionContent={typedText}
-        currentSectionCharCount={calculateCharCount(typedText)}
-        localCurrentSectionObj={localCurrentSectionObj}
-        localSectionsArray={localSectionsArray}
-        setLocalSectionsArray={setLocalSectionsArray}
-        setTransformedWords={setTransformedWords}
-        setLocalSectionHistoryObj={setLocalSectionHistoryObj}
-        processScriptChange={processScriptChange}
-        localPushData={localPushData}
       />
     </PageShell>
   );

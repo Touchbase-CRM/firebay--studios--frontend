@@ -7,7 +7,6 @@ export function Tabs({ value, onChange, items, style }) {
       style={{
         display: "flex",
         gap: "var(--space-5)",
-        borderBottom: "1px solid var(--border-subtle)",
         ...style,
       }}
     >

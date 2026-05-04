@@ -170,6 +170,20 @@ function StitchSections() {
 
   const handleStitch = async (e) => {
     if (e) e.preventDefault();
+
+    // Pre-flight: every section must have a generated take before stitching.
+    const ungenerated = sectionsArray
+      .map((s, i) => (!s.getHistoryItemId() ? i + 1 : null))
+      .filter(Boolean);
+    if (!isUiPreviewMode && ungenerated.length > 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Generate every section first",
+        text: `Section${ungenerated.length > 1 ? "s" : ""} ${ungenerated.join(", ")} ${ungenerated.length > 1 ? "haven't" : "hasn't"} been generated yet. Go back and generate ${ungenerated.length > 1 ? "them" : "it"} before creating the final cut.`,
+      });
+      return;
+    }
+
     if (isUiPreviewMode) {
       // Simulate a successful stitch so the export panel renders.
       setPendingAdvertisement(true);
