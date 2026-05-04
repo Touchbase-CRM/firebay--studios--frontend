@@ -316,6 +316,13 @@ function AdminVoicesPage() {
   const cacheKey = useMemo(() => Date.now(), [voices]);
 
   return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#ffffff",
+        backgroundImage: "none",
+      }}
+    >
     <Container className="py-4" style={{ maxWidth: 1100 }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -480,6 +487,7 @@ function AdminVoicesPage() {
         </Form>
       </Modal>
     </Container>
+    </div>
   );
 }
 
