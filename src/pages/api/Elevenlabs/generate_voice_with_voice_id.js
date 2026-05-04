@@ -4,6 +4,18 @@ export const config = {
   maxDuration: 60,
 };
 
+async function streamToString(stream) {
+  if (!stream || typeof stream.on !== "function") {
+    if (stream == null) return "";
+    return typeof stream === "string" ? stream : JSON.stringify(stream);
+  }
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { script, modelId, voiceId, voiceIntonationConsistency } = req.body;
@@ -47,8 +59,23 @@ export default async function handler(req, res) {
       // Stream the response data directly to the client
       response.data.pipe(res);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to generate voice" });
+      let upstreamBody = "";
+      try {
+        upstreamBody = await streamToString(err.response?.data);
+      } catch (readErr) {
+        upstreamBody = err.message;
+      }
+      const upstreamStatus = err.response?.status ?? 500;
+      console.error("ElevenLabs proxy error (generate_voice_with_voice_id)", {
+        status: upstreamStatus,
+        body: upstreamBody,
+        message: err.message,
+      });
+      res.status(upstreamStatus).json({
+        error: "Failed to generate voice",
+        upstreamStatus,
+        upstreamMessage: upstreamBody || err.message,
+      });
     }
   } else {
     // Handle any non-POST requests

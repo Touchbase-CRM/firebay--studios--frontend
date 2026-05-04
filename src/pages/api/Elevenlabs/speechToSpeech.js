@@ -3,6 +3,18 @@ import fs from "fs";
 import axios from "axios";
 import FormData from "form-data";
 
+async function streamToString(stream) {
+  if (!stream || typeof stream.on !== "function") {
+    if (stream == null) return "";
+    return typeof stream === "string" ? stream : JSON.stringify(stream);
+  }
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -75,7 +87,27 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", response.headers["content-type"]);
     response.data.pipe(res);
   } catch (error) {
-    console.error(error.error || "An error occurred:", error);
-    res.status(error.status || 500).json({ error: error.error });
+    if (error && typeof error === "object" && "status" in error && "error" in error) {
+      console.error("speechToSpeech form-parse error", error);
+      res.status(error.status || 500).json({ error: error.error });
+      return;
+    }
+    let upstreamBody = "";
+    try {
+      upstreamBody = await streamToString(error.response?.data);
+    } catch (readErr) {
+      upstreamBody = error.message;
+    }
+    const upstreamStatus = error.response?.status ?? 500;
+    console.error("ElevenLabs proxy error (speechToSpeech)", {
+      status: upstreamStatus,
+      body: upstreamBody,
+      message: error.message,
+    });
+    res.status(upstreamStatus).json({
+      error: "Failed to convert speech",
+      upstreamStatus,
+      upstreamMessage: upstreamBody || error.message,
+    });
   }
 }

@@ -387,6 +387,13 @@ function CreateAd() {
       }
     } catch (err) {
       console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Voice generation failed",
+        text:
+          err?.message ||
+          "Please try again. If this keeps happening, contact support.",
+      });
     }
     setIsGeneratingVoice(false);
   };

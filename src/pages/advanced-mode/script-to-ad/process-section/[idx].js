@@ -636,6 +636,13 @@ function ProcessSection() {
         });
       } else {
         console.error("Processing error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Voice generation failed",
+          text:
+            error?.message ||
+            "Please try again. If this keeps happening, contact support.",
+        });
       }
     } finally {
       setIsGeneratingVoice(false);
