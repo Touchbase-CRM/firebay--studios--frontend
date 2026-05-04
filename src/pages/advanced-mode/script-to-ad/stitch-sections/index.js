@@ -118,6 +118,15 @@ function StitchSections() {
     setCurrentPage(1);
   }, [pageSize]);
 
+  // Restore a previously stitched cut so replay works when revisiting the page.
+  useEffect(() => {
+    if (!combinedVoiceoverUrl && generatedVoiceUrl) {
+      setCombinedVoiceoverUrl(generatedVoiceUrl);
+    }
+    // intentionally only on mount — we don't want to clobber fresh stitches
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (combinedVoiceoverUrl) {
       const safe = (spotName || "spot").replace(/[^a-z0-9-_]/gi, "-");
@@ -211,11 +220,30 @@ function StitchSections() {
         setForceRenderKey(Math.random().toString());
         setStitchedAudioPyroHistoryItemId(pyroHistoryItemId);
         setGeneratedVoiceUrl(url);
-      } else if (response.data.error) {
-        console.error("Stitch API error:", response.data.error, response.data.details || "");
+      } else {
+        const detail =
+          response.data?.error ||
+          response.data?.details ||
+          "The server didn't return an audio id.";
+        console.error("Stitch API error:", detail, response.data || "");
+        Swal.fire({
+          icon: "error",
+          title: "Couldn't generate the final cut",
+          text: detail,
+        });
       }
     } catch (error) {
       console.error("Error fetching pyro_history_item_id:", error);
+      if (!axios.isCancel(error)) {
+        Swal.fire({
+          icon: "error",
+          title: "Couldn't generate the final cut",
+          text:
+            error?.response?.data?.error ||
+            error?.message ||
+            "Something went wrong on the server. Try again in a moment.",
+        });
+      }
     } finally {
       setPendingAdvertisement(false);
     }
@@ -274,17 +302,27 @@ function StitchSections() {
 
   const handleSectionPreviewPlay = async (section) => {
     const historyItemId = section.getHistoryItemId();
+    if (!historyItemId) return;
     setAudioTitle(`Section ${section.getIndex() + 1}`);
-    if (historyItemId.substring(0, 4) === "pyro") {
-      const url = await fetchAudioFromPyroBackendDistribution(historyItemId, 0);
+    try {
+      const url =
+        historyItemId.substring(0, 4) === "pyro"
+          ? await fetchAudioFromPyroBackendDistribution(historyItemId, 0)
+          : await fetchAudioFromElevenLabs(historyItemId);
+      if (!url) throw new Error("Audio URL came back empty");
       setShowAudioPlayer(true);
       setAudioUrl(url);
       setNowPlayingUrl(url);
-    } else {
-      const url = await fetchAudioFromElevenLabs(historyItemId);
-      setShowAudioPlayer(true);
-      setAudioUrl(url);
-      setNowPlayingUrl(url);
+      setForceRenderKey(Math.random().toString());
+    } catch (error) {
+      console.error("Failed to fetch section audio:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Couldn't play that section",
+        text:
+          error?.message ||
+          "We couldn't load the audio for this section. Try regenerating it.",
+      });
     }
   };
 
