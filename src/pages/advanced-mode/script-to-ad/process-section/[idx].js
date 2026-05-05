@@ -340,11 +340,15 @@ function ProcessSection() {
       const snap = await getDocs(q);
       if (!snap.empty) {
         const d = snap.docs[0].data();
+        // Default stability to 0.5 (matches ElevenLabs UI default) when the
+        // voice doc is missing the field — otherwise NaN flows downstream
+        // and the backend crashes on float(None).
+        const stability = typeof d.stability === "number" ? d.stability : 0.5;
         return {
           newVoiceId: d.elevenlabs_id,
           newVoicePreviewFilename: d.voice_preview_filename,
-          newVoiceModelId: d.model_id,
-          newVoiceIntonationConsistency: d.stability * 100,
+          newVoiceModelId: d.model_id || "eleven_multilingual_v2",
+          newVoiceIntonationConsistency: stability * 100,
         };
       }
     } catch (error) {

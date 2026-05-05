@@ -126,6 +126,11 @@ export default async function handler(req, res) {
     elevenlabs_id: elevenlabsId,
     voice_preview_filename: filename,
     model_id: modelId,
+    // Default stability matches ElevenLabs' UI default; the section editor
+    // multiplies this by 100 to get the intonation-consistency slider value.
+    // Without it, generation crashes the backend with float(None).
+    stability: 0.5,
+    similarity_boost: 0.75,
   };
 
   try {
@@ -143,6 +148,8 @@ export default async function handler(req, res) {
         elevenlabs_id: elevenlabsId,
         voice_preview_filename: filename,
         model_id: modelId,
+        stability: 0.5,
+        similarity_boost: 0.75,
       });
       tx.set(
         choicesRef,
