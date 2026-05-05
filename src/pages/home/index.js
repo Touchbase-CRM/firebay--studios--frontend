@@ -445,6 +445,9 @@ const Home = () => {
   const handleLogout = () => {
     resetUserInputsStore();
     localStorage.removeItem("user");
+    // Clear remember-me artifacts so the next visitor on this browser
+    // gets a clean login screen.
+    localStorage.removeItem("pyro:lastEmail");
     auth
       .signOut()
       .then(() => {
