@@ -56,7 +56,13 @@ function CreateSections() {
   } = useUserInputsStore();
 
   const [localSectionsArray, setLocalSectionsArray] = useState(sectionsArray);
-  const [originalScript, setOriginalScript] = useState("");
+  // Restore the script from existing sections so users coming back from
+  // the section editor don't lose their work.
+  const [originalScript, setOriginalScript] = useState(() =>
+    (sectionsArray || [])
+      .map((s) => s.getCurrentContent() || s.getOriginalContent() || "")
+      .join(" // ")
+  );
   const [showTutorial, setShowTutorial] = useState(false);
   const [showSectionsDrawer, setShowSectionsDrawer] = useState(false);
 

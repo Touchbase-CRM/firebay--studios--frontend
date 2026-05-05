@@ -172,6 +172,35 @@ function ProcessSection() {
     if (localCurrentSectionObj) updateSectionDetails(localCurrentSectionObj);
   }, [localCurrentSectionObj?.getGeneratedVoiceUrl()]);
 
+  // Auto-load the live take's audio when arriving on a section so the user
+  // can immediately hit play (instead of having to re-generate).
+  useEffect(() => {
+    const id = localCurrentSectionObj?.getHistoryItemId();
+    const cachedUrl = localCurrentSectionObj?.getGeneratedVoiceUrl();
+    if (!id) return;
+    // If we still have a working blob URL from this session, reuse it.
+    if (cachedUrl && cachedUrl.startsWith("blob:")) {
+      setGeneratedVoiceUrl(cachedUrl);
+      setShowAudioPlayer(true);
+      return;
+    }
+    // Otherwise re-fetch from S3 / ElevenLabs by historyItemId.
+    (async () => {
+      try {
+        const url =
+          id.substring(0, 4) === "pyro"
+            ? await fetchAudioFromPyroBackendDistribution(id, 0)
+            : null;
+        if (!url) return;
+        setGeneratedVoiceUrl(url);
+        setShowAudioPlayer(true);
+      } catch (error) {
+        console.warn("Couldn't auto-load section audio:", error);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localCurrentSectionObj?.getHistoryItemId()]);
+
   useEffect(() => {
     (async () => {
       const voicesDocRef = doc(getFirestore(app), "fetch_data_to_frontend", "pyro_voices");
@@ -638,6 +667,7 @@ function ProcessSection() {
       content: (
         <HistoryTab
           historyMap={localSectionHistoryObj}
+          currentHistoryItemId={localCurrentSectionObj.getHistoryItemId()}
           onPlay={playAudioUrl}
           onRestore={changeCurrentSectionObj}
         />
@@ -685,9 +715,20 @@ function ProcessSection() {
                 {sectionLabel}
               </div>
             </div>
-            <Badge tone={progressPct > 100 ? "danger" : "neutral"}>
-              {Math.round(secondsLeft)}s left of {adLength}s
-            </Badge>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+              <Badge tone={progressPct > 100 ? "danger" : "neutral"}>
+                {Math.round(secondsLeft)}s left of {adLength}s
+              </Badge>
+              <Button
+                variant="primary"
+                onClick={handleSubmit}
+                rightIcon={<i className="bi bi-arrow-right" />}
+              >
+                {currentSectionIndex >= localSectionsArray.length - 1
+                  ? "Continue to stitch"
+                  : "Continue to next section"}
+              </Button>
+            </div>
           </div>
 
           {/* Progress strip */}
@@ -807,37 +848,21 @@ function ProcessSection() {
               Back
             </Button>
             <div style={{ display: "flex", gap: "var(--space-2)" }}>
-              <Button variant="secondary" onClick={handleSaveState} feedback="Saved">
-                Save
+              <Button variant="secondary" onClick={handleSaveState} feedback="Saved as live take">
+                Save as live take
               </Button>
-              {hasGeneratedTake ? (
-                <>
-                  <Button
-                    variant="secondary"
-                    onClick={handleGenerateVoice}
-                    loading={isGeneratingVoice}
-                    leftIcon={<i className="bi bi-arrow-clockwise" />}
-                  >
-                    {isGeneratingVoice ? "Generating…" : "Re-generate"}
-                  </Button>
-                  <Button variant="primary" onClick={handleSubmit} rightIcon={<i className="bi bi-arrow-right" />}>
-                    {currentSectionIndex >= localSectionsArray.length - 1 ? "Continue to stitch" : "Next section"}
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={handleGenerateVoice}
-                  loading={isGeneratingVoice}
-                >
-                  {isGeneratingVoice ? "Generating…" : "Generate voice"}
-                </Button>
-              )}
-              {isUiPreviewMode && !hasGeneratedTake && (
-                <Button variant="ghost" onClick={handleSubmit} rightIcon={<i className="bi bi-arrow-right" />}>
-                  Skip (preview)
-                </Button>
-              )}
+              <Button
+                variant="primary"
+                onClick={handleGenerateVoice}
+                loading={isGeneratingVoice}
+                leftIcon={hasGeneratedTake ? <i className="bi bi-arrow-clockwise" /> : null}
+              >
+                {isGeneratingVoice
+                  ? "Generating…"
+                  : hasGeneratedTake
+                  ? "Re-generate"
+                  : "Generate voice"}
+              </Button>
             </div>
           </div>
 

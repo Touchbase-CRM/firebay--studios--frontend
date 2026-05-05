@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export function HistoryTab({ historyMap, onPlay, onRestore }) {
+export function HistoryTab({ historyMap, currentHistoryItemId, onPlay, onRestore }) {
   const entries = historyMap ? Array.from(historyMap.entries()) : [];
 
   if (entries.length === 0) {
@@ -19,10 +19,20 @@ export function HistoryTab({ historyMap, onPlay, onRestore }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-      {entries.map(([key, section], idx) => (
-        <Card key={key} variant="bordered" padding="var(--space-4)">
+      {entries.map(([key, section], idx) => {
+        const isLive = key === currentHistoryItemId;
+        return (
+        <Card
+          key={key}
+          variant="bordered"
+          padding="var(--space-4)"
+          style={isLive ? { borderColor: "var(--accent-500)", borderWidth: 1.5 } : undefined}
+        >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
-            <Badge tone="neutral">Take {idx + 1}</Badge>
+            <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+              <Badge tone={isLive ? "accent" : "neutral"}>Take {idx + 1}</Badge>
+              {isLive && <Badge tone="accent">Live take</Badge>}
+            </div>
             <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
               {section.getVoiceName()}
             </span>
@@ -48,12 +58,15 @@ export function HistoryTab({ historyMap, onPlay, onRestore }) {
             >
               Play
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => onRestore(section)}>
-              Restore this take
-            </Button>
+            {!isLive && (
+              <Button size="sm" variant="ghost" onClick={() => onRestore(section)}>
+                Make this the live take
+              </Button>
+            )}
           </div>
         </Card>
-      ))}
+        );
+      })}
     </div>
   );
 }
