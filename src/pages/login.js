@@ -9,6 +9,7 @@ import {
   browserSessionPersistence,
 } from "firebase/auth";
 import app, { getAuth, isUiPreviewMode } from "@/firebase";
+import { useAuth } from "@/context/auth";
 import { getSubscriptionStatus } from "../stripe-proxy-sdk";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,11 +20,17 @@ const REMEMBER_ME_KEY = "pyro:rememberMe";
 
 const LoginPage = () => {
   const router = useRouter();
+  const { user, authReady } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const auth = getAuth();
+
+  // If a session is already restored, skip straight to home.
+  useEffect(() => {
+    if (authReady && user) router.replace("/home");
+  }, [authReady, user, router]);
 
   // Restore the user's last preference, plus any cached email so
   // returning users only have to type a password.
