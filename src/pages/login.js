@@ -1,19 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 import app, { getAuth, isUiPreviewMode } from "@/firebase";
 import { getSubscriptionStatus } from "../stripe-proxy-sdk";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Toggle } from "@/components/ui/toggle";
 import { Button } from "@/components/ui/button";
+
+const REMEMBER_ME_KEY = "pyro:rememberMe";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const auth = getAuth();
+
+  // Restore the user's last preference, plus any cached email so
+  // returning users only have to type a password.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(REMEMBER_ME_KEY);
+    if (stored != null) setRememberMe(stored === "true");
+    const cachedEmail = window.localStorage.getItem("pyro:lastEmail");
+    if (cachedEmail) setEmail(cachedEmail);
+  }, []);
 
   const handleSignIn = async (e) => {
     if (e) e.preventDefault();
@@ -23,6 +43,20 @@ const LoginPage = () => {
       return;
     }
     try {
+      // Persistence has to be set BEFORE signInWithEmailAndPassword.
+      // local = stays signed in across browser restarts (default).
+      // session = cleared when the tab closes.
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
+      window.localStorage.setItem(REMEMBER_ME_KEY, String(rememberMe));
+      if (rememberMe) {
+        window.localStorage.setItem("pyro:lastEmail", email);
+      } else {
+        window.localStorage.removeItem("pyro:lastEmail");
+      }
+
       await signInWithEmailAndPassword(auth, email, password);
       const isSubscribed = await getSubscriptionStatus(app);
       if (!isSubscribed) {
@@ -128,6 +162,13 @@ const LoginPage = () => {
                 Forgot password?
               </button>
             </div>
+
+            <Toggle
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              label="Remember me"
+              description="Stay signed in on this browser until you log out."
+            />
 
             <Button type="submit" loading={isLoading} style={{ width: "100%", justifyContent: "center" }}>
               {isLoading ? "Signing in…" : "Sign in"}
