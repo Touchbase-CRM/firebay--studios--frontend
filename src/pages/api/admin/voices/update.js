@@ -184,17 +184,24 @@ export default async function handler(req, res) {
   const oldPyroRef = adminDb.doc(`pyro_voices/${originalSlug}`);
   const oldInfernoRef = adminDb.doc(`inferno_voices/${originalSlug}`);
 
+  // Preserve existing tuning fields if the doc already had them, otherwise
+  // fill in sensible defaults. Section editor reads `stability * 100` for
+  // the intonation slider; without it the backend crashes on float(None).
   const record = {
     pyro_name: merged.pyro_name,
     elevenlabs_id: merged.elevenlabs_id,
     voice_preview_filename: newFilename,
     model_id: merged.model_id,
+    stability: merged.stability ?? 0.5,
+    similarity_boost: merged.similarity_boost ?? 0.75,
   };
   const infernoRecord = {
     inferno_name: merged.pyro_name,
     elevenlabs_id: merged.elevenlabs_id,
     voice_preview_filename: newFilename,
     model_id: merged.model_id,
+    stability: merged.stability ?? 0.5,
+    similarity_boost: merged.similarity_boost ?? 0.75,
   };
 
   try {
