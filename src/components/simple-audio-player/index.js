@@ -119,21 +119,6 @@ export default function SimpleAudioPlayer({
             gap: "var(--space-4)",
           }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "var(--radius-md)",
-              backgroundColor: "var(--accent-50)",
-              color: "var(--accent-600)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <i className="bi bi-soundwave" style={{ fontSize: 18 }} />
-          </div>
           <div style={{ minWidth: 0, flexShrink: 0, marginRight: "var(--space-2)" }}>
             <div
               style={{

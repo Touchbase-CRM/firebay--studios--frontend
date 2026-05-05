@@ -118,12 +118,17 @@ function StitchSections() {
     setCurrentPage(1);
   }, [pageSize]);
 
-  // Restore a previously stitched cut so replay works when revisiting the page.
+  // On mount: restore a previously stitched cut OR auto-stitch fresh.
   useEffect(() => {
     if (!combinedVoiceoverUrl && generatedVoiceUrl) {
       setCombinedVoiceoverUrl(generatedVoiceUrl);
+      return;
     }
-    // intentionally only on mount — we don't want to clobber fresh stitches
+    // No prior stitch in the store — auto-fire a stitch so the user lands
+    // on a ready-to-play final cut without an extra click.
+    if (!combinedVoiceoverUrl && sectionsArray.every((s) => !!s.getHistoryItemId())) {
+      handleStitch();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -535,8 +540,17 @@ function StitchSections() {
                 rightAdornment={<span style={{ fontSize: "var(--text-xs)" }}>.mp3</span>}
               />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-2)" }}>
-                <Button variant="secondary" onClick={() => router.push("/home")}>
-                  Back to spots
+                <Button
+                  variant="secondary"
+                  leftIcon={<i className="bi bi-arrow-left" />}
+                  onClick={() =>
+                    router.push(
+                      "/advanced-mode/script-to-ad/process-section/[idx]",
+                      `/advanced-mode/script-to-ad/process-section/${Math.max(localSectionsArray.length - 1, 0)}`
+                    )
+                  }
+                >
+                  Back
                 </Button>
                 <div style={{ display: "flex", gap: "var(--space-2)" }}>
                   <Button variant="secondary" onClick={handleStitch}>

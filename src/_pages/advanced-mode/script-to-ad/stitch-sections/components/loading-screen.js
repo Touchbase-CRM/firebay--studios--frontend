@@ -33,11 +33,8 @@ const LoadingScreen = ({ cancelLoading, cancelAndRetryLoading }) => {
           We're stitching your sections together. This usually takes a few seconds.
         </p>
       </div>
-      <div style={{ display: "flex", gap: "var(--space-2)" }}>
-        <Button variant="secondary" onClick={cancelLoading}>
-          Cancel and start over
-        </Button>
-        <Button variant="primary" onClick={cancelAndRetryLoading}>
+      <div>
+        <Button variant="secondary" onClick={cancelAndRetryLoading || cancelLoading}>
           Cancel and retry
         </Button>
       </div>
