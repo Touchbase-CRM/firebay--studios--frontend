@@ -16,6 +16,10 @@ const PREVIEW_USER = {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(isUiPreviewMode ? PREVIEW_USER : null);
   const [error, setError] = useState(null);
+  // Distinguish "still hydrating from Firebase" from "definitely not signed in".
+  // Without this, withAuth races onAuthStateChanged and bounces persisted users
+  // back to /login on every page load — breaking the Remember me promise.
+  const [authReady, setAuthReady] = useState(isUiPreviewMode);
 
   useEffect(() => {
     if (isUiPreviewMode) return undefined;
@@ -25,19 +29,18 @@ export const AuthProvider = ({ children }) => {
       (user) => {
         setUser(user);
         setError(null);
+        setAuthReady(true);
       },
       (error) => {
         setError(error);
+        setAuthReady(true);
       }
     );
 
     return () => unsubscribe();
   }, []);
 
-  const value = {
-    user,
-    error, // Provide error as part of the context value
-  };
+  const value = { user, error, authReady };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
