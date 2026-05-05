@@ -748,24 +748,31 @@ function ProcessSection() {
                   <i className="bi bi-pencil" style={{ fontSize: 14 }} />
                 </button>
               </div>
-              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginTop: 4 }}>
-                {sectionLabel}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                  fontSize: "var(--text-sm)",
+                  color: "var(--text-secondary)",
+                  marginTop: 4,
+                }}
+              >
+                <span>{sectionLabel}</span>
+                <Badge tone={progressPct > 100 ? "danger" : "neutral"}>
+                  {Math.round(secondsLeft)}s left of {adLength}s
+                </Badge>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <Badge tone={progressPct > 100 ? "danger" : "neutral"}>
-                {Math.round(secondsLeft)}s left of {adLength}s
-              </Badge>
-              <Button
-                variant="primary"
-                onClick={handleSubmit}
-                rightIcon={<i className="bi bi-arrow-right" />}
-              >
-                {currentSectionIndex >= localSectionsArray.length - 1
-                  ? "Continue to stitch"
-                  : "Continue to next section"}
-              </Button>
-            </div>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              rightIcon={<i className="bi bi-arrow-right" />}
+            >
+              {currentSectionIndex >= localSectionsArray.length - 1
+                ? "Continue to stitch"
+                : "Continue to next section"}
+            </Button>
           </div>
 
           {/* Progress strip */}

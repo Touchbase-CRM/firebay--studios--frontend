@@ -550,7 +550,7 @@ function StitchSections() {
               />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-2)" }}>
                 <Button variant="secondary" onClick={() => router.push("/home")}>
-                  Go to home
+                  Back to spots
                 </Button>
                 <Button onClick={handleDownload} loading={isDownloading} leftIcon={<i className="bi bi-download" />}>
                   Download
@@ -587,7 +587,7 @@ function StitchSections() {
                   </div>
                   <div style={{ display: "flex", gap: "var(--space-2)" }}>
                     <Button variant="secondary" onClick={() => router.push("/home")}>
-                      Back to spots
+                      Go to home
                     </Button>
                     <Button onClick={handleNewSpot} leftIcon={<i className="bi bi-plus-lg" />}>
                       Create another spot
