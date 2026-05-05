@@ -226,6 +226,8 @@ const Home = () => {
       await manageAdvancedEditSpot(spotId);
     } catch (error) {
       console.error("Error handling the spot mode:", error);
+    } finally {
+      setEditLoading(false);
     }
   }
 

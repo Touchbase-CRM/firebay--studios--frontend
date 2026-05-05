@@ -72,8 +72,6 @@ function StitchSections() {
 
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState("");
-  const [isEditPauseModalVisible, setEditPauseModalVisible] = useState(false);
-  const [currentEditingSectionIndex, setCurrentEditingSectionIndex] = useState(null);
 
   const [audioUrl, setAudioUrl] = useState("");
   const [audioTitle, setAudioTitle] = useState("");
@@ -138,31 +136,6 @@ function StitchSections() {
       setExportFileName(`${safe}-${captureCurrentTimestamp()}`);
     }
   }, [combinedVoiceoverUrl, spotName]);
-
-  const showEditPauseDurationModal = (idx) => {
-    setCurrentEditingSectionIndex(idx);
-    setEditPauseModalVisible(true);
-  };
-
-  const updatePauseDuration = (index, newDuration) => {
-    const next = [...localSectionsArray];
-    const target = next[index];
-    const valid = isNaN(parseFloat(newDuration)) || newDuration === "" ? 0 : parseFloat(newDuration);
-    target.setEndOfSectionPauseDurationSeconds(valid);
-    const totalWith = next.reduce(
-      (acc, s) => acc + s.sectionDurationSeconds + s.getEndOfSectionPauseDurationSeconds(),
-      0
-    );
-    if (totalWith > adLength) {
-      Swal.fire({
-        title: "Over the budget",
-        text: "That pause would push the spot over the ad length. Reverted to 0s.",
-        icon: "warning",
-      });
-      target.setEndOfSectionPauseDurationSeconds(0);
-    }
-    setLocalSectionsArray(next);
-  };
 
   const handleSaveState = () => {
     updateExistingSpotInDb({
@@ -485,12 +458,6 @@ function StitchSections() {
               currentSections={currentSections}
               indexOfFirstSection={indexOfFirstSection}
               handleContentClick={handleContentClick}
-              showEditPauseDurationModal={showEditPauseDurationModal}
-              isEditPauseModalVisible={isEditPauseModalVisible}
-              setEditPauseModalVisible={setEditPauseModalVisible}
-              updatePauseDuration={updatePauseDuration}
-              currentEditingSectionIndex={currentEditingSectionIndex}
-              adLength={adLength}
               localSectionsArray={localSectionsArray}
               handleSectionPreviewPlay={handleSectionPreviewPlay}
               handleEditSection={handleEditSection}

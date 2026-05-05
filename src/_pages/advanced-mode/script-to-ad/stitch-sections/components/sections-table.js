@@ -1,18 +1,11 @@
 import React from "react";
 import { PlayButton } from "@/components/buttons/play-button/play";
 import { EditButton } from "@/components/buttons/edit-button/edit";
-import { EditPauseDurationModal } from "./edit-pause-duration-modal/modal";
 
 const SectionsTable = ({
   currentSections,
   indexOfFirstSection,
   handleContentClick,
-  showEditPauseDurationModal,
-  isEditPauseModalVisible,
-  setEditPauseModalVisible,
-  updatePauseDuration,
-  currentEditingSectionIndex,
-  adLength,
   localSectionsArray,
   handleSectionPreviewPlay,
   handleEditSection,
@@ -26,7 +19,6 @@ const SectionsTable = ({
             <th>Voice</th>
             <th>Content</th>
             <th style={{ textAlign: "right" }}>Duration</th>
-            <th>End pause</th>
             <th style={{ width: 100, textAlign: "right" }}>Actions</th>
           </tr>
         </thead>
@@ -57,37 +49,6 @@ const SectionsTable = ({
                 </td>
                 <td style={{ textAlign: "right", color: "var(--text-secondary)" }}>
                   {section.getSectionDurationSeconds().toFixed(2)}s
-                </td>
-                <td>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>
-                      {section.getEndOfSectionPauseDurationSeconds()}s
-                    </span>
-                    <EditButton
-                      onClickHandler={() => showEditPauseDurationModal(absoluteIdx)}
-                    />
-                    <EditPauseDurationModal
-                      show={isEditPauseModalVisible}
-                      onHide={() => setEditPauseModalVisible(false)}
-                      initialValue={section.getEndOfSectionPauseDurationSeconds()}
-                      onSave={(newPauseDuration) => {
-                        if (currentEditingSectionIndex !== null) {
-                          updatePauseDuration(currentEditingSectionIndex, newPauseDuration);
-                        }
-                        setEditPauseModalVisible(false);
-                      }}
-                      maxValue={Math.floor(
-                        adLength -
-                          localSectionsArray.reduce(
-                            (acc, s) =>
-                              acc +
-                              s.sectionDurationSeconds +
-                              s.getEndOfSectionPauseDurationSeconds(),
-                            0
-                          )
-                      )}
-                    />
-                  </div>
                 </td>
                 <td style={{ textAlign: "right" }}>
                   <div style={{ display: "inline-flex", gap: "var(--space-1)" }}>

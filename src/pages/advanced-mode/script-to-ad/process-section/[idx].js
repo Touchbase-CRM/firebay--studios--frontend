@@ -23,6 +23,8 @@ import RenameModal from "@/components/rename-modal";
 
 import { fetchAudioFromPyroBackendDistribution } from "@/utils/fetch-audio/fetch-from-distribution";
 import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-utils";
+import { deserializeAndLoadModeData } from "@/utils/db-read-write-ops/deserialization-utils";
+import { updateAdvancedS2AState } from "@/_pages/home/utils/update-state";
 import { isUiPreviewMode } from "@/firebase";
 
 import useUserInputsStore from "@/store/user-inputs";
@@ -168,10 +170,39 @@ function ProcessSection() {
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const next = sectionsArray[currentIdx];
       setLocalCurrentSectionObj(next);
+      setLocalSectionsArray(sectionsArray);
       updateSectionDetails(next);
       setShowAudioPlayer(false);
     }
-  }, [idx]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, sectionsArray?.length]);
+
+  // Recover from a cold load (refresh, deep-link) where the in-memory store
+  // is empty. If we have a spotId we know which spot to refetch; otherwise
+  // we have nothing to render and the user belongs back on /home.
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (sectionsArray?.length > 0) return;
+    let cancelled = false;
+    (async () => {
+      if (!spotId) {
+        router.replace("/home");
+        return;
+      }
+      try {
+        const data = await deserializeAndLoadModeData({ spotId });
+        if (cancelled) return;
+        await updateAdvancedS2AState(data);
+      } catch (error) {
+        console.error("Failed to recover spot data:", error);
+        if (!cancelled) router.replace("/home");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, sectionsArray?.length, spotId]);
 
   useEffect(() => {
     if (localCurrentSectionObj) updateSectionDetails(localCurrentSectionObj);
