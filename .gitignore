@@ -59,3 +59,6 @@ cypress/screenshots
 
 # Storybook static build output
 storybook-static/
+
+# Claude Code local session state
+.claude/
