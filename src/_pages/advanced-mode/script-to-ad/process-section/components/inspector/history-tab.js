@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export function HistoryTab({ historyMap, currentHistoryItemId, onPlay, onRestore }) {
+export function HistoryTab({ historyMap, currentHistoryItemId, previewingKey, onPlay, onRestore }) {
   const entries = historyMap ? Array.from(historyMap.entries()) : [];
 
   if (entries.length === 0) {
@@ -21,17 +21,22 @@ export function HistoryTab({ historyMap, currentHistoryItemId, onPlay, onRestore
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
       {entries.map(([key, section], idx) => {
         const isLive = key === currentHistoryItemId;
+        const isPreviewing = key === previewingKey && !isLive;
+        const accentBorder = isLive || isPreviewing
+          ? { borderColor: "var(--accent-500)", borderWidth: 1.5 }
+          : undefined;
         return (
         <Card
           key={key}
           variant="bordered"
           padding="var(--space-4)"
-          style={isLive ? { borderColor: "var(--accent-500)", borderWidth: 1.5 } : undefined}
+          style={accentBorder}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
             <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
               <Badge tone={isLive ? "accent" : "neutral"}>Take {idx + 1}</Badge>
               {isLive && <Badge tone="accent">Live take</Badge>}
+              {isPreviewing && <Badge tone="warning">Previewing — Save to make live</Badge>}
             </div>
             <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
               {section.getVoiceName()}
@@ -53,7 +58,7 @@ export function HistoryTab({ historyMap, currentHistoryItemId, onPlay, onRestore
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => onPlay(section.getGeneratedVoiceUrl())}
+              onClick={() => onPlay(key, section)}
               leftIcon={<i className="bi bi-play-fill" />}
             >
               Play

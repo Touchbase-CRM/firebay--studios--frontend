@@ -450,17 +450,26 @@ function StitchSections() {
 
       <PageContent style={{ paddingBottom: showAudioPlayer ? 120 : undefined }}>
         <Toolbar
-          title={spotName || "Untitled spot"}
-          description="Review section pauses, then stitch and export."
-          actions={
-            <Button
-              variant="ghost"
-              onClick={() => setShowRenameModal(true)}
-              leftIcon={<i className="bi bi-pencil" />}
-            >
-              Rename
-            </Button>
+          title={
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}>
+              {spotName || "Untitled spot"}
+              <button
+                type="button"
+                onClick={() => setShowRenameModal(true)}
+                aria-label="Rename"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  padding: 4,
+                }}
+              >
+                <i className="bi bi-pencil" style={{ fontSize: 14 }} />
+              </button>
+            </span>
           }
+          description="Review section pauses, then stitch and export."
           style={{ padding: "var(--space-2) 0 var(--space-5)" }}
         />
 
@@ -540,26 +549,12 @@ function StitchSections() {
                 rightAdornment={<span style={{ fontSize: "var(--text-xs)" }}>.mp3</span>}
               />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-2)" }}>
-                <Button
-                  variant="secondary"
-                  leftIcon={<i className="bi bi-arrow-left" />}
-                  onClick={() =>
-                    router.push(
-                      "/advanced-mode/script-to-ad/process-section/[idx]",
-                      `/advanced-mode/script-to-ad/process-section/${Math.max(localSectionsArray.length - 1, 0)}`
-                    )
-                  }
-                >
-                  Back
+                <Button variant="secondary" onClick={() => router.push("/home")}>
+                  Go to home
                 </Button>
-                <div style={{ display: "flex", gap: "var(--space-2)" }}>
-                  <Button variant="secondary" onClick={handleStitch}>
-                    Re-generate
-                  </Button>
-                  <Button onClick={handleDownload} loading={isDownloading} leftIcon={<i className="bi bi-download" />}>
-                    Download
-                  </Button>
-                </div>
+                <Button onClick={handleDownload} loading={isDownloading} leftIcon={<i className="bi bi-download" />}>
+                  Download
+                </Button>
               </div>
               {hasDownloaded && (
                 <div

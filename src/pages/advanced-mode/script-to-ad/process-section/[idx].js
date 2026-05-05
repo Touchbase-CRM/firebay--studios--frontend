@@ -106,6 +106,10 @@ function ProcessSection() {
   const syncStackWithGlobal = useUserInputsStore((s) => s.setNavigationStack);
 
   const [activeTab, setActiveTab] = useState("voice");
+  // Tracks which History take the user is currently auditioning. Cleared on
+  // Save/Generate/section change. If the user clicks Save while previewing
+  // a non-live take, that take is promoted to the live take.
+  const [previewingTake, setPreviewingTake] = useState(null);
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(() =>
@@ -159,6 +163,7 @@ function ProcessSection() {
 
     setCurrentSectionIndex(currentIdx);
     setLocalSectionHistoryObj(sectionHistoryArray[currentIdx] || null);
+    setPreviewingTake(null);
 
     if (!isNaN(currentIdx) && sectionsArray?.length > currentIdx) {
       const next = sectionsArray[currentIdx];
@@ -263,7 +268,19 @@ function ProcessSection() {
   };
 
   const handleSaveState = () => {
-    localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    // If the user was auditioning a non-live take from History, promote it
+    // to the live take before persisting.
+    if (
+      previewingTake &&
+      previewingTake.key !== localCurrentSectionObj.getHistoryItemId()
+    ) {
+      const promoted = previewingTake.section.clone();
+      setLocalCurrentSectionObj(promoted);
+      localSectionsArray[currentSectionIndex] = promoted;
+      setPreviewingTake(null);
+    } else {
+      localSectionsArray[currentSectionIndex] = localCurrentSectionObj;
+    }
     setSectionsArray(localSectionsArray);
     saveFeatureSpecificStates.sectionsArray = localSectionsArray;
     syncSectionHistoryArrayWithZustand(currentSectionIndex, localSectionHistoryObj);
@@ -281,6 +298,16 @@ function ProcessSection() {
 
   const processScriptChange = (newScript) => {
     setTypedText(newScript);
+    // Mirror the edit onto the section object + the global sectionsArray
+    // immediately so navigating back to the script step sees fresh text
+    // without needing an explicit Save click.
+    if (localCurrentSectionObj) {
+      localCurrentSectionObj.setCurrentContent(newScript);
+      localCurrentSectionObj.setCurrentWords(newScript.split(" "));
+      const idx = localCurrentSectionObj.getIndex();
+      localSectionsArray[idx] = localCurrentSectionObj;
+      setSectionsArray(localSectionsArray);
+    }
     const newWords = newScript.split(" ");
     const newTransformed = {};
     newWords.forEach((word, i) => {
@@ -399,11 +426,19 @@ function ProcessSection() {
     setGeneratedVoiceUrl(localCurrentSectionObj.getGeneratedVoiceUrl());
   };
 
-  const playAudioUrl = (url) => {
+  const playAudioUrl = (keyOrUrl, sectionMaybe) => {
+    // Two call shapes for backwards-compat:
+    //   playAudioUrl(url)                — legacy, just plays
+    //   playAudioUrl(historyKey, section) — from History tab, also marks as previewing
     setForceRenderKey(Math.random());
     setAllowDownload(true);
     setShowAudioPlayer(true);
-    setGeneratedVoiceUrl(url);
+    if (sectionMaybe) {
+      setGeneratedVoiceUrl(sectionMaybe.getGeneratedVoiceUrl());
+      setPreviewingTake({ key: keyOrUrl, section: sectionMaybe });
+    } else {
+      setGeneratedVoiceUrl(keyOrUrl);
+    }
   };
 
   const changeCurrentSectionObj = (newObj) => {
@@ -496,6 +531,7 @@ function ProcessSection() {
   async function handleGenerateVoice() {
     if (!validateScript(typedText, () => {})) return;
     setIsGeneratingVoice(true);
+    setPreviewingTake(null);
     try {
       const finalScript = getFinalScript();
 
@@ -668,6 +704,7 @@ function ProcessSection() {
         <HistoryTab
           historyMap={localSectionHistoryObj}
           currentHistoryItemId={localCurrentSectionObj.getHistoryItemId()}
+          previewingKey={previewingTake?.key}
           onPlay={playAudioUrl}
           onRestore={changeCurrentSectionObj}
         />
