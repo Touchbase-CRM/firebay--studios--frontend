@@ -799,15 +799,6 @@ function ProcessSection() {
                 </Badge>
               </div>
             </div>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              rightIcon={<i className="bi bi-arrow-right" />}
-            >
-              {currentSectionIndex >= localSectionsArray.length - 1
-                ? "Continue to stitch"
-                : "Continue to next section"}
-            </Button>
           </div>
 
           {/* Progress strip */}
@@ -927,8 +918,13 @@ function ProcessSection() {
               Back
             </Button>
             <div style={{ display: "flex", gap: "var(--space-2)" }}>
-              <Button variant="secondary" onClick={handleSaveState} feedback="Saved as live take">
-                Save as live take
+              <Button
+                variant="secondary"
+                onClick={handleSaveState}
+                feedback="Saved"
+                title="Saves the current take as the live version. Past takes stay in the History tab so you can switch back at any time."
+              >
+                Save
               </Button>
               <Button
                 variant="primary"
@@ -936,11 +932,14 @@ function ProcessSection() {
                 loading={isGeneratingVoice}
                 leftIcon={hasGeneratedTake ? <i className="bi bi-arrow-clockwise" /> : null}
               >
-                {isGeneratingVoice
-                  ? "Generating…"
-                  : hasGeneratedTake
-                  ? "Re-generate"
-                  : "Generate voice"}
+                {isGeneratingVoice ? "Generating…" : "Generate"}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSubmit}
+                rightIcon={<i className="bi bi-arrow-right" />}
+              >
+                {currentSectionIndex >= localSectionsArray.length - 1 ? "Stitch" : "Next"}
               </Button>
             </div>
           </div>

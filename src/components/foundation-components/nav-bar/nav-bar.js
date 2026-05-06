@@ -97,15 +97,17 @@ export const NavBar = ({ links = [], logoutHandler, showLogout = false }) => {
         <PyroWordmark />
       </button>
 
-      {links.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", marginLeft: "var(--space-7)" }}>
-          {links.map((link, idx) => (
-            <NavLink key={idx} onClick={() => navigate(link.url)}>
-              {link.label}
-            </NavLink>
-          ))}
-        </div>
-      )}
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", marginLeft: "var(--space-7)" }}>
+        <NavLink onClick={() => navigate("/home")} ariaLabel="Home">
+          <i className="bi bi-house" style={{ fontSize: 14 }}></i>
+          Home
+        </NavLink>
+        {links.map((link, idx) => (
+          <NavLink key={idx} onClick={() => navigate(link.url)}>
+            {link.label}
+          </NavLink>
+        ))}
+      </div>
 
       {showLogout && logoutHandler && (
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--space-1)" }}>

@@ -442,7 +442,7 @@ function StitchSections() {
               </button>
             </span>
           }
-          description="Review section pauses, then stitch and export."
+          description="Review and export your spot."
           style={{ padding: "var(--space-2) 0 var(--space-5)" }}
         />
 
@@ -562,9 +562,6 @@ function StitchSections() {
                   </div>
                 </div>
               )}
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                Each download counts toward this month's billing.
-              </div>
             </div>
           </Card>
         )}
