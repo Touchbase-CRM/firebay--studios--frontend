@@ -37,21 +37,19 @@ function NavLink({ children, onClick, ariaLabel }) {
   );
 }
 
-// Stripe-style stylized wordmark — tighter letter-spacing, slight slant on a single
-// letter for character. Pure typography, no custom font required.
 function PyroWordmark() {
   return (
     <span
       aria-label="Pyro"
       style={{
-        fontFamily: "var(--font-display), var(--font-sans)",
+        fontFamily: "var(--font-pyro), var(--font-display), var(--font-sans)",
         fontSize: "var(--text-xl)",
         fontWeight: 700,
         color: "var(--text-primary)",
         letterSpacing: "-0.03em",
         lineHeight: 1,
-        display: "inline-flex",
-        alignItems: "baseline",
+        display: "inline-block",
+        transform: "translateY(2px)",
       }}
     >
       Pyro
