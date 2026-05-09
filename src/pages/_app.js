@@ -2,6 +2,7 @@ import { AuthProvider } from "../context/auth";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 import { Inter, Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 
@@ -22,6 +23,13 @@ const poppins = Poppins({
   weight: ["600", "700"],
   display: "swap",
   variable: "--font-display",
+});
+
+const gcEpicPro = localFont({
+  src: "../fonts/GCEpicProDemo-Bold.ttf",
+  weight: "700",
+  display: "swap",
+  variable: "--font-pyro",
 });
 
 if (typeof window !== "undefined") {
@@ -54,7 +62,7 @@ function MyApp({ Component, pageProps }) {
           />
         </Head>
         <div
-          className={`${inter.className} ${poppins.variable}`}
+          className={`${inter.className} ${poppins.variable} ${gcEpicPro.variable}`}
           style={{
             backgroundColor: "var(--surface-canvas)",
             minHeight: "100vh",
