@@ -62,3 +62,4 @@ storybook-static/
 
 # Claude Code local session state
 .claude/
+.gstack/
