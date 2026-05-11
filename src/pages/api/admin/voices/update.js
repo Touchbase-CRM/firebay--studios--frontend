@@ -66,6 +66,7 @@ export default async function handler(req, res) {
       "original_pyro_name"
     );
   }
+  const originalId = (firstString(parsed.fields.original_id) || "").trim();
 
   const newName = firstString(parsed.fields.pyro_name);
   const newElId = firstString(parsed.fields.elevenlabs_id);
@@ -92,13 +93,14 @@ export default async function handler(req, res) {
   const fileErr = validatePreviewFile(file, { required: false });
   if (fileErr) return fail(res, 400, fileErr.error, fileErr.field, fileErr.hint);
 
-  const originalSlug = slugify(originalName);
-  const originalRef = adminDb.doc(`pyro_voices/${originalSlug}`);
+  const docId = originalId || slugify(originalName);
+  const originalRef = adminDb.doc(`pyro_voices/${docId}`);
   const originalSnap = await originalRef.get();
   if (!originalSnap.exists) {
     return fail(res, 404, `No voice named '${originalName}' found.`, "original_pyro_name");
   }
   const original = originalSnap.data();
+  const storedOriginalName = original.pyro_name || originalName;
 
   const merged = {
     pyro_name: newName != null ? newName.trim() : original.pyro_name,
@@ -121,7 +123,7 @@ export default async function handler(req, res) {
     );
   }
 
-  const isRename = originalSlug !== newSlug;
+  const isRename = merged.pyro_name !== storedOriginalName;
   const oldKey = `${PREVIEWS_PREFIX}/${original.voice_preview_filename}`;
   const newKey = previewKey(merged.voice_gender, newSlug);
   const newFilename = previewFilename(merged.voice_gender, newSlug);
@@ -131,7 +133,7 @@ export default async function handler(req, res) {
     const choicesSnap = await choicesRef.get();
     const arr =
       (choicesSnap.exists && choicesSnap.data().pyro_voice_choices) || [];
-    if (arr.includes(merged.pyro_name) && merged.pyro_name !== originalName) {
+    if (arr.includes(merged.pyro_name)) {
       return fail(
         res,
         409,
@@ -179,10 +181,8 @@ export default async function handler(req, res) {
     return fail(res, 502, "Failed to update preview in S3.", "preview", e.message);
   }
 
-  const newPyroRef = adminDb.doc(`pyro_voices/${newSlug}`);
-  const newInfernoRef = adminDb.doc(`inferno_voices/${newSlug}`);
-  const oldPyroRef = adminDb.doc(`pyro_voices/${originalSlug}`);
-  const oldInfernoRef = adminDb.doc(`inferno_voices/${originalSlug}`);
+  const pyroDocRef = adminDb.doc(`pyro_voices/${docId}`);
+  const infernoDocRef = adminDb.doc(`inferno_voices/${docId}`);
 
   // Preserve existing tuning fields if the doc already had them, otherwise
   // fill in sensible defaults. Section editor reads `stability * 100` for
@@ -211,7 +211,7 @@ export default async function handler(req, res) {
         const arr =
           (choicesNow.exists && choicesNow.data().pyro_voice_choices) || [];
         const next = arr
-          .filter((n) => n !== originalName)
+          .filter((n) => n !== storedOriginalName && n !== originalName)
           .concat([merged.pyro_name])
           .sort((a, b) => a.localeCompare(b));
         tx.set(
@@ -220,12 +220,8 @@ export default async function handler(req, res) {
           { merge: true }
         );
       }
-      tx.set(newPyroRef, record);
-      tx.set(newInfernoRef, infernoRecord);
-      if (isRename) {
-        tx.delete(oldPyroRef);
-        tx.delete(oldInfernoRef);
-      }
+      tx.set(pyroDocRef, record);
+      tx.set(infernoDocRef, infernoRecord);
     });
   } catch (e) {
     console.error("voices/update Firestore transaction failed", e);
@@ -242,6 +238,7 @@ export default async function handler(req, res) {
   return res.status(200).json({
     ok: true,
     voice: {
+      id: docId,
       pyro_name: merged.pyro_name,
       slug: newSlug,
       voice_preview_filename: newFilename,
