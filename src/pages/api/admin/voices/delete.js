@@ -19,20 +19,24 @@ export default async function handler(req, res) {
   if (!admin) return;
 
   const pyroName = (req.body && req.body.pyro_name) || "";
+  const clientId =
+    (req.body && typeof req.body.id === "string" && req.body.id.trim()) || "";
   if (!pyroName || typeof pyroName !== "string") {
     return fail(res, 400, "pyro_name is required.", "pyro_name");
   }
 
-  const slug = slugify(pyroName);
+  const docId = clientId || slugify(pyroName);
   const choicesRef = adminDb.doc("fetch_data_to_frontend/pyro_voices");
-  const pyroRef = adminDb.doc(`pyro_voices/${slug}`);
-  const infernoRef = adminDb.doc(`inferno_voices/${slug}`);
+  const pyroRef = adminDb.doc(`pyro_voices/${docId}`);
+  const infernoRef = adminDb.doc(`inferno_voices/${docId}`);
 
   const pyroSnap = await pyroRef.get();
   if (!pyroSnap.exists) {
     return fail(res, 404, `No voice named '${pyroName}' found.`, "pyro_name");
   }
-  const previewFilename = pyroSnap.data().voice_preview_filename;
+  const pyroData = pyroSnap.data();
+  const storedName = pyroData.pyro_name || pyroName;
+  const previewFilename = pyroData.voice_preview_filename;
 
   try {
     await adminDb.runTransaction(async (tx) => {
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
       const arr =
         (choicesNow.exists && choicesNow.data().pyro_voice_choices) || [];
       const next = arr
-        .filter((n) => n !== pyroName)
+        .filter((n) => n !== storedName && n !== pyroName)
         .sort((a, b) => a.localeCompare(b));
       tx.set(
         choicesRef,

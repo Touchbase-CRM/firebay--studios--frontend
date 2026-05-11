@@ -236,6 +236,7 @@ function AdminVoicesPage() {
     try {
       const token = await getIdToken();
       const fd = new FormData();
+      fd.append("original_id", editing.id);
       fd.append("original_pyro_name", editing.pyro_name);
       fd.append("pyro_name", editForm.pyro_name);
       fd.append("elevenlabs_id", editForm.elevenlabs_id);
@@ -287,7 +288,7 @@ function AdminVoicesPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ pyro_name: voice.pyro_name }),
+        body: JSON.stringify({ id: voice.id, pyro_name: voice.pyro_name }),
       });
       if (!r.ok) {
         await showApiError(r, "Could not remove voice.");
