@@ -10,6 +10,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireAdmin } from "@/lib/requireAdmin";
 import {
+  CATEGORIES_DOC,
   PREVIEWS_BUCKET,
   PREVIEWS_PREFIX,
   fail,
@@ -19,6 +20,12 @@ import {
   previewKey,
   s3,
   slugify,
+  normalizeCategories,
+  parseCategoriesField,
+  validateAge,
+  validateCategories,
+  validateDescription,
+  validateNationality,
   validateElevenlabsId,
   validateGender,
   validateModelId,
@@ -72,6 +79,10 @@ export default async function handler(req, res) {
   const newElId = firstString(parsed.fields.elevenlabs_id);
   const newGender = firstString(parsed.fields.voice_gender);
   const newModel = firstString(parsed.fields.model_id);
+  const newCategories = parseCategoriesField(firstString(parsed.fields.categories));
+  const newDescription = firstString(parsed.fields.description);
+  const newAge = firstString(parsed.fields.age);
+  const newNationality = firstString(parsed.fields.nationality);
   const file = firstFile(parsed.files);
 
   if (newName != null) {
@@ -88,6 +99,21 @@ export default async function handler(req, res) {
   }
   if (newModel != null) {
     const v = validateModelId(newModel);
+    if (v) return fail(res, 400, v.error, v.field, v.hint);
+  }
+  let allowedCategories = [];
+  if (newCategories !== undefined) {
+    const categoriesSnap = await adminDb.doc(CATEGORIES_DOC).get();
+    allowedCategories =
+      (categoriesSnap.exists && categoriesSnap.data().categories) || [];
+    const v = validateCategories(newCategories, allowedCategories);
+    if (v) return fail(res, 400, v.error, v.field, v.hint);
+  }
+  for (const v of [
+    newDescription != null && validateDescription(newDescription),
+    newAge != null && validateAge(newAge),
+    newNationality != null && validateNationality(newNationality),
+  ]) {
     if (v) return fail(res, 400, v.error, v.field, v.hint);
   }
   const fileErr = validatePreviewFile(file, { required: false });
@@ -111,6 +137,17 @@ export default async function handler(req, res) {
         ? newGender
         : (original.voice_preview_filename || "").split("/")[0] || "male",
     model_id: newModel != null && newModel.trim() ? newModel.trim() : original.model_id,
+    stability: original.stability,
+    similarity_boost: original.similarity_boost,
+    categories:
+      newCategories !== undefined
+        ? normalizeCategories(newCategories, allowedCategories)
+        : original.categories || [],
+    description:
+      newDescription != null ? newDescription.trim() : original.description || "",
+    age: newAge != null ? newAge.trim() : original.age || "",
+    nationality:
+      newNationality != null ? newNationality.trim() : original.nationality || "",
   };
 
   const newSlug = slugify(merged.pyro_name);
@@ -194,6 +231,10 @@ export default async function handler(req, res) {
     model_id: merged.model_id,
     stability: merged.stability ?? 0.5,
     similarity_boost: merged.similarity_boost ?? 0.75,
+    categories: merged.categories,
+    description: merged.description,
+    age: merged.age,
+    nationality: merged.nationality,
   };
   const infernoRecord = {
     inferno_name: merged.pyro_name,

@@ -1,9 +1,8 @@
 import React from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { Select } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
+import { VoicePicker } from "./voice-picker";
 
 function FieldLabel({ children, info }) {
   return (
@@ -32,10 +31,12 @@ function FieldLabel({ children, info }) {
 }
 
 export function VoiceTab({
-  voiceOptions,
+  voiceGroups,
+  voiceMeta,
   voiceName,
   onVoiceChange,
-  onPreviewPlay,
+  onVoicePreview,
+  previewingVoice,
   dragonsBreath,
   onDragonsBreathChange,
   intonation,
@@ -43,36 +44,20 @@ export function VoiceTab({
   speechRate,
   onSpeechRateChange,
 }) {
-  const isLoading = !voiceOptions || voiceOptions.length === 0;
+  const isLoading = !voiceGroups || !voiceGroups.some((g) => g.voices.length > 0);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <div>
-        <Select
-          label="Voice"
+        <VoicePicker
+          groups={voiceGroups}
+          meta={voiceMeta}
           value={voiceName}
           onChange={onVoiceChange}
+          onPreview={onVoicePreview}
+          previewing={previewingVoice}
           disabled={isLoading}
-        >
-          {isLoading ? (
-            <option>Loading voices…</option>
-          ) : (
-            voiceOptions.map((voice) => (
-              <option key={voice} value={voice}>
-                {voice}
-              </option>
-            ))
-          )}
-        </Select>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onPreviewPlay}
-          style={{ marginTop: "var(--space-2)", padding: "4px 0" }}
-          leftIcon={<i className="bi bi-play-circle" />}
-        >
-          Play voice preview
-        </Button>
+        />
       </div>
 
       <div data-cy="dragons-breath-toggle">
