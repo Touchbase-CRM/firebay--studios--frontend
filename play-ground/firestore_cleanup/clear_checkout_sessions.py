@@ -1,9 +1,10 @@
+import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
 # Use the application default credentials
-key_path = 'play_ground/firestore_cleanup/firebay-6554f-firebase-adminsdk-9ov3f-6d4475685b.json'  # replace with the path to your JSON file
+key_path = os.environ['GOOGLE_APPLICATION_CREDENTIALS']  # path to a service-account JSON; never commit it
 
 # Initialize the app with the service account
 cred = credentials.Certificate(key_path)

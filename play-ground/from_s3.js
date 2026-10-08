@@ -6,8 +6,8 @@ const getS3Client = () => {
   return new S3Client({
     region: "us-east-2",
     credentials: {
-      accessKeyId: "AKIAS6N3YON237ME2AOB", // Access the AWS access key ID from environment variables
-      secretAccessKey: "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", // Access the AWS secret access key from environment variables
+      accessKeyId: process.env.MIN_PYRO_USER_AWS_ACCESS_KEY,
+      secretAccessKey: process.env.MIN_PYRO_USER_AWS_SECRET_KEY,
     },
   });
 };
