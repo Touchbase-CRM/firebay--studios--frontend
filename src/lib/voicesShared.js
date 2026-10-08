@@ -1,4 +1,5 @@
 import { S3Client } from "@aws-sdk/client-s3";
+import { VOICE_AGES } from "./voiceAges";
 
 export const PREVIEWS_BUCKET = "static--files--storage";
 export const PREVIEWS_PREFIX = "voice--previews";
@@ -8,7 +9,7 @@ export const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
 export const CATEGORIES_DOC = "fetch_data_to_frontend/pyro_voice_categories";
 export const DESCRIPTION_MAX_CHARS = 43;
 export const CATEGORY_NAME_MAX_CHARS = 40;
-export const VOICE_AGES = ["Young", "Middle age", "Older"];
+// Shown as "Accent" in the UI; stored as `nationality`.
 export const NATIONALITY_MAX_CHARS = 30;
 
 export function s3() {
@@ -156,7 +157,7 @@ export function validateNationality(nationality) {
   if (nationality == null || nationality === "") return null;
   if (typeof nationality !== "string" || nationality.trim().length > NATIONALITY_MAX_CHARS) {
     return {
-      error: `Nationality must be ${NATIONALITY_MAX_CHARS} characters or fewer.`,
+      error: `Accent must be ${NATIONALITY_MAX_CHARS} characters or fewer.`,
       field: "nationality",
     };
   }

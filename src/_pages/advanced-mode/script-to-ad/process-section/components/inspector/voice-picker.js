@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/context/auth";
+import { VOICE_AGES } from "@/lib/voiceAges";
 import styles from "./voice-picker.module.css";
 
 const PANEL_MIN_WIDTH = 440;
@@ -16,7 +17,6 @@ const PANEL_MAX_HEIGHT = 440;
 const VIEWPORT_MARGIN = 8;
 const PANEL_GAP = 6;
 const FAVORITES = "Favorites";
-const AGE_ORDER = ["Young", "Middle age", "Older"];
 const NO_FILTERS = { gender: "", age: "", nationality: "" };
 
 const capitalize = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
@@ -200,14 +200,14 @@ export function VoicePicker({
 
   const filtersActive = Object.values(filters).some(Boolean);
 
-  // Dropdown options come from the voices themselves, so a nationality only
+  // Dropdown options come from the voices themselves, so an accent only
   // shows up once some voice has it.
   const filterOptions = useMemo(() => {
     const values = (key) =>
       [...new Set(allVoices.map((n) => meta[n]?.[key]).filter(Boolean))];
     return {
       gender: values("gender").sort(),
-      age: AGE_ORDER.filter((a) => values("age").includes(a)),
+      age: VOICE_AGES.filter((a) => values("age").includes(a)),
       nationality: values("nationality").sort(),
     };
   }, [allVoices, meta]);
@@ -407,7 +407,7 @@ export function VoicePicker({
               {[
                 ["gender", "Gender", capitalize],
                 ["age", "Age", (a) => a],
-                ["nationality", "Nationality", (n) => n],
+                ["nationality", "Accent", (n) => n],
               ].map(([key, label, format]) => (
                 <FilterMenu
                   key={key}

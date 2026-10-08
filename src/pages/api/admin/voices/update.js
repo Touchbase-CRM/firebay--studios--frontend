@@ -261,8 +261,10 @@ export default async function handler(req, res) {
           { merge: true }
         );
       }
-      tx.set(pyroDocRef, record);
-      tx.set(infernoDocRef, infernoRecord);
+      // merge: keep fields this form doesn't manage (legacy gender, language,
+      // characteristics, tags) instead of wiping them on every save.
+      tx.set(pyroDocRef, record, { merge: true });
+      tx.set(infernoDocRef, infernoRecord, { merge: true });
     });
   } catch (e) {
     console.error("voices/update Firestore transaction failed", e);
