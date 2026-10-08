@@ -26,13 +26,14 @@ import app, { isUiPreviewMode } from "@/firebase";
 import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
 import { useAuth } from "@/context/auth";
 import withAdminAuth from "@/hocs/with-admin-auth";
+import { VOICE_AGES, normalizeAge } from "@/lib/voiceAges";
 
 const PREVIEW_BASE_URL =
   "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
 const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
 const DESCRIPTION_MAX_CHARS = 43;
 const UNCATEGORIZED = "__uncategorized__";
-const VOICE_AGES = ["Young", "Middle age", "Older"];
+// Accent suggestions; stored as the voice's `nationality` field.
 const DEFAULT_NATIONALITIES = [
   "American",
   "British",
@@ -174,7 +175,7 @@ function VoiceFormFields({
           </Form.Select>
         </Form.Group>
         <Form.Group style={{ flex: 1 }}>
-          <Form.Label>Nationality</Form.Label>
+          <Form.Label>Accent</Form.Label>
           <Form.Control
             type="text"
             list={`${idPrefix}-nationalities`}
@@ -191,7 +192,7 @@ function VoiceFormFields({
         </Form.Group>
       </div>
       <Form.Text muted className="d-block mb-3" style={{ marginTop: -8 }}>
-        Age and nationality power the filters in Pyro's voice picker.
+        Age and accent power the filters in Pyro's voice picker.
       </Form.Text>
 
       <Form.Group className="mb-3">
@@ -356,7 +357,7 @@ function AdminVoicesPage() {
       model_id: voice.model_id || DEFAULT_MODEL_ID,
       categories: (voice.categories || []).filter((c) => categories.includes(c)),
       description: voice.description || "",
-      age: voice.age || "",
+      age: normalizeAge(voice.age),
       nationality: voice.nationality || "",
       _file: null,
     });
@@ -644,7 +645,7 @@ function AdminVoicesPage() {
                   <th>Display name</th>
                   <th>Gender</th>
                   <th>Age</th>
-                  <th>Nationality</th>
+                  <th>Accent</th>
                   <th>Categories</th>
                   <th>Description</th>
                   <th>Model</th>
@@ -658,7 +659,7 @@ function AdminVoicesPage() {
                   <tr key={v.id}>
                     <td>{v.pyro_name}</td>
                     <td>{genderOf(v)}</td>
-                    <td>{v.age || <span className="text-muted">—</span>}</td>
+                    <td>{normalizeAge(v.age) || <span className="text-muted">—</span>}</td>
                     <td>{v.nationality || <span className="text-muted">—</span>}</td>
                     <td>
                       {(v.categories || [])

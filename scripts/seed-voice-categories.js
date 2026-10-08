@@ -41,7 +41,7 @@ const SEED = [
     ],
   ],
   [
-    "Male · Older",
+    "Male · Mature",
     "male",
     ["Jim", "Craig", "Connor", "Darren", "David", "Hank", "Oil Man", "Sully"],
   ],
@@ -57,11 +57,11 @@ const SEED = [
     "Female · Middle age",
     "female",
     [
-      "Emma", "Betty", "Brittany", "Gladys", "Hope", "Jessica", "Lillian",
-      "Matilda", "Maya", "Meg", "Mia", "Scarlett",
+      "Emma", "Betty", "Brittany", "Gladys", "Hope", "Jessica",
+      "Matilda", "Maya", "Meg", "Mia", "Scarlett", "Lilian",
     ],
   ],
-  ["Female · Older", "female", ["Carol", "J.J."]],
+  ["Female · Mature", "female", ["Carol", "J.J."]],
   ["Accents · Male", "male", ["Alejandro", "Diego", "Edward", "Archer", "Oliver"]],
   ["Accents · Female", "female", ["Camila", "Darcy", "Puja", "Meg"]],
 ];
@@ -200,15 +200,15 @@ const AGE_NATIONALITY_BY_ELEVENLABS_ID = {
   onwK4e9ZLuTAKqWW03F9: ["Middle age", "British"],
   pFZP5JQG7iQjIQuC4Bku: ["Middle age", "British"],
   pNInz6obpgDQGcFmaJgB: ["Middle age", "American"],
-  pqHfZKP75CvOlQylNhV4: ["Older", "American"],
-  BwsRV8gluuGcJrvENPbd: ["Older", "American"],
-  fDte6eby6sYdcYcjHbl0: ["Older", "American"],
+  pqHfZKP75CvOlQylNhV4: ["Mature", "American"],
+  BwsRV8gluuGcJrvENPbd: ["Mature", "American"],
+  fDte6eby6sYdcYcjHbl0: ["Mature", "American"],
   tMvyQtpCVQ0DkixuYm6J: ["Middle age", "American"],
   L0Dsvb3SLTyegXwtm47J: ["Middle age", "British"],
   Xb3zeLrTi6F4ziIcXdwk: ["Young", "American"],
   "2bk7ULW9HfwvcIbMWod0": ["Young", "American"],
   lkVAP8k5tC0Wr1dYyQZH: ["Middle age", "American"],
-  "5u41aNhyCU6hXOcjPPv0": ["Older", "American"],
+  "5u41aNhyCU6hXOcjPPv0": ["Mature", "American"],
   "6wLJ4Wm2OxvAvetEUBCS": ["Young", "American"],
   aOcS60CY8CoaVaZfqqb5: ["Middle age", "American"],
   wBXNqKUATyqu0RtYt25i: ["Middle age", "American"],
@@ -216,11 +216,11 @@ const AGE_NATIONALITY_BY_ELEVENLABS_ID = {
   rI34FMqFgY9kQxffNV58: ["Middle age", "British"],
   "6O8E1UOlJbvkhJDpV0aB": ["Young", "American"],
   Rn9Yq7uum9irZ6RwppDN: ["Young", "American"],
-  "8bRmOvh6tl1JtNu7uUdF": ["Older", "British"],
-  BNgbHR0DNeZixGQVzloa: ["Older", "British"],
+  "8bRmOvh6tl1JtNu7uUdF": ["Mature", "British"],
+  BNgbHR0DNeZixGQVzloa: ["Mature", "British"],
   iDEmt5MnqUotdwCIVplo: ["Middle age", "Spanish"],
   gbTn1bmCvNgk0QEAVyfM: ["Middle age", "Spanish"],
-  eScsMiMALXY1bEJFNH8o: ["Older", "American"],
+  eScsMiMALXY1bEJFNH8o: ["Mature", "American"],
   "34lPwSZ54D8fWbX1aHzk": ["Middle age", "American"],
   vBKc2FfBKJfcZNyEt1n6: ["Young", "American"],
   hHjbwzYZW17oh0p05AKv: ["Middle age", "Spanish"],
@@ -231,10 +231,10 @@ const AGE_NATIONALITY_BY_ELEVENLABS_ID = {
   zGjIP4SZlMnY9m93k97r: ["Young", "American"],
   "6F5Zhi321D3Oq7v1oNT4": ["Middle age", "American"],
   tnSpp4vdxKPjI9w0GnoV: ["Young", "American"],
-  Q4CesJn2rW0ITUs66gST: ["Older", "African"],
+  Q4CesJn2rW0ITUs66gST: ["Mature", "African"],
   SaqYcK3ZpDKBAImA8AdW: ["Young", "American"],
   yM93hbw8Qtvdma2wCnJG: ["Young", "American"],
-  "9oqLJH1XFK0K90OEebQ5": ["Older", "American"],
+  "9oqLJH1XFK0K90OEebQ5": ["Mature", "American"],
   lxYfHSkYm1EzQzGhdbfc: ["Middle age", "American"],
   cBijDV6IOSWp9c8dA7Xn: ["Middle age", "American"],
   WA9uLg4JEEGnvosWUUIc: ["Young", "American"],
@@ -256,13 +256,13 @@ const AGE_NATIONALITY_BY_ELEVENLABS_ID = {
   jA08rXmVrpvXnqEEEYwl: ["Young", "Indian"],
   DtsPFCrhbCbbJkwZsb3d: ["Young", "American"],
   nL7Nn9iAEdlXf7oChcj8: ["Middle age", "American"],
-  wGcFBfKz5yUQqhqr0mVy: ["Older", "American"],
+  wGcFBfKz5yUQqhqr0mVy: ["Mature", "American"],
   cCYjmrGZaI86GUJ7F2Nn: ["Middle age", "American"],
   kXsOSDWolD7e9l1Z0sbH: ["Young", "American"],
   zCgijgIKIMkFHnzXcCva: ["Middle age", "American"],
   RG7cEBfKE5GfK0ZP0uzl: ["Middle age", "American"],
   "6aDn1KB0hjpdcocrUkmq": ["Young", "American"],
-  wAGzRVkxKEs8La0lmdrE: ["Older", "American"],
+  wAGzRVkxKEs8La0lmdrE: ["Mature", "American"],
   KHJAv6FBeaIDV1IplidF: ["Middle age", "African"],
   dtSEyYGNJqjrtBArPCVZ: ["Young", "American"],
   aGkVQvWUZi16EH8aZJvT: ["Middle age", "Australian"],
@@ -281,6 +281,9 @@ const NATIONALITY_BY_NAME = {
   Oliver: "Australian",
   Puja: "Indian",
 };
+
+// 25 older voice docs carry an `age` in a legacy vocabulary.
+const LEGACY_AGES = { young: "Young", "middle age": "Middle age", mature: "Mature", older: "Mature" };
 
 // Matches DESCRIPTION_MAX_CHARS in src/lib/voicesShared.js.
 const DESCRIPTION_MAX_CHARS = 43;
@@ -365,7 +368,7 @@ async function main() {
       if (DESCRIPTIONS[name] !== undefined) entry.description = DESCRIPTIONS[name];
       // "Male · Middle age" → "Middle age"; accent categories carry no age.
       const age = category.split(" · ")[1];
-      if (["Young", "Middle age", "Older"].includes(age)) entry.age = age;
+      if (["Young", "Middle age", "Mature"].includes(age)) entry.age = age;
       if (NATIONALITY_BY_NAME[name]) entry.nationality = NATIONALITY_BY_NAME[name];
       plan.set(doc.id, entry);
     }
@@ -396,9 +399,12 @@ async function main() {
       else noDescription.push(data.pyro_name);
     }
     const [elAge, elNationality] = AGE_NATIONALITY_BY_ELEVENLABS_ID[data.elevenlabs_id] || [];
-    const age = entry?.age || elAge;
+    // Age: the category list wins, then a normalized legacy value, then
+    // ElevenLabs. Legacy values are rewritten so the Age filter matches them.
+    const legacyAge = LEGACY_AGES[String(data.age || "").trim().toLowerCase()];
+    const age = entry?.age || legacyAge || elAge;
     const nationality = entry?.nationality || elNationality;
-    if (!data.age && age) update.age = age;
+    if (age && data.age !== age) update.age = age;
     if (!data.nationality && nationality) update.nationality = nationality;
     if (Object.keys(update).length) writes.push({ doc, update });
   }

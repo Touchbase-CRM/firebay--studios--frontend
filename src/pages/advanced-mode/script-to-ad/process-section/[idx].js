@@ -27,6 +27,7 @@ import { deserializeAndLoadModeData } from "@/utils/db-read-write-ops/deserializ
 import { updateAdvancedS2AState } from "@/_pages/home/utils/update-state";
 import { isUiPreviewMode } from "@/firebase";
 import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
+import { normalizeAge } from "@/lib/voiceAges";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
@@ -62,12 +63,12 @@ const VOICE_PREVIEW_BASE = "https://static--files--storage.s3.us-east-2.amazonaw
 // can appear in several groups; anything uncategorized lands in "Other voices".
 // With no categories at all this degrades to one unlabeled flat group.
 // What the voice picker needs per voice: grouping, description, and the
-// gender / age / nationality its filters work on.
+// gender / age / accent (stored as `nationality`) its filters work on.
 const voiceMetaOf = (v) => ({
   categories: v.categories || [],
   description: v.description || "",
   gender: (v.voice_preview_filename || "").split("/")[0],
-  age: v.age || "",
+  age: normalizeAge(v.age),
   nationality: v.nationality || "",
   previewUrl: v.voice_preview_filename ? VOICE_PREVIEW_BASE + v.voice_preview_filename : "",
 });
