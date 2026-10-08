@@ -105,7 +105,11 @@ export class Section {
     section.setVoiceId(data.voiceId);
     section.setVoiceName(data.voiceName);
     section.setVoicePreviewFilename(data.voicePreviewFilename);
-    section.setVoiceIntonationConsistency(data.intonationConsistencyLevel);
+    // serialize() writes `voiceIntonationConsistency`; older data may use the
+    // field name. Missing → 50 (ElevenLabs' default stability of 0.5).
+    section.setVoiceIntonationConsistency(
+      data.voiceIntonationConsistency ?? data.intonationConsistencyLevel ?? 50
+    );
     section.setDragonBreathEnhancement(data.dragonBreathEnhancement);
     section.setGeneratedVoiceUrl(data.generatedVoiceUrl);
     section.setCurrentTransformations(data.currentTransformations);

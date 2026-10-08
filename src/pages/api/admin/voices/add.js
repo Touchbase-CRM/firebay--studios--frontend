@@ -6,6 +6,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireAdmin } from "@/lib/requireAdmin";
 import {
+  CATEGORIES_DOC,
   DEFAULT_MODEL_ID,
   PREVIEWS_BUCKET,
   fail,
@@ -15,6 +16,12 @@ import {
   previewKey,
   s3,
   slugify,
+  normalizeCategories,
+  parseCategoriesField,
+  validateAge,
+  validateCategories,
+  validateDescription,
+  validateNationality,
   validateElevenlabsId,
   validateGender,
   validateModelId,
@@ -58,13 +65,25 @@ export default async function handler(req, res) {
   const gender = (firstString(parsed.fields.voice_gender) || "").trim();
   const modelId =
     (firstString(parsed.fields.model_id) || "").trim() || DEFAULT_MODEL_ID;
+  const categories = parseCategoriesField(firstString(parsed.fields.categories)) ?? [];
+  const description = (firstString(parsed.fields.description) || "").trim();
+  const age = (firstString(parsed.fields.age) || "").trim();
+  const nationality = (firstString(parsed.fields.nationality) || "").trim();
   const file = firstFile(parsed.files);
+
+  const categoriesSnap = await adminDb.doc(CATEGORIES_DOC).get();
+  const allowedCategories =
+    (categoriesSnap.exists && categoriesSnap.data().categories) || [];
 
   for (const v of [
     validatePyroName(pyroName),
     validateElevenlabsId(elevenlabsId),
     validateGender(gender),
     validateModelId(modelId),
+    validateCategories(categories, allowedCategories),
+    validateDescription(description),
+    validateAge(age),
+    validateNationality(nationality),
     validatePreviewFile(file, { required: true }),
   ]) {
     if (v) return fail(res, 400, v.error, v.field, v.hint);
@@ -131,6 +150,10 @@ export default async function handler(req, res) {
     // Without it, generation crashes the backend with float(None).
     stability: 0.5,
     similarity_boost: 0.75,
+    categories: normalizeCategories(categories, allowedCategories),
+    description,
+    age,
+    nationality,
   };
 
   try {

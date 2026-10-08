@@ -11,6 +11,7 @@ export const useAuth = () => {
 const PREVIEW_USER = {
   uid: "preview-user",
   email: "preview@firebaystudios.com",
+  emailVerified: true,
 };
 
 export const AuthProvider = ({ children }) => {
@@ -19,10 +20,16 @@ export const AuthProvider = ({ children }) => {
   // Distinguish "still hydrating from Firebase" from "definitely not signed in".
   // Without this, withAuth races onAuthStateChanged and bounces persisted users
   // back to /login on every page load — breaking the Remember me promise.
-  const [authReady, setAuthReady] = useState(isUiPreviewMode);
+  // Starts false even in UI preview mode: the server can't read the
+  // localStorage-persisted store, so pages must render the auth spinner on
+  // the first client pass too or React throws a hydration error on refresh.
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    if (isUiPreviewMode) return undefined;
+    if (isUiPreviewMode) {
+      setAuthReady(true);
+      return undefined;
+    }
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(
       auth,

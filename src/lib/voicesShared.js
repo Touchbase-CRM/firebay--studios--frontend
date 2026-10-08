@@ -5,6 +5,11 @@ export const PREVIEWS_PREFIX = "voice--previews";
 export const PREVIEW_MAX_BYTES = 5 * 1024 * 1024;
 export const ALLOWED_GENDERS = ["male", "female"];
 export const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
+export const CATEGORIES_DOC = "fetch_data_to_frontend/pyro_voice_categories";
+export const DESCRIPTION_MAX_CHARS = 43;
+export const CATEGORY_NAME_MAX_CHARS = 40;
+export const VOICE_AGES = ["Young", "Middle age", "Older"];
+export const NATIONALITY_MAX_CHARS = 30;
 
 export function s3() {
   return new S3Client({
@@ -90,6 +95,108 @@ export function validateModelId(id) {
     };
   }
   return null;
+}
+
+// FormData can only carry strings, so the admin page sends categories as a
+// JSON-encoded array. Returns undefined when the field was not sent at all.
+export function parseCategoriesField(value) {
+  if (value == null) return undefined;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
+}
+
+export function validateCategories(categories, allowed) {
+  if (!Array.isArray(categories) || categories.some((c) => typeof c !== "string")) {
+    return {
+      error: "Categories must be a list of category names.",
+      field: "categories",
+    };
+  }
+  const unknown = categories.filter((c) => !allowed.includes(c));
+  if (unknown.length) {
+    return {
+      error: `Unknown category: ${unknown.join(", ")}.`,
+      field: "categories",
+      hint: "Reload the page — the category may have been renamed or removed.",
+    };
+  }
+  return null;
+}
+
+export function validateDescription(description) {
+  if (description == null || description === "") return null;
+  if (typeof description !== "string") {
+    return { error: "Description must be text.", field: "description" };
+  }
+  if (description.trim().length > DESCRIPTION_MAX_CHARS) {
+    return {
+      error: `Description must be ${DESCRIPTION_MAX_CHARS} characters or fewer.`,
+      field: "description",
+      hint: `Got ${description.trim().length} characters.`,
+    };
+  }
+  return null;
+}
+
+export function validateAge(age) {
+  if (age == null || age === "") return null;
+  if (!VOICE_AGES.includes(age)) {
+    return {
+      error: `Age must be one of: ${VOICE_AGES.join(", ")}.`,
+      field: "age",
+    };
+  }
+  return null;
+}
+
+export function validateNationality(nationality) {
+  if (nationality == null || nationality === "") return null;
+  if (typeof nationality !== "string" || nationality.trim().length > NATIONALITY_MAX_CHARS) {
+    return {
+      error: `Nationality must be ${NATIONALITY_MAX_CHARS} characters or fewer.`,
+      field: "nationality",
+    };
+  }
+  return null;
+}
+
+export function validateCategoryList(categories) {
+  if (!Array.isArray(categories) || categories.some((c) => typeof c !== "string")) {
+    return { error: "Categories must be a list of names.", field: "categories" };
+  }
+  const trimmed = categories.map((c) => c.trim());
+  if (trimmed.some((c) => !c)) {
+    return { error: "Category names can't be empty.", field: "categories" };
+  }
+  const tooLong = trimmed.find((c) => c.length > CATEGORY_NAME_MAX_CHARS);
+  if (tooLong) {
+    return {
+      error: `Category names must be ${CATEGORY_NAME_MAX_CHARS} characters or fewer.`,
+      field: "categories",
+      hint: `'${tooLong}' is ${tooLong.length} characters.`,
+    };
+  }
+  const seen = new Set();
+  for (const c of trimmed) {
+    const key = c.toLowerCase();
+    if (seen.has(key)) {
+      return {
+        error: `There's already a category named '${c}'.`,
+        field: "categories",
+      };
+    }
+    seen.add(key);
+  }
+  return null;
+}
+
+// Keeps only categories that still exist, in the managed list's order.
+export function normalizeCategories(categories, allowed) {
+  const set = new Set(categories || []);
+  return allowed.filter((c) => set.has(c));
 }
 
 function looksLikeMp3(file) {

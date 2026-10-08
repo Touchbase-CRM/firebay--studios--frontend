@@ -26,6 +26,7 @@ import { updateExistingSpotInDb } from "@/utils/db-read-write-ops/serialization-
 import { deserializeAndLoadModeData } from "@/utils/db-read-write-ops/deserialization-utils";
 import { updateAdvancedS2AState } from "@/_pages/home/utils/update-state";
 import { isUiPreviewMode } from "@/firebase";
+import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
@@ -56,6 +57,34 @@ const PROCESSING_URL =
     ? "http://localhost:8000"
     : "https://vgz580uujk.execute-api.us-east-2.amazonaws.com";
 const VOICE_PREVIEW_BASE = "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
+
+// Groups the listed voice names by the admin-managed category order. Voices
+// can appear in several groups; anything uncategorized lands in "Other voices".
+// With no categories at all this degrades to one unlabeled flat group.
+// What the voice picker needs per voice: grouping, description, and the
+// gender / age / nationality its filters work on.
+const voiceMetaOf = (v) => ({
+  categories: v.categories || [],
+  description: v.description || "",
+  gender: (v.voice_preview_filename || "").split("/")[0],
+  age: v.age || "",
+  nationality: v.nationality || "",
+  previewUrl: v.voice_preview_filename ? VOICE_PREVIEW_BASE + v.voice_preview_filename : "",
+});
+
+const groupVoices = (names, categories, meta) => {
+  const groups = categories
+    .map((label) => ({
+      label,
+      voices: names.filter((n) => meta[n]?.categories?.includes(label)),
+    }))
+    .filter((g) => g.voices.length > 0);
+  if (groups.length === 0) return [{ label: null, voices: names }];
+  const grouped = new Set(groups.flatMap((g) => g.voices));
+  const other = names.filter((n) => !grouped.has(n));
+  if (other.length > 0) groups.push({ label: "Other voices", voices: other });
+  return groups;
+};
 
 const legacySpeechRate = (legacy) => {
   const map = { Normal: 0, "1.25x": 25, "1.5x": 50, "1.75x": 75, "2x": 100 };
@@ -96,6 +125,8 @@ function ProcessSection() {
 
   const [currentSectionIndex, setCurrentSectionIndex] = useState(initialSectionIndex);
   const [voiceOptions, setVoiceOptions] = useState([]);
+  const [voiceCategories, setVoiceCategories] = useState([]);
+  const [voiceMeta, setVoiceMeta] = useState({});
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [localCurrentSectionObj, setLocalCurrentSectionObj] = useState(
     () => sectionsArray?.[initialSectionIndex]?.clone() || null
@@ -140,6 +171,9 @@ function ProcessSection() {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [allowDownload, setAllowDownload] = useState(false);
   const [forceRenderKey, setForceRenderKey] = useState(0);
+  // Set when a voice preview from the picker is loaded into the bottom player,
+  // so the player shows that voice's name instead of the section's voice.
+  const [voicePreview, setVoicePreview] = useState(null);
 
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSpotName, setNewSpotName] = useState(spotName);
@@ -238,13 +272,43 @@ function ProcessSection() {
   }, [localCurrentSectionObj?.getHistoryItemId()]);
 
   useEffect(() => {
+    if (isUiPreviewMode) {
+      const meta = {};
+      PREVIEW_VOICES.forEach((v) => {
+        meta[v.pyro_name] = voiceMetaOf(v);
+      });
+      setVoiceOptions(PREVIEW_VOICES.map((v) => v.pyro_name));
+      setVoiceCategories(PREVIEW_VOICE_CATEGORIES);
+      setVoiceMeta(meta);
+      return;
+    }
     (async () => {
-      const voicesDocRef = doc(getFirestore(app), "fetch_data_to_frontend", "pyro_voices");
+      const db = getFirestore(app);
+      const voicesDocRef = doc(db, "fetch_data_to_frontend", "pyro_voices");
       try {
         const snap = await getDoc(voicesDocRef);
         if (snap.exists()) setVoiceOptions(snap.data().pyro_voice_choices);
       } catch (error) {
         console.error("Error fetching voice options:", error);
+      }
+      // Categories and descriptions are optional — if either read fails the
+      // dropdown falls back to the flat list above.
+      try {
+        const [categoriesSnap, voiceDocsSnap] = await Promise.all([
+          getDoc(doc(db, "fetch_data_to_frontend", "pyro_voice_categories")),
+          getDocs(collection(db, "pyro_voices")),
+        ]);
+        const meta = {};
+        voiceDocsSnap.docs.forEach((d) => {
+          const v = d.data();
+          meta[v.pyro_name] = voiceMetaOf(v);
+        });
+        setVoiceMeta(meta);
+        setVoiceCategories(
+          (categoriesSnap.exists() && categoriesSnap.data().categories) || []
+        );
+      } catch (error) {
+        console.error("Error fetching voice categories:", error);
       }
     })();
   }, []);
@@ -365,6 +429,16 @@ function ProcessSection() {
   };
 
   const fetchVoiceMetaData = async (voiceName) => {
+    if (isUiPreviewMode) {
+      const d = PREVIEW_VOICES.find((v) => v.pyro_name === voiceName);
+      if (!d) return {};
+      return {
+        newVoiceId: d.elevenlabs_id,
+        newVoicePreviewFilename: d.voice_preview_filename,
+        newVoiceModelId: d.model_id,
+        newVoiceIntonationConsistency: d.stability * 100,
+      };
+    }
     const db = getFirestore(app);
     const q = query(collection(db, "pyro_voices"), where("pyro_name", "==", voiceName));
     try {
@@ -388,8 +462,7 @@ function ProcessSection() {
     return {};
   };
 
-  const handleVoiceChange = async (e) => {
-    const selectedVoiceName = e.target.value;
+  const handleVoiceChange = async (selectedVoiceName) => {
     const m = await fetchVoiceMetaData(selectedVoiceName);
     if (m.newVoiceId && m.newVoicePreviewFilename && m.newVoiceModelId && m.newVoiceIntonationConsistency != null) {
       localCurrentSectionObj.setModelId(m.newVoiceModelId);
@@ -402,11 +475,12 @@ function ProcessSection() {
     }
   };
 
-  const handleVoicePreviewPlay = () => {
+  const handleVoicePreview = (name, url) => {
+    setVoicePreview({ name, url });
     setAllowDownload(false);
+    setGeneratedVoiceUrl(url);
     setShowAudioPlayer(true);
     setForceRenderKey(Math.random());
-    setGeneratedVoiceUrl(VOICE_PREVIEW_BASE + localCurrentSectionObj.getVoicePreviewFilename());
   };
 
   const handleDragonsBreathChange = (e) => {
@@ -699,16 +773,23 @@ function ProcessSection() {
     return !isRestricted || (isRestricted && isFirebay);
   });
 
+  const voiceGroups = groupVoices(filteredVoices, voiceCategories, voiceMeta);
+  const currentVoiceName = localCurrentSectionObj.getVoiceName();
+
   const tabs = [
     {
       value: "voice",
       label: "Voice",
       content: (
         <VoiceTab
-          voiceOptions={filteredVoices}
-          voiceName={localCurrentSectionObj.getVoiceName()}
+          voiceGroups={voiceGroups}
+          voiceMeta={voiceMeta}
+          voiceName={currentVoiceName}
           onVoiceChange={handleVoiceChange}
-          onPreviewPlay={handleVoicePreviewPlay}
+          onVoicePreview={handleVoicePreview}
+          previewingVoice={
+            showAudioPlayer && voicePreview?.url === generatedVoiceUrl ? voicePreview.name : null
+          }
           dragonsBreath={localCurrentSectionObj.getDragonBreathEnhancement()}
           onDragonsBreathChange={handleDragonsBreathChange}
           intonation={localCurrentSectionObj.getVoiceIntonationConsistency()}
@@ -894,7 +975,11 @@ function ProcessSection() {
           {showAudioPlayer && (
             <SimpleAudioPlayer
               audioSrc={generatedVoiceUrl}
-              audioTitle={localCurrentSectionObj.getVoiceName()}
+              audioTitle={
+                voicePreview?.url === generatedVoiceUrl
+                  ? voicePreview.name
+                  : localCurrentSectionObj.getVoiceName()
+              }
               allowDownload={allowDownload}
               autoplay
               forceRender={forceRenderKey}
