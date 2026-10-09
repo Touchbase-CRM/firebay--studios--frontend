@@ -1,6 +1,7 @@
-// Sample voice library for UI preview mode (local dev without Firebase env).
-// Lets the admin voice page and Pyro's voice picker render categories and
-// descriptions without reading Firestore. Never used in real builds.
+// Voice library for UI preview mode (local dev without Firebase env): a
+// snapshot of production's voices (names, categories, descriptions, age,
+// accent, preview files) so localhost looks like the live product without
+// reading Firestore. Never used in real builds. Snapshot: 2026-10-09.
 
 export const PREVIEW_VOICE_CATEGORIES = [
   "Male · Young",
@@ -10,16 +11,15 @@ export const PREVIEW_VOICE_CATEGORIES = [
   "Female · Middle age",
   "Female · Mature",
   "Accents · Male",
-  "Accents · Female",
+  "Accents · Female"
 ];
 
-function voice(pyro_name, gender, categories, description, age, nationality) {
-  const slug = pyro_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function voice(pyro_name, voice_preview_filename, categories, description, age, nationality) {
   return {
-    id: slug,
+    id: pyro_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
     pyro_name,
     elevenlabs_id: "previewVoiceId0000000",
-    voice_preview_filename: `${gender}/${slug}.mp3`,
+    voice_preview_filename,
     model_id: "eleven_multilingual_v2",
     stability: 0.5,
     similarity_boost: 0.75,
@@ -31,19 +31,66 @@ function voice(pyro_name, gender, categories, description, age, nationality) {
 }
 
 export const PREVIEW_VOICES = [
-  voice("Alejandro", "male", ["Accents · Male"], "Spanish accent. Great for Spanish language.", "Middle age", "Spanish"),
-  voice("Allison", "female", ["Female · Young"], "Fun millennial. Great for commercials.", "Young", "American"),
-  voice("Brian", "male", ["Male · Middle age"], "Deep and comforting. Great for ads.", "Middle age", "American"),
-  voice("Camila", "female", ["Accents · Female"], "Spanish accent. Great for Spanish language.", "Middle age", "Spanish"),
-  voice("Carol", "female", ["Female · Mature"], "Confident older voice. Great for narration.", "Mature", "American"),
-  voice("Charley", "male", ["Male · Young"], "Strong, expressive narrator.", "Young", "American"),
-  voice("Edward", "male", ["Accents · Male"], "British accent", "Mature", "British"),
-  voice("Emma", "female", ["Female · Middle age"], "Natural, warm, conversational.", "Middle age", "American"),
-  voice("Finn", "male", ["Male · Young"], "Upbeat and conversational. Great for pods.", "Young", "American"),
-  voice("Hank", "male", ["Male · Mature"], "Deep movie-trailer voice. Great for ads.", "Mature", "American"),
-  voice("Meg", "female", ["Female · Middle age", "Accents · Female"], "British accent", "Middle age", "British"),
-  voice("Oliver", "male", ["Accents · Male"], "Australian accent", "Middle age", "Australian"),
-  voice("Puja", "female", ["Accents · Female"], "Indian accent", "Young", "Indian"),
-  voice("Riley", "female", ["Female · Young"], "Natural and conversational.", "Young", "American"),
-  voice("Uncategorized Example", "male", [], "Featured in WSPA spots.", "Mature", "American"),
+  voice("Adam", "male/adam.mp3", ["Male · Middle age"], "Rich and deep. Great radio announcer.", "Middle age", "American"),
+  voice("Alejandro", "male/alejandro.mp3", ["Accents · Male"], "Spanish accent. Great for Spanish language.", "Middle age", "Spanish"),
+  voice("Allison", "female/allison.mp3", ["Female · Young"], "Fun millennial. Great for commercials.", "Young", "American"),
+  voice("Andy (Cloned)", "male/andy.mp3", ["Male · Middle age"], "Cloned voice of Feltman Agency's GM.", "Middle age", ""),
+  voice("Archer", "male/archer.mp3", ["Accents · Male"], "British accent", "Middle age", "British"),
+  voice("Asher", "male/asher.mp3", ["Male · Middle age"], "Warm and clear. Friendly authority.", "Middle age", "American"),
+  voice("Bella", "female/bella.mp3", ["Female · Young"], "Warm, bright, professional narrator.", "Young", "American"),
+  voice("Benny", "male/benny.mp3", ["Male · Middle age"], "Confident early-20s. Great for recaps.", "Middle age", "American"),
+  voice("Betty", "female/betty.mp3", ["Female · Middle age"], "Breezy New Yorker. Great for social media.", "Middle age", "American"),
+  voice("Brad", "male/brad.mp3", ["Male · Middle age"], "Casual and edgy. Great for pop culture.", "Middle age", "American"),
+  voice("Brian", "male/brian.mp3", ["Male · Middle age"], "Friendly, relatable everyman.", "Middle age", "American"),
+  voice("Brittany", "female/brittany.mp3", ["Female · Middle age"], "Kind and gentle. Great for inspiring reads.", "Middle age", "American"),
+  voice("Camila", "female/camila.mp3", ["Accents · Female"], "Spanish accent. Great for Spanish language.", "Middle age", "Spanish"),
+  voice("Carol", "female/carol.mp3", ["Female · Mature"], "Confident older voice. Great for narration.", "Mature", "American"),
+  voice("Charley", "male/charley.mp3", ["Male · Young"], "Strong, expressive narrator.", "Young", "American"),
+  voice("Connor", "male/connor.mp3", ["Male · Mature"], "Big, deep hard sell. Great for concerts.", "Mature", "American"),
+  voice("Craig", "male/craig.mp3", ["Male · Mature"], "Strong and booming. Great for storytelling.", "Mature", "American"),
+  voice("Darcy", "female/darcy.mp3", ["Accents · Female"], "British accent", "Middle age", "British"),
+  voice("Darren", "male/darren.mp3", ["Male · Mature"], "British accent. Deep storyteller.", "Mature", "British"),
+  voice("David", "male/david.mp3", ["Male · Mature"], "Deep, smooth baritone. Late-night DJ.", "Mature", "American"),
+  voice("Diego", "male/diego.mp3", ["Accents · Male"], "Spanish accent. Great for Spanish language.", "Middle age", "Spanish"),
+  voice("Edward", "male/edward.mp3", ["Accents · Male"], "British accent", "Mature", "British"),
+  voice("Emma", "female/emma.mp3", ["Female · Middle age"], "Natural, warm, conversational.", "Middle age", "American"),
+  voice("Finn", "male/finn.mp3", ["Male · Young"], "Upbeat and conversational. Great for pods.", "Young", "American"),
+  voice("Gladys", "female/gladys.mp3", ["Female · Middle age"], "Confident older woman. Great news reader.", "Middle age", "American"),
+  voice("Guy", "male/guy.mp3", ["Male · Middle age"], "Upbeat TV and radio announcer.", "Middle age", "American"),
+  voice("Hank", "male/hank.mp3", ["Male · Mature"], "Deep movie-trailer voice. Great for ads.", "Mature", "American"),
+  voice("Hannah", "female/hannah.mp3", ["Female · Young"], "Mature and formal. Great for business.", "Young", "Other"),
+  voice("Honey", "female/honey.mp3", ["Female · Young"], "Clear and relatable. Great for podcasts.", "Young", "American"),
+  voice("Hope", "female/hope.mp3", ["Female · Middle age"], "Upbeat and clear. Great for social media.", "Middle age", "American"),
+  voice("Hugh", "male/hugh.mp3", ["Male · Middle age"], "Confident and modern. Great for ads.", "Middle age", "American"),
+  voice("Ivanna", "female/ivanna.mp3", ["Female · Young"], "Young, casual, and versatile.", "Young", "American"),
+  voice("J.J.", "female/j.j..mp3", ["Female · Mature"], "Soft, warm, intimate. Great for social.", "Mature", "American"),
+  voice("Jabari", "male/jabari.mp3", ["Male · Middle age"], "Warm, wise storyteller.", "Middle age", "Other"),
+  voice("Jackson", "male/jackson.mp3", ["Male · Young"], "Casual and versatile narrator.", "Young", "American"),
+  voice("Jamaal", "male/jamaal.mp3", ["Male · Young"], "Chill, stylish, conversational.", "Young", "American"),
+  voice("Jamison", "male/jamison.mp3", ["Male · Middle age"], "Confident and motivational.", "Middle age", "American"),
+  voice("Jessica", "female/jessica.mp3", ["Female · Middle age"], "Calm, confident pro narrator.", "Middle age", "American"),
+  voice("Jez", "male/jez.mp3", ["Male · Young"], "Casual and confident. Everyday stories.", "Young", "American"),
+  voice("Jim", "male/jim.mp3", ["Male · Mature"], "Extremely deep country voice.", "Mature", "American"),
+  voice("Julius", "male/julius.mp3", ["Male · Middle age"], "Relaxed, confident, and authentic.", "Middle age", "American"),
+  voice("Kate", "female/kate.mp3", ["Female · Young"], "Hyped and animated. Great for characters.", "Young", "American"),
+  voice("Lilian", "female/lilian.mp3", ["Female · Middle age"], "Warm, calm, and reassuring.", "Middle age", "American"),
+  voice("Lincoln", "male/lincoln.mp3", ["Male · Middle age"], "Raspy and conversational.", "Middle age", "American"),
+  voice("Luna", "female/luna.mp3", ["Female · Young"], "Calm and soothing. Great for wellness.", "Young", "American"),
+  voice("Mark", "male/mark.mp3", ["Male · Middle age"], "Youthful guy next door.", "Middle age", "American"),
+  voice("Marvin", "male/marvin.mp3", ["Male · Middle age"], "Casual and versatile narrator.", "Middle age", "American"),
+  voice("Matilda", "female/matilda.mp3", ["Female · Middle age"], "Upbeat, professional alto. Very versatile.", "Middle age", "American"),
+  voice("Maya", "female/maya.mp3", ["Female · Middle age"], "Warm Californian. Relaxed and modern.", "Middle age", "American"),
+  voice("McKenna", "female/mckenna.mp3", ["Female · Young"], "Sassy valley girl. Great for shorts.", "Young", "American"),
+  voice("Meg", "female/meg.mp3", ["Female · Middle age","Accents · Female"], "British accent", "Middle age", "British"),
+  voice("Mia", "female/mia.mp3", ["Female · Middle age"], "Excited and conversational.", "Middle age", "American"),
+  voice("Oil Man", "male/oil-man.mp3", ["Male · Mature"], "Featured in WSPA spots.", "Mature", ""),
+  voice("Oliver", "male/oliver.mp3", ["Accents · Male"], "Australian accent", "Middle age", "Australian"),
+  voice("Piper", "female/piper.mp3", ["Female · Young"], "Relaxed, fun BFF. Conversational.", "Young", "American"),
+  voice("Puja", "female/puja.mp3", ["Accents · Female"], "Indian accent", "Mature", "Indian"),
+  voice("Riley", "female/riley.mp3", ["Female · Young"], "Natural and conversational.", "Young", "American"),
+  voice("Scarlett", "female/scarlett.mp3", ["Female · Middle age"], "Pleasant and conversational.", "Middle age", "American"),
+  voice("Sully", "male/sully.mp3", ["Male · Mature"], "Deep and mature.", "Mature", "American"),
+  voice("Tiffany", "female/tiffany.mp3", ["Female · Young"], "Chill and natural. Great for support.", "Young", "American"),
+  voice("Titan", "male/titan.mp3", ["Male · Middle age"], "Deep, bold, and powerful.", "Middle age", "American"),
+  voice("Tori", "female/tori.mp3", ["Female · Young"], "Confident, warm, and encouraging.", "Young", "American"),
 ];
