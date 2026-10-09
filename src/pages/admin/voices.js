@@ -27,6 +27,7 @@ import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
 import { useAuth } from "@/context/auth";
 import withAdminAuth from "@/hocs/with-admin-auth";
 import { VOICE_AGES, normalizeAge } from "@/lib/voiceAges";
+import { normalizeAccent } from "@/lib/voiceAccents";
 
 const PREVIEW_BASE_URL =
   "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
@@ -357,7 +358,7 @@ function AdminVoicesPage() {
       categories: (voice.categories || []).filter((c) => categories.includes(c)),
       description: voice.description || "",
       age: normalizeAge(voice.age),
-      nationality: voice.nationality || "",
+      nationality: normalizeAccent(voice.nationality),
       _file: null,
     });
   };
@@ -478,7 +479,7 @@ function AdminVoicesPage() {
 
   const nationalityOptions = useMemo(
     () =>
-      [...new Set([...DEFAULT_NATIONALITIES, ...voices.map((v) => v.nationality).filter(Boolean)])].sort(),
+      [...new Set([...DEFAULT_NATIONALITIES, ...voices.map((v) => normalizeAccent(v.nationality)).filter(Boolean)])].sort(),
     [voices]
   );
 
@@ -659,7 +660,7 @@ function AdminVoicesPage() {
                     <td>{v.pyro_name}</td>
                     <td>{genderOf(v)}</td>
                     <td>{normalizeAge(v.age) || <span className="text-muted">—</span>}</td>
-                    <td>{v.nationality || <span className="text-muted">—</span>}</td>
+                    <td>{normalizeAccent(v.nationality) || <span className="text-muted">—</span>}</td>
                     <td>
                       {(v.categories || [])
                         .filter((c) => categories.includes(c))
