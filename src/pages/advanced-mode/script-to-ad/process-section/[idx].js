@@ -28,6 +28,7 @@ import { updateAdvancedS2AState } from "@/_pages/home/utils/update-state";
 import { isUiPreviewMode } from "@/firebase";
 import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
 import { normalizeAge } from "@/lib/voiceAges";
+import { normalizeAccent } from "@/lib/voiceAccents";
 
 import useUserInputsStore from "@/store/user-inputs";
 import withAuth from "@/hocs/with-auth";
@@ -69,7 +70,7 @@ const voiceMetaOf = (v) => ({
   description: v.description || "",
   gender: (v.voice_preview_filename || "").split("/")[0],
   age: normalizeAge(v.age),
-  nationality: v.nationality || "",
+  nationality: normalizeAccent(v.nationality),
   previewUrl: v.voice_preview_filename ? VOICE_PREVIEW_BASE + v.voice_preview_filename : "",
 });
 
