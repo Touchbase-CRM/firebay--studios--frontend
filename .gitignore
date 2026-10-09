@@ -63,3 +63,8 @@ storybook-static/
 # Claude Code local session state
 .claude/
 .gstack/
+
+# credentials — never commit
+*adminsdk*.json
+*service-account*.json
+sa.json
