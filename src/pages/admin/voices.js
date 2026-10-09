@@ -27,7 +27,7 @@ import { PREVIEW_VOICES, PREVIEW_VOICE_CATEGORIES } from "@/lib/voicesPreview";
 import { useAuth } from "@/context/auth";
 import withAdminAuth from "@/hocs/with-admin-auth";
 import { VOICE_AGES, normalizeAge } from "@/lib/voiceAges";
-import { normalizeAccent } from "@/lib/voiceAccents";
+import { compareAccents, normalizeAccent } from "@/lib/voiceAccents";
 
 const PREVIEW_BASE_URL =
   "https://static--files--storage.s3.us-east-2.amazonaws.com/voice--previews/";
@@ -480,7 +480,7 @@ function AdminVoicesPage() {
 
   const nationalityOptions = useMemo(
     () =>
-      [...new Set([...DEFAULT_NATIONALITIES, ...voices.map((v) => normalizeAccent(v.nationality)).filter(Boolean)])].sort(),
+      [...new Set([...DEFAULT_NATIONALITIES, ...voices.map((v) => normalizeAccent(v.nationality)).filter(Boolean)])].sort(compareAccents),
     [voices]
   );
 

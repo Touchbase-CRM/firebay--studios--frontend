@@ -10,6 +10,7 @@ import React, {
 import { createPortal } from "react-dom";
 import { useAuth } from "@/context/auth";
 import { VOICE_AGES } from "@/lib/voiceAges";
+import { compareAccents } from "@/lib/voiceAccents";
 import styles from "./voice-picker.module.css";
 
 const PANEL_MIN_WIDTH = 440;
@@ -208,7 +209,7 @@ export function VoicePicker({
     return {
       gender: values("gender").sort(),
       age: VOICE_AGES.filter((a) => values("age").includes(a)),
-      nationality: values("nationality").sort(),
+      nationality: values("nationality").sort(compareAccents),
     };
   }, [allVoices, meta]);
 
