@@ -500,11 +500,11 @@ export function VoicePicker({
                           <i className="bi bi-play-fill" />
                         </button>
                         <span className={styles.optionName}>{name}</span>
-                        <span className={styles.optionDescription} title={meta[name]?.description}>
-                          {meta[name]?.description}
-                        </span>
                         <span className={styles.check}>
                           {isSelected && <i className="bi bi-check2" />}
+                        </span>
+                        <span className={styles.optionDescription} title={meta[name]?.description}>
+                          {meta[name]?.description}
                         </span>
                       </li>
                     );

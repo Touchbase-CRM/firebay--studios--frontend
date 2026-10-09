@@ -136,7 +136,6 @@
 .check {
   width: 16px;
   flex-shrink: 0;
-  text-align: right;
   color: var(--accent-500);
   font-size: 14px;
 }

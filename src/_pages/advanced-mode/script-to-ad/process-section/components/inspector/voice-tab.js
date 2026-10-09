@@ -45,7 +45,8 @@ export function VoiceTab({
   const isLoading = !voiceGroups || !voiceGroups.some((g) => g.voices.length > 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+    // Fills the inspector's height so the emphasis word box can take the rest.
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)", height: "100%" }}>
       <div>
         <VoicePicker
           groups={voiceGroups}
@@ -91,8 +92,7 @@ export function VoiceTab({
       </div>
 
       {emphasis && (
-        <div>
-          <FieldLabel>Emphasis</FieldLabel>
+        <div style={{ flex: 1, minHeight: 240, display: "flex", flexDirection: "column" }}>
           {emphasis}
         </div>
       )}

@@ -1,0 +1,190 @@
+/* Fills the space the Voice tab gives it; the word box takes what's left. */
+.root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.clearAll {
+  padding: 4px 8px;
+  margin-right: -8px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-link);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.clearAll:hover:not(:disabled) {
+  background: var(--accent-50);
+}
+
+.clearAll:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* Segmented control: one track, the active tool raised on top. Each label
+   is drawn in its own highlight, so the button shows what a tap will do. */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: var(--gray-100);
+  border-radius: 12px;
+}
+
+/* Plays when a word is tapped before a highlighter is picked. */
+.nudge {
+  animation: nudge 0.45s var(--ease-out);
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); box-shadow: 0 0 0 0 transparent; }
+  20% { transform: translateX(-4px); box-shadow: 0 0 0 3px var(--accent-200); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 6px 2px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.tool:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tool:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.toolOn,
+.toolOn:hover {
+  background: var(--surface-card);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08), 0 1px 1px rgba(16, 24, 40, 0.04);
+}
+
+.toolLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.2;
+}
+
+.eraserLabel {
+  border: 1px dashed var(--gray-400);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.toolOn .eraserLabel {
+  border-color: var(--gray-500);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Reads like a paragraph and stretches to the bottom of the panel; long
+   scripts scroll inside it. Generous line height keeps words easy to tap. */
+.words {
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-md);
+  line-height: 2.1;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.word {
+  display: inline;
+  margin: 0;
+  padding: 3px 3px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.word:not(.level1):not(.level2):not(.level3):hover {
+  background: var(--gray-100);
+}
+
+.word.level1:hover,
+.word.level2:hover,
+.word.level3:hover {
+  filter: brightness(0.95);
+}
+
+.word:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Highlighter colors, light to strong. Also used for the tool labels. */
+.level1 {
+  background: var(--accent-100);
+}
+
+.level2 {
+  background: var(--accent-300);
+  font-weight: var(--font-weight-semibold);
+}
+
+.level3 {
+  background: var(--accent-600);
+  color: var(--text-inverse);
+  font-weight: var(--font-weight-bold);
+}
+
+.empty {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
