@@ -40,7 +40,6 @@ const DEFAULT_NATIONALITIES = [
   "Australian",
   "Spanish",
   "Indian",
-  "African",
 ];
 const EMPTY_FORM = {
   pyro_name: "",
