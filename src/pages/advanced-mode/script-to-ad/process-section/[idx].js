@@ -145,7 +145,6 @@ function ProcessSection() {
   // Save/Generate/section change. If the user clicks Save while previewing
   // a non-live take, that take is promoted to the live take.
   const [previewingTake, setPreviewingTake] = useState(null);
-  const [selectedWordIndex, setSelectedWordIndex] = useState(null);
 
   const [ogScriptWordsArray, setOgScriptWordsArray] = useState(() =>
     localCurrentSectionObj?.getOriginalContent() ? localCurrentSectionObj.getCurrentWords() : []
@@ -500,29 +499,19 @@ function ProcessSection() {
     setLocalCurrentSectionObj(localCurrentSectionObj.clone());
   };
 
-  const transformWord = (action) => {
-    const word =
-      transformedWords[selectedWordIndex] || ogScriptWordsArray[selectedWordIndex];
-    const stripQuotes = (w) => (w?.startsWith("'") && w.endsWith("'") ? w.slice(1, -1) : w);
-    const next = { ...transformedWords };
-    switch (action) {
-      case "emphasizeLevel1":
-        next[selectedWordIndex] = stripQuotes(word).toUpperCase();
-        break;
-      case "emphasizeLevel2":
-        next[selectedWordIndex] = `'${ogScriptWordsArray[selectedWordIndex]}'`;
-        break;
-      case "emphasizeLevel3":
-        next[selectedWordIndex] = `'${ogScriptWordsArray[selectedWordIndex].toUpperCase()}'`;
-        break;
-      case "removeEmphasis":
-        next[selectedWordIndex] = ogScriptWordsArray[selectedWordIndex];
-        break;
-      default:
-        break;
-    }
-    setTransformedWords(next);
-    setSelectedWordIndex(null);
+  // level: 0 none, 1 light (WORD), 2 medium ('word'), 3 strong ('WORD').
+  // Functional update: a highlighter drag calls this once per word before
+  // React re-renders.
+  const setEmphasis = (indices, level) => {
+    setTransformedWords((prev) => {
+      const next = { ...prev };
+      indices.forEach((i) => {
+        const og = ogScriptWordsArray[i];
+        if (og == null) return;
+        next[i] = [og, og.toUpperCase(), `'${og}'`, `'${og.toUpperCase()}'`][level];
+      });
+      return next;
+    });
   };
 
   const handleReadReplay = () => {
@@ -795,9 +784,7 @@ function ProcessSection() {
             <EmphasisTab
               words={typedText.split(" ")}
               transformedWords={transformedWords}
-              selectedWordIndex={selectedWordIndex}
-              onWordSelect={(i) => setSelectedWordIndex(i)}
-              onTransform={transformWord}
+              onSetLevel={setEmphasis}
             />
           }
         />
@@ -822,7 +809,9 @@ function ProcessSection() {
   const sectionLabel = `Section ${localCurrentSectionObj.getIndex() + 1} of ${numSectionsIdentified || localSectionsArray.length}`;
 
   return (
-    <PageShell>
+    // Fixed to the viewport so the editor and inspector scroll on their own;
+    // otherwise a long script's emphasis words stretch the page off-screen.
+    <PageShell style={{ height: "100vh", overflow: "hidden" }}>
       <NavBar links={[]} logoutHandler={handleLogout} />
       <Stepper steps={STEPS} current={1} onStepClick={handleStepClick} />
 
@@ -831,6 +820,7 @@ function ProcessSection() {
         <main
           style={{
             flex: 1,
+            overflowY: "auto",
             display: "flex",
             flexDirection: "column",
             padding: "var(--space-6)",
@@ -1028,7 +1018,7 @@ function ProcessSection() {
           tabs={tabs}
           value={activeTab}
           onChange={setActiveTab}
-          style={{ alignSelf: "stretch" }}
+          style={{ alignSelf: "stretch", paddingBottom: showAudioPlayer ? 88 : 0 }}
         />
       </div>
 
