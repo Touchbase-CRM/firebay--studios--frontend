@@ -26,11 +26,6 @@ describe("Edit advanced s2a spot workflow", () => {
       .should("have.attr", "src")
       .and("match", /^blob:http:\/\/localhost:3000\/.+/);
 
-    // Toggle Dragon's breath via the new inspector
-    cy.get('[data-cy="dragons-breath-toggle"] input[type="checkbox"]').check({
-      force: true,
-    });
-
     // Re-generate (button label flips after first generation)
     cy.contains("button", /Re-generate/i).click();
     cy.get("audio", { timeout: 30000 })

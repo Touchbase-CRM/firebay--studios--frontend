@@ -485,11 +485,6 @@ function ProcessSection() {
     setForceRenderKey(Math.random());
   };
 
-  const handleDragonsBreathChange = (e) => {
-    localCurrentSectionObj.setDragonBreathEnhancement(e.target.checked);
-    setLocalCurrentSectionObj(localCurrentSectionObj.clone());
-  };
-
   const handleFreeStyleChange = (e) => {
     setS2aAdvancedFreeStyleStatus(e.target.checked);
     if (e.target.checked) toast.warn("Your spot might go over the intended length");
@@ -656,7 +651,7 @@ function ProcessSection() {
         localCurrentSectionObj.getVoiceIntonationConsistency(),
         localCurrentSectionObj.getModelId(),
         auth.currentUser.uid,
-        localCurrentSectionObj.getDragonBreathEnhancement(),
+        false, // Dragon's breath was removed from the UI; never send it.
         legacySpeechRate(localCurrentSectionObj.getSpeechRate()),
         true
       );
@@ -792,25 +787,19 @@ function ProcessSection() {
           previewingVoice={
             showAudioPlayer && voicePreview?.url === generatedVoiceUrl ? voicePreview.name : null
           }
-          dragonsBreath={localCurrentSectionObj.getDragonBreathEnhancement()}
-          onDragonsBreathChange={handleDragonsBreathChange}
           intonation={localCurrentSectionObj.getVoiceIntonationConsistency()}
           onIntonationChange={handleIntonationChange}
           speechRate={legacySpeechRate(localCurrentSectionObj.getSpeechRate())}
           onSpeechRateChange={handleSpeechRate}
-        />
-      ),
-    },
-    {
-      value: "emphasis",
-      label: "Emphasis",
-      content: (
-        <EmphasisTab
-          words={typedText.split(" ")}
-          transformedWords={transformedWords}
-          selectedWordIndex={selectedWordIndex}
-          onWordSelect={(i) => setSelectedWordIndex(i)}
-          onTransform={transformWord}
+          emphasis={
+            <EmphasisTab
+              words={typedText.split(" ")}
+              transformedWords={transformedWords}
+              selectedWordIndex={selectedWordIndex}
+              onWordSelect={(i) => setSelectedWordIndex(i)}
+              onTransform={transformWord}
+            />
+          }
         />
       ),
     },
