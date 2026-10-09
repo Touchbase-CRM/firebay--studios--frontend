@@ -1,6 +1,5 @@
 import React from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { Toggle } from "@/components/ui/toggle";
 import { Slider } from "@/components/ui/slider";
 import { VoicePicker } from "./voice-picker";
 
@@ -37,12 +36,11 @@ export function VoiceTab({
   onVoiceChange,
   onVoicePreview,
   previewingVoice,
-  dragonsBreath,
-  onDragonsBreathChange,
   intonation,
   onIntonationChange,
   speechRate,
   onSpeechRateChange,
+  emphasis,
 }) {
   const isLoading = !voiceGroups || !voiceGroups.some((g) => g.voices.length > 0);
 
@@ -60,24 +58,17 @@ export function VoiceTab({
         />
       </div>
 
-      <div data-cy="dragons-breath-toggle">
-        <Toggle
-          checked={dragonsBreath}
-          onChange={onDragonsBreathChange}
-          label="Dragon's breath"
-          description="10× the energy of the selected voice."
-        />
-      </div>
-
       <div>
-        <FieldLabel info="Lower = more variety per generation. Higher = consistent reads.">
-          Intonation consistency
+        {/* Shown as "Read variation", the inverse of the stored intonation
+            consistency (ElevenLabs stability): 100 − consistency. */}
+        <FieldLabel info="Higher = more variety between takes. Lower = consistent reads.">
+          Read variation
         </FieldLabel>
         <Slider
           min={0}
           max={100}
-          value={intonation}
-          onValueChange={onIntonationChange}
+          value={100 - intonation}
+          onValueChange={(variation) => onIntonationChange(100 - variation)}
           showPercentage
           width="100%"
           height="6px"
@@ -98,6 +89,13 @@ export function VoiceTab({
           height="6px"
         />
       </div>
+
+      {emphasis && (
+        <div>
+          <FieldLabel>Emphasis</FieldLabel>
+          {emphasis}
+        </div>
+      )}
     </div>
   );
 }
