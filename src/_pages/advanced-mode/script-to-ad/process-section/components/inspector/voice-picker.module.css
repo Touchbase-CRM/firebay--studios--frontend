@@ -116,11 +116,6 @@
   background: var(--gray-100);
 }
 
-.optionSelected .optionName {
-  color: var(--accent-600);
-  font-weight: var(--font-weight-semibold);
-}
-
 .optionName {
   flex-shrink: 0;
   color: var(--text-primary);
@@ -318,11 +313,6 @@
 .filterItem:focus-visible {
   outline: none;
   background: var(--gray-100);
-}
-
-.filterItemOn {
-  color: var(--accent-600);
-  font-weight: var(--font-weight-semibold);
 }
 
 .filterItem i {

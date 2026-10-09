@@ -148,9 +148,7 @@ function FilterMenu({ label, value, options, format, onChange, open, onOpenChang
                 type="button"
                 role="menuitemradio"
                 aria-checked={value === optionValue}
-                className={`${styles.filterItem} ${
-                  value === optionValue ? styles.filterItemOn : ""
-                }`}
+                className={styles.filterItem}
                 onClick={() => pick(optionValue)}
               >
                 <span>{text}</span>
@@ -466,7 +464,6 @@ export function VoicePicker({
                         className={[
                           styles.option,
                           i === activeIndex ? styles.optionActive : "",
-                          isSelected ? styles.optionSelected : "",
                         ].join(" ")}
                         onMouseMove={() => i !== activeIndex && setActiveIndex(i)}
                         onClick={() => choose(name)}
