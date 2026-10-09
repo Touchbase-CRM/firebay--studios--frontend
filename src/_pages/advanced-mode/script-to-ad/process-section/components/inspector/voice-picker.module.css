@@ -137,7 +137,11 @@
   width: 16px;
   flex-shrink: 0;
   color: var(--accent-500);
-  font-size: 14px;
+  font-size: 15px;
+}
+
+.check i {
+  -webkit-text-stroke: 0.6px currentColor;
 }
 
 .star {
