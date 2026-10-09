@@ -246,9 +246,10 @@ export function VoicePicker({
     triggerRef.current?.focus();
   }, []);
 
+  // Picking a voice keeps the panel open so users can compare voices; it
+  // closes on Esc or a click outside the panel.
   const choose = (name) => {
     if (name !== value) onChange(name);
-    close();
   };
 
   useLayoutEffect(() => {
@@ -501,7 +502,7 @@ export function VoicePicker({
                         </button>
                         <span className={styles.optionName}>{name}</span>
                         <span className={styles.check}>
-                          {isSelected && <i className="bi bi-check2" />}
+                          {isSelected && <i className="bi bi-check-lg" />}
                         </span>
                         <span className={styles.optionDescription} title={meta[name]?.description}>
                           {meta[name]?.description}
